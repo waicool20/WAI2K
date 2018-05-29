@@ -21,6 +21,7 @@ package com.waicool20.wai2k.android.input
 
 import com.waicool20.wai2k.android.AndroidScreen
 import org.sikuli.basics.Settings
+import org.sikuli.script.IRobot
 import org.sikuli.script.Key
 import org.sikuli.script.KeyModifier
 import org.sikuli.script.Location
@@ -44,7 +45,7 @@ class AndroidKeyboard(val robot: AndroidRobot) {
          */
         fun parseModifiers(modifiers: String): Int {
             var mods = 0
-            modifiers.toCharArray().forEach {
+            modifiers.forEach {
                 mods = mods.or(when (it) {
                     Key.C_CTRL -> KeyModifier.CTRL
                     Key.C_ALT -> KeyModifier.ALT
@@ -71,8 +72,8 @@ class AndroidKeyboard(val robot: AndroidRobot) {
         if (location != null) robot.screen.click(location)
         val pause = if (Settings.TypeDelay > 1) 1 else (Settings.TypeDelay * 1000).toInt()
         robot.pressModifiers(modifiers)
-        text.toCharArray().map(Char::toInt).forEach {
-            robot.typeKey(it)
+        text.forEach {
+            robot.typeChar(it, IRobot.KeyMode.PRESS_RELEASE)
             robot.delay(if (pause < 80) 80 else pause)
         }
         Settings.TypeDelay = 0.0

@@ -19,6 +19,12 @@
 
 package com.waicool20.wai2k.android.enums
 
+/**
+ * Represents an Event type, see
+ * [Linux Input Events](https://github.com/torvalds/linux/blob/master/include/uapi/linux/input-event-codes.h)
+ * for more information.
+ *
+ */
 enum class EventType(val code: Long) {
     EV_SYN(0x00),
     EV_KEY(0x01),

@@ -20,15 +20,15 @@
 package com.waicool20.wai2k.android.input
 
 import com.waicool20.wai2k.android.AndroidScreen
-import com.waicool20.wai2k.android.enums.InputEvent
 import com.waicool20.wai2k.android.enums.EventType
+import com.waicool20.wai2k.android.enums.InputEvent
+import com.waicool20.wai2k.android.enums.Key
 import org.sikuli.basics.AnimatorOutQuarticEase
 import org.sikuli.basics.AnimatorTimeBased
 import org.sikuli.basics.Settings
 import org.sikuli.script.*
 import java.awt.Color
 import java.awt.Rectangle
-import java.awt.event.KeyEvent
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
@@ -185,7 +185,8 @@ class AndroidRobot(val screen: AndroidScreen) : IRobot {
      * @param code Key to release.
      */
     override fun keyUp(code: Int) {
-        //TODO("Keyboard input comes later")
+        sendKeyEvent(Key.fromSikuliKeyCode(code), InputEvent.KEY_UP)
+        syncEvent()
     }
 
     /**
@@ -194,7 +195,8 @@ class AndroidRobot(val screen: AndroidScreen) : IRobot {
      * @param keys Keys to release.
      */
     override fun keyUp(keys: String) = keys.toCharArray().forEach {
-        //TODO("Keyboard input comes later")
+        sendKeyEvent(Key.findByChar(it), InputEvent.KEY_UP)
+        syncEvent()
     }
 
     /**
@@ -203,7 +205,8 @@ class AndroidRobot(val screen: AndroidScreen) : IRobot {
      * @param code Key to press.
      */
     override fun keyDown(code: Int) {
-        //TODO("Keyboard input comes later")
+        sendKeyEvent(Key.fromSikuliKeyCode(code), InputEvent.KEY_DOWN)
+        syncEvent()
     }
 
     /**
@@ -212,24 +215,32 @@ class AndroidRobot(val screen: AndroidScreen) : IRobot {
      * @param keys Keys to press.
      */
     override fun keyDown(keys: String) = keys.toCharArray().forEach {
-        //TODO("Keyboard input comes later")
+        sendKeyEvent(Key.findByChar(it), InputEvent.KEY_DOWN)
+        syncEvent()
     }
 
     /**
      * Types a given character.
      *
-     * @param character Character to type.
+     * @param char Character to type.
      * @param mode Mode to type the character with.
      */
-    override fun typeChar(character: Char, mode: IRobot.KeyMode) = when (mode) {
-        IRobot.KeyMode.PRESS_ONLY -> {
-            //TODO("Keyboard input comes later")
-        }
-        IRobot.KeyMode.PRESS_RELEASE -> {
-            //TODO("Keyboard input comes later")
-        }
-        IRobot.KeyMode.RELEASE_ONLY -> {
-            //TODO("Keyboard input comes later")
+    override fun typeChar(char: Char, mode: IRobot.KeyMode) {
+        when (mode) {
+            IRobot.KeyMode.PRESS_ONLY -> {
+                if (char.isUpperCase() || Key.requiresShift(char)) pressModifiers(KeyModifier.SHIFT)
+                keyDown("$char")
+            }
+            IRobot.KeyMode.PRESS_RELEASE -> {
+                if (char.isUpperCase() || Key.requiresShift(char)) pressModifiers(KeyModifier.SHIFT)
+                keyDown("$char")
+                keyUp("$char")
+                if (char.isUpperCase() || Key.requiresShift(char)) releaseModifiers(KeyModifier.SHIFT)
+            }
+            IRobot.KeyMode.RELEASE_ONLY -> {
+                keyUp("$char")
+                if (char.isUpperCase() || Key.requiresShift(char)) releaseModifiers(KeyModifier.SHIFT)
+            }
         }
     }
 
@@ -239,9 +250,8 @@ class AndroidRobot(val screen: AndroidScreen) : IRobot {
      * @param key Key to type.
      */
     override fun typeKey(key: Int) {
-        //TODO("Keyboard input comes later")
-        keyUp(key)
         keyDown(key)
+        keyUp(key)
     }
 
     /**
@@ -250,16 +260,11 @@ class AndroidRobot(val screen: AndroidScreen) : IRobot {
      * @param modifiers The key modifiers to press.
      */
     override fun pressModifiers(modifiers: Int) {
-        //TODO("Keyboard input comes later")
-        if (modifiers and KeyModifier.SHIFT != 0) keyDown(KeyEvent.VK_SHIFT)
-        if (modifiers and KeyModifier.CTRL != 0) keyDown(KeyEvent.VK_CONTROL)
-        if (modifiers and KeyModifier.ALT != 0) keyDown(KeyEvent.VK_ALT)
+        if (modifiers and KeyModifier.SHIFT != 0) sendKeyEvent(Key.KEY_LEFTSHIFT, InputEvent.KEY_DOWN)
+        if (modifiers and KeyModifier.CTRL != 0) sendKeyEvent(Key.KEY_LEFTCTRL, InputEvent.KEY_DOWN)
+        if (modifiers and KeyModifier.ALT != 0) sendKeyEvent(Key.KEY_LEFTALT, InputEvent.KEY_DOWN)
         if (modifiers and KeyModifier.META != 0 || modifiers and KeyModifier.WIN != 0) {
-            if (Settings.isWindows()) {
-                keyDown(KeyEvent.VK_WINDOWS)
-            } else {
-                keyDown(KeyEvent.VK_META)
-            }
+            sendKeyEvent(Key.KEY_LEFTMETA, InputEvent.KEY_DOWN)
         }
     }
 
@@ -269,16 +274,11 @@ class AndroidRobot(val screen: AndroidScreen) : IRobot {
      * @param modifiers The key modifiers to release.
      */
     override fun releaseModifiers(modifiers: Int) {
-        //TODO("Keyboard input comes later")
-        if (modifiers and KeyModifier.SHIFT != 0) keyUp(KeyEvent.VK_SHIFT)
-        if (modifiers and KeyModifier.CTRL != 0) keyUp(KeyEvent.VK_CONTROL)
-        if (modifiers and KeyModifier.ALT != 0) keyUp(KeyEvent.VK_ALT)
+        if (modifiers and KeyModifier.SHIFT != 0) sendKeyEvent(Key.KEY_LEFTSHIFT, InputEvent.KEY_UP)
+        if (modifiers and KeyModifier.CTRL != 0) sendKeyEvent(Key.KEY_LEFTCTRL, InputEvent.KEY_UP)
+        if (modifiers and KeyModifier.ALT != 0) sendKeyEvent(Key.KEY_LEFTALT, InputEvent.KEY_UP)
         if (modifiers and KeyModifier.META != 0 || modifiers and KeyModifier.WIN != 0) {
-            if (Settings.isWindows()) {
-                keyUp(KeyEvent.VK_WINDOWS)
-            } else {
-                keyUp(KeyEvent.VK_META)
-            }
+            sendKeyEvent(Key.KEY_LEFTMETA, InputEvent.KEY_UP)
         }
     }
 
@@ -368,7 +368,11 @@ class AndroidRobot(val screen: AndroidScreen) : IRobot {
     //</editor-fold>
 
     private fun sendEvent(type: EventType, code: InputEvent, value: Long) {
-        screen.device.execute("sendevent ${screen.device.input.devFile} ${type.code} ${code.code} $value")
+        screen.device.execute("sendevent ${screen.device.input.devFile} ${type.code} ${code.code} $value").read()
+    }
+
+    private fun sendKeyEvent(key: Key, event: InputEvent) {
+        screen.device.execute("sendevent ${screen.device.input.devFile} ${EventType.EV_KEY.code} ${key.code} ${event.code}").read()
     }
 
     private fun syncEvent() = sendEvent(EventType.EV_SYN, InputEvent.SYN_REPORT, 0)

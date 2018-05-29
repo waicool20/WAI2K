@@ -50,9 +50,19 @@ enum class InputEvent(val code: Long) {
     ABS_MT_PRESSURE(0x3a),
     ABS_MT_DISTANCE(0x3b),
     ABS_MT_TOOL_X(0x3c),
-    ABS_MT_TOOL_Y(0x3d);
+    ABS_MT_TOOL_Y(0x3d),
+
+    /* Key Events */
+    KEY_UP(0),
+    KEY_DOWN(1);
 
     companion object {
-        fun findByCode(code: Long) = InputEvent.values().find { it.code == code }
+        /**
+         * Finds an InputEvent with the given code.
+         *
+         * @param code The code to look for
+         * @return [InputEvent]
+         */
+        fun findByCode(code: Long) = values().find { it.code == code }
     }
 }
