@@ -1,0 +1,70 @@
+buildscript {
+    ext.kotlin_version = '1.2.41'
+
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+plugins {
+    id 'com.github.johnrengelman.shadow' version '1.2.4'
+}
+
+group 'com.waicool20'
+version 'v0.0.1'
+
+apply plugin: 'java'
+apply plugin: 'kotlin'
+
+defaultTasks 'build'
+build.finalizedBy(tasks.shadowJar)
+jar.enabled = false
+
+repositories {
+    mavenCentral()
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    compile group: 'no.tornado', name: 'tornadofx', version: '1.7.15'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.9.0'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.0'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.9.0'
+    compile group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version: '2.9.0'
+    compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.9.0'
+    compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+    compile group: 'org.controlsfx', name: 'controlsfx', version: '8.40.14'
+    compile 'com.github.vidstige:jadb:v1.1.0'
+
+
+    compile(group: "com.sikulix", name: "sikulixapi", version: "1.1.3-SNAPSHOT") {
+        exclude group: "com.sikulix"
+        exclude group: 'com.github.vidstige'
+    }
+}
+
+shadowJar {
+    classifier = null
+    version = null
+}
+
+jar {
+    manifest {
+        attributes([
+                'Main-Class': 'com.waicool20.wai2k.Wai2K'
+        ])
+    }
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}

@@ -1,0 +1,167 @@
+package com.waicool20.wai2k.android
+
+import com.waicool20.wai2k.android.input.AndroidKeyboard
+import com.waicool20.wai2k.android.input.AndroidRobot
+import com.waicool20.wai2k.android.input.AndroidTouchInterface
+import org.sikuli.script.*
+import java.awt.Rectangle
+
+class AndroidScreen(val device: AndroidDevice) : AndroidRegion(
+        xPos = 0,
+        yPos = 0,
+        width = device.properties.displayWidth,
+        height = device.properties.displayHeight
+), IScreen {
+    private val robot = AndroidRobot(this)
+
+    /**
+     * Independent virtual touch interface bound to this screen.
+     */
+    val touchInterface = AndroidTouchInterface(robot)
+    /**
+     * Independent virtual keyboard bound to this screen.
+     */
+    val keyboard = AndroidKeyboard(robot)
+    // TODO Use ADB to get and set android clipboard
+    /**
+     * Independent clipboard bound to this screen.
+     */
+    var clipboard = ""
+
+    init {
+        isVirtual = true
+        setOtherScreen(this)
+    }
+
+    override fun showTarget(location: Location) {
+        throw UnsupportedOperationException()
+    }
+
+    /**
+     * Gets the ID of a given point. Always 0 for a [AndroidScreen]
+     *
+     * @param srcx x coordinate of point.
+     * @param srcy y coordinate of point.
+     */
+    override fun getIdFromPoint(srcx: Int, srcy: Int): Int = 0
+
+    /**
+     * Gets the underlying robot instance used to control this screen.
+     */
+    override fun getRobot(): IRobot = robot
+
+    override fun userCapture(string: String?): ScreenImage {
+        throw UnsupportedOperationException()
+    }
+
+    /**
+     * Returns the ID of the screen, returns a unique hash
+     */
+    override fun getID(): Int = device.adbSerial.hashCode()
+
+    /**
+     * Returns the geometry of the underlying android device.
+     */
+    override fun getBounds(): Rectangle = Rectangle(w, h)
+
+    /**
+     * Takes a screenshot of the whole screen.
+     *
+     * @return the captured image.
+     */
+    override fun capture(): ScreenImage = capture(rect)
+
+    /**
+     * Takes a screenshot of the screen.
+     *
+     * @param region Sub-region to capture.
+     * @return the captured image.
+     */
+    override fun capture(region: Region): ScreenImage = capture(region.x, region.y, region.w, region.h)
+
+    /**
+     * Takes a screenshot of the screen.
+     *
+     * @param x x coordinate of the sub-region.
+     * @param y y coordinate of the sub-region.
+     * @param width width of the sub-region.
+     * @param height height of the sub-region.
+     * @return the captured image.
+     */
+    override fun capture(x: Int, y: Int, width: Int, height: Int): ScreenImage = capture(Rectangle(x, y, width, height))
+
+    /**
+     * Takes a screenshot of the screen.
+     *
+     * @param rect Sub-region to capture.
+     * @return the captured image.
+     */
+    override fun capture(rect: Rectangle): ScreenImage = with(device.takeScreenshot()) {
+        ScreenImage(Rectangle(0, 0, this.width, this.height), this).getSub(rect)
+    }
+
+    /**
+     * Returns the last saved screen image.
+     */
+    override fun getLastScreenImageFromScreen(): ScreenImage? = lastScreenImage
+
+    /**
+     * Creates a new location on this screen
+     *
+     * @param x x coordinate
+     * @param y y coordinate
+     */
+    override fun newLocation(x: Int, y: Int): Location = Location(x, y).setOtherScreen(this)
+
+    /**
+     * Creates a new location on this screen
+     *
+     * @param loc Location object to copy from
+     */
+    override fun newLocation(loc: Location): Location = Location(loc).setOtherScreen(this)
+
+    /**
+     * Creates a new region on this screen
+     *
+     * @param x x coordinate
+     * @param y y coordinate
+     * @param w Width
+     * @param h Height
+     */
+    override fun newRegion(x: Int, y: Int, w: Int, h: Int): Region = AndroidRegion(x, y, w, h, this)
+
+    /**
+     * Creates a new region on this screen
+     *
+     * @param loc Location of this region
+     * @param w Width
+     * @param h Height
+     */
+    override fun newRegion(loc: Location, w: Int, h: Int): Region = AndroidRegion(loc.x, loc.y, w, h, this)
+
+    /**
+     * Creates a new region on this screen
+     *
+     * @param reg Region object to copy from
+     */
+    override fun newRegion(reg: Region): Region = AndroidRegion(reg, this)
+
+    /**
+     * Sets the regions screen to this screen
+     *
+     * @param element Region to set
+     */
+    override fun setOther(element: Region): Region = element.setOtherScreen(this)
+
+    /**
+     * Sets the locations screen to this screen
+     *
+     * @param element Location to set
+     */
+    override fun setOther(element: Location): Location = element.setOtherScreen(this)
+
+    /**
+     * Gets the current position of the virtual mouse.
+     */
+    fun currentMousePosition() = Location(robot.cursorX, robot.cursorY)
+}
