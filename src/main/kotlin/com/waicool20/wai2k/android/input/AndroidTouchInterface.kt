@@ -23,6 +23,7 @@ package com.waicool20.wai2k.android.input
 import com.waicool20.wai2k.android.AndroidScreen
 import org.sikuli.basics.Settings
 import org.sikuli.script.Location
+import kotlin.math.*
 
 /**
  * Class representing a virtual touch interface for a [AndroidScreen]
@@ -41,13 +42,13 @@ class AndroidTouchInterface(val robot: AndroidRobot) {
      * @param modifiers Key modifiers to press during clicking.
      */
     @Synchronized
-    fun tap(location: Location, modifiers: Int) = synchronized(this) {
-        moveTo(location)
-        val pause = if (Settings.ClickDelay > 1) 1 else (Settings.ClickDelay * 1000).toInt()
+    fun tap(slot: Int, location: Location, modifiers: Int) = synchronized(this) {
+        moveTo(slot, location)
+        val pause = min(1.0, Settings.ClickDelay) * 1000
         robot.pressModifiers(modifiers)
-        robot.mouseDown(0)
-        robot.delay(pause)
-        robot.mouseUp(0)
+        touchDown(slot)
+        robot.delay(pause.toInt())
+        touchUp(slot)
         robot.releaseModifiers(modifiers)
         Settings.ClickDelay = 0.0
     }
@@ -59,10 +60,8 @@ class AndroidTouchInterface(val robot: AndroidRobot) {
      * @param modifiers Key modifiers to press during tapping.
      */
     @Synchronized
-    fun doubleTap(location: Location, modifiers: Int) = synchronized(this) {
-        repeat(2) {
-            tap(location, modifiers)
-        }
+    fun doubleTap(slot: Int, location: Location, modifiers: Int) = synchronized(this) {
+        repeat(2) { tap(slot, location, modifiers) }
     }
 
     /**
@@ -71,42 +70,25 @@ class AndroidTouchInterface(val robot: AndroidRobot) {
      * @param location The location to move the cursor to.
      */
     @Synchronized
-    fun moveTo(location: Location) = synchronized(this) { robot.smoothMove(location) }
+    fun moveTo(slot: Int, location: Location) =
+            synchronized(this) { robot.smoothTouchMove(listOf(AndroidRobot.TouchMove(slot, dest = location))) }
 
     /* Low level actions */
 
     /**
-     * Presses the screen.
+     * Touches the screen.
      *
      */
     @Synchronized
-    fun pressDown() = synchronized(this) { robot.mouseDown(0) }
+    fun touchDown(slot: Int) =
+            synchronized(this) { robot.lowLevelTouchActions { touchDown(slot) } }
 
     /**
-     * Releases the screen.
+     * Releases the touch on the screen.
      *
      */
     @Synchronized
-    fun pressUp(): Int = synchronized(this) { robot.mouseUp(0) }
-
-    /**
-     * Spins the mouse wheel.
-     *
-     * @param location Location to spin the mouse wheel at,
-     * may be null to just spin the wheel directly.
-     * @param direction Direction to spin the mouse wheel in.
-     * @param steps Number of steps the wheel is spinned.
-     * @param stepDelay The delay in milliseconds between each wheel step.
-     */
-    @Synchronized
-    fun spinWheel(location: Location?, direction: Int, steps: Int, stepDelay: Int) = synchronized(this) {
-        // TODO Pinch in?
-        location?.let { moveTo(it) }
-        repeat(steps) {
-            robot.mouseWheel(if (direction < 0) -1 else 1)
-            robot.delay(stepDelay)
-        }
-    }
+    fun touchUp(slot: Int) = synchronized(this) { robot.lowLevelTouchActions { touchUp(slot) } }
 
     /**
      * Initiates a swipe action. (Moves cursor to a location and presses without releasing)
@@ -115,11 +97,11 @@ class AndroidTouchInterface(val robot: AndroidRobot) {
      * @param resetDelays Whether or not to reset delays after pressing.
      */
     @Synchronized
-    fun startSwipe(location: Location, resetDelays: Boolean = true) = synchronized(this) {
-        moveTo(location)
+    fun startSwipe(slot: Int, location: Location, resetDelays: Boolean = true) = synchronized(this) {
+        moveTo(slot, location)
         robot.delay((Settings.DelayBeforeMouseDown * 1000).toInt())
-        pressDown()
-        robot.delay((if (Settings.DelayBeforeDrag < 0) Settings.DelayAfterDrag else Settings.DelayBeforeDrag).toInt() * 1000)
+        touchDown(slot)
+        robot.delay(max(Settings.DelayBeforeDrag, 0.0).toInt() * 1000)
         if (resetDelays) resetSwipeDelays()
     }
 
@@ -130,10 +112,10 @@ class AndroidTouchInterface(val robot: AndroidRobot) {
      * @param resetDelays Whether or not to reset delays after releasing.
      */
     @Synchronized
-    fun endSwipe(location: Location, resetDelays: Boolean = true) = synchronized(this) {
-        moveTo(location)
+    fun endSwipe(slot: Int, location: Location, resetDelays: Boolean = true) = synchronized(this) {
+        moveTo(slot, location)
         robot.delay((Settings.DelayBeforeDrop * 1000).toInt())
-        pressUp()
+        touchUp(slot)
         if (resetDelays) resetSwipeDelays()
     }
 
@@ -145,9 +127,37 @@ class AndroidTouchInterface(val robot: AndroidRobot) {
      * @param loc2 Location to drop at.
      */
     @Synchronized
-    fun swipe(loc1: Location, loc2: Location) = synchronized(this) {
-        startSwipe(loc1, false)
-        endSwipe(loc2)
+    fun swipe(slot: Int, loc1: Location, loc2: Location) = synchronized(this) {
+        startSwipe(slot, loc1, false)
+        endSwipe(slot, loc2)
+    }
+
+    /**
+     * Starts a pinch gesture
+     *
+     * @param fromRadius Radius to start the pinch gesture at
+     * @param toRadius Radius to stop the pinch gesture at
+     * @param angle Angle of pinch gesture
+     */
+    @Synchronized
+    fun pinch(centerPoint: Location, fromRadius: Int, toRadius: Int, angle: Double = 0.0) {
+        val rad = (angle * PI) / 180
+        robot.smoothTouchMove(listOf(
+                AndroidRobot.TouchMove(0, dest = centerPoint.offset((fromRadius * cos(rad)).roundToInt(), (fromRadius * sin(rad)).roundToInt())),
+                AndroidRobot.TouchMove(1, dest = centerPoint.offset((-fromRadius * cos(rad)).roundToInt(), (-fromRadius * sin(rad)).roundToInt()))
+        ))
+        robot.lowLevelTouchActions {
+            touchDown(0)
+            touchDown(1)
+        }
+        robot.smoothTouchMove(listOf(
+                AndroidRobot.TouchMove(0, dest = centerPoint.offset((toRadius * cos(rad)).roundToInt(), (toRadius * sin(rad)).roundToInt())),
+                AndroidRobot.TouchMove(1, dest = centerPoint.offset((-toRadius * cos(rad)).roundToInt(), (-toRadius * sin(rad)).roundToInt()))
+        ))
+        robot.lowLevelTouchActions {
+            touchUp(0)
+            touchUp(1)
+        }
     }
 
     /**
@@ -156,7 +166,6 @@ class AndroidTouchInterface(val robot: AndroidRobot) {
     @Synchronized
     private fun resetSwipeDelays() {
         Settings.DelayBeforeMouseDown = Settings.DelayValue
-        Settings.DelayAfterDrag = Settings.DelayValue
         Settings.DelayBeforeDrag = -Settings.DelayValue
         Settings.DelayBeforeDrop = Settings.DelayValue
     }

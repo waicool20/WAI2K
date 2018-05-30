@@ -182,5 +182,5 @@ class AndroidScreen(val device: AndroidDevice) : AndroidRegion(
     /**
      * Gets the current position of the virtual mouse.
      */
-    fun currentMousePosition() = Location(robot.cursorX, robot.cursorY)
+    fun currentMousePosition() = Location(robot.touches[0].cursorX, robot.touches[0].cursorY)
 }

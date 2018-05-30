@@ -134,7 +134,7 @@ open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region
 
     override fun <PFRML : Any> click(target: PFRML): Int = click(target, 0)
     override fun <PFRML : Any> click(target: PFRML, modifiers: Int): Int = try {
-        touchInterface.tap(getLocationFromTarget(target), modifiers)
+        touchInterface.tap(0, getLocationFromTarget(target), modifiers)
         1
     } catch (e: FindFailed) {
         0
@@ -143,7 +143,7 @@ open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region
     override fun doubleClick(): Int = doubleClick(center, 0)
     override fun <PFRML : Any> doubleClick(target: PFRML): Int = doubleClick(target, 0)
     override fun <PFRML : Any> doubleClick(target: PFRML, modifiers: Int): Int = try {
-        touchInterface.doubleTap(getLocationFromTarget(target), modifiers)
+        touchInterface.doubleTap(0, getLocationFromTarget(target), modifiers)
         1
     } catch (e: FindFailed) {
         0
@@ -152,7 +152,7 @@ open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region
     override fun rightClick(): Int = rightClick(center, 0)
     override fun <PFRML : Any> rightClick(target: PFRML): Int = rightClick(target, 0)
     override fun <PFRML : Any> rightClick(target: PFRML, modifiers: Int): Int = try {
-        touchInterface.tap(getLocationFromTarget(target), modifiers)
+        touchInterface.tap(0, getLocationFromTarget(target), modifiers)
         1
     } catch (e: FindFailed) {
         0
@@ -160,7 +160,7 @@ open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region
 
     override fun hover(): Int = hover(center)
     override fun <PFRML : Any> hover(target: PFRML): Int = try {
-        touchInterface.moveTo(getLocationFromTarget(target))
+        touchInterface.moveTo(0, getLocationFromTarget(target))
         1
     } catch (e: FindFailed) {
         0
@@ -170,24 +170,28 @@ open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region
             ?: 0
 
     override fun <PFRML : Any> dragDrop(t1: PFRML, t2: PFRML): Int = try {
-        touchInterface.swipe(getLocationFromTarget(t1), getLocationFromTarget(t2))
+        touchInterface.swipe(0, getLocationFromTarget(t1), getLocationFromTarget(t2))
         1
     } catch (e: FindFailed) {
         0
     }
 
     override fun <PFRML : Any> drag(target: PFRML): Int = try {
-        touchInterface.startSwipe(getLocationFromTarget(target))
+        touchInterface.startSwipe(0, getLocationFromTarget(target))
         1
     } catch (e: FindFailed) {
         0
     }
 
     override fun <PFRML : Any> dropAt(target: PFRML): Int = try {
-        touchInterface.endSwipe(getLocationFromTarget(target))
+        touchInterface.endSwipe(0, getLocationFromTarget(target))
         1
     } catch (e: FindFailed) {
         0
+    }
+
+    override fun pinch(centerPoint: Location, fromRadius: Int, toRadius: Int, angle: Double) {
+        touchInterface.pinch(centerPoint, fromRadius, toRadius, angle)
     }
 
     override fun type(text: String): Int = type(text, 0)
@@ -226,20 +230,20 @@ open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region
     //</editor-fold>
 
     //<editor-fold desc="Low-level Mouse and Keyboard Actions">
-    override fun mouseDown(buttons: Int) = touchInterface.pressDown()
+    override fun mouseDown(buttons: Int) = touchInterface.touchDown(0)
 
     override fun mouseUp() {
-        touchInterface.pressUp()
+        touchInterface.touchUp(0)
     }
 
     override fun mouseUp(buttons: Int) {
-        touchInterface.pressUp()
+        touchInterface.touchUp(0)
     }
 
     override fun mouseMove(): Int = lastMatch?.let { mouseMove(it) } ?: 0
     override fun mouseMove(xoff: Int, yoff: Int): Int = mouseMove(Location(x + xoff, y + yoff))
     override fun <PFRML : Any> mouseMove(target: PFRML): Int = try {
-        touchInterface.moveTo(getLocationFromTarget(target))
+        touchInterface.moveTo(0, getLocationFromTarget(target))
         1
     } catch (e: FindFailed) {
         0
@@ -248,7 +252,6 @@ open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region
     override fun wheel(direction: Int, steps: Int): Int = wheel(androidScreen().currentMousePosition(), direction, steps)
     override fun <PFRML : Any> wheel(target: PFRML, direction: Int, steps: Int): Int = wheel(target, direction, steps, Mouse.WHEEL_STEP_DELAY)
     override fun <PFRML : Any> wheel(target: PFRML, direction: Int, steps: Int, stepDelay: Int): Int {
-        touchInterface.spinWheel(getLocationFromTarget(target), direction, steps, stepDelay)
         return 1
     }
 

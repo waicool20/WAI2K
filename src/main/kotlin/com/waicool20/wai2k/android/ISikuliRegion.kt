@@ -436,6 +436,15 @@ interface ISikuliRegion {
     fun <PFRML : Any> dropAt(target: PFRML): Int
 
     /**
+     * Starts a pinch gesture
+     *
+     * @param fromRadius Radius to start the pinch gesture at
+     * @param toRadius Radius to stop the pinch gesture at
+     * @param angle Angle of pinch gesture
+     */
+    fun pinch(centerPoint: Location, fromRadius: Int, toRadius: Int, angle: Double = 0.0)
+
+    /**
      * Types the given text into the current caret position. Only ASCII characters are supported.
      *
      * @param text Text to type.

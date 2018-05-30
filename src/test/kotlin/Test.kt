@@ -28,6 +28,8 @@ fun main(args: Array<String>) {
     device.displayPointerInfo(true)
     val random = Random()
     while (true) {
-        device.screen.dragDrop(Location(random.nextInt(900) + 200, random.nextInt(900) + 200), Location(random.nextInt(900) + 200, random.nextInt(900) + 200))
+        device.screen.touchInterface.pinch(Location(1080, 540), 400, 200, 15.0)
+        device.screen.touchInterface.pinch(Location(1080, 540), 200, 400, 15.0)
+        //device.screen.dragDrop(Location(random.nextInt(900) + 200, random.nextInt(900) + 200), Location(random.nextInt(900) + 200, random.nextInt(900) + 200))
     }
 }

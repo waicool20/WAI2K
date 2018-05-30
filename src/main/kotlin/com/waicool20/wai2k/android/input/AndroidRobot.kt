@@ -29,6 +29,7 @@ import org.sikuli.basics.Settings
 import org.sikuli.script.*
 import java.awt.Color
 import java.awt.Rectangle
+import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
@@ -45,15 +46,27 @@ import kotlin.math.roundToInt
  * @param screen [AndroidScreen] to use this robot on.
  */
 class AndroidRobot(val screen: AndroidScreen) : IRobot {
+    data class Touch(
+            var cursorX: Int = 0,
+            var cursorY: Int = 0,
+            var isTouching: AtomicBoolean = AtomicBoolean(false)
+    )
+
     private var autoDelay = 100
-    private val mouseDown = AtomicBoolean(false)
     private val heldKeys = mutableSetOf<Int>()
-    var cursorX: Int = 0
-        private set
-    var cursorY: Int = 0
-        private set
+
+    private val _touches: MutableList<Touch>
+
+    /**
+     * Retrieves a copy of the current touch status
+     */
+    val touches: List<Touch> get() = Collections.unmodifiableList(_touches.toList())
 
     init {
+        // Determine max amount of touch slots the device can handle
+        val maxSlots = screen.device.input.specs[InputEvent.ABS_MT_SLOT]?.maxValue ?: 1
+        _touches = List(maxSlots) { Touch() }.toMutableList()
+
         // Keep track of the x y coordinates by monitoring the input event bus
         thread(isDaemon = true) {
             screen.device.execute("getevent ${screen.device.input.devFile}").bufferedReader().forEachLine {
@@ -62,10 +75,10 @@ class AndroidRobot(val screen: AndroidScreen) : IRobot {
                 val value = sValue.toLong(16)
                 when (eventCode) {
                     InputEvent.ABS_MT_POSITION_X.code -> {
-                        cursorX = valueToCoord(value, InputEvent.ABS_MT_POSITION_X)
+                        _touches[0].cursorX = valueToCoord(value, InputEvent.ABS_MT_POSITION_X)
                     }
                     InputEvent.ABS_MT_POSITION_Y.code -> {
-                        cursorY = valueToCoord(value, InputEvent.ABS_MT_POSITION_Y)
+                        _touches[0].cursorY = valueToCoord(value, InputEvent.ABS_MT_POSITION_Y)
                     }
                 }
             }
@@ -81,11 +94,7 @@ class AndroidRobot(val screen: AndroidScreen) : IRobot {
      * @return The currently held buttons. Always 0
      */
     override fun mouseUp(buttons: Int): Int {
-        if (mouseDown.compareAndSet(true, false)) {
-            sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_PRESSURE, 0)
-            sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_TRACKING_ID, 0xffffffff)
-            syncEvent()
-        }
+        lowLevelTouchActions { touchUp(0) }
         return 0
     }
 
@@ -95,14 +104,7 @@ class AndroidRobot(val screen: AndroidScreen) : IRobot {
      * @param buttons Mouse buttons to press. Ignored
      */
     override fun mouseDown(buttons: Int) {
-        if (mouseDown.compareAndSet(false, true)) {
-            sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_TRACKING_ID, 0)
-            sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_TOUCH_MAJOR, 127)
-            sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_PRESSURE, 127)
-            sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_POSITION_X, coordToValue(cursorX, InputEvent.ABS_MT_POSITION_X))
-            sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_POSITION_Y, coordToValue(cursorY, InputEvent.ABS_MT_POSITION_Y))
-            syncEvent()
-        }
+        lowLevelTouchActions { touchDown(0) }
     }
 
     /**
@@ -112,24 +114,16 @@ class AndroidRobot(val screen: AndroidScreen) : IRobot {
      * @param y y coordinate to move the cursor to.
      */
     override fun mouseMove(x: Int, y: Int) {
-        val xChanged = cursorX != x
-        val yChanged = cursorY != y
-        cursorX = if (xChanged) x else cursorX
-        cursorY = if (yChanged) y else cursorY
-        if (mouseDown.get()) {
-            if (xChanged) sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_POSITION_X, coordToValue(x, InputEvent.ABS_MT_POSITION_X))
-            if (yChanged) sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_POSITION_Y, coordToValue(y, InputEvent.ABS_MT_POSITION_Y))
-            if (xChanged || yChanged) syncEvent()
-        }
+        lowLevelTouchActions { touchMove(0, x, y) }
     }
 
     /**
-     * Spins the mouse wheel.
+     * Spins the mouse wheel. Unsupported
      *
      * @param wheelAmt Amount of steps to spin the wheel, can be negative to change direction.
      */
     override fun mouseWheel(wheelAmt: Int) {
-        // TODO Pinch in?
+        throw UnsupportedOperationException()
     }
 
     /**
@@ -138,7 +132,7 @@ class AndroidRobot(val screen: AndroidScreen) : IRobot {
      * @param dest Location to move the cursor to.
      */
     override fun smoothMove(dest: Location) =
-            smoothMove(Location(cursorX, cursorY), dest, (Settings.MoveMouseDelay * 1000).toLong())
+            smoothMove(Location(_touches[0].cursorX, _touches[0].cursorY), dest, (Settings.MoveMouseDelay * 1000).toLong())
 
     /**
      * Moves the cursor from a source to the destination in a smooth fashion.
@@ -148,18 +142,7 @@ class AndroidRobot(val screen: AndroidScreen) : IRobot {
      * @param ms Length of time to complete this action within in milliseconds.
      */
     override fun smoothMove(src: Location, dest: Location, ms: Long) {
-        if (ms < 1) {
-            mouseMove(dest.x, dest.y)
-            return
-        }
-        val aniX = AnimatorTimeBased(AnimatorOutQuarticEase(src.x.toFloat(), dest.x.toFloat(), ms))
-        val aniY = AnimatorTimeBased(AnimatorOutQuarticEase(src.y.toFloat(), dest.y.toFloat(), ms))
-        while (aniX.running()) {
-            val x = aniX.step()
-            val y = aniY.step()
-            mouseMove(x.roundToInt(), y.roundToInt())
-            delay(10)
-        }
+        smoothTouchMove(listOf(TouchMove(0, src, dest)), ms)
     }
 
     /**
@@ -364,6 +347,78 @@ class AndroidRobot(val screen: AndroidScreen) : IRobot {
      * Does nothing, ignore.
      */
     override fun waitForIdle() = Unit
+
+    //</editor-fold>
+
+    //<editor-fold desc="Touch Stuff">
+
+    inner class TouchActions {
+        fun touchUp(slot: Int) {
+            if (_touches[slot].isTouching.compareAndSet(true, false)) {
+                sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_SLOT, slot.toLong())
+                sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_PRESSURE, 0)
+                sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_TRACKING_ID, 0xffffffff)
+            }
+        }
+
+        fun touchDown(slot: Int) {
+            if (_touches[slot].isTouching.compareAndSet(false, true)) {
+                sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_SLOT, slot.toLong())
+                sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_TRACKING_ID, slot.toLong())
+                sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_TOUCH_MAJOR, 127)
+                sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_PRESSURE, 127)
+                sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_POSITION_X, coordToValue(_touches[slot].cursorX, InputEvent.ABS_MT_POSITION_X))
+                sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_POSITION_Y, coordToValue(_touches[slot].cursorY, InputEvent.ABS_MT_POSITION_Y))
+            }
+        }
+
+        fun touchMove(slot: Int, x: Int, y: Int) {
+            val xChanged = _touches[slot].cursorX != x
+            val yChanged = _touches[slot].cursorY != y
+            _touches[slot].cursorX = if (xChanged) x else _touches[slot].cursorX
+            _touches[slot].cursorY = if (yChanged) y else _touches[slot].cursorY
+            if (_touches[slot].isTouching.get()) {
+                if (xChanged || yChanged) sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_SLOT, slot.toLong())
+                if (xChanged) sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_POSITION_X, coordToValue(x, InputEvent.ABS_MT_POSITION_X))
+                if (yChanged) sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_POSITION_Y, coordToValue(y, InputEvent.ABS_MT_POSITION_Y))
+            }
+        }
+    }
+
+    data class TouchMove(val slot: Int, val src: Location? = null, val dest: Location)
+
+    fun smoothTouchMove(touches: List<TouchMove>, ms: Long = (Settings.MoveMouseDelay * 1000).toLong()) {
+        if (ms < 1) {
+            touches.forEach {
+                lowLevelTouchActions { touchMove(it.slot, it.dest.x, it.dest.y) }
+            }
+            return
+        }
+
+        fun animator(x: Int, y: Int) =
+                AnimatorTimeBased(AnimatorOutQuarticEase(x.toFloat(), y.toFloat(), ms))
+
+        val animator = touches.map {
+            it to (animator(it.src?.x ?: _touches[it.slot].cursorX, it.dest.x) to
+                    animator(it.src?.y ?: _touches[it.slot].cursorY, it.dest.y))
+        }.toMap()
+
+        while (animator.values.any {  it.first.running() }) {
+            lowLevelTouchActions {
+                animator.forEach { touchMove, animators ->
+                    val x = animators.first.step()
+                    val y = animators.second.step()
+                    touchMove(touchMove.slot, x.roundToInt(), y.roundToInt())
+                    delay(10)
+                }
+            }
+        }
+    }
+
+    fun lowLevelTouchActions(action: TouchActions.() -> Unit) {
+        TouchActions().action()
+        syncEvent()
+    }
 
     //</editor-fold>
 
