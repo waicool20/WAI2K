@@ -21,6 +21,13 @@ package com.waicool20.wai2k.android.input
 
 import com.waicool20.wai2k.android.enums.InputEvent
 
+/**
+ * Represents an input device on the android device
+ *
+ * @param devFile The device file, usually /dev/input/eventX
+ * @param name Name of the input device
+ * @param specs Specification of the acceptable touch values, see "ABS_MT_XXXX" in [InputEvent]
+ */
 data class AndroidInput(
         val devFile: String,
         val name: String,
@@ -43,6 +50,15 @@ data class AndroidInput(
     }
 }
 
+/**
+ * Specification of the acceptable touch values, see "ABS_MT_XXXX" in [InputEvent]
+ *
+ * @param minValue Minimum value
+ * @param maxValue Maximum value
+ * @param fuzz
+ * @param flat
+ * @param resolution
+ */
 data class TouchSpec(
         val minValue: Int,
         val maxValue: Int,

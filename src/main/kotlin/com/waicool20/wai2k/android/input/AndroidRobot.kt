@@ -46,6 +46,13 @@ import kotlin.math.roundToInt
  * @param screen [AndroidScreen] to use this robot on.
  */
 class AndroidRobot(val screen: AndroidScreen) : IRobot {
+    /**
+     * Represents the state of a touch
+     *
+     * @param cursorX x coordinate of this touch
+     * @param cursorY y coordinate of this touch
+     * @param isTouching True if screen is touched at this coordinate
+     */
     data class Touch(
             var cursorX: Int = 0,
             var cursorY: Int = 0,
@@ -88,7 +95,7 @@ class AndroidRobot(val screen: AndroidScreen) : IRobot {
     //<editor-fold desc="Mouse stuff">
 
     /**
-     * Releases a touch
+     * Releases single touch
      *
      * @param buttons Mouse buttons to release. Ignored
      * @return The currently held buttons. Always 0
@@ -99,7 +106,7 @@ class AndroidRobot(val screen: AndroidScreen) : IRobot {
     }
 
     /**
-     * Starts a touch action
+     * Starts a single touch action
      *
      * @param buttons Mouse buttons to press. Ignored
      */
@@ -108,7 +115,7 @@ class AndroidRobot(val screen: AndroidScreen) : IRobot {
     }
 
     /**
-     * Moves the cursor to the coordinates instantly.
+     * Moves the single touch cursor to the coordinates instantly.
      *
      * @param x x coordinate to move the cursor to.
      * @param y y coordinate to move the cursor to.
@@ -127,7 +134,7 @@ class AndroidRobot(val screen: AndroidScreen) : IRobot {
     }
 
     /**
-     * Moves the cursor to the destination in a smooth fashion.
+     * Moves the single touch cursor to the destination in a smooth fashion.
      *
      * @param dest Location to move the cursor to.
      */
@@ -135,14 +142,14 @@ class AndroidRobot(val screen: AndroidScreen) : IRobot {
             smoothMove(Location(_touches[0].cursorX, _touches[0].cursorY), dest, (Settings.MoveMouseDelay * 1000).toLong())
 
     /**
-     * Moves the cursor from a source to the destination in a smooth fashion.
+     * Moves the single touch cursor from a source to the destination in a smooth fashion.
      *
      * @param src Location to move the cursor from
      * @param dest Location to move the cursor to.
      * @param ms Length of time to complete this action within in milliseconds.
      */
     override fun smoothMove(src: Location, dest: Location, ms: Long) {
-        smoothTouchMove(listOf(TouchMove(0, src, dest)), ms)
+        smoothTouchMove(listOf(Swipe(0, src, dest)), ms)
     }
 
     /**
@@ -352,7 +359,15 @@ class AndroidRobot(val screen: AndroidScreen) : IRobot {
 
     //<editor-fold desc="Touch Stuff">
 
-    inner class TouchActions {
+    /**
+     * Wrapper class containing low level touch actions
+     */
+    inner class LowLevelTouchActions {
+        /**
+         * Releases a touch
+         *
+         * @param slot Touch slot
+         */
         fun touchUp(slot: Int) {
             if (_touches[slot].isTouching.compareAndSet(true, false)) {
                 sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_SLOT, slot.toLong())
@@ -361,6 +376,11 @@ class AndroidRobot(val screen: AndroidScreen) : IRobot {
             }
         }
 
+        /**
+         * Releases a touch
+         *
+         * @param slot Touch slot
+         */
         fun touchDown(slot: Int) {
             if (_touches[slot].isTouching.compareAndSet(false, true)) {
                 sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_SLOT, slot.toLong())
@@ -372,6 +392,13 @@ class AndroidRobot(val screen: AndroidScreen) : IRobot {
             }
         }
 
+        /**
+         * Moves a touch to coordinates
+         *
+         * @param slot Touch slot
+         * @param x x coordinate
+         * @param y y coordinate
+         */
         fun touchMove(slot: Int, x: Int, y: Int) {
             val xChanged = _touches[slot].cursorX != x
             val yChanged = _touches[slot].cursorY != y
@@ -385,11 +412,24 @@ class AndroidRobot(val screen: AndroidScreen) : IRobot {
         }
     }
 
-    data class TouchMove(val slot: Int, val src: Location? = null, val dest: Location)
+    /**
+     * Wrapper class to encapsulate data describing a swipe
+     *
+     * @param slot Touch slot
+     * @param src Source
+     * @param dest Destination
+     */
+    data class Swipe(val slot: Int, val src: Location? = null, val dest: Location)
 
-    fun smoothTouchMove(touches: List<TouchMove>, ms: Long = (Settings.MoveMouseDelay * 1000).toLong()) {
+    /**
+     * Initiates a multi touch gesture with given list of swipes
+     *
+     * @param swipes Swipe gestures to execute simultaneously
+     * @param ms Length of time to complete this action within in milliseconds.
+     */
+    fun smoothTouchMove(swipes: List<Swipe>, ms: Long = (Settings.MoveMouseDelay * 1000).toLong()) {
         if (ms < 1) {
-            touches.forEach {
+            swipes.forEach {
                 lowLevelTouchActions { touchMove(it.slot, it.dest.x, it.dest.y) }
             }
             return
@@ -398,7 +438,7 @@ class AndroidRobot(val screen: AndroidScreen) : IRobot {
         fun animator(x: Int, y: Int) =
                 AnimatorTimeBased(AnimatorOutQuarticEase(x.toFloat(), y.toFloat(), ms))
 
-        val animator = touches.map {
+        val animator = swipes.map {
             it to (animator(it.src?.x ?: _touches[it.slot].cursorX, it.dest.x) to
                     animator(it.src?.y ?: _touches[it.slot].cursorY, it.dest.y))
         }.toMap()
@@ -415,8 +455,13 @@ class AndroidRobot(val screen: AndroidScreen) : IRobot {
         }
     }
 
-    fun lowLevelTouchActions(action: TouchActions.() -> Unit) {
-        TouchActions().action()
+    /**
+     * Groups several low level touch actions together then synchronizes
+     *
+     * @param action Lambda containing actions to execute
+     */
+    fun lowLevelTouchActions(action: LowLevelTouchActions.() -> Unit) {
+        LowLevelTouchActions().action()
         syncEvent()
     }
 

@@ -21,8 +21,24 @@ package com.waicool20.wai2k.util
 
 import se.vidstige.jadb.JadbDevice
 
+/**
+ * Executes a given command on the device
+ *
+ * @param command The command to execute
+ * @param args Arguments for the command
+ *
+ * @return List of String containing each line output of the command
+ */
 fun JadbDevice.executeAndReadLines(command: String, vararg args: String) =
         execute(command, *args).bufferedReader().readLines().map(String::trim)
 
+/**
+ * Executes a given command on the device
+ *
+ * @param command The command to execute
+ * @param args Arguments for the command
+ *
+ * @return String containing output of the command
+ */
 fun JadbDevice.executeAndReadText(command: String, vararg args: String) =
         execute(command, *args).bufferedReader().readText().trim()

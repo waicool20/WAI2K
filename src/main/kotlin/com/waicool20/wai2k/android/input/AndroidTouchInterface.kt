@@ -71,7 +71,7 @@ class AndroidTouchInterface(val robot: AndroidRobot) {
      */
     @Synchronized
     fun moveTo(slot: Int, location: Location) =
-            synchronized(this) { robot.smoothTouchMove(listOf(AndroidRobot.TouchMove(slot, dest = location))) }
+            synchronized(this) { robot.smoothTouchMove(listOf(AndroidRobot.Swipe(slot, dest = location))) }
 
     /* Low level actions */
 
@@ -91,7 +91,7 @@ class AndroidTouchInterface(val robot: AndroidRobot) {
     fun touchUp(slot: Int) = synchronized(this) { robot.lowLevelTouchActions { touchUp(slot) } }
 
     /**
-     * Initiates a swipe action. (Moves cursor to a location and presses without releasing)
+     * Initiates a single touch swipe action. (Moves cursor to a location and presses without releasing)
      *
      * @param location Location to start the swipe action
      * @param resetDelays Whether or not to reset delays after pressing.
@@ -106,7 +106,7 @@ class AndroidTouchInterface(val robot: AndroidRobot) {
     }
 
     /**
-     * Ends a swipe action. (Moves mouse to a location and releases the button)
+     * Ends a single touch swipe action. (Moves mouse to a location and releases the button)
      *
      * @param location Location to release the swipe.
      * @param resetDelays Whether or not to reset delays after releasing.
@@ -121,7 +121,7 @@ class AndroidTouchInterface(val robot: AndroidRobot) {
 
     /**
      * Same as calling [startSwipe] with [loc1] then [endSwipe] with [loc2] but does this all at once while
-     * keeping the lock to this object.
+     * keeping the lock to this object. Single touch only
      *
      * @param loc1 Location to begin startSwipe.
      * @param loc2 Location to drop at.
@@ -143,16 +143,16 @@ class AndroidTouchInterface(val robot: AndroidRobot) {
     fun pinch(centerPoint: Location, fromRadius: Int, toRadius: Int, angle: Double = 0.0) {
         val rad = (angle * PI) / 180
         robot.smoothTouchMove(listOf(
-                AndroidRobot.TouchMove(0, dest = centerPoint.offset((fromRadius * cos(rad)).roundToInt(), (fromRadius * sin(rad)).roundToInt())),
-                AndroidRobot.TouchMove(1, dest = centerPoint.offset((-fromRadius * cos(rad)).roundToInt(), (-fromRadius * sin(rad)).roundToInt()))
+                AndroidRobot.Swipe(0, dest = centerPoint.offset((fromRadius * cos(rad)).roundToInt(), (fromRadius * sin(rad)).roundToInt())),
+                AndroidRobot.Swipe(1, dest = centerPoint.offset((-fromRadius * cos(rad)).roundToInt(), (-fromRadius * sin(rad)).roundToInt()))
         ))
         robot.lowLevelTouchActions {
             touchDown(0)
             touchDown(1)
         }
         robot.smoothTouchMove(listOf(
-                AndroidRobot.TouchMove(0, dest = centerPoint.offset((toRadius * cos(rad)).roundToInt(), (toRadius * sin(rad)).roundToInt())),
-                AndroidRobot.TouchMove(1, dest = centerPoint.offset((-toRadius * cos(rad)).roundToInt(), (-toRadius * sin(rad)).roundToInt()))
+                AndroidRobot.Swipe(0, dest = centerPoint.offset((toRadius * cos(rad)).roundToInt(), (toRadius * sin(rad)).roundToInt())),
+                AndroidRobot.Swipe(1, dest = centerPoint.offset((-toRadius * cos(rad)).roundToInt(), (-toRadius * sin(rad)).roundToInt()))
         ))
         robot.lowLevelTouchActions {
             touchUp(0)
