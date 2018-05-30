@@ -17,11 +17,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.waicool20.wai2k
+package com.waicool20.wai2k.views.tabs
 
-import com.waicool20.wai2k.views.Wai2KWorkspace
+import javafx.scene.layout.AnchorPane
 import tornadofx.*
 
-class Wai2K : App(Wai2KWorkspace::class) {
-}
+class StatusTabView : View() {
+    override val root: AnchorPane by fxml("/views/tabs/status-tab.fxml")
 
+    init {
+        title = "Status"
+    }
+}

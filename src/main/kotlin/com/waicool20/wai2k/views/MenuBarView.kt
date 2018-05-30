@@ -17,11 +17,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.waicool20.wai2k
+package com.waicool20.wai2k.views
 
-import com.waicool20.wai2k.views.Wai2KWorkspace
+import javafx.scene.control.MenuBar
 import tornadofx.*
 
-class Wai2K : App(Wai2KWorkspace::class) {
+class MenuBarView: View() {
+    override val root: MenuBar by fxml("/views/menu.fxml")
 }
-

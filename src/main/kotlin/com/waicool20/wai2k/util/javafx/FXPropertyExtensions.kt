@@ -17,19 +17,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import com.waicool20.wai2k.android.AndroidDevice
-import org.sikuli.script.ImagePath
-import org.sikuli.script.Location
-import java.util.*
+package com.waicool20.kaga.util.javafx
 
-fun main(args: Array<String>) {
-    ImagePath.add(ClassLoader.getSystemClassLoader().getResource("images"))
-    val device = AndroidDevice.listAll().first()
-    device.displayPointerInfo(true)
-    val random = Random()
-    while (true) {
-        device.screen.touchInterface.pinch(Location(1080, 540), 400, 200, 15.0)
-        device.screen.touchInterface.pinch(Location(1080, 540), 200, 400, 15.0)
-        //device.screen.dragDrop(Location(random.nextInt(900) + 200, random.nextInt(900) + 200), Location(random.nextInt(900) + 200, random.nextInt(900) + 200))
-    }
-}
+import javafx.beans.property.SimpleListProperty
+import javafx.beans.property.SimpleMapProperty
+import javafx.beans.property.SimpleSetProperty
+import javafx.collections.FXCollections
+
+fun <T> List<T>.toProperty() = SimpleListProperty<T>(FXCollections.observableList(this))
+fun <T> Set<T>.toProperty() = SimpleSetProperty<T>(FXCollections.observableSet(this))
+fun <K, V> Map<K, V>.toProperty() = SimpleMapProperty<K, V>(FXCollections.observableMap(this))

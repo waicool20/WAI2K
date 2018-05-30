@@ -17,11 +17,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.waicool20.wai2k
+package com.waicool20.wai2k.views
 
-import com.waicool20.wai2k.views.Wai2KWorkspace
 import tornadofx.*
 
-class Wai2K : App(Wai2KWorkspace::class) {
-}
+class Wai2KWorkspace : Workspace() {
 
+    init {
+        add(MenuBarView::class)
+        add(HeaderView::class)
+        showHeadingLabel = false
+    }
+
+    override fun onDock() {
+        super.onDock()
+        dock<MainView>()
+    }
+}

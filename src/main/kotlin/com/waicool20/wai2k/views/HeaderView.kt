@@ -17,11 +17,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.waicool20.wai2k
+package com.waicool20.wai2k.views
 
-import com.waicool20.wai2k.views.Wai2KWorkspace
+import javafx.scene.Parent
+import javafx.scene.layout.HBox
 import tornadofx.*
 
-class Wai2K : App(Wai2KWorkspace::class) {
-}
+class HeaderView: View() {
+    override val root: HBox by fxml("/views/header.fxml")
 
+    init {
+    }
+}

@@ -17,11 +17,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.waicool20.wai2k
+package com.waicool20.wai2k.views.tabs
 
-import com.waicool20.wai2k.views.Wai2KWorkspace
+import javafx.scene.control.TreeView
+import javafx.scene.layout.HBox
+import org.controlsfx.control.MasterDetailPane
 import tornadofx.*
 
-class Wai2K : App(Wai2KWorkspace::class) {
-}
+class ConfigTabView: View() {
+    override val root: HBox by fxml("/views/tabs/config-tab.fxml")
+    private val configTreeView: TreeView<String> by fxid()
+    private val configPane: MasterDetailPane by fxid()
 
+    init {
+        title = "Config"
+    }
+}

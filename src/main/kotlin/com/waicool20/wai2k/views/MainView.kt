@@ -17,11 +17,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.waicool20.wai2k
+package com.waicool20.wai2k.views
 
-import com.waicool20.wai2k.views.Wai2KWorkspace
+import com.waicool20.wai2k.views.tabs.ConfigTabView
+import com.waicool20.wai2k.views.tabs.DeviceTabView
+import com.waicool20.wai2k.views.tabs.StatusTabView
+import javafx.scene.control.TabPane
 import tornadofx.*
 
-class Wai2K : App(Wai2KWorkspace::class) {
+class MainView : View() {
+    override val root: TabPane by fxml("/views/main.fxml")
+
+    init {
+        title = "WAI2K - Girls Frontline Automation Tool"
+        root.apply {
+            tab(StatusTabView::class)
+            tab(DeviceTabView::class)
+            tab(ConfigTabView::class)
+            connectWorkspaceActions()
+        }
+    }
+
+    override fun onDock() {
+        super.onDock()
+    }
 }
 

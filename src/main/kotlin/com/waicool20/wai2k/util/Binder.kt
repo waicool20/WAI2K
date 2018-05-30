@@ -17,11 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.waicool20.wai2k
+package com.waicool20.wai2k.util
 
-import com.waicool20.wai2k.views.Wai2KWorkspace
-import tornadofx.*
-
-class Wai2K : App(Wai2KWorkspace::class) {
+interface Binder {
+    fun createBindings()
 }
-
