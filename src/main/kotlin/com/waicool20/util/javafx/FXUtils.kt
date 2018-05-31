@@ -22,6 +22,7 @@ package com.waicool20.util.javafx
 import com.sun.javafx.scene.control.skin.TableHeaderRow
 import javafx.animation.KeyFrame
 import javafx.animation.KeyValue
+import javafx.animation.PauseTransition
 import javafx.animation.Timeline
 import javafx.beans.property.ReadOnlyObjectProperty
 import javafx.beans.value.ChangeListener
@@ -55,7 +56,6 @@ private object ListenerTracker {
     val listeners = mutableMapOf<String, ChangeListener<*>>()
 }
 
-
 /**
  * Extension function for adding listener with a given name, guaranteed to have only one listener
  * per name.
@@ -82,13 +82,54 @@ fun <T> ObservableValue<T>.addListener(name: String, listener: (ObservableValue<
 fun <T> ObservableValue<T>.addListener(name: String, listener: (T) -> Unit) =
         addListener(name) { _, _, newVal -> listener(newVal) }
 
-
 /**
  * Extension function for adding listener that receives no parameters.
  *
  * @param listener Listener
  */
 fun ObservableValue<*>.listen(listener: () -> Unit) = addListener { _, _, _ -> listener() }
+
+/**
+ * Extension function for adding a debounced listener which only executes after
+ * a certain period of time that the event has settled.
+ *
+ * @param ms Amount of time to wait for events to settle
+ * @param name Unique name of listener
+ * @param listener Listener, receives (ObservableValue, Old Value, New Value)
+ */
+fun <T> ObservableValue<T>.listenDebounced(ms: Long, name: String, listener: (ObservableValue<out T>, T, T) -> Unit) {
+    val pause = PauseTransition(Duration.millis(ms.toDouble()))
+    addListener(name) { obs, oldVal, newVal ->
+        pause.setOnFinished { listener(obs, oldVal, newVal) }
+        pause.playFromStart()
+    }
+}
+
+/**
+ * Extension function for adding a debounced listener which only executes after
+ * a certain period of time that the event has settled.
+ *
+ * @param ms Amount of time to wait for events to settle
+ * @param name Unique name of listener
+ * @param listener Listener, receives (New Value)
+ */
+fun <T> ObservableValue<T>.listenDebounced(ms: Long, name: String, listener: (T) -> Unit) =
+        listenDebounced(ms, name) { _, _, newVal -> listener(newVal) }
+
+/**
+ * Extension function for adding a debounced listener which only executes after
+ * a certain period of time that the event has settled.
+ *
+ * @param ms Amount of time to wait for events to settle
+ * @param listener Listener
+ */
+fun ObservableValue<*>.listenDebounced(ms: Long, listener: () -> Unit) {
+    val pause = PauseTransition(Duration.millis(ms.toDouble()))
+    addListener { _, _, _ ->
+        pause.setOnFinished { listener() }
+        pause.playFromStart()
+    }
+}
 
 //<editor-fold desc="Node Size Utils">
 
