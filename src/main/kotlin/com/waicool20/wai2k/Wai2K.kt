@@ -19,9 +19,18 @@
 
 package com.waicool20.wai2k
 
+import com.waicool20.wai2k.views.LoaderView
 import com.waicool20.wai2k.views.Wai2KWorkspace
+import javafx.stage.Stage
+import javafx.stage.StageStyle
 import tornadofx.*
 
 class Wai2K : App(Wai2KWorkspace::class) {
+    override fun start(stage: Stage) {
+        super.start(stage)
+        find<LoaderView>().openModal(stageStyle = StageStyle.UNDECORATED)
+    }
+
+    override fun shouldShowPrimaryStage() = false
 }
 

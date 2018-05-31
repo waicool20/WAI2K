@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<!--
+  ~ GPLv3 License
+  ~
+  ~  Copyright (c) WAI2K by waicool20
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="300.0" prefWidth="500.0" styleClass="pane" stylesheets="@../css/loader.css" xmlns="http://javafx.com/javafx/8.0.162-ea" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <ImageView fitHeight="162.0" fitWidth="206.0" layoutX="-6.0" layoutY="54.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../images/wa2000.gif" />
+         </image>
+      </ImageView>
+      <Label layoutX="174.0" layoutY="66.0" prefHeight="135.0" prefWidth="263.0" text="WAI2K" textFill="#fffbfb">
+         <font>
+            <Font name="Impact" size="80.0" />
+         </font>
+         <styleClass>
+            <String fx:value="bright" />
+            <String fx:value="title" />
+         </styleClass>
+      </Label>
+      <Label layoutX="193.0" layoutY="165.0" text="A Girls Frontline Automation Tool" textFill="#aeaeae">
+         <font>
+            <Font name="Impact" size="13.0" />
+         </font>
+         <styleClass>
+            <String fx:value="medium" />
+            <String fx:value="subtitle" />
+         </styleClass>
+      </Label>
+      <Label contentDisplay="CENTER" layoutX="247.0" layoutY="182.0" text="It's just a meme!" textFill="#9e9e9e">
+         <font>
+
+         </font>
+         <styleClass>
+            <String fx:value="dark" />
+            <String fx:value="subsubtitle" />
+         </styleClass>
+      </Label>
+      <Label fx:id="statusLabel" layoutX="30.0" layoutY="260.0" text="StatusLabel" textFill="WHITE">
+         <styleClass>
+            <String fx:value="bright" />
+            <String fx:value="statuslabel" />
+         </styleClass></Label>
+   </children>
+</AnchorPane>
