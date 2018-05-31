@@ -23,8 +23,10 @@ import com.waicool20.wai2k.android.input.AndroidInput
 import com.waicool20.wai2k.util.executeAndReadLines
 import com.waicool20.wai2k.util.executeAndReadText
 import org.sikuli.script.IScreen
+import se.vidstige.jadb.AdbServerLauncher
 import se.vidstige.jadb.JadbConnection
 import se.vidstige.jadb.JadbDevice
+import se.vidstige.jadb.Subprocess
 import java.awt.image.BufferedImage
 import java.io.InputStream
 import javax.imageio.ImageIO
@@ -92,8 +94,12 @@ class AndroidDevice private constructor(private val device: JadbDevice) {
     }
 
     companion object {
-        private val adb by lazy { JadbConnection() }
-        fun listAll() = adb.devices.map { AndroidDevice(it) }
+        private val adb by lazy {
+            AdbServerLauncher(Subprocess(), emptyMap()).launch()
+            JadbConnection()
+        }
+        fun listAll(): List<AndroidDevice> =
+                adb.devices.map { AndroidDevice(it) }
     }
 
     /**
