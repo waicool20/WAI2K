@@ -24,11 +24,31 @@ import com.waicool20.wai2k.views.Wai2KWorkspace
 import javafx.stage.Stage
 import javafx.stage.StageStyle
 import tornadofx.*
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
 
 class Wai2K : App(Wai2KWorkspace::class) {
+    companion object {
+        const val CONFIG_DIR_NAME = "wai2k"
+        private var _configDirectory: Path = Paths.get("").toAbsolutePath().resolve(CONFIG_DIR_NAME)
+        val CONFIG_DIR get() = _configDirectory
+
+        init {
+            val jarPath = Paths.get(Wai2K::class.java.protectionDomain.codeSource.location.toURI())
+            if (isRunningJar()) _configDirectory = jarPath.resolveSibling(CONFIG_DIR_NAME)
+            Files.createDirectories(_configDirectory)
+        }
+
+        private fun isRunningJar(): Boolean {
+            return "${Wai2K::class.java.getResource(Wai2K::class.simpleName + ".class")}".startsWith("jar")
+        }
+    }
+
     override fun start(stage: Stage) {
         super.start(stage)
-        find<LoaderView>().openModal(stageStyle = StageStyle.UNDECORATED)
+        find<LoaderView>(params = *arrayOf("parameters" to parameters))
+                .openModal(stageStyle = StageStyle.UNDECORATED)
     }
 
     override fun shouldShowPrimaryStage() = false

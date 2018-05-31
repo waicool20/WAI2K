@@ -22,19 +22,24 @@ package com.waicool20.wai2k.views
 import com.waicool20.util.SikuliXLoader
 import com.waicool20.util.logging.LoggingEventBus
 import com.waicool20.util.logging.loggerFor
+import com.waicool20.wai2k.Wai2K
+import com.waicool20.wai2k.config.Configurations
+import com.waicool20.wai2k.config.Wai2KConfig
+import javafx.application.Application
 import javafx.scene.control.Label
 import javafx.scene.layout.AnchorPane
 import javafx.util.Duration
 import tornadofx.*
-import java.nio.file.Paths
 import kotlin.concurrent.thread
 
 
 class LoaderView : View() {
     override val root: AnchorPane by fxml("/views/loader.fxml")
     private val statusLabel: Label by fxid()
+    private val parameters: Application.Parameters by param()
 
     private val logger = loggerFor<LoaderView>()
+    private lateinit var wai2KConfig: Wai2KConfig
 
     init {
         title = "WAI2K - Startup"
@@ -45,8 +50,9 @@ class LoaderView : View() {
         super.onDock()
         startStatusListener()
         logger.info("Starting WAI2K")
+        logger.info("Config directory: ${Wai2K.CONFIG_DIR}")
         find<ConsoleView>()
-        thread { startLoading() }
+        startLoading()
     }
 
     private fun startStatusListener() {
@@ -57,8 +63,21 @@ class LoaderView : View() {
     }
 
     private fun startLoading() {
-        SikuliXLoader.loadAndTest(Paths.get("/home/waicool20/bin/sikulix/sikulix.jar"))
+        loadWai2KConfig()
+        thread { loadSikuliX() }
         closeAndShowMainApp()
+    }
+
+    private fun loadWai2KConfig() {
+        wai2KConfig = Wai2KConfig.load()
+        setInScope(Configurations(wai2KConfig))
+        if (!wai2KConfig.isValid) {
+            find<InitialConfigurationView>().openModal(owner = currentWindow, block = true)
+        }
+    }
+
+    private fun loadSikuliX() {
+        SikuliXLoader.loadAndTest(wai2KConfig.sikulixJarPath)
     }
 
     private fun closeAndShowMainApp() {
