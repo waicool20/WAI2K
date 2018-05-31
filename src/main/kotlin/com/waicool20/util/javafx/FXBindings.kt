@@ -17,9 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.waicool20.kaga.util.javafx
+package com.waicool20.util.javafx
 
-import com.waicool20.wai2k.util.javafx.checkAll
 import javafx.beans.binding.*
 import javafx.beans.property.*
 import javafx.collections.ListChangeListener

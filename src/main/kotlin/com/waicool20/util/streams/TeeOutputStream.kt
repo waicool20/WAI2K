@@ -17,11 +17,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.waicool20.wai2k.util
+package com.waicool20.util.streams
 
-import org.slf4j.LoggerFactory
+import java.io.OutputStream
 
-/**
- * Gets a logger for a class
- */
-inline fun <reified T> loggerFor() = LoggerFactory.getLogger(T::class.java)
+class TeeOutputStream(val main: OutputStream, val branch: OutputStream) : OutputStream() {
+    override fun write(int: Int) {
+        main.write(int)
+        branch.write(int)
+    }
+
+    override fun flush() {
+        super.flush()
+        main.flush()
+        branch.flush()
+    }
+
+    override fun close() {
+        super.close()
+        main.close()
+        branch.close()
+    }
+}

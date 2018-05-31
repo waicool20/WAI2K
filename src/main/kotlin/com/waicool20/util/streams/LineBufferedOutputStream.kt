@@ -17,13 +17,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.waicool20.kaga.util.javafx
+package com.waicool20.util.streams
 
-import javafx.beans.property.SimpleListProperty
-import javafx.beans.property.SimpleMapProperty
-import javafx.beans.property.SimpleSetProperty
-import javafx.collections.FXCollections
+import java.io.OutputStream
 
-fun <T> List<T>.toProperty() = SimpleListProperty<T>(FXCollections.observableList(this))
-fun <T> Set<T>.toProperty() = SimpleSetProperty<T>(FXCollections.observableSet(this))
-fun <K, V> Map<K, V>.toProperty() = SimpleMapProperty<K, V>(FXCollections.observableMap(this))
+abstract class LineBufferedOutputStream : OutputStream() {
+    private val buffer = StringBuffer()
+
+    override fun write(byte: Int) {
+        val char = byte.toChar()
+        buffer.append(char)
+        if (char == '\n') {
+            flush()
+        }
+    }
+
+    override fun flush() {
+        writeLine(buffer.toString())
+        buffer.setLength(0)
+    }
+
+    abstract fun writeLine(line: String)
+}
