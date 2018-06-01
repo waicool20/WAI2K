@@ -31,6 +31,7 @@ import java.nio.file.Paths
 class Wai2K : App(Wai2KWorkspace::class) {
     companion object {
         const val CONFIG_DIR_NAME = "wai2k"
+        const val CONFIG_SUFFIX = ".json"
         private var _configDirectory: Path = Paths.get("").toAbsolutePath().resolve(CONFIG_DIR_NAME)
         val CONFIG_DIR get() = _configDirectory
 

@@ -23,15 +23,11 @@ import ch.qos.logback.classic.Level
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.JsonMappingException
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.waicool20.util.javafx.addListener
 import com.waicool20.util.javafx.fxJacksonObjectMapper
-import com.waicool20.util.javafx.ignoreJavaFXPropertyTypes
 import com.waicool20.util.logging.LoggerUtils
 import com.waicool20.util.logging.loggerFor
 import com.waicool20.wai2k.Wai2K
@@ -56,7 +52,8 @@ class Wai2KConfig(
 
     @get:JsonIgnore val isValid get() = sikulixJarIsValid()
     @get:JsonIgnore val logLevel get() = if (debugModeEnabled) "DEBUG" else "INFO"
-    @get:JsonIgnore val androidDevice get() = AndroidDevice.listAll(false).find { it.adbSerial == lastDeviceSerial }
+    @get:JsonIgnore val androidDevice
+        get() = AndroidDevice.listAll(false).find { it.adbSerial == lastDeviceSerial }
 
     //<editor-fold desc="Properties">
 
@@ -77,10 +74,10 @@ class Wai2KConfig(
     //</editor-fold>
 
     companion object Loader {
-        private val mapper = ObjectMapper(YAMLFactory()).registerKotlinModule().ignoreJavaFXPropertyTypes()
+        private val mapper = fxJacksonObjectMapper()
         private val loaderLogger = loggerFor<Loader>()
 
-        val path: Path = Wai2K.CONFIG_DIR.resolve("preferences.yml")
+        val path: Path = Wai2K.CONFIG_DIR.resolve("preferences.json")
 
         fun load(): Wai2KConfig {
             loaderLogger.info("Attempting to load Wai2K configuration")

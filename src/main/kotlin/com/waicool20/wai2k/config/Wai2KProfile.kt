@@ -21,12 +21,8 @@ package com.waicool20.wai2k.config
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.databind.JsonMappingException
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import com.waicool20.util.javafx.ignoreJavaFXPropertyTypes
-import com.waicool20.util.javafx.registerFXModule
+import com.waicool20.util.javafx.fxJacksonObjectMapper
 import com.waicool20.util.javafx.toProperty
 import com.waicool20.util.logging.loggerFor
 import com.waicool20.wai2k.Wai2K
@@ -58,16 +54,13 @@ data class Wai2KProfile(
 
     companion object Loader {
         private val loaderLogger = loggerFor<Loader>()
-        private val mapper = ObjectMapper(YAMLFactory()).registerKotlinModule()
-                .ignoreJavaFXPropertyTypes().registerFXModule()
+        private val mapper = fxJacksonObjectMapper()
         val PROFILE_DIR: Path = Wai2K.CONFIG_DIR.resolve("profiles")
         const val DEFAULT_NAME = "Default"
 
         fun load(name: String): Wai2KProfile {
             return load(PROFILE_DIR.resolve("${name.takeIf { it.isNotBlank() }
-                    ?: DEFAULT_NAME}.yml")).apply {
-                this.name = name
-            }
+                    ?: DEFAULT_NAME}${Wai2K.CONFIG_SUFFIX}")).also { it.name = name }
         }
 
         fun load(path: Path): Wai2KProfile {
@@ -82,7 +75,7 @@ data class Wai2KProfile(
             return try {
                 mapper.readValue<Wai2KProfile>(path.toFile()).apply {
                     loaderLogger.info("Profile loaded")
-                    this.name = "${path.fileName}".removeSuffix(".yml")
+                    name = "${path.fileName}".removeSuffix(Wai2K.CONFIG_SUFFIX)
                     printDebugInfo()
                 }
             } catch (e: JsonMappingException) {
@@ -102,7 +95,7 @@ data class Wai2KProfile(
 
     @get:JsonIgnore
     val path: Path
-        get() = PROFILE_DIR.resolve("$name.yml")
+        get() = PROFILE_DIR.resolve("$name${Wai2K.CONFIG_SUFFIX}")
 
     fun save(path: Path = this.path) {
         logger.info("Saving Wai2K profile")
@@ -111,7 +104,7 @@ data class Wai2KProfile(
             Files.createDirectories(path.parent)
             Files.createFile(path)
         }
-        mapper.writeValue(path.toFile(), this)
+        mapper.writerWithDefaultPrettyPrinter().writeValue(path.toFile(), this)
         logger.info("Profile saved!")
         printDebugInfo()
     }

@@ -22,6 +22,7 @@ package com.waicool20.wai2k.views
 import com.waicool20.util.javafx.TooltipSide
 import com.waicool20.util.javafx.fadeAfter
 import com.waicool20.util.javafx.showAt
+import com.waicool20.wai2k.Wai2K
 import com.waicool20.wai2k.config.Configurations
 import com.waicool20.wai2k.config.Wai2KProfile
 import javafx.scene.control.ComboBox
@@ -46,6 +47,11 @@ class HeaderView : View() {
         profileComboBox.setOnShowing { updateProfileItems() }
         profileComboBox.setOnAction { selectProfile() }
         createBindings()
+    }
+
+    override fun onSave() {
+        super.onSave()
+
     }
 
     private fun createBindings() {
@@ -76,7 +82,7 @@ class HeaderView : View() {
         val currentProfile = profileComboBox.value
         val profiles = Files.walk(Wai2KProfile.PROFILE_DIR).toList()
                 .filter { Files.isRegularFile(it) }
-                .map { "${it.fileName}".removeSuffix(".yml") }
+                .map { "${it.fileName}".removeSuffix(Wai2K.CONFIG_SUFFIX) }
                 .filter { it != currentProfile }
                 .sorted()
         if (profiles.isNotEmpty()) {
