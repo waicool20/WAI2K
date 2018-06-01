@@ -207,7 +207,7 @@ fun <T> preventSystemExit(action: () -> T): T {
     }
     System.setSecurityManager(exitManager)
     return try {
-        action()
+        action().also { System.setSecurityManager(manager) }
     } catch (e: Throwable) {
         if (e.cause is IllegalExitException) {
             System.setSecurityManager(manager)
