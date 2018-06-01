@@ -19,13 +19,16 @@
 
 package com.waicool20.wai2k.config
 
+import ch.qos.logback.classic.Level
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.waicool20.util.javafx.addListener
 import com.waicool20.util.javafx.fxJacksonObjectMapper
+import com.waicool20.util.logging.LoggerUtils
 import com.waicool20.util.logging.loggerFor
 import com.waicool20.wai2k.Wai2K
 import tornadofx.*
@@ -38,19 +41,26 @@ import java.util.jar.JarFile
 @JsonIgnoreProperties(ignoreUnknown = true)
 class Wai2KConfig(
         currentProfile: String = "",
-        sikulixJarPath: Path = Paths.get("")
+        sikulixJarPath: Path = Paths.get(""),
+        clearConsoleOnStart: Boolean = true,
+        debugModeEnabled: Boolean = true
 ) {
     private val logger = loggerFor<Wai2K>()
 
     @get:JsonIgnore val isValid get() = sikulixJarIsValid()
+    @get:JsonIgnore val logLevel get() = if (debugModeEnabled) "DEBUG" else "INFO"
 
     //<editor-fold desc="Properties">
 
     val currentProfileProperty = currentProfile.toProperty()
     val sikulixJarPathProperty = sikulixJarPath.toProperty()
+    val clearConsoleOnStartProperty = clearConsoleOnStart.toProperty()
+    val debugModeEnabledProperty = debugModeEnabled.toProperty()
 
     var currentProfile by currentProfileProperty
     var sikulixJarPath by sikulixJarPathProperty
+    var clearConsoleOnStart by clearConsoleOnStartProperty
+    var debugModeEnabled by debugModeEnabledProperty
 
     //</editor-fold>
 
@@ -81,7 +91,12 @@ class Wai2KConfig(
                 loaderLogger.info("Using default config")
                 Wai2KConfig().apply { save() }
             }
+        }
+    }
 
+    init {
+        debugModeEnabledProperty.addListener("LogLevel") { newVal ->
+            LoggerUtils.setLogLevel(Level.toLevel(logLevel))
         }
     }
 
