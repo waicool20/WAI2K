@@ -19,17 +19,57 @@
 
 package com.waicool20.wai2k.views.tabs.profile
 
+import com.waicool20.util.javafx.addListener
+import com.waicool20.wai2k.config.Configurations
+import javafx.geometry.Pos
+import javafx.scene.control.TreeItem
 import javafx.scene.control.TreeView
 import javafx.scene.layout.HBox
 import org.controlsfx.control.MasterDetailPane
 import tornadofx.*
 
-class ProfileTabView: View() {
+class ProfileTabView : View() {
     override val root: HBox by fxml("/views/tabs/profile-tab.fxml")
     private val profileTreeView: TreeView<String> by fxid()
     private val profilePane: MasterDetailPane by fxid()
 
+    private val configs: Configurations by inject()
+
     init {
         title = "Profile"
+        initializeTree()
+        profilePane.dividerPosition = 1.0
+    }
+
+    fun initializeTree() {
+        profileTreeView.root = TreeItem<String>().apply {
+            valueProperty().bind(configs.currentProfile.nameProperty)
+            isExpanded = true
+        }
+        ProfileViewMappings.list.forEach { node ->
+            node.isExpanded = true
+            if (node.parent == null) {
+                profileTreeView.root.children.add(node)
+            } else {
+                ProfileViewMappings.list.find { it.view == node.parent }?.children?.add(node)
+            }
+        }
+        profileTreeView.focusModel.focusedItemProperty().addListener("ProfileFocused") { newVal ->
+            profilePane.apply {
+                if (newVal is ProfileViewMappings.ViewNode) {
+                    val pos = profilePane.dividerPosition
+                    masterNode = find(newVal.view).root
+                    dividerPosition = pos
+                    isAnimated = true
+                    isShowDetailNode = true
+                } else {
+                    masterNode = hbox(alignment = Pos.CENTER) {
+                        label("Choose something to configure on the right!")
+                    }
+                    isAnimated = false
+                    isShowDetailNode = false
+                }
+            }
+        }
     }
 }
