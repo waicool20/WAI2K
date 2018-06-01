@@ -20,6 +20,7 @@
 package com.waicool20.wai2k.views.tabs.profile.logistics
 
 import com.waicool20.util.javafx.bind
+import com.waicool20.util.javafx.listen
 import com.waicool20.wai2k.config.Configurations
 import com.waicool20.wai2k.game.LogisticsSupport
 import javafx.beans.property.SimpleListProperty
@@ -36,9 +37,11 @@ class AssignmentsView : View() {
 
     private val configs: Configurations by inject()
 
-    init {
+    override fun onDock() {
+        super.onDock()
         setValues()
         createBindings()
+        configs.currentProfileProperty.listen { createBindings() }
     }
 
     fun setValues() {

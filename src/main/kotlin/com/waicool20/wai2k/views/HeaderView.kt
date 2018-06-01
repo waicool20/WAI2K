@@ -19,10 +19,7 @@
 
 package com.waicool20.wai2k.views
 
-import com.waicool20.util.javafx.AlertFactory
-import com.waicool20.util.javafx.TooltipSide
-import com.waicool20.util.javafx.fadeAfter
-import com.waicool20.util.javafx.showAt
+import com.waicool20.util.javafx.*
 import com.waicool20.wai2k.Wai2K
 import com.waicool20.wai2k.config.Configurations
 import com.waicool20.wai2k.config.Wai2KProfile
@@ -44,10 +41,21 @@ class HeaderView : View() {
 
     val buttons: HBox by fxid()
 
-    init {
+    override fun onDock() {
+        super.onDock()
         profileComboBox.setOnShowing { updateProfileItems() }
         profileComboBox.setOnAction { selectProfile() }
         createBindings()
+
+        configs.currentProfileProperty.addListener("HeaderViewProfile") { newVal ->
+            createBindings()
+            runLater {
+                Tooltip("Profile ${newVal.name} has been loaded!").apply {
+                    fadeAfter(700)
+                    showAt(profileComboBox, TooltipSide.TOP_LEFT)
+                }
+            }
+        }
     }
 
     override fun onSave() {
@@ -58,6 +66,28 @@ class HeaderView : View() {
         }
     }
 
+    override fun onDelete() {
+        super.onDelete()
+        configs.currentProfile.apply {
+            val toDelete = name
+            confirm(
+                    header = "Delete profile [$toDelete]?",
+                    title = "Wai2K - Profile Deletion Confirmation"
+            ) {
+                delete()
+                profileComboBox.value = ""
+                AlertFactory.info(content = "Profile $toDelete was deleted").showAndWait()
+            }
+        }
+    }
+
+    override fun onRefresh() {
+        super.onRefresh()
+        thread {
+            setNewProfile(Wai2KProfile.load(configs.currentProfile.path))
+        }
+    }
+
     private fun createBindings() {
         profileComboBox.bind(configs.currentProfile.nameProperty)
     }
@@ -65,20 +95,15 @@ class HeaderView : View() {
     private fun selectProfile() {
         val newProfile = profileComboBox.value
         thread {
-            Wai2KProfile.load(newProfile).let {
-                configs.apply {
-                    wai2KConfig.currentProfile = it.name
-                    wai2KConfig.save()
-                    currentProfile = it
-                }
-                runLater {
-                    createBindings()
-                    Tooltip("Profile ${it.name} has been loaded!").apply {
-                        fadeAfter(700)
-                        showAt(profileComboBox, TooltipSide.TOP_LEFT)
-                    }
-                }
-            }
+            setNewProfile(Wai2KProfile.load(newProfile))
+        }
+    }
+
+    private fun setNewProfile(profile: Wai2KProfile) {
+        configs.apply {
+            wai2KConfig.currentProfile = profile.name
+            wai2KConfig.save()
+            currentProfileProperty.set(profile)
         }
     }
 
