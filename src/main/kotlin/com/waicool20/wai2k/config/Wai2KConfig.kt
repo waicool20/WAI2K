@@ -98,7 +98,8 @@ class Wai2KConfig(
     }
 
     init {
-        debugModeEnabledProperty.addListener("LogLevel") { newVal ->
+        LoggerUtils.setLogLevel(Level.toLevel(logLevel))
+        debugModeEnabledProperty.addListener("LogLevel") { _ ->
             LoggerUtils.setLogLevel(Level.toLevel(logLevel))
         }
     }
@@ -117,4 +118,6 @@ class Wai2KConfig(
         mapper.writerWithDefaultPrettyPrinter().writeValue(path.toFile(), this)
         logger.info("Saving Wai2K configuration was successful")
     }
+
+    override fun toString(): String = mapper.writeValueAsString(this)
 }
