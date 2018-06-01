@@ -25,6 +25,7 @@ import javafx.collections.ListChangeListener
 import javafx.scene.control.ComboBox
 import javafx.scene.control.Spinner
 import org.controlsfx.control.CheckComboBox
+import tornadofx.*
 
 private object Bindings {
     val objectBindings = mutableMapOf<ObjectProperty<*>, MutableList<ObjectProperty<*>>>()
@@ -91,18 +92,22 @@ class CheckComboBoxBinding<T>(
     private val fromListener: ListChangeListener<T> = ListChangeListener { change ->
         synchronized(this) {
             checkComboBox.checkModel.apply {
-                checkedItems.removeListener(toListener)
-                checkAll(change.list)
-                onChange(change)
-                checkedItems.addListener(toListener)
+                runLater {
+                    checkedItems.removeListener(toListener)
+                    checkAll(change.list)
+                    onChange(change)
+                    checkedItems.addListener(toListener)
+                }
             }
         }
     }
 
     init {
-        checkComboBox.checkModel.checkAll(listProperty)
-        checkComboBox.checkModel.checkedItems.addListener(toListener)
-        if (!readOnly) listProperty.addListener(fromListener)
+        runLater{
+            checkComboBox.checkModel.checkAll(listProperty)
+            checkComboBox.checkModel.checkedItems.addListener(toListener)
+            if (!readOnly) listProperty.addListener(fromListener)
+        }
     }
 
     fun unbind() {
