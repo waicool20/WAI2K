@@ -98,8 +98,15 @@ class AndroidDevice private constructor(private val device: JadbDevice) {
             AdbServerLauncher(Subprocess(), emptyMap()).launch()
             JadbConnection()
         }
-        fun listAll(): List<AndroidDevice> =
-                adb.devices.map { AndroidDevice(it) }
+        private var deviceCache: List<AndroidDevice> = emptyList()
+
+        fun listAll(refresh: Boolean = true): List<AndroidDevice> {
+            return if (refresh) {
+                adb.devices.map { AndroidDevice(it) }.also { deviceCache = it }
+            } else {
+                deviceCache
+            }
+        }
     }
 
     /**
