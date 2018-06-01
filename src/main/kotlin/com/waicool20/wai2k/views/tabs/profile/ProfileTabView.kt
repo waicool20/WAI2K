@@ -29,7 +29,7 @@ import org.controlsfx.control.MasterDetailPane
 import tornadofx.*
 
 class ProfileTabView : View() {
-    override val root: HBox by fxml("/views/tabs/profile-tab.fxml")
+    override val root: HBox by fxml("/views/tabs/profile/profile-tab.fxml")
     private val profileTreeView: TreeView<String> by fxid()
     private val profilePane: MasterDetailPane by fxid()
 
