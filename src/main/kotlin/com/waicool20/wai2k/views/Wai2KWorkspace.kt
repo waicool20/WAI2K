@@ -20,6 +20,7 @@
 package com.waicool20.wai2k.views
 
 import tornadofx.*
+import kotlin.system.exitProcess
 
 class Wai2KWorkspace : Workspace() {
     init {
@@ -32,5 +33,10 @@ class Wai2KWorkspace : Workspace() {
     override fun onDock() {
         super.onDock()
         dock<MainView>()
+    }
+
+    override fun onUndock() {
+        super.onUndock()
+        exitProcess(0)
     }
 }
