@@ -19,7 +19,9 @@
 
 package com.waicool20.wai2k.views
 
+import ch.qos.logback.classic.Level
 import com.waicool20.util.SikuliXLoader
+import com.waicool20.util.logging.LoggerUtils
 import com.waicool20.util.logging.LoggingEventBus
 import com.waicool20.util.logging.loggerFor
 import com.waicool20.wai2k.Wai2K
@@ -49,9 +51,9 @@ class LoaderView : View() {
     override fun onDock() {
         super.onDock()
         startStatusListener()
+        find<ConsoleView>()
         logger.info("Starting WAI2K")
         logger.info("Config directory: ${Wai2K.CONFIG_DIR}")
-        find<ConsoleView>()
         startLoading()
     }
 
@@ -64,8 +66,11 @@ class LoaderView : View() {
 
     private fun startLoading() {
         loadWai2KConfig()
-        thread { loadSikuliX() }
-        closeAndShowMainApp()
+        thread {
+            parseCommandLine()
+            loadSikuliX()
+            closeAndShowMainApp()
+        }
     }
 
     private fun loadWai2KConfig() {
@@ -76,15 +81,34 @@ class LoaderView : View() {
         }
     }
 
+    private fun parseCommandLine() {
+        val logLevel = parameters.named["log"]
+        wai2KConfig.debugModeEnabled = when {
+            logLevel.equals("INFO", true) -> {
+                logger.info("Debug logging disabled by command line flag")
+                false
+            }
+            logLevel.equals("DEBUG", true) -> {
+                logger.info("Debug logging enabled by command line flag")
+                false
+            }
+            else -> {
+                logger.info("No logging level in arguments, using config value: ${wai2KConfig.logLevel}")
+                wai2KConfig.debugModeEnabled
+            }
+        }
+    }
+
     private fun loadSikuliX() {
         SikuliXLoader.loadAndTest(wai2KConfig.sikulixJarPath)
     }
 
     private fun closeAndShowMainApp() {
+        logger.info("Loading all done! Starting main application")
         runLater(Duration.millis(500.0)) {
             close()
             primaryStage.show()
-            find<ConsoleView>().openWindow(owner = primaryStage)
+            find<ConsoleView>().openWindow(owner = null)
         }
     }
 }
