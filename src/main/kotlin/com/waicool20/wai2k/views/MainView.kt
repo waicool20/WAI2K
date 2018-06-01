@@ -19,9 +19,9 @@
 
 package com.waicool20.wai2k.views
 
-import com.waicool20.wai2k.views.tabs.ConfigTabView
 import com.waicool20.wai2k.views.tabs.DeviceTabView
 import com.waicool20.wai2k.views.tabs.StatusTabView
+import com.waicool20.wai2k.views.tabs.profile.ProfileTabView
 import javafx.scene.control.TabPane
 import tornadofx.*
 
@@ -33,7 +33,7 @@ class MainView : View() {
         root.apply {
             tab(StatusTabView::class)
             tab(DeviceTabView::class)
-            tab(ConfigTabView::class)
+            tab(ProfileTabView::class)
             connectWorkspaceActions()
         }
     }

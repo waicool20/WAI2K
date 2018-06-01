@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.TreeView?>
-<?import javafx.scene.layout.HBox?>
-<?import org.controlsfx.control.MasterDetailPane?>
-
 <!--
   ~ GPLv3 License
   ~
@@ -24,10 +19,14 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.TreeView?>
+<?import javafx.scene.layout.HBox?>
+<?import org.controlsfx.control.MasterDetailPane?>
 <HBox minHeight="-Infinity" minWidth="-Infinity" spacing="10.0" xmlns="http://javafx.com/javafx/8.0.162-ea" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <TreeView fx:id="configTreeView" prefHeight="200.0" prefWidth="200.0" />
-      <MasterDetailPane fx:id="configPane" HBox.hgrow="ALWAYS" />
+      <TreeView fx:id="profileTreeView" prefHeight="200.0" prefWidth="200.0" />
+      <MasterDetailPane fx:id="profilePane" HBox.hgrow="ALWAYS" />
    </children>
    <padding>
       <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />

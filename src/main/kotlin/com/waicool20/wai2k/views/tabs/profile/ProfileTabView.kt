@@ -17,19 +17,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.waicool20.wai2k.views.tabs
+package com.waicool20.wai2k.views.tabs.profile
 
 import javafx.scene.control.TreeView
 import javafx.scene.layout.HBox
 import org.controlsfx.control.MasterDetailPane
 import tornadofx.*
 
-class ConfigTabView: View() {
-    override val root: HBox by fxml("/views/tabs/config-tab.fxml")
-    private val configTreeView: TreeView<String> by fxid()
-    private val configPane: MasterDetailPane by fxid()
+class ProfileTabView: View() {
+    override val root: HBox by fxml("/views/tabs/profile-tab.fxml")
+    private val profileTreeView: TreeView<String> by fxid()
+    private val profilePane: MasterDetailPane by fxid()
 
     init {
-        title = "Config"
+        title = "Profile"
     }
 }
