@@ -19,8 +19,39 @@
 
 package com.waicool20.wai2k.views.tabs.profile.logistics
 
+import com.waicool20.util.javafx.bind
+import com.waicool20.wai2k.config.Configurations
+import com.waicool20.wai2k.game.LogisticsSupport
+import javafx.beans.property.SimpleListProperty
+import javafx.scene.layout.VBox
+import org.controlsfx.control.CheckComboBox
 import tornadofx.*
 
-class AssignmentsView: View() {
-    override val root = hbox { label("Assignments") }
+@Suppress("UNCHECKED_CAST")
+class AssignmentsView : View() {
+    override val root: VBox by fxml("/views/tabs/profile/logistics/assignments.fxml")
+    private val comboBoxes = (1..10).mapNotNull {
+        fxmlLoader.namespace["echelon${it}CCBox"] as? CheckComboBox<Int>
+    }
+
+    private val configs: Configurations by inject()
+
+    init {
+        setValues()
+        createBindings()
+    }
+
+    fun setValues() {
+        comboBoxes.forEach {
+            it.items.setAll(LogisticsSupport.list.map { it.number })
+        }
+    }
+
+    fun createBindings() {
+        comboBoxes.forEachIndexed { index, box ->
+            configs.currentProfile.logistics.assignments.getOrPut(index + 1) {
+                SimpleListProperty<Int>()
+            }.let { box.bind(it) }
+        }
+    }
 }
