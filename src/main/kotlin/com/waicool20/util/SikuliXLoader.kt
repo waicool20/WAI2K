@@ -22,6 +22,7 @@ package com.waicool20.util
 import com.waicool20.util.logging.loggerFor
 import org.sikuli.script.ImagePath
 import org.sikuli.script.Screen
+import java.net.URL
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.concurrent.TimeUnit
@@ -40,7 +41,11 @@ object SikuliXLoader {
     }
 
     fun loadImagePath(path: Path) {
-        ImagePath.add(path.toUri().toURL())
+        if (_working) ImagePath.add(path.toUri().toURL())
+    }
+
+    fun loadImagePath(url: URL) {
+        if (_working) ImagePath.add(url)
     }
 
     private fun testSikuliX() {
