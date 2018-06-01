@@ -42,6 +42,7 @@ import java.util.jar.JarFile
 class Wai2KConfig(
         currentProfile: String = "",
         sikulixJarPath: Path = Paths.get(""),
+        assetsDirectory: Path = Wai2K.CONFIG_DIR.resolve("assets"),
         clearConsoleOnStart: Boolean = true,
         debugModeEnabled: Boolean = true
 ) {
@@ -54,11 +55,13 @@ class Wai2KConfig(
 
     val currentProfileProperty = currentProfile.toProperty()
     val sikulixJarPathProperty = sikulixJarPath.toProperty()
+    val assetsDirectoryProperty = assetsDirectory.toProperty()
     val clearConsoleOnStartProperty = clearConsoleOnStart.toProperty()
     val debugModeEnabledProperty = debugModeEnabled.toProperty()
 
     var currentProfile by currentProfileProperty
     var sikulixJarPath by sikulixJarPathProperty
+    var assetsDirectory by assetsDirectoryProperty
     var clearConsoleOnStart by clearConsoleOnStartProperty
     var debugModeEnabled by debugModeEnabledProperty
 

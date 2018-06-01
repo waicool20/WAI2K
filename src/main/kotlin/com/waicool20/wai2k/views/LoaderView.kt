@@ -32,6 +32,8 @@ import javafx.scene.control.Label
 import javafx.scene.layout.AnchorPane
 import javafx.util.Duration
 import tornadofx.*
+import java.nio.file.Files
+import java.nio.file.Paths
 import kotlin.concurrent.thread
 
 
@@ -102,10 +104,20 @@ class LoaderView : View() {
                 wai2KConfig.debugModeEnabled
             }
         }
+
+        parameters.named["assets-dir"]?.let { Paths.get(it) }?.let { dir ->
+            logger.info("Assets directory passed in through command line: $dir")
+            if (Files.exists(dir)) {
+                wai2KConfig.assetsDirectory = dir
+            }
+        }
     }
 
     private fun loadSikuliX() {
         SikuliXLoader.loadAndTest(wai2KConfig.sikulixJarPath)
+        if (Files.exists(wai2KConfig.assetsDirectory)) {
+            SikuliXLoader.loadImagePath(wai2KConfig.assetsDirectory)
+        }
     }
 
     private fun closeAndShowMainApp() {
