@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonFilter
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializerProvider
+import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.databind.ser.PropertyWriter
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider
@@ -32,7 +33,7 @@ import javafx.beans.property.*
 /**
  * Provides an object mapper which ignores JavaFX Property types
  */
-fun fxJacksonObjectMapper() = jacksonObjectMapper().ignoreJavaFXPropertyTypes()
+fun fxJacksonObjectMapper() = jacksonObjectMapper().ignoreJavaFXPropertyTypes().registerFXModule()
 
 /**
  * Sets the object mapper to ignore JavaFX Property types
@@ -41,6 +42,13 @@ fun ObjectMapper.ignoreJavaFXPropertyTypes() = apply {
     addMixIn(Any::class.java, FXPropertyFilter.MixIn::class.java)
     setFilterProvider(SimpleFilterProvider().addFilter("FXPropertyFilter", FXPropertyFilter()))
 }
+
+/**
+ * Registers FX type deserializers
+ */
+fun ObjectMapper.registerFXModule(): ObjectMapper = registerModule(SimpleModule().apply {
+    addDeserializer(ListProperty::class.java, ListPropertyDeserializer<Any>())
+})
 
 private class FXPropertyFilter : SimpleBeanPropertyFilter() {
     @JsonFilter("FXPropertyFilter")

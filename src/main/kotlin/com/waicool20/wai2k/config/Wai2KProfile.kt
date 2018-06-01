@@ -26,9 +26,12 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.waicool20.util.javafx.ignoreJavaFXPropertyTypes
+import com.waicool20.util.javafx.registerFXModule
 import com.waicool20.util.javafx.toProperty
 import com.waicool20.util.logging.loggerFor
 import com.waicool20.wai2k.Wai2K
+import javafx.beans.property.ListProperty
+import javafx.beans.property.SimpleListProperty
 import tornadofx.*
 import java.nio.file.Files
 import java.nio.file.Path
@@ -47,7 +50,7 @@ data class Wai2KProfile(
     }
 
     class Logistics(
-            assignments: Map<Int, List<Int>> = mutableMapOf()
+            assignments: Map<Int, ListProperty<Int>> = (1..10).associate { it to SimpleListProperty<Int>() }
     ) {
         val assignmentsProperty = assignments.toProperty()
         var assignments by assignmentsProperty
@@ -55,12 +58,14 @@ data class Wai2KProfile(
 
     companion object Loader {
         private val loaderLogger = loggerFor<Loader>()
-        private val mapper = ObjectMapper(YAMLFactory()).registerKotlinModule().ignoreJavaFXPropertyTypes()
+        private val mapper = ObjectMapper(YAMLFactory()).registerKotlinModule()
+                .ignoreJavaFXPropertyTypes().registerFXModule()
         val PROFILE_DIR: Path = Wai2K.CONFIG_DIR.resolve("profiles")
         const val DEFAULT_NAME = "Default"
 
         fun load(name: String): Wai2KProfile {
-            return load(PROFILE_DIR.resolve("${name.takeIf { it.isNotBlank() } ?: DEFAULT_NAME}.yml")).apply {
+            return load(PROFILE_DIR.resolve("${name.takeIf { it.isNotBlank() }
+                    ?: DEFAULT_NAME}.yml")).apply {
                 this.name = name
             }
         }
