@@ -34,8 +34,20 @@ class MainView : View() {
             tab(StatusTabView::class)
             tab(DeviceTabView::class)
             tab(ProfileTabView::class)
-            connectWorkspaceActions()
         }
+        setupHeader()
+    }
+
+    private fun setupHeader() {
+        workspace.apply {
+            header.items.removeAll(backButton, forwardButton, createButton)
+            val buttons = header.items.toList()
+            val headerView = find<HeaderView>()
+            header.items.setAll(headerView.root)
+            headerView.buttons.children.addAll(buttons)
+            showHeadingLabel = false
+        }
+        forwardWorkspaceActions(find<HeaderView>())
     }
 }
 

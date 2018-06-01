@@ -40,6 +40,8 @@ class HeaderView : View() {
 
     private val configs: Configurations by inject()
 
+    val buttons: HBox by fxid()
+
     init {
         profileComboBox.setOnShowing { updateProfileItems() }
         profileComboBox.setOnAction { selectProfile() }
