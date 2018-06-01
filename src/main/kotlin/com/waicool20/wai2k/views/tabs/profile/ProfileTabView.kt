@@ -33,12 +33,16 @@ class ProfileTabView : View() {
     private val profileTreeView: TreeView<String> by fxid()
     private val profilePane: MasterDetailPane by fxid()
 
+    private val defaultMasterNode = hbox(alignment = Pos.CENTER) {
+        label("Choose something to configure on the right!")
+    }
     private val configs: Configurations by inject()
 
     init {
         title = "Profile"
         initializeTree()
         profilePane.dividerPosition = 1.0
+        profilePane.masterNode = defaultMasterNode
     }
 
     fun initializeTree() {
@@ -63,9 +67,7 @@ class ProfileTabView : View() {
                     isAnimated = true
                     isShowDetailNode = true
                 } else {
-                    masterNode = hbox(alignment = Pos.CENTER) {
-                        label("Choose something to configure on the right!")
-                    }
+                    masterNode = defaultMasterNode
                     isAnimated = false
                     isShowDetailNode = false
                 }

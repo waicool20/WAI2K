@@ -19,6 +19,7 @@
 
 package com.waicool20.wai2k.views
 
+import com.waicool20.util.javafx.AlertFactory
 import com.waicool20.util.javafx.TooltipSide
 import com.waicool20.util.javafx.fadeAfter
 import com.waicool20.util.javafx.showAt
@@ -51,7 +52,10 @@ class HeaderView : View() {
 
     override fun onSave() {
         super.onSave()
-
+        configs.currentProfile.apply {
+            save()
+            AlertFactory.info(content = "Profile $name was saved!").showAndWait()
+        }
     }
 
     private fun createBindings() {
