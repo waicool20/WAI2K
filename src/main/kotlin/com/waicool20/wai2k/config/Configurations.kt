@@ -19,6 +19,13 @@
 
 package com.waicool20.wai2k.config
 
+import javafx.beans.property.ObjectProperty
 import tornadofx.*
 
-class Configurations(var wai2KConfig: Wai2KConfig): Component(), ScopedInstance
+data class Configurations(
+        val wai2KConfigProperty: ObjectProperty<Wai2KConfig> = Wai2KConfig().toProperty(),
+        val versionInfoProperty: ObjectProperty<VersionInfo> = VersionInfo().toProperty()
+) : Component(), ScopedInstance {
+    var wai2KConfig by wai2KConfigProperty
+    var versionInfo by versionInfoProperty
+}

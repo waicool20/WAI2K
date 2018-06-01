@@ -1,3 +1,8 @@
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.nio.file.Path
+import java.nio.file.StandardOpenOption
+
 /*
  * GPLv3 License
  *
@@ -38,7 +43,19 @@ version 'v0.0.1'
 apply plugin: 'java'
 apply plugin: 'kotlin'
 
+task("versioning") {
+    Path file = Paths.get("$projectDir/src/main/resources/version.txt")
+    String content = """
+{
+    "version": "$project.version"
+}
+""".stripMargin().trim()
+    Files.write(file, content.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
+}
+
+
 defaultTasks 'build'
+processResources.dependsOn(tasks.versioning)
 build.finalizedBy(tasks.shadowJar)
 jar.enabled = false
 

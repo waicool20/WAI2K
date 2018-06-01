@@ -19,9 +19,9 @@
 
 package com.waicool20.wai2k.views
 
-import ch.qos.logback.classic.Level
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.waicool20.util.SikuliXLoader
-import com.waicool20.util.logging.LoggerUtils
 import com.waicool20.util.logging.LoggingEventBus
 import com.waicool20.util.logging.loggerFor
 import com.waicool20.wai2k.Wai2K
@@ -41,7 +41,8 @@ class LoaderView : View() {
     private val parameters: Application.Parameters by param()
 
     private val logger = loggerFor<LoaderView>()
-    private lateinit var wai2KConfig: Wai2KConfig
+    private val configurations = Configurations().also { setInScope(it) }
+    private var wai2KConfig by configurations.wai2KConfigProperty
 
     init {
         title = "WAI2K - Startup"
@@ -52,7 +53,8 @@ class LoaderView : View() {
         super.onDock()
         startStatusListener()
         find<ConsoleView>()
-        logger.info("Starting WAI2K")
+        parseVersion()
+        logger.info("Starting WAI2K ${configurations.versionInfo.version}")
         logger.info("Config directory: ${Wai2K.CONFIG_DIR}")
         startLoading()
     }
@@ -62,6 +64,10 @@ class LoaderView : View() {
         LoggingEventBus.subscribe(Regex(".* - (.*)")) {
             runLater { statusLabel.text = it.groupValues[1] }
         }
+    }
+
+    private fun parseVersion() {
+        configurations.versionInfo = jacksonObjectMapper().readValue(javaClass.classLoader.getResourceAsStream("version.txt"))
     }
 
     private fun startLoading() {
@@ -75,7 +81,6 @@ class LoaderView : View() {
 
     private fun loadWai2KConfig() {
         wai2KConfig = Wai2KConfig.load()
-        setInScope(Configurations(wai2KConfig))
         if (!wai2KConfig.isValid) {
             find<InitialConfigurationView>().openModal(owner = currentWindow, block = true)
         }
