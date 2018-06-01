@@ -29,7 +29,6 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10.0" xmlns="http://javafx.com/javafx/8.0.162-ea" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <HBox alignment="CENTER" spacing="10.0">
@@ -53,13 +52,13 @@
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <Label text="Name:" />
+            <Label text="ADB Serial:" />
             <Label text="Android Version:" GridPane.rowIndex="1" />
             <Label text="Brand:" GridPane.rowIndex="2" />
             <Label text="Manufacturer:" GridPane.rowIndex="3" />
             <Label text="Model:" GridPane.rowIndex="4" />
             <Label text="Display:" GridPane.rowIndex="5" />
-            <Label fx:id="nameLabel" GridPane.columnIndex="1" />
+            <Label fx:id="serialLabel" GridPane.columnIndex="1" />
             <Label fx:id="androidVersionLabel" GridPane.columnIndex="1" GridPane.rowIndex="1" />
             <Label fx:id="brandLabel" GridPane.columnIndex="1" GridPane.rowIndex="2" />
             <Label fx:id="manufacturerLabel" GridPane.columnIndex="1" GridPane.rowIndex="3" />

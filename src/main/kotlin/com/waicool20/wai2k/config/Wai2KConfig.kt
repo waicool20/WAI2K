@@ -23,14 +23,19 @@ import ch.qos.logback.classic.Level
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.JsonMappingException
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.waicool20.util.javafx.addListener
 import com.waicool20.util.javafx.fxJacksonObjectMapper
+import com.waicool20.util.javafx.ignoreJavaFXPropertyTypes
 import com.waicool20.util.logging.LoggerUtils
 import com.waicool20.util.logging.loggerFor
 import com.waicool20.wai2k.Wai2K
+import com.waicool20.wai2k.android.AndroidDevice
 import tornadofx.*
 import java.nio.file.Files
 import java.nio.file.Path
@@ -44,12 +49,14 @@ class Wai2KConfig(
         sikulixJarPath: Path = Paths.get(""),
         assetsDirectory: Path = Wai2K.CONFIG_DIR.resolve("assets"),
         clearConsoleOnStart: Boolean = true,
-        debugModeEnabled: Boolean = true
+        debugModeEnabled: Boolean = true,
+        lastDeviceSerial: String = ""
 ) {
     private val logger = loggerFor<Wai2K>()
 
     @get:JsonIgnore val isValid get() = sikulixJarIsValid()
     @get:JsonIgnore val logLevel get() = if (debugModeEnabled) "DEBUG" else "INFO"
+    @get:JsonIgnore val androidDevice get() = AndroidDevice.listAll(false).find { it.adbSerial == lastDeviceSerial }
 
     //<editor-fold desc="Properties">
 
@@ -58,20 +65,22 @@ class Wai2KConfig(
     val assetsDirectoryProperty = assetsDirectory.toProperty()
     val clearConsoleOnStartProperty = clearConsoleOnStart.toProperty()
     val debugModeEnabledProperty = debugModeEnabled.toProperty()
+    val lastDeviceSerialProperty = lastDeviceSerial.toProperty()
 
     var currentProfile by currentProfileProperty
     var sikulixJarPath by sikulixJarPathProperty
     var assetsDirectory by assetsDirectoryProperty
     var clearConsoleOnStart by clearConsoleOnStartProperty
     var debugModeEnabled by debugModeEnabledProperty
+    var lastDeviceSerial by lastDeviceSerialProperty
 
     //</editor-fold>
 
     companion object Loader {
-        private val mapper = fxJacksonObjectMapper()
+        private val mapper = ObjectMapper(YAMLFactory()).registerKotlinModule().ignoreJavaFXPropertyTypes()
         private val loaderLogger = loggerFor<Loader>()
 
-        val path: Path = Wai2K.CONFIG_DIR.resolve("wai2k.json")
+        val path: Path = Wai2K.CONFIG_DIR.resolve("preferences.yml")
 
         fun load(): Wai2KConfig {
             loaderLogger.info("Attempting to load Wai2K configuration")
@@ -85,7 +94,7 @@ class Wai2KConfig(
             return try {
                 mapper.readValue<Wai2KConfig>(path.toFile()).also {
                     loaderLogger.info("Wai2K configuration loaded")
-                    loaderLogger.debug("Config: $it")
+                    it.printDebugInfo()
                 }
             } catch (e: JsonMappingException) {
                 if (e.message?.startsWith("No content to map due to end-of-input") == false) {
@@ -114,9 +123,14 @@ class Wai2KConfig(
 
     fun save() {
         logger.info("Saving Wai2K configuration file")
-        logger.debug("Saved $this to $path")
         mapper.writerWithDefaultPrettyPrinter().writeValue(path.toFile(), this)
         logger.info("Saving Wai2K configuration was successful")
+        printDebugInfo()
+    }
+
+    private fun printDebugInfo() {
+        logger.debug("Config path: $path")
+        logger.debug("Config:\n$this")
     }
 
     override fun toString(): String = mapper.writeValueAsString(this)

@@ -19,7 +19,10 @@
 
 package com.waicool20.wai2k.views.tabs
 
+import com.waicool20.util.javafx.addListener
+import com.waicool20.util.logging.loggerFor
 import com.waicool20.wai2k.android.AndroidDevice
+import com.waicool20.wai2k.config.Configurations
 import com.waicool20.wai2k.util.Binder
 import javafx.scene.control.Button
 import javafx.scene.control.ComboBox
@@ -29,6 +32,7 @@ import javafx.util.StringConverter
 import org.controlsfx.glyphfont.FontAwesome
 import org.controlsfx.glyphfont.Glyph
 import tornadofx.*
+import kotlin.concurrent.thread
 
 class DeviceTabView : View(), Binder {
     override val root: VBox by fxml("/views/tabs/device-tab.fxml")
@@ -36,10 +40,14 @@ class DeviceTabView : View(), Binder {
     private val brandLabel: Label by fxid()
     private val manufacturerLabel: Label by fxid()
     private val modelLabel: Label by fxid()
-    private val nameLabel: Label by fxid()
+    private val serialLabel: Label by fxid()
     private val displayLabel: Label by fxid()
     private val deviceComboBox: ComboBox<AndroidDevice> by fxid()
     private val reloadDevicesButton: Button by fxid()
+
+    private val configs: Configurations by inject()
+
+    private val logger = loggerFor<DeviceTabView>()
 
     init {
         title = "Device"
@@ -49,7 +57,7 @@ class DeviceTabView : View(), Binder {
             refreshDeviceLists()
         }
         deviceComboBox.converter = object : StringConverter<AndroidDevice>() {
-            override fun toString(device: AndroidDevice) = device.adbSerial
+            override fun toString(device: AndroidDevice) = device.properties.name
             override fun fromString(string: String) = null
         }
         createBindings()
@@ -69,27 +77,41 @@ class DeviceTabView : View(), Binder {
         modelLabel.bind(
                 itemProp.stringBinding { it?.properties?.model ?: "" }
         )
-        nameLabel.bind(
-                itemProp.stringBinding { it?.properties?.name ?: "" }
+        serialLabel.bind(
+                itemProp.stringBinding { it?.adbSerial ?: "" }
         )
         displayLabel.textProperty().bind(
                 itemProp.stringBinding {
                     it?.properties?.run { "${displayWidth}x$displayHeight" } ?: ""
                 }
         )
+        itemProp.addListener("AndroidDeviceSelection") { newVal ->
+            if (newVal != null) {
+                logger.debug("Selected device: ${newVal.properties.name}")
+                configs.wai2KConfig.lastDeviceSerial = newVal.adbSerial
+                configs.wai2KConfig.save()
+            }
+        }
     }
 
     override fun onDock() {
         super.onDock()
-        refreshDeviceLists()
+        thread {
+            refreshDeviceLists()
+            configs.wai2KConfig.androidDevice?.let {
+                runLater { deviceComboBox.selectionModel.select(it) }
+            }
+        }
     }
 
     private fun refreshDeviceLists() {
-        val device = deviceComboBox.selectedItem
+        logger.debug("Refreshing device list")
+        val serial = deviceComboBox.selectedItem?.adbSerial
         val list = AndroidDevice.listAll()
+        logger.debug("Found ${list.size} devices")
         deviceComboBox.items.setAll(list)
-        if (!list.contains(device)) {
-            deviceComboBox.selectionModel.clearSelection()
-        }
+        list.find { it.adbSerial == serial }?.let {
+            deviceComboBox.selectionModel.select(it)
+        } ?: deviceComboBox.selectionModel.clearSelection()
     }
 }
