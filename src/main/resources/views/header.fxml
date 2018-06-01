@@ -28,8 +28,8 @@
 <HBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10.0" xmlns="http://javafx.com/javafx/8.0.162-ea" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <Label text="Profile:" />
-      <ComboBox editable="true" prefWidth="150.0" />
-      <SplitMenuButton mnemonicParsing="false" text="Start">
+      <ComboBox fx:id="profileComboBox" editable="true" prefWidth="150.0" />
+      <SplitMenuButton fx:id="startStopButton" mnemonicParsing="false" styleClass="green-split-menu" stylesheets="@../css/split-menu.css" text="Start">
         <items>
           <MenuItem mnemonicParsing="false" text="Action 1" />
           <MenuItem mnemonicParsing="false" text="Action 2" />

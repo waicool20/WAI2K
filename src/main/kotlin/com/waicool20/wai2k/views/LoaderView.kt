@@ -27,6 +27,7 @@ import com.waicool20.util.logging.loggerFor
 import com.waicool20.wai2k.Wai2K
 import com.waicool20.wai2k.config.Configurations
 import com.waicool20.wai2k.config.Wai2KConfig
+import com.waicool20.wai2k.config.Wai2KProfile
 import javafx.application.Application
 import javafx.scene.control.Label
 import javafx.scene.layout.AnchorPane
@@ -43,8 +44,9 @@ class LoaderView : View() {
     private val parameters: Application.Parameters by param()
 
     private val logger = loggerFor<LoaderView>()
-    private val configurations = Configurations().also { setInScope(it) }
-    private var wai2KConfig by configurations.wai2KConfigProperty
+    private val configs = Configurations().also { setInScope(it) }
+    private var wai2KConfig by configs.wai2KConfigProperty
+    private var currentProfile by configs.currentProfileProperty
 
     init {
         title = "WAI2K - Startup"
@@ -56,7 +58,7 @@ class LoaderView : View() {
         startStatusListener()
         find<ConsoleView>()
         parseVersion()
-        logger.info("Starting WAI2K ${configurations.versionInfo.version}")
+        logger.info("Starting WAI2K ${configs.versionInfo.version}")
         logger.info("Config directory: ${Wai2K.CONFIG_DIR}")
         startLoading()
     }
@@ -69,11 +71,12 @@ class LoaderView : View() {
     }
 
     private fun parseVersion() {
-        configurations.versionInfo = jacksonObjectMapper().readValue(javaClass.classLoader.getResourceAsStream("version.txt"))
+        configs.versionInfo = jacksonObjectMapper().readValue(javaClass.classLoader.getResourceAsStream("version.txt"))
     }
 
     private fun startLoading() {
         loadWai2KConfig()
+        loadWai2KProfile()
         thread {
             parseCommandLine()
             loadSikuliX()
@@ -86,6 +89,10 @@ class LoaderView : View() {
         if (!wai2KConfig.isValid) {
             find<InitialConfigurationView>().openModal(owner = currentWindow, block = true)
         }
+    }
+
+    private fun loadWai2KProfile() {
+        currentProfile = Wai2KProfile.load(wai2KConfig.currentProfile)
     }
 
     private fun parseCommandLine() {

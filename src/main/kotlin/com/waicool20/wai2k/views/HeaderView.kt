@@ -19,13 +19,66 @@
 
 package com.waicool20.wai2k.views
 
-import javafx.scene.Parent
+import com.waicool20.util.javafx.TooltipSide
+import com.waicool20.util.javafx.fadeAfter
+import com.waicool20.util.javafx.showAt
+import com.waicool20.wai2k.config.Configurations
+import com.waicool20.wai2k.config.Wai2KProfile
+import javafx.scene.control.ComboBox
+import javafx.scene.control.SplitMenuButton
+import javafx.scene.control.Tooltip
 import javafx.scene.layout.HBox
 import tornadofx.*
+import java.nio.file.Files
+import kotlin.concurrent.thread
+import kotlin.streams.toList
 
-class HeaderView: View() {
+class HeaderView : View() {
     override val root: HBox by fxml("/views/header.fxml")
+    private val profileComboBox: ComboBox<String> by fxid()
+    private val startStopButton: SplitMenuButton by fxid()
+
+    private val configs: Configurations by inject()
 
     init {
+        profileComboBox.setOnShowing { updateProfileItems() }
+        profileComboBox.setOnAction { selectProfile() }
+        createBindings()
+    }
+
+    private fun createBindings() {
+        profileComboBox.bind(configs.currentProfile.nameProperty)
+    }
+
+    private fun selectProfile() {
+        val newProfile = profileComboBox.value
+        thread {
+            Wai2KProfile.load(newProfile).let {
+                configs.apply {
+                    wai2KConfig.currentProfile = it.name
+                    wai2KConfig.save()
+                    currentProfile = it
+                }
+                runLater {
+                    createBindings()
+                    Tooltip("Profile ${it.name} has been loaded!").apply {
+                        fadeAfter(700)
+                        showAt(profileComboBox, TooltipSide.TOP_LEFT)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun updateProfileItems() {
+        val currentProfile = profileComboBox.value
+        val profiles = Files.walk(Wai2KProfile.PROFILE_DIR).toList()
+                .filter { Files.isRegularFile(it) }
+                .map { "${it.fileName}".removeSuffix(".yml") }
+                .filter { it != currentProfile }
+                .sorted()
+        if (profiles.isNotEmpty()) {
+            profileComboBox.items.setAll(profiles)
+        }
     }
 }

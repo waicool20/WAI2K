@@ -1,7 +1,7 @@
 /*
  * GPLv3 License
  *
- *  Copyright (c) WAI2K by waicool20
+ *  Copyright (c) KAGA by waicool20
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,19 +15,29 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
-package com.waicool20.wai2k.config
+.green-split-menu.split-menu-button > .arrow-button {
+    -fx-background-color: limegreen;
+}
 
-import javafx.beans.property.ObjectProperty
-import tornadofx.*
+.green-split-menu.split-menu-button > .label {
+    -fx-background-color: lightgreen;
+}
 
-data class Configurations(
-        val wai2KConfigProperty: ObjectProperty<Wai2KConfig> = Wai2KConfig().toProperty(),
-        val versionInfoProperty: ObjectProperty<VersionInfo> = VersionInfo().toProperty(),
-        val currentProfileProperty: ObjectProperty<Wai2KProfile> = Wai2KProfile().toProperty()
-) : Component(), ScopedInstance {
-    var wai2KConfig by wai2KConfigProperty
-    var versionInfo by versionInfoProperty
-    var currentProfile by currentProfileProperty
+.yellow-split-menu.split-menu-button > .arrow-button {
+    -fx-background-color: yellow;
+}
+
+.yellow-split-menu.split-menu-button > .label {
+    -fx-background-color: yellow;
+}
+
+.red-split-menu.split-menu-button > .arrow-button {
+    -fx-background-color: darkred;
+}
+
+.red-split-menu.split-menu-button > .label {
+    -fx-background-color: red;
 }
