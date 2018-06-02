@@ -19,8 +19,8 @@
 
 package com.waicool20.wai2k.views.tabs.profile
 
-import com.waicool20.util.javafx.addListener
 import com.waicool20.wai2k.config.Configurations
+import com.waicool20.waicoolutils.javafx.addListener
 import javafx.geometry.Pos
 import javafx.scene.control.TreeItem
 import javafx.scene.control.TreeView
@@ -34,7 +34,7 @@ class ProfileTabView : View() {
     private val profilePane: MasterDetailPane by fxid()
 
     private val defaultMasterNode = hbox(alignment = Pos.CENTER) {
-        label("Choose something to configure on the right!")
+        label("Choose something to configure on the left!")
     }
     private val configs: Configurations by inject()
 

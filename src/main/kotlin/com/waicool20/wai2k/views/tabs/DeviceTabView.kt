@@ -19,11 +19,11 @@
 
 package com.waicool20.wai2k.views.tabs
 
-import com.waicool20.util.javafx.addListener
-import com.waicool20.util.logging.loggerFor
 import com.waicool20.wai2k.android.AndroidDevice
 import com.waicool20.wai2k.config.Configurations
 import com.waicool20.wai2k.util.Binder
+import com.waicool20.waicoolutils.javafx.addListener
+import com.waicool20.waicoolutils.logging.loggerFor
 import javafx.scene.control.Button
 import javafx.scene.control.ComboBox
 import javafx.scene.control.Label

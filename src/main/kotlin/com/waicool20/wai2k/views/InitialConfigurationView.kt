@@ -19,9 +19,9 @@
 
 package com.waicool20.wai2k.views
 
-import com.waicool20.util.javafx.listen
-import com.waicool20.util.javafx.listenDebounced
 import com.waicool20.wai2k.config.Configurations
+import com.waicool20.waicoolutils.javafx.listen
+import com.waicool20.waicoolutils.javafx.listenDebounced
 import javafx.scene.control.Button
 import javafx.scene.control.TextField
 import javafx.scene.layout.VBox

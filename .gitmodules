@@ -1,0 +1,3 @@
+[submodule "waicoolUtils"]
+	path = waicoolUtils
+	url = git@github.com:waicool20/waicoolUtils.git

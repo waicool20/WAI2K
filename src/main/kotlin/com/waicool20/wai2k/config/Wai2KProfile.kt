@@ -22,10 +22,9 @@ package com.waicool20.wai2k.config
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.waicool20.util.javafx.fxJacksonObjectMapper
-import com.waicool20.util.javafx.toProperty
-import com.waicool20.util.logging.loggerFor
 import com.waicool20.wai2k.Wai2K
+import com.waicool20.waicoolutils.javafx.json.fxJacksonObjectMapper
+import com.waicool20.waicoolutils.logging.loggerFor
 import javafx.beans.property.ListProperty
 import javafx.beans.property.SimpleListProperty
 import tornadofx.*
@@ -46,7 +45,7 @@ data class Wai2KProfile(
     }
 
     class Logistics(
-            assignments: Map<Int, ListProperty<Int>> = (1..10).associate { it to SimpleListProperty<Int>() }
+            assignments: MutableMap<Int, ListProperty<Int>> = (1..10).associate { it to SimpleListProperty<Int>() }.toMutableMap()
     ) {
         val assignmentsProperty = assignments.toProperty()
         var assignments by assignmentsProperty

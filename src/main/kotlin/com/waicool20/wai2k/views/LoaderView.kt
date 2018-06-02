@@ -21,13 +21,13 @@ package com.waicool20.wai2k.views
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.waicool20.util.SikuliXLoader
-import com.waicool20.util.logging.LoggingEventBus
-import com.waicool20.util.logging.loggerFor
 import com.waicool20.wai2k.Wai2K
 import com.waicool20.wai2k.config.Configurations
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
+import com.waicool20.waicoolutils.SikuliXLoader
+import com.waicool20.waicoolutils.logging.LoggingEventBus
+import com.waicool20.waicoolutils.logging.loggerFor
 import javafx.application.Application
 import javafx.scene.control.Label
 import javafx.scene.layout.AnchorPane

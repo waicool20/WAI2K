@@ -19,10 +19,10 @@
 
 package com.waicool20.wai2k.views.tabs.profile.logistics
 
-import com.waicool20.util.javafx.bind
-import com.waicool20.util.javafx.listen
 import com.waicool20.wai2k.config.Configurations
 import com.waicool20.wai2k.game.LogisticsSupport
+import com.waicool20.waicoolutils.controlsfx.bind
+import com.waicool20.waicoolutils.javafx.listen
 import javafx.beans.property.SimpleListProperty
 import javafx.scene.layout.VBox
 import org.controlsfx.control.CheckComboBox

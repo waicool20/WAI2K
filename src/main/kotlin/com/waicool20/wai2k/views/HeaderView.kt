@@ -19,10 +19,14 @@
 
 package com.waicool20.wai2k.views
 
-import com.waicool20.util.javafx.*
 import com.waicool20.wai2k.Wai2K
 import com.waicool20.wai2k.config.Configurations
 import com.waicool20.wai2k.config.Wai2KProfile
+import com.waicool20.waicoolutils.javafx.AlertFactory
+import com.waicool20.waicoolutils.javafx.addListener
+import com.waicool20.waicoolutils.javafx.tooltips.TooltipSide
+import com.waicool20.waicoolutils.javafx.tooltips.fadeAfter
+import com.waicool20.waicoolutils.javafx.tooltips.showAt
 import javafx.scene.control.ComboBox
 import javafx.scene.control.SplitMenuButton
 import javafx.scene.control.Tooltip
