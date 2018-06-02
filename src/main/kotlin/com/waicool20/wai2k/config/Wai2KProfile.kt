@@ -20,7 +20,10 @@
 package com.waicool20.wai2k.config
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.JsonMappingException
+import com.fasterxml.jackson.databind.PropertyNamingStrategy
+import com.fasterxml.jackson.databind.annotation.JsonNaming
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.waicool20.wai2k.Wai2K
 import com.waicool20.waicoolutils.javafx.json.fxJacksonObjectMapper
@@ -31,6 +34,8 @@ import tornadofx.*
 import java.nio.file.Files
 import java.nio.file.Path
 
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy::class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class Wai2KProfile(
         val logistics: Logistics = Logistics()
 ) {
