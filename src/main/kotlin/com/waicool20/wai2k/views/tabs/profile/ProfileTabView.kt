@@ -21,6 +21,7 @@ package com.waicool20.wai2k.views.tabs.profile
 
 import com.waicool20.wai2k.config.Configurations
 import com.waicool20.waicoolutils.javafx.addListener
+import com.waicool20.waicoolutils.javafx.listen
 import javafx.geometry.Pos
 import javafx.scene.control.TreeItem
 import javafx.scene.control.TreeView
@@ -40,14 +41,21 @@ class ProfileTabView : View() {
 
     init {
         title = "Profile"
-        initializeTree()
         profilePane.dividerPosition = 1.0
         profilePane.masterNode = defaultMasterNode
     }
 
+    override fun onDock() {
+        super.onDock()
+        initializeTree()
+    }
+
     fun initializeTree() {
         profileTreeView.root = TreeItem<String>().apply {
-            valueProperty().bind(configs.currentProfile.nameProperty)
+            configs.currentProfileProperty.apply {
+                listen { valueProperty().bind(get().nameProperty) }
+                valueProperty().bind(get().nameProperty)
+            }
             isExpanded = true
         }
         ProfileViewMappings.list.forEach { node ->
