@@ -85,6 +85,7 @@ data class Wai2KProfile(
             } catch (e: JsonMappingException) {
                 if (e.message?.startsWith("No content to map due to end-of-input") == false) {
                     loaderLogger.warn("Error occurred while loading the profile: ${e.message}")
+                    throw e
                 }
                 loaderLogger.info("Using default profile")
                 Wai2KProfile().apply { save() }

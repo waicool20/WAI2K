@@ -41,12 +41,13 @@ import java.util.jar.JarFile
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy::class)
 @JsonIgnoreProperties(ignoreUnknown = true)
 class Wai2KConfig(
-        currentProfile: String = "",
+        currentProfile: String = Wai2KProfile.DEFAULT_NAME,
         sikulixJarPath: Path = Paths.get(""),
         assetsDirectory: Path = Wai2K.CONFIG_DIR.resolve("assets"),
         clearConsoleOnStart: Boolean = true,
         debugModeEnabled: Boolean = true,
-        lastDeviceSerial: String = ""
+        lastDeviceSerial: String = "",
+        scriptConfig: ScriptConfig = ScriptConfig()
 ) {
     private val logger = loggerFor<Wai2K>()
 
@@ -63,6 +64,7 @@ class Wai2KConfig(
     val clearConsoleOnStartProperty = clearConsoleOnStart.toProperty()
     val debugModeEnabledProperty = debugModeEnabled.toProperty()
     val lastDeviceSerialProperty = lastDeviceSerial.toProperty()
+    val scriptConfigProperty = scriptConfig.toProperty()
 
     var currentProfile by currentProfileProperty
     var sikulixJarPath by sikulixJarPathProperty
@@ -70,6 +72,7 @@ class Wai2KConfig(
     var clearConsoleOnStart by clearConsoleOnStartProperty
     var debugModeEnabled by debugModeEnabledProperty
     var lastDeviceSerial by lastDeviceSerialProperty
+    var scriptConfig by scriptConfigProperty
 
     //</editor-fold>
 
@@ -92,10 +95,11 @@ class Wai2KConfig(
                 mapper.readValue<Wai2KConfig>(path.toFile()).also {
                     loaderLogger.info("Wai2K configuration loaded")
                     it.printDebugInfo()
+                    if (it.currentProfile.isBlank()) it.currentProfile = Wai2KProfile.DEFAULT_NAME
                 }
             } catch (e: JsonMappingException) {
                 if (e.message?.startsWith("No content to map due to end-of-input") == false) {
-                    loaderLogger.warn("Error occurred while loading the config: ${e.message}")
+                    throw e
                 }
                 loaderLogger.info("Using default config")
                 Wai2KConfig().apply { save() }
