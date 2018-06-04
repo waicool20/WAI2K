@@ -22,15 +22,19 @@ package com.waicool20.wai2k.views
 import com.waicool20.wai2k.Wai2K
 import com.waicool20.wai2k.config.Configurations
 import com.waicool20.wai2k.config.Wai2KProfile
+import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.waicoolutils.javafx.AlertFactory
 import com.waicool20.waicoolutils.javafx.addListener
 import com.waicool20.waicoolutils.javafx.tooltips.TooltipSide
 import com.waicool20.waicoolutils.javafx.tooltips.fadeAfter
 import com.waicool20.waicoolutils.javafx.tooltips.showAt
+import javafx.scene.control.Button
 import javafx.scene.control.ComboBox
 import javafx.scene.control.SplitMenuButton
 import javafx.scene.control.Tooltip
 import javafx.scene.layout.HBox
+import org.controlsfx.glyphfont.FontAwesome
+import org.controlsfx.glyphfont.Glyph
 import tornadofx.*
 import java.nio.file.Files
 import kotlin.concurrent.thread
@@ -38,8 +42,13 @@ import kotlin.streams.toList
 
 class HeaderView : View() {
     override val root: HBox by fxml("/views/header.fxml")
+
+    private val PLAY_GLYPH = Glyph("FontAwesome", FontAwesome.Glyph.PLAY)
+    private val PAUSE_GLYPH = Glyph("FontAwesome", FontAwesome.Glyph.PAUSE)
+
     private val profileComboBox: ComboBox<String> by fxid()
-    private val startStopButton: SplitMenuButton by fxid()
+    private val startPauseButton: SplitMenuButton by fxid()
+    private val stopButton: Button by fxid()
 
     private val configs: Configurations by inject()
 
@@ -49,17 +58,9 @@ class HeaderView : View() {
         super.onDock()
         profileComboBox.setOnShowing { updateProfileItems() }
         profileComboBox.setOnAction { selectProfile() }
+        startPauseButton.setOnAction { onStartPause() }
+        stopButton.setOnAction { onStop() }
         createBindings()
-
-        configs.currentProfileProperty.addListener("HeaderViewProfile") { newVal ->
-            createBindings()
-            runLater {
-                Tooltip("Profile ${newVal.name} has been loaded!").apply {
-                    fadeAfter(700)
-                    showAt(profileComboBox, TooltipSide.TOP_LEFT)
-                }
-            }
-        }
     }
 
     override fun onSave() {
@@ -94,6 +95,23 @@ class HeaderView : View() {
 
     private fun createBindings() {
         profileComboBox.bind(configs.currentProfile.nameProperty)
+        configs.currentProfileProperty.addListener("HeaderViewProfile") { newVal ->
+            createBindings()
+            runLater {
+                Tooltip("Profile ${newVal.name} has been loaded!").apply {
+                    fadeAfter(700)
+                    showAt(profileComboBox, TooltipSide.TOP_LEFT)
+                }
+            }
+        }
+        startPauseButton.textProperty().addListener("StartStopButtonListener") { newVal ->
+            startPauseButton.apply {
+                val color = if (newVal == "Pause") "yellow" else "green"
+                styleClass.removeAll { it.endsWith("-split-menu") }
+                styleClass.add("$color-split-menu")
+            }
+            startPauseButton.graphic = if (newVal == "Pause") PAUSE_GLYPH else PLAY_GLYPH
+        }
     }
 
     private fun selectProfile() {
@@ -121,5 +139,27 @@ class HeaderView : View() {
         if (profiles.isNotEmpty()) {
             profileComboBox.items.setAll(profiles)
         }
+    }
+
+    private fun onStartPause() = runLater {
+        if (ScriptRunner.isRunning) {
+            if (ScriptRunner.isPaused) {
+                ScriptRunner.isPaused = false
+                startPauseButton.text = "Pause"
+            } else {
+                ScriptRunner.isPaused = true
+                startPauseButton.text = "Cont."
+            }
+        } else {
+            ScriptRunner.run()
+            startPauseButton.text = "Pause"
+            stopButton.show()
+        }
+    }
+
+    private fun onStop() = runLater {
+        ScriptRunner.stop()
+        startPauseButton.text = "Start"
+        stopButton.hide()
     }
 }

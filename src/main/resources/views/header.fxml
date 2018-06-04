@@ -19,17 +19,27 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<?import javafx.scene.control.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.SplitMenuButton?>
 <?import javafx.scene.layout.HBox?>
+<?import org.controlsfx.glyphfont.Glyph?>
 <HBox alignment="CENTER" minHeight="-Infinity" minWidth="-Infinity" spacing="10.0" HBox.hgrow="ALWAYS" xmlns="http://javafx.com/javafx/8.0.162-ea" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <Label text="Profile:" />
       <ComboBox fx:id="profileComboBox" editable="true" prefWidth="250.0" />
       <HBox fx:id="buttons" HBox.hgrow="ALWAYS" />
-      <SplitMenuButton fx:id="startStopButton" mnemonicParsing="false" styleClass="green-split-menu" stylesheets="@../css/split-menu.css" text="Start">
+      <Button fx:id="stopButton" mnemonicParsing="false" visible="false">
+         <graphic>
+            <Glyph fontFamily="FontAwesome" icon="Stop" />
+         </graphic>
+      </Button>
+      <SplitMenuButton fx:id="startPauseButton" mnemonicParsing="false" prefWidth="100.0" styleClass="green-split-menu" stylesheets="@../css/split-menu.css" text="Start">
+         <graphic>
+            <Glyph fontFamily="FontAwesome" icon="Play" />
+         </graphic>
         <items>
-          <MenuItem mnemonicParsing="false" text="Action 1" />
-          <MenuItem mnemonicParsing="false" text="Action 2" />
         </items>
       </SplitMenuButton>
    </children>

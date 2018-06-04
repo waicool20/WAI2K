@@ -18,6 +18,10 @@
  *
  */
 
+.green-split-menu.split-menu-button {
+    -fx-focus-color: green;
+}
+
 .green-split-menu.split-menu-button > .arrow-button {
     -fx-background-color: limegreen;
 }
@@ -26,12 +30,20 @@
     -fx-background-color: lightgreen;
 }
 
+.yellow-split-menu.split-menu-button {
+    -fx-focus-color: gold;
+}
+
 .yellow-split-menu.split-menu-button > .arrow-button {
     -fx-background-color: yellow;
 }
 
 .yellow-split-menu.split-menu-button > .label {
     -fx-background-color: yellow;
+}
+
+.red-split-menu.split-menu-button {
+    -fx-focus-color: darkred;
 }
 
 .red-split-menu.split-menu-button > .arrow-button {
