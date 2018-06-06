@@ -383,10 +383,11 @@ class AndroidRobot(val screen: AndroidScreen) : IRobot {
          */
         fun touchDown(slot: Int) {
             if (_touches[slot].isTouching.compareAndSet(false, true)) {
+                val rng = Random()
                 sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_SLOT, slot.toLong())
                 sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_TRACKING_ID, slot.toLong())
-                sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_TOUCH_MAJOR, 127)
-                sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_PRESSURE, 127)
+                sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_TOUCH_MAJOR, 100L + rng.nextInt(100))
+                sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_PRESSURE, 100L + rng.nextInt(100))
                 sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_POSITION_X, coordToValue(_touches[slot].cursorX, InputEvent.ABS_MT_POSITION_X))
                 sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_POSITION_Y, coordToValue(_touches[slot].cursorY, InputEvent.ABS_MT_POSITION_Y))
             }
