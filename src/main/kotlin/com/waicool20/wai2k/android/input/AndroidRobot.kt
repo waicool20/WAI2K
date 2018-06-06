@@ -372,7 +372,7 @@ class AndroidRobot(val screen: AndroidScreen) : IRobot {
             if (_touches[slot].isTouching.compareAndSet(true, false)) {
                 sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_SLOT, slot.toLong())
                 sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_PRESSURE, 0)
-                sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_TRACKING_ID, 0xffffffff)
+                sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_TRACKING_ID, 0xfffffffff)
             }
         }
 
@@ -468,11 +468,11 @@ class AndroidRobot(val screen: AndroidScreen) : IRobot {
     //</editor-fold>
 
     private fun sendEvent(type: EventType, code: InputEvent, value: Long) {
-        screen.device.execute("sendevent ${screen.device.input.devFile} ${type.code} ${code.code} $value").read()
+        screen.device.execute("sendevent ${screen.device.input.devFile} ${type.code} ${code.code} $value").readBytes()
     }
 
     private fun sendKeyEvent(key: Key, event: InputEvent) {
-        screen.device.execute("sendevent ${screen.device.input.devFile} ${EventType.EV_KEY.code} ${key.code} ${event.code}").read()
+        screen.device.execute("sendevent ${screen.device.input.devFile} ${EventType.EV_KEY.code} ${key.code} ${event.code}").readBytes()
     }
 
     private fun syncEvent() = sendEvent(EventType.EV_SYN, InputEvent.SYN_REPORT, 0)
