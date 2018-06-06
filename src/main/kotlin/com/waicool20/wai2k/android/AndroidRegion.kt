@@ -24,6 +24,7 @@ import org.sikuli.script.*
 import java.awt.Image
 import java.awt.Rectangle
 import java.awt.event.KeyEvent
+import java.util.*
 
 open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region(), ISikuliRegion {
     /**
@@ -280,6 +281,10 @@ open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region
 
     //</editor-fold>
 
+    override fun setOtherScreen(screen: IScreen?): AndroidRegion {
+        return super.setOtherScreen(screen) as AndroidRegion
+    }
+
     override fun <PSIMRL : Any> getLocationFromTarget(target: PSIMRL): Location = when (target) {
         is Pattern, is String, is Image -> find(target).target
         is Match -> target.target
@@ -299,5 +304,21 @@ open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region
     //<editor-fold desc="Unsupported"
 
     //</editor-fold>
+
+    override fun subRegion(x: Int, y: Int, width: Int, height: Int): AndroidRegion {
+        val xCoord = if (x in 0..w) (this.x + x) else w
+        val yCoord = if (y in 0..h) (this.y + y) else h
+        val newWidth = if (width in 0..w) width else w
+        val newHeight = if (height in 0..w) height else h
+
+        return androidScreen().newRegion(xCoord, yCoord, newWidth, newHeight).apply {
+
+        }
+    }
+
+    override fun clickRandomly() {
+        val rng = Random()
+        click(Location(rng.nextInt(w), rng.nextInt(h)))
+    }
 }
 

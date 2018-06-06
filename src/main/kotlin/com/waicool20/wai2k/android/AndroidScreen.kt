@@ -147,7 +147,7 @@ class AndroidScreen(val device: AndroidDevice) : AndroidRegion(
      * @param w Width
      * @param h Height
      */
-    override fun newRegion(x: Int, y: Int, w: Int, h: Int): Region = AndroidRegion(x, y, w, h, this)
+    override fun newRegion(x: Int, y: Int, w: Int, h: Int): AndroidRegion = AndroidRegion(x, y, w, h, this)
 
     /**
      * Creates a new region on this screen
@@ -156,21 +156,21 @@ class AndroidScreen(val device: AndroidDevice) : AndroidRegion(
      * @param w Width
      * @param h Height
      */
-    override fun newRegion(loc: Location, w: Int, h: Int): Region = AndroidRegion(loc.x, loc.y, w, h, this)
+    override fun newRegion(loc: Location, w: Int, h: Int): AndroidRegion = AndroidRegion(loc.x, loc.y, w, h, this)
 
     /**
      * Creates a new region on this screen
      *
      * @param reg Region object to copy from
      */
-    override fun newRegion(reg: Region): Region = AndroidRegion(reg, this)
+    override fun newRegion(reg: Region): AndroidRegion = AndroidRegion(reg, this)
 
     /**
      * Sets the regions screen to this screen
      *
      * @param element Region to set
      */
-    override fun setOther(element: Region): Region = element.setOtherScreen(this)
+    override fun setOther(element: Region): AndroidRegion =  newRegion(element).setOtherScreen(this)
 
     /**
      * Sets the locations screen to this screen

@@ -693,6 +693,13 @@ interface ISikuliRegion {
      */
     fun <PSIMRL : Any> getLocationFromTarget(target: PSIMRL): Location
 
+    /**
+     * Sets a new screen for an android region
+     *
+     * @param screen New Screen
+     */
+    fun setOtherScreen(screen: IScreen?): AndroidRegion
+
     //<editor-fold desc="Kotlin operator overloads">
 
     /**
@@ -710,4 +717,20 @@ interface ISikuliRegion {
     operator fun compareTo(region: Region): Int
 
     //</editor-fold>
+
+    //<editor-fold desc="Extra Utilities">
+    /**
+     * Gets a sub-region of this region
+     *
+     * @param x x coordinate of the sub region
+     * @param y y coordinate of the sub region
+     * @param width width of the sub region
+     * @param height height of the sub region
+     */
+    fun subRegion(x: Int, y: Int, width: Int, height: Int): AndroidRegion
+
+    /**
+     * Clicks a spot randomly on this region
+     */
+    fun clickRandomly()
 }
