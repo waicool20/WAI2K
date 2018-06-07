@@ -78,6 +78,7 @@ dependencies {
     compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.9.5'
     compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
     compile group: 'org.controlsfx', name: 'controlsfx', version: '8.40.14'
+    compile group: 'org.reflections', name: 'reflections', version: '0.9.11'
     compile 'com.github.vidstige:jadb:v1.1.0'
 
     compile project(":waicoolUtils")

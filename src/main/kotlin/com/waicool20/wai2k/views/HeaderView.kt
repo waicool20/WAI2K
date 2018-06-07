@@ -22,7 +22,7 @@ package com.waicool20.wai2k.views
 import com.waicool20.wai2k.Wai2K
 import com.waicool20.wai2k.config.Configurations
 import com.waicool20.wai2k.config.Wai2KProfile
-import com.waicool20.wai2k.script.ScriptRunner
+import com.waicool20.wai2k.script.ScriptContext
 import com.waicool20.waicoolutils.javafx.AlertFactory
 import com.waicool20.waicoolutils.javafx.addListener
 import com.waicool20.waicoolutils.javafx.tooltips.TooltipSide
@@ -33,6 +33,8 @@ import javafx.scene.control.ComboBox
 import javafx.scene.control.SplitMenuButton
 import javafx.scene.control.Tooltip
 import javafx.scene.layout.HBox
+import kotlinx.coroutines.experimental.javafx.JavaFx
+import kotlinx.coroutines.experimental.launch
 import org.controlsfx.glyphfont.FontAwesome
 import org.controlsfx.glyphfont.Glyph
 import tornadofx.*
@@ -51,6 +53,7 @@ class HeaderView : View() {
     private val stopButton: Button by fxid()
 
     private val configs: Configurations by inject()
+    private val scriptRunner = find<ScriptContext>().scriptRunner
 
     val buttons: HBox by fxid()
 
@@ -59,7 +62,7 @@ class HeaderView : View() {
         profileComboBox.setOnShowing { updateProfileItems() }
         profileComboBox.setOnAction { selectProfile() }
         startPauseButton.setOnAction { onStartPause() }
-        stopButton.setOnAction { onStop() }
+        stopButton.setOnAction { scriptRunner.stop() }
         createBindings()
     }
 
@@ -142,24 +145,35 @@ class HeaderView : View() {
     }
 
     private fun onStartPause() = runLater {
-        if (ScriptRunner.isRunning) {
-            if (ScriptRunner.isPaused) {
-                ScriptRunner.isPaused = false
+        if (scriptRunner.isRunning) {
+            if (scriptRunner.isPaused) {
+                scriptRunner.isPaused = false
                 startPauseButton.text = "Pause"
             } else {
-                ScriptRunner.isPaused = true
+                scriptRunner.isPaused = true
                 startPauseButton.text = "Cont."
             }
         } else {
-            ScriptRunner.run()
+            scriptRunner.apply {
+                config = configs.wai2KConfig
+                profile = configs.currentProfile
+            }.run()
             startPauseButton.text = "Pause"
             stopButton.show()
+            startScriptMonitor()
         }
     }
 
     private fun onStop() = runLater {
-        ScriptRunner.stop()
+        scriptRunner.stop()
         startPauseButton.text = "Start"
         stopButton.hide()
+    }
+
+    private fun startScriptMonitor() {
+        launch(JavaFx) {
+            scriptRunner.scriptJob?.join()
+            onStop()
+        }
     }
 }

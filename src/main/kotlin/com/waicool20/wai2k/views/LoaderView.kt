@@ -25,6 +25,8 @@ import com.waicool20.wai2k.Wai2K
 import com.waicool20.wai2k.config.Configurations
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
+import com.waicool20.wai2k.script.ScriptContext
+import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.waicoolutils.SikuliXLoader
 import com.waicool20.waicoolutils.logging.LoggingEventBus
 import com.waicool20.waicoolutils.logging.loggerFor
@@ -77,6 +79,7 @@ class LoaderView : View() {
     private fun startLoading() {
         loadWai2KConfig()
         loadWai2KProfile()
+        loadScriptRunner()
         thread {
             parseCommandLine()
             loadSikuliX()
@@ -93,6 +96,10 @@ class LoaderView : View() {
 
     private fun loadWai2KProfile() {
         currentProfile = Wai2KProfile.load(wai2KConfig.currentProfile)
+    }
+
+    private fun loadScriptRunner() {
+        setInScope(ScriptContext(ScriptRunner(wai2KConfig, currentProfile)))
     }
 
     private fun parseCommandLine() {
@@ -124,6 +131,7 @@ class LoaderView : View() {
         SikuliXLoader.loadAndTest(wai2KConfig.sikulixJarPath)
         if (Files.exists(wai2KConfig.assetsDirectory)) {
             SikuliXLoader.loadImagePath(wai2KConfig.assetsDirectory)
+            logger.info("Loading assets @ ${wai2KConfig.assetsDirectory}")
         }
     }
 

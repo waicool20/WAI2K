@@ -19,41 +19,87 @@
 
 package com.waicool20.wai2k.script
 
+import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.Logger
+import com.waicool20.wai2k.android.AndroidDevice
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
+import com.waicool20.wai2k.script.modules.InitModule
+import com.waicool20.wai2k.script.modules.ScriptModule
+import com.waicool20.wai2k.util.cancelAndYield
+import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.experimental.*
+import org.reflections.Reflections
+import org.sikuli.basics.Settings
+import java.util.concurrent.TimeUnit
+import kotlin.coroutines.experimental.coroutineContext
+import kotlin.reflect.full.primaryConstructor
 
-object ScriptRunner {
-    private val context = newSingleThreadContext("Wai2K Script Runner Context")
+class ScriptRunner(wai2KConfig: Wai2KConfig = Wai2KConfig(), wai2KProfile: Wai2KProfile = Wai2KProfile()) {
+    private val dispatcher = newSingleThreadContext("Wai2K Script Runner Context")
 
-    private var currentConfig = Wai2KConfig()
-    private var currentProfile = Wai2KProfile()
-
-    var scriptJob: Job? = null
+    private var currentDevice: AndroidDevice? = null
+    private var currentConfig = wai2KConfig
+    private var currentProfile = wai2KProfile
 
     var config: Wai2KConfig? = null
     var profile: Wai2KProfile? = null
 
+    var scriptJob: Job? = null
+
     var isPaused: Boolean = false
     val isRunning get() = scriptJob?.isActive == true
+    val gameState = GameState()
+
+    init {
+        // Turn off logging for reflections library
+        (loggerFor<Reflections>() as Logger).level = Level.OFF
+    }
+
+    private val modules = mutableSetOf<ScriptModule>()
 
     fun run() {
-        if (!isRunning) {
-            isPaused = false
-            scriptJob = launch(context) {
-                (0..1000).forEach {
-                    delay(100)
-                    println(it)
-                    while (isPaused) delay(100)
-                }
-                reload()
+        if (isRunning) return
+        isPaused = false
+        scriptJob = launch(dispatcher) {
+            while (isActive) {
+                runScriptCycle()
             }
         }
     }
 
     fun reload() {
-        config?.let { currentConfig = it }
-        profile?.let { currentProfile = it }
+        var reloadModules = false
+        config?.let {
+            currentConfig = it
+            reloadModules = true
+        }
+        profile?.let {
+            currentProfile = it
+            reloadModules = true
+        }
+        // TODO add to config
+        Settings.MinSimilarity = 0.8
+        Settings.WaitScanRate = 20f
+        Settings.ObserveScanRate = 20f
+        Settings.AutoWaitTimeout = 1f
+        Settings.RepeatWaitTime = 0
+
+        currentDevice = AndroidDevice.listAll().find { it.adbSerial == currentConfig.lastDeviceSerial }
+        if (reloadModules) {
+            modules.clear()
+            val region = currentDevice?.screen ?: return
+            val nav = Navigator(gameState, region, currentConfig, currentProfile)
+            modules.add(InitModule(gameState, region, currentConfig, currentProfile, nav))
+            Reflections("com.waicool20.wai2k.script.modules")
+                    .getSubTypesOf(ScriptModule::class.java)
+                    .map { it.kotlin }.filterNot { it.isAbstract }
+                    .filterNot { it == InitModule::class }
+                    .mapNotNull {
+                        it.primaryConstructor?.call(gameState, region, currentConfig, currentProfile, nav)
+                    }
+                    .let { modules.addAll(it) }
+        }
     }
 
     fun waitFor() = runBlocking {
@@ -62,5 +108,16 @@ object ScriptRunner {
 
     fun stop() {
         scriptJob?.cancel()
+    }
+
+    private suspend fun runScriptCycle() {
+        reload()
+        if (modules.isEmpty()) {
+            coroutineContext.cancelAndYield()
+        }
+        modules.forEach { it.execute() }
+        do {
+            delay(currentConfig.scriptConfig.loopDelay, TimeUnit.SECONDS)
+        } while (isPaused)
     }
 }

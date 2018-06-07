@@ -1,0 +1,331 @@
+[
+  {
+    "name": "home",
+    "isIntermediate": false,
+    "landmarks": [
+      {
+        "asset": {
+          "imageName": "home",
+          "x": 107,
+          "y": 513,
+          "width": 53,
+          "height": 53
+        }
+      }
+    ],
+    "links": [
+      {
+        "dest": "combat_menu",
+        "asset": {
+          "imageName": "",
+          "x": 1345,
+          "y": 596,
+          "width": 328,
+          "height": 149
+        }
+      }
+    ]
+  },
+  {
+    "name": "combat_menu",
+    "isIntermediate": true,
+    "landmarks": [
+      {
+        "asset": {
+          "imageName": "combat_menu",
+          "x": 398,
+          "y": 48,
+          "width": 60,
+          "height": 60
+        }
+      }
+    ],
+    "links": [
+      {
+        "dest": "home",
+        "asset": {
+          "imageName": "",
+          "x": 126,
+          "y": 5,
+          "width": 194,
+          "height": 134
+        }
+      },
+      {
+        "dest": "logistics_support",
+        "asset": {
+          "imageName": "",
+          "x": 131,
+          "y": 306,
+          "width": 257,
+          "height": 117
+        }
+      }
+    ]
+  },
+  {
+    "name": "logistics_support",
+    "isIntermediate": true,
+    "landmarks": [
+      {
+        "asset": {
+          "imageName": "logistics_support_common",
+          "x": 1804,
+          "y": 146,
+          "width": 60,
+          "height": 60
+        }
+      }
+    ],
+    "links": [
+      {
+        "dest": "home",
+        "asset": {
+          "imageName": "",
+          "x": 126,
+          "y": 5,
+          "width": 194,
+          "height": 134
+        }
+      },
+      {
+        "dest": "combat_menu",
+        "asset": {
+          "imageName": "",
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        }
+      },
+      {
+        "dest": "logistics_support_1",
+        "asset": {
+          "imageName": "",
+          "x": 407,
+          "y": 307,
+          "width": 192,
+          "height": 133
+        }
+      },
+      {
+        "dest": "logistics_support_2",
+        "asset": {
+          "imageName": "",
+          "x": 407,
+          "y": 459,
+          "width": 192,
+          "height": 133
+        }
+      },
+      {
+        "dest": "logistics_support_3",
+        "asset": {
+          "imageName": "",
+          "x": 407,
+          "y": 612,
+          "width": 192,
+          "height": 133
+        }
+      }
+    ]
+  },
+  {
+    "name": "logistics_support_1",
+    "isIntermediate": false,
+    "landmarks": [
+      {
+        "asset": {
+          "imageName": "logistics_support_common",
+          "x": 1804,
+          "y": 146,
+          "width": 60,
+          "height": 60
+        }
+      },
+      {
+        "asset": {
+          "imageName": "logistics_support_1",
+          "x": 583,
+          "y": 343,
+          "width": 60,
+          "height": 60
+        }
+      }
+    ],
+    "links": [
+      {
+        "dest": "logistics_support",
+        "asset": {
+          "imageName": "",
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        }
+      },
+      {
+        "dest": "home",
+        "asset": {
+          "imageName": "",
+          "x": 126,
+          "y": 5,
+          "width": 194,
+          "height": 134
+        }
+      },
+      {
+        "dest": "logistics_support_2",
+        "asset": {
+          "imageName": "",
+          "x": 407,
+          "y": 459,
+          "width": 192,
+          "height": 133
+        }
+      },
+      {
+        "dest": "logistics_support_3",
+        "asset": {
+          "imageName": "",
+          "x": 407,
+          "y": 612,
+          "width": 192,
+          "height": 133
+        }
+      }
+    ]
+  },
+  {
+    "name": "logistics_support_2",
+    "isIntermediate": false,
+    "landmarks": [
+      {
+        "asset": {
+          "imageName": "logistics_support_common",
+          "x": 1804,
+          "y": 146,
+          "width": 60,
+          "height": 60
+        }
+      },
+      {
+        "asset": {
+          "imageName": "logistics_support_2",
+          "x": 589,
+          "y": 495,
+          "width": 60,
+          "height": 60
+        }
+      }
+    ],
+    "links": [
+      {
+        "dest": "logistics_support",
+        "asset": {
+          "imageName": "",
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        }
+      },
+      {
+        "dest": "home",
+        "asset": {
+          "imageName": "",
+          "x": 126,
+          "y": 5,
+          "width": 194,
+          "height": 134
+        }
+      },
+      {
+        "dest": "logistics_support_1",
+        "asset": {
+          "imageName": "",
+          "x": 407,
+          "y": 307,
+          "width": 192,
+          "height": 133
+        }
+      },
+      {
+        "dest": "logistics_support_3",
+        "asset": {
+          "imageName": "",
+          "x": 407,
+          "y": 612,
+          "width": 192,
+          "height": 133
+        }
+      }
+    ]
+  },
+  {
+    "name": "logistics_support_3",
+    "isIntermediate": false,
+    "landmarks": [
+      {
+        "asset": {
+          "imageName": "logistics_support_common",
+          "x": 1804,
+          "y": 146,
+          "width": 60,
+          "height": 60
+        }
+      },
+      {
+        "asset": {
+          "imageName": "logistics_support_3",
+          "x": 591,
+          "y": 648,
+          "width": 60,
+          "height": 60
+        }
+      }
+    ],
+    "links": [
+      {
+        "dest": "logistics_support",
+        "asset": {
+          "imageName": "",
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        }
+      },
+      {
+        "dest": "home",
+        "asset": {
+          "imageName": "",
+          "x": 126,
+          "y": 5,
+          "width": 194,
+          "height": 134
+        }
+      },
+      {
+        "dest": "logistics_support_1",
+        "asset": {
+          "imageName": "",
+          "x": 407,
+          "y": 307,
+          "width": 192,
+          "height": 133
+        }
+      },
+      {
+        "dest": "logistics_support_2",
+        "asset": {
+          "imageName": "",
+          "x": 407,
+          "y": 459,
+          "width": 192,
+          "height": 133
+        }
+      }
+    ]
+  }
+]
