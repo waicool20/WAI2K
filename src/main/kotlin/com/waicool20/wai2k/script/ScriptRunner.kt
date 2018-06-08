@@ -24,6 +24,7 @@ import ch.qos.logback.classic.Logger
 import com.waicool20.wai2k.android.AndroidDevice
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
+import com.waicool20.wai2k.game.GameState
 import com.waicool20.wai2k.script.modules.InitModule
 import com.waicool20.wai2k.script.modules.ScriptModule
 import com.waicool20.wai2k.util.cancelAndYield

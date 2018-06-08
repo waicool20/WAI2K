@@ -17,11 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.waicool20.wai2k.script
-
-import com.waicool20.wai2k.game.GameLocation
-import com.waicool20.wai2k.game.LocationId
+package com.waicool20.wai2k.game
 
 class GameState {
-    var currentGameLocation: GameLocation = GameLocation(LocationId.HOME)
+    var currentGameLocation: GameLocation = GameLocation(LocationId.UNKNOWN)
+    val echelons: List<Echelon> = (1..10).map { Echelon(it) }
 }

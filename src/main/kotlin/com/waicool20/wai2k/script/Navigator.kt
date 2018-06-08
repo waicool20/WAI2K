@@ -23,6 +23,7 @@ import com.waicool20.wai2k.android.AndroidRegion
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.game.GameLocation
+import com.waicool20.wai2k.game.GameState
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.waicoolutils.logging.loggerFor
@@ -48,9 +49,10 @@ class Navigator(
     suspend fun identifyCurrentLocation(): GameLocation {
         logger.info("Identifying current location")
         val channel = Channel<GameLocation?>()
-        val jobs = locations.map { (_, model) ->
-            launch { channel.send(model.takeIf { model.isInRegion(region) }) }
-        }
+        val jobs = locations.entries.sortedBy { it.value.isIntermediate }
+                .map { (_, model) ->
+                    launch { channel.send(model.takeIf { model.isInRegion(region) }) }
+                }
         channel.consumeEach {
             it?.let { model ->
                 logger.info("GameLocation found: $model")
@@ -83,7 +85,7 @@ class Navigator(
             logger.info("Going to ${loc.id}")
             // Try extensions
             link.asset.getSubRegionFor(region).clickRandomly()
-            if (!loc.isInRegion(region)) delay(500)
+            while (!loc.isInRegion(region)) delay(500)
             logger.info("At ${loc.id}")
         }
     }

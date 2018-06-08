@@ -40,12 +40,7 @@ data class Wai2KProfile(
         val logistics: Logistics = Logistics()
 ) {
 
-    constructor(
-            name: String,
-            logistics: Logistics
-    ) : this(
-            logistics
-    ) {
+    constructor(name: String, logistics: Logistics) : this(logistics) {
         this.name = name
     }
 

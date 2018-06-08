@@ -19,5 +19,7 @@
 
 package com.waicool20.wai2k.game
 
-class Echelon(val number: Int)
+data class Echelon(val number: Int) {
+    var logisticsSupportAssignment: LogisticsSupport.Assignment? = null
+}
 
