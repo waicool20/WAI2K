@@ -17,16 +17,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.waicool20.wai2k.config
+package com.waicool20.wai2k.views.tabs.preferences
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import tornadofx.*
+import com.waicool20.wai2k.views.ViewNode
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-class ScriptConfig(
-        loopDelay: Int = 15
-) {
-    val loopDelayProperty = loopDelay.toProperty()
-
-    var loopDelay by loopDelayProperty
+object PreferencesViewMappings {
+    val list = listOf(
+            ViewNode("Console", ConsolePrefView::class),
+            ViewNode("Misc", MiscPrefView::class),
+            ViewNode("Paths", PathPrefView::class),
+            ViewNode("Script", ScriptPrefView::class)
+    ).sortedBy { it.title }
 }

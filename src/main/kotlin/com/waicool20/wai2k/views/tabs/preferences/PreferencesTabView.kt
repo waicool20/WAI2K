@@ -17,32 +17,38 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.waicool20.wai2k.views.tabs.profile
+package com.waicool20.wai2k.views.tabs.preferences
 
 import com.waicool20.wai2k.config.Configurations
 import com.waicool20.wai2k.views.ViewNode
+import com.waicool20.waicoolutils.javafx.AlertFactory
 import com.waicool20.waicoolutils.javafx.addListener
-import com.waicool20.waicoolutils.javafx.listen
 import javafx.geometry.Pos
+import javafx.scene.control.Button
 import javafx.scene.control.TreeItem
 import javafx.scene.control.TreeView
 import javafx.scene.layout.HBox
 import org.controlsfx.control.MasterDetailPane
 import tornadofx.*
 
-class ProfileTabView : View() {
-    override val root: HBox by fxml("/views/tabs/profile/profile-tab.fxml")
-    private val profileTreeView: TreeView<String> by fxid()
-    private val profilePane: MasterDetailPane by fxid()
+class PreferencesTabView : View() {
+    override val root: HBox by fxml("/views/tabs/preferences/preferences-tab.fxml")
+    private val preferencesTreeView: TreeView<String> by fxid()
+    private val preferencesPane: MasterDetailPane by fxid()
+    private val saveButton: Button by fxid()
+    private val configs: Configurations by inject()
 
     private val defaultMasterNode = hbox(alignment = Pos.CENTER) {
         label("Choose something to configure on the left!")
     }
-    private val configs: Configurations by inject()
 
     init {
-        title = "Profile"
-        profilePane.masterNode = defaultMasterNode
+        title = "Preferences"
+        preferencesPane.masterNode = defaultMasterNode
+        saveButton.setOnAction {
+            configs.wai2KConfig.save()
+            AlertFactory.info(content = "Preferences saved!").showAndWait()
+        }
     }
 
     override fun onDock() {
@@ -51,25 +57,22 @@ class ProfileTabView : View() {
     }
 
     fun initializeTree() {
-        profileTreeView.root = TreeItem<String>().apply {
-            configs.currentProfileProperty.apply {
-                listen { valueProperty().bind(get().nameProperty) }
-                valueProperty().bind(get().nameProperty)
-            }
+        preferencesTreeView.root = TreeItem<String>().apply {
+            value = "Preferences"
             isExpanded = true
         }
-        ProfileViewMappings.list.forEach { node ->
+        PreferencesViewMappings.list.forEach { node ->
             node.isExpanded = true
             if (node.parent == null) {
-                profileTreeView.root.children.add(node)
+                preferencesTreeView.root.children.add(node)
             } else {
-                ProfileViewMappings.list.find { it.view == node.parent }?.children?.add(node)
+                PreferencesViewMappings.list.find { it.view == node.parent }?.children?.add(node)
             }
         }
-        profileTreeView.focusModel.focusedItemProperty().addListener("ProfileFocused") { newVal ->
-            profilePane.apply {
+        preferencesTreeView.focusModel.focusedItemProperty().addListener("PreferenceFocused") { newVal ->
+            preferencesPane.apply {
                 if (newVal is ViewNode) {
-                    val pos = profilePane.dividerPosition
+                    val pos = preferencesPane.dividerPosition
                     masterNode = find(newVal.view).root
                     dividerPosition = pos
                     isAnimated = true

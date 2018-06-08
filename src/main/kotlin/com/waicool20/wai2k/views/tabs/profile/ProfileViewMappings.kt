@@ -19,15 +19,11 @@
 
 package com.waicool20.wai2k.views.tabs.profile
 
+import com.waicool20.wai2k.views.ViewNode
 import com.waicool20.wai2k.views.tabs.profile.logistics.AssignmentsView
 import com.waicool20.wai2k.views.tabs.profile.logistics.LogisticsView
-import javafx.scene.control.TreeItem
-import tornadofx.*
-import kotlin.reflect.KClass
 
 object ProfileViewMappings {
-    class ViewNode(title: String, val view: KClass<out View>, val parent: KClass<out View>? = null) : TreeItem<String>(title)
-
     val list = listOf(
             ViewNode("Logistics", LogisticsView::class),
             ViewNode("Assignments", AssignmentsView::class, LogisticsView::class)

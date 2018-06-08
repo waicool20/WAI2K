@@ -17,16 +17,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.waicool20.wai2k.config
+package com.waicool20.wai2k.views.tabs.preferences
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.waicool20.wai2k.config.Configurations
+import javafx.scene.control.CheckBox
+import javafx.scene.layout.VBox
 import tornadofx.*
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-class ScriptConfig(
-        loopDelay: Int = 15
-) {
-    val loopDelayProperty = loopDelay.toProperty()
+class ConsolePrefView : View() {
+    override val root: VBox by fxml("/views/tabs/preferences/console.fxml")
+    private val clearConsoleOnStartCheckBox: CheckBox by fxid()
+    private val showConsoleOnStartCheckBox: CheckBox by fxid()
 
-    var loopDelay by loopDelayProperty
+    private val configs: Configurations by inject()
+
+    override fun onDock() {
+        super.onDock()
+        configs.wai2KConfig.apply {
+            clearConsoleOnStartCheckBox.bind(clearConsoleOnStartProperty)
+            showConsoleOnStartCheckBox.bind(showConsoleOnStartProperty)
+        }
+    }
 }

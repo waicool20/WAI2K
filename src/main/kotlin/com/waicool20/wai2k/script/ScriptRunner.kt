@@ -112,12 +112,10 @@ class ScriptRunner(wai2KConfig: Wai2KConfig = Wai2KConfig(), wai2KProfile: Wai2K
 
     private suspend fun runScriptCycle() {
         reload()
-        if (modules.isEmpty()) {
-            coroutineContext.cancelAndYield()
-        }
+        if (modules.isEmpty()) coroutineContext.cancelAndYield()
         modules.forEach { it.execute() }
         do {
-            delay(currentConfig.scriptConfig.loopDelay, TimeUnit.SECONDS)
+            delay(currentConfig.scriptConfig.loopDelay.toLong(), TimeUnit.SECONDS)
         } while (isPaused)
     }
 }

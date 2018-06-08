@@ -17,16 +17,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.waicool20.wai2k.config
+package com.waicool20.wai2k.views
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import javafx.scene.control.TreeItem
 import tornadofx.*
+import kotlin.reflect.KClass
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-class ScriptConfig(
-        loopDelay: Int = 15
-) {
-    val loopDelayProperty = loopDelay.toProperty()
-
-    var loopDelay by loopDelayProperty
-}
+class ViewNode(val title: String, val view: KClass<out View>, val parent: KClass<out View>? = null) : TreeItem<String>(title)
