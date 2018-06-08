@@ -45,6 +45,7 @@ class Wai2KConfig(
         sikulixJarPath: Path = Paths.get(""),
         assetsDirectory: Path = Wai2K.CONFIG_DIR.resolve("assets"),
         clearConsoleOnStart: Boolean = true,
+        showConsoleOnStart: Boolean = true,
         debugModeEnabled: Boolean = true,
         lastDeviceSerial: String = "",
         scriptConfig: ScriptConfig = ScriptConfig()
@@ -62,14 +63,16 @@ class Wai2KConfig(
     val sikulixJarPathProperty = sikulixJarPath.toProperty()
     val assetsDirectoryProperty = assetsDirectory.toProperty()
     val clearConsoleOnStartProperty = clearConsoleOnStart.toProperty()
+    val showConsoleOnStartProperty = showConsoleOnStart.toProperty()
     val debugModeEnabledProperty = debugModeEnabled.toProperty()
     val lastDeviceSerialProperty = lastDeviceSerial.toProperty()
     val scriptConfigProperty = scriptConfig.toProperty()
 
     var currentProfile by currentProfileProperty
     var sikulixJarPath by sikulixJarPathProperty
-    var assetsDirectory by assetsDirectoryProperty
+    @get:JsonIgnore var assetsDirectory by assetsDirectoryProperty
     var clearConsoleOnStart by clearConsoleOnStartProperty
+    var showConsoleOnStart by showConsoleOnStartProperty
     var debugModeEnabled by debugModeEnabledProperty
     var lastDeviceSerial by lastDeviceSerialProperty
     var scriptConfig by scriptConfigProperty

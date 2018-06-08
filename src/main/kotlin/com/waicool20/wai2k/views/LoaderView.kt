@@ -140,7 +140,9 @@ class LoaderView : View() {
         runLater(Duration.millis(500.0)) {
             close()
             primaryStage.show()
-            find<ConsoleView>().openWindow(owner = null)
+            if (wai2KConfig.showConsoleOnStart) {
+                find<ConsoleView>().openWindow(owner = null)
+            }
         }
     }
 }
