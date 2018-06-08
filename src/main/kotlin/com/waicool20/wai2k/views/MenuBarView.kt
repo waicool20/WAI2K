@@ -34,7 +34,7 @@ class MenuBarView : View() {
     override fun onDock() {
         super.onDock()
         quitItem.setOnAction { exitProcess(0) }
-        consoleItem.setOnAction { find<ConsoleView>().openWindow(owner = null) }
+        consoleItem.setOnAction { find<ConsoleView>().openWindow(owner = null)?.toFront() }
         aboutItem.setOnAction { find<AboutView>().openModal(stageStyle = StageStyle.UNDECORATED) }
     }
 }
