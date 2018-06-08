@@ -21,16 +21,36 @@ package com.waicool20.wai2k.script
 
 import com.waicool20.wai2k.android.AndroidRegion
 
-open class Asset(
+/**
+ * Represents and asset and its expected geometry
+ *
+ * @param imageName name of the image (without .png extension)
+ * @param x x coordinate of the asset
+ * @param y y coordinate of the asset
+ * @param width Width of the asset
+ * @param height Height of the asset
+ */
+class Asset(
         val imageName: String,
         val x: Int,
         val y: Int,
         val width: Int,
         val height: Int
 ) {
+    /**
+     * Path prefix
+     */
     var prefix = ""
+    /**
+     * Image path constructed from [prefix] and [imageName] with .png extension
+     */
     val imagePath get() = "$prefix$imageName.png"
 
+    /**
+     * Gets the region containing this asset
+     *
+     * @param region Parent region (Should always be full android screen)
+     */
     fun getSubRegionFor(region: AndroidRegion): AndroidRegion {
         return region.subRegion(x, y, width, height)
     }
