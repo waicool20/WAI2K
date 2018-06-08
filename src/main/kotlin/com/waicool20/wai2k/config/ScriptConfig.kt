@@ -24,9 +24,15 @@ import tornadofx.*
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 class ScriptConfig(
-        loopDelay: Int = 15
+        loopDelay: Int = 15,
+        sikulixScanRate: Int = 20,
+        defaultSimilaryThreshold: Double = 0.9
 ) {
     val loopDelayProperty = loopDelay.toProperty()
+    val sikulixScanRateProperty = sikulixScanRate.toProperty()
+    val defaultSimilaryThresholdProperty = defaultSimilaryThreshold.toProperty()
 
     var loopDelay by loopDelayProperty
+    var sikulixScanRate by sikulixScanRateProperty
+    var defaultSimilaryThreshold by defaultSimilaryThresholdProperty
 }

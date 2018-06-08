@@ -78,12 +78,13 @@ class ScriptRunner(wai2KConfig: Wai2KConfig = Wai2KConfig(), wai2KProfile: Wai2K
             currentProfile = it
             reloadModules = true
         }
-        // TODO add to config
-        Settings.MinSimilarity = 0.8
-        Settings.WaitScanRate = 20f
-        Settings.ObserveScanRate = 20f
-        Settings.AutoWaitTimeout = 1f
-        Settings.RepeatWaitTime = 0
+        currentConfig.scriptConfig.apply {
+            Settings.MinSimilarity = defaultSimilaryThreshold
+            Settings.WaitScanRate = sikulixScanRate.toFloat()
+            Settings.ObserveScanRate = sikulixScanRate.toFloat()
+            Settings.AutoWaitTimeout = 1f
+            Settings.RepeatWaitTime = 0
+        }
 
         currentDevice = AndroidDevice.listAll().find { it.adbSerial == currentConfig.lastDeviceSerial }
         if (reloadModules) {

@@ -22,6 +22,7 @@ package com.waicool20.wai2k.views.tabs.preferences
 import com.waicool20.wai2k.config.Configurations
 import com.waicool20.waicoolutils.javafx.bind
 import javafx.scene.control.Spinner
+import javafx.scene.control.SpinnerValueFactory.DoubleSpinnerValueFactory
 import javafx.scene.control.SpinnerValueFactory.IntegerSpinnerValueFactory
 import javafx.scene.layout.VBox
 import tornadofx.*
@@ -29,14 +30,20 @@ import tornadofx.*
 class ScriptPrefView : View() {
     override val root: VBox by fxml("/views/tabs/preferences/script.fxml")
     private val loopDelaySpinner: Spinner<Int> by fxid()
+    private val scanRateSpinner: Spinner<Int> by fxid()
+    private val defaultSimThresholdSpinner: Spinner<Double> by fxid()
 
     private val configs: Configurations by inject()
 
     override fun onDock() {
         super.onDock()
-        loopDelaySpinner.valueFactory = IntegerSpinnerValueFactory(1, Integer.MAX_VALUE)
+        loopDelaySpinner.valueFactory = IntegerSpinnerValueFactory(1, Int.MAX_VALUE)
+        scanRateSpinner.valueFactory = IntegerSpinnerValueFactory(1, Int.MAX_VALUE)
+        defaultSimThresholdSpinner.valueFactory = DoubleSpinnerValueFactory(0.0, 1.0)
         configs.wai2KConfig.scriptConfig.apply {
             loopDelaySpinner.bind(loopDelayProperty)
+            scanRateSpinner.bind(sikulixScanRateProperty)
+            defaultSimThresholdSpinner.bind(defaultSimilaryThresholdProperty)
         }
     }
 }
