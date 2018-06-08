@@ -16,25 +16,40 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+@import url("common.css");
 
-package com.waicool20.wai2k.views
+.container {
+    -fx-background-image: url("../images/splash-bg.png");
+    -fx-font-family: Impact;
+}
 
-import javafx.scene.control.MenuBar
-import javafx.scene.control.MenuItem
-import javafx.stage.StageStyle
-import tornadofx.*
-import kotlin.system.exitProcess
+.title {
+    -fx-font-size: 80px;
+}
 
-class MenuBarView : View() {
-    override val root: MenuBar by fxml("/views/menu.fxml")
-    private val quitItem: MenuItem by fxid()
-    private val consoleItem: MenuItem by fxid()
-    private val aboutItem: MenuItem by fxid()
+.subtitle {
+    -fx-font-size: 13px;
+}
 
-    override fun onDock() {
-        super.onDock()
-        quitItem.setOnAction { exitProcess(0) }
-        consoleItem.setOnAction { find<ConsoleView>().openWindow(owner = null) }
-        aboutItem.setOnAction { find<AboutView>().openModal(stageStyle = StageStyle.UNDECORATED) }
-    }
+.subsubtitle {
+    -fx-font-size: 9px;
+}
+
+.credits {
+    -fx-font-size: 20px;
+}
+
+.project-link {
+    -fx-border-color: transparent;
+    -fx-text-fill: #d6edff;
+}
+
+.project-link:hover {
+    -fx-text-fill: #a6edff;
+    -fx-border-style: none;
+}
+
+.version-text {
+    -fx-font-size: 25px;
+    -fx-text-fill: #888;
 }

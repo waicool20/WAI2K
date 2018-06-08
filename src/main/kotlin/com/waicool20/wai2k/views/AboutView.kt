@@ -19,22 +19,30 @@
 
 package com.waicool20.wai2k.views
 
-import javafx.scene.control.MenuBar
-import javafx.scene.control.MenuItem
-import javafx.stage.StageStyle
+import com.waicool20.wai2k.config.Configurations
+import com.waicool20.waicoolutils.DesktopUtils
+import javafx.scene.control.Hyperlink
+import javafx.scene.control.Label
+import javafx.scene.layout.VBox
 import tornadofx.*
-import kotlin.system.exitProcess
 
-class MenuBarView : View() {
-    override val root: MenuBar by fxml("/views/menu.fxml")
-    private val quitItem: MenuItem by fxid()
-    private val consoleItem: MenuItem by fxid()
-    private val aboutItem: MenuItem by fxid()
+class AboutView : View() {
+    override val root: VBox by fxml("/views/about.fxml")
+    private val repoLink: Hyperlink by fxid()
+    private val versionText: Label by fxid()
+
+    private val configs: Configurations by inject()
+
+    init {
+        title = "WAI2K - About"
+    }
 
     override fun onDock() {
         super.onDock()
-        quitItem.setOnAction { exitProcess(0) }
-        consoleItem.setOnAction { find<ConsoleView>().openWindow(owner = null) }
-        aboutItem.setOnAction { find<AboutView>().openModal(stageStyle = StageStyle.UNDECORATED) }
+        root.setOnMouseClicked { close() }
+        versionText.text = configs.versionInfo.version
+        repoLink.setOnAction {
+            DesktopUtils.browse("https://github.com/waicool20/WAI2K")
+        }
     }
 }
