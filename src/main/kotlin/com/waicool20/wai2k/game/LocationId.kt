@@ -17,11 +17,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.waicool20.wai2k.script
+package com.waicool20.wai2k.game
 
-import com.waicool20.wai2k.game.GameLocation
-import com.waicool20.wai2k.game.LocationId
-
-class GameState {
-    var currentGameLocation: GameLocation = GameLocation(LocationId.HOME)
+enum class LocationId {
+    HOME,
+    COMBAT_MENU,
+    LOGISTICS_SUPPORT,
+    LOGISTICS_SUPPORT_1,
+    LOGISTICS_SUPPORT_2,
+    LOGISTICS_SUPPORT_3
 }

@@ -23,6 +23,7 @@ import com.waicool20.wai2k.android.AndroidRegion
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.game.GameLocation
+import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.experimental.channels.Channel
@@ -38,7 +39,7 @@ class Navigator(
         private val profile: Wai2KProfile
 ) {
     private val logger = loggerFor<Navigator>()
-    private val locations by lazy { GameLocation.listAll(config, true) }
+    private val locations by lazy { GameLocation.mappings(config, true) }
     /**
      * Finds the current location
      *
@@ -47,14 +48,14 @@ class Navigator(
     suspend fun identifyCurrentLocation(): GameLocation {
         logger.info("Identifying current location")
         val channel = Channel<GameLocation?>()
-        val jobs = locations.map {
-            launch { channel.send(it.takeIf { it.isInRegion(region) }) }
+        val jobs = locations.map { (_, model) ->
+            launch { channel.send(model.takeIf { model.isInRegion(region) }) }
         }
         channel.consumeEach {
-            it?.let { loc ->
-                logger.info("GameLocation found: ${loc.name}")
-                gameState.currentGameLocation = loc
-                return loc
+            it?.let { model ->
+                logger.info("GameLocation found: $model")
+                gameState.currentGameLocation = model
+                return model
             }
             if (jobs.all { it.isCompleted }) channel.close()
         }
@@ -67,23 +68,23 @@ class Navigator(
      *
      * @param destination Name of destination
      */
-    suspend fun navigateTo(destination: String) {
-        val dest = locations.find { it.name == destination }
-                ?: error("Invalid destination: $destination")
-        logger.info("Navigating to ${dest.name}")
-        if (!gameState.currentGameLocation.isInRegion(region)) identifyCurrentLocation()
-        val cLocation = gameState.currentGameLocation
+    suspend fun navigateTo(destination: LocationId) {
+        val dest = locations[destination] ?: error("Invalid destination: $destination")
+        logger.info("Navigating to ${dest.id}")
+        val cLocation = gameState.currentGameLocation.takeIf { it.isInRegion(region) }
+                ?: identifyCurrentLocation()
         val path = cLocation.shortestPathTo(dest)
-        logger.debug("Found solution: ${path.joinToString("->") { it.first.name }}")
+        logger.debug("Found solution: ${path.joinToString("->") { "${it.first.id}" }}")
         for ((loc, link) in path) {
             if (gameState.currentGameLocation.isIntermediate && loc.isInRegion(region)) {
                 continue
             }
             gameState.currentGameLocation = loc
-            logger.info("Going to ${loc.name}")
+            logger.info("Going to ${loc.id}")
+            // Try extensions
             link.asset.getSubRegionFor(region).clickRandomly()
             if (!loc.isInRegion(region)) delay(500)
-            logger.info("At ${loc.name}")
+            logger.info("At ${loc.id}")
         }
     }
 }

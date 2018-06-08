@@ -1,6 +1,6 @@
 [
   {
-    "name": "home",
+    "id": "home",
     "isIntermediate": false,
     "landmarks": [
       {
@@ -27,7 +27,7 @@
     ]
   },
   {
-    "name": "combat_menu",
+    "id": "combat_menu",
     "isIntermediate": true,
     "landmarks": [
       {
@@ -64,7 +64,7 @@
     ]
   },
   {
-    "name": "logistics_support",
+    "id": "logistics_support",
     "isIntermediate": true,
     "landmarks": [
       {
@@ -131,7 +131,7 @@
     ]
   },
   {
-    "name": "logistics_support_1",
+    "id": "logistics_support_1",
     "isIntermediate": false,
     "landmarks": [
       {
@@ -197,7 +197,7 @@
     ]
   },
   {
-    "name": "logistics_support_2",
+    "id": "logistics_support_2",
     "isIntermediate": false,
     "landmarks": [
       {
@@ -263,7 +263,7 @@
     ]
   },
   {
-    "name": "logistics_support_3",
+    "id": "logistics_support_3",
     "isIntermediate": false,
     "landmarks": [
       {

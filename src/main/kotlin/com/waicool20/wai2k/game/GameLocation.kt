@@ -19,6 +19,7 @@
 
 package com.waicool20.wai2k.game
 
+import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.waicool20.wai2k.android.AndroidRegion
@@ -28,11 +29,11 @@ import kotlinx.coroutines.experimental.async
 import org.sikuli.script.Pattern
 import java.util.*
 
-data class GameLocation(val name: String, val isIntermediate: Boolean = false) {
+data class GameLocation(val id: LocationId, val isIntermediate: Boolean = false) {
     val landmarks: List<Landmark> = emptyList()
     val links: List<Link> = emptyList()
 
-    class Link(val dest: String, asset: Asset) {
+    class Link(val dest: LocationId, asset: Asset) {
         val asset = asset.apply { prefix = "locations/links/" }
         override fun toString() = "Link(dest=$dest)"
     }
@@ -42,12 +43,14 @@ data class GameLocation(val name: String, val isIntermediate: Boolean = false) {
     }
 
     companion object {
-        private var locations: Map<String, GameLocation> = emptyMap()
-        fun listAll(wai2KConfig: Wai2KConfig, refresh: Boolean = false): List<GameLocation> {
+        private var locations: Map<LocationId, GameLocation> = emptyMap()
+        private val mapper = jacksonObjectMapper().enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+
+        fun mappings(wai2KConfig: Wai2KConfig, refresh: Boolean = false): Map<LocationId, GameLocation> {
             return if (refresh) {
                 val file = wai2KConfig.assetsDirectory.resolve("locations/locations.json").toFile()
-                jacksonObjectMapper().readValue<List<GameLocation>>(file).also { locations = it.associate { it.name to it } }
-            } else locations.values.toList()
+                mapper.readValue<List<GameLocation>>(file).associate { it.id to it }.also { locations = it }
+            } else locations
         }
     }
 
@@ -69,25 +72,27 @@ data class GameLocation(val name: String, val isIntermediate: Boolean = false) {
     fun shortestPathTo(dest: GameLocation): List<Pair<GameLocation, Link>> {
         if (this == dest) return emptyList()
 
-        val visitedNodes = mutableMapOf<GameLocation, Pair<GameLocation, Link>?>()
+        val visitedNodes = mutableSetOf<GameLocation>()
+        val path = mutableMapOf<GameLocation, Pair<GameLocation, Link>?>()
         val queue = LinkedList<Pair<GameLocation, GameLocation?>>()
 
         queue.add(this to null)
         while (queue.isNotEmpty()) {
             val (currentNode, parent) = queue.poll()
 
-            queue.addAll(currentNode.links.mapNotNull { locations[it.dest] }.map { it to currentNode })
+            currentNode.links.mapNotNull { locations[it.dest] }.filterNot {
+                visitedNodes.contains(it)
+            }.map { it to currentNode }.let { queue.addAll(it) }
 
-            if (!visitedNodes.values.any { it?.first == currentNode }) {
-                val link = parent?.links?.find { it.dest == currentNode.name }
-                if (link != null) {
-                    visitedNodes[parent] = currentNode to link
-                }
+            if (!path.values.any { it?.first == currentNode }) {
+                val link = parent?.links?.find { it.dest == currentNode.id }
+                if (link != null) path[parent] = currentNode to link
             }
 
+            visitedNodes.add(currentNode)
             if (currentNode == dest) break
         }
 
-        return visitedNodes.values.filterNotNull()
+        return path.values.filterNotNull()
     }
 }

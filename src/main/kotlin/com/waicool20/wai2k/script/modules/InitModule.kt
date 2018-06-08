@@ -22,6 +22,7 @@ package com.waicool20.wai2k.script.modules
 import com.waicool20.wai2k.android.AndroidRegion
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
+import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.GameState
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.waicoolutils.logging.loggerFor
@@ -35,7 +36,7 @@ class InitModule(
 ) : ScriptModule(gameState, region, config, profile, navigator) {
     private val logger = loggerFor<InitModule>()
     override suspend fun execute() {
-        navigator.navigateTo("logistics_support_2")
-        navigator.navigateTo("home")
+        navigator.navigateTo(LocationId.LOGISTICS_SUPPORT_2)
+        navigator.navigateTo(LocationId.HOME)
     }
 }
