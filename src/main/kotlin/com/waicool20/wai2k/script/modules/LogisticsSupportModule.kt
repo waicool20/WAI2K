@@ -66,8 +66,8 @@ class LogisticsSupportModule(
     }
 
     private suspend fun clickMissionStart(mission: Int) {
-        // Left most mission button x: 730 y: 934 w: 254 h: 116
-        val missionRegion = region.subRegion(730 + (333 * mission), 934, 254, 116)
+        // Left most mission button x: 704 y: 219 w: 306 h: 856
+        val missionRegion = region.subRegion(704 + (333 * mission), 219, 306, 856)
         missionRegion.clickRandomly(); yield()
     }
 }
