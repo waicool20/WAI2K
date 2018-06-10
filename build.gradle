@@ -98,6 +98,7 @@ dependencies {
 shadowJar {
     classifier = null
     version = null
+    exclude "tessdata/"
 }
 
 jar {
