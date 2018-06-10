@@ -21,6 +21,7 @@ package com.waicool20.wai2k.android
 
 import org.sikuli.script.*
 import java.awt.Rectangle
+import java.awt.image.BufferedImage
 
 /**
  * Interfaces that copies most of the [Region] APIs
@@ -719,6 +720,12 @@ interface ISikuliRegion {
     //</editor-fold>
 
     //<editor-fold desc="Extra Utilities">
+
+    /**
+     * Takes a screenshot of the region and returns it as a buffered image
+     */
+    fun takeScreenshot(): BufferedImage
+
     /**
      * Gets a sub-region of this region
      *

@@ -32,6 +32,7 @@ class AndroidScreen(val device: AndroidDevice) : AndroidRegion(
         height = device.properties.displayHeight
 ), IScreen {
     private val robot = AndroidRobot(this)
+    private var _lastScreenImage: ScreenImage? = null
 
     /**
      * Independent virtual touch interface bound to this screen.
@@ -117,12 +118,12 @@ class AndroidScreen(val device: AndroidDevice) : AndroidRegion(
      */
     override fun capture(rect: Rectangle): ScreenImage = with(device.takeScreenshot()) {
         ScreenImage(Rectangle(0, 0, this.width, this.height), this).getSub(rect)
-    }
+    }.also { _lastScreenImage = it }
 
     /**
      * Returns the last saved screen image.
      */
-    override fun getLastScreenImageFromScreen(): ScreenImage? = lastScreenImage
+    override fun getLastScreenImageFromScreen(): ScreenImage? = _lastScreenImage
 
     /**
      * Creates a new location on this screen

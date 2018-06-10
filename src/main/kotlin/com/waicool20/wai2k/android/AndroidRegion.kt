@@ -25,6 +25,7 @@ import org.sikuli.script.*
 import java.awt.Image
 import java.awt.Rectangle
 import java.awt.event.KeyEvent
+import java.awt.image.BufferedImage
 import java.util.*
 
 open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region(), ISikuliRegion {
@@ -305,6 +306,10 @@ open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region
     //<editor-fold desc="Unsupported"
 
     //</editor-fold>
+
+    override fun takeScreenshot(): BufferedImage {
+        return androidScreen.device.takeScreenshot().getSubimage(x, y, w, h)
+    }
 
     override fun subRegion(x: Int, y: Int, width: Int, height: Int): AndroidRegion {
         val xCoord = if (x in 0..w) (this.x + x) else w
