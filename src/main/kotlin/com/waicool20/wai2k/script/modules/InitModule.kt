@@ -36,6 +36,7 @@ class InitModule(
 ) : ScriptModule(gameState, region, config, profile, navigator) {
     private val logger = loggerFor<InitModule>()
     override suspend fun execute() {
-        navigator.navigateTo(LocationId.HOME)
+        navigator.navigateTo(LocationId.HOME_STATUS)
+        println("Done")
     }
 }

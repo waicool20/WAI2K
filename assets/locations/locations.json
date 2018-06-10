@@ -23,6 +23,53 @@
           "width": 328,
           "height": 149
         }
+      },
+      {
+        "dest": "home_status",
+        "asset": {
+          "imageName": "",
+          "x": 106,
+          "y": 485,
+          "width": 82,
+          "height": 110
+        }
+      }
+    ]
+  },
+  {
+    "id": "home_status",
+    "isIntermediate": true,
+    "landmarks": [
+      {
+        "asset": {
+          "imageName": "home_status",
+          "x": 1238,
+          "y": 514,
+          "width": 53,
+          "height": 53
+        }
+      }
+    ],
+    "links": [
+      {
+        "dest": "home",
+        "asset": {
+          "imageName": "",
+          "x": 1238,
+          "y": 515,
+          "width": 51,
+          "height": 51
+        }
+      },
+      {
+        "dest": "combat_menu",
+        "asset": {
+          "imageName": "",
+          "x": 1345,
+          "y": 596,
+          "width": 328,
+          "height": 149
+        }
       }
     ]
   },
