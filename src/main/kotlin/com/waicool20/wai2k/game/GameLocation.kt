@@ -98,7 +98,7 @@ data class GameLocation(val id: LocationId, val isIntermediate: Boolean = false)
         if (landmarks.isEmpty()) return false
         return landmarks.map {
             async {
-                it.asset.getSubRegionFor(region.androidScreen())
+                it.asset.getSubRegionFor(region.androidScreen)
                         .exists(Pattern(it.asset.imagePath).exact(), 0.1) != null
             }
         }.all { it.await() }

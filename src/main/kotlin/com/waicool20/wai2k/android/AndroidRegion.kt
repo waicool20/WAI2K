@@ -64,13 +64,13 @@ open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region
         h = height
     }
 
-    private val touchInterface by lazy { androidScreen().touchInterface }
-    private val keyboard by lazy { androidScreen().keyboard }
+    private val touchInterface by lazy { androidScreen.touchInterface }
+    private val keyboard by lazy { androidScreen.keyboard }
 
     /**
      * Gets the screen this region belongs to as a [AndroidScreen]
      */
-    fun androidScreen() = screen as AndroidScreen
+    val androidScreen get() = screen as AndroidScreen
 
     override fun setLocation(loc: Location): AndroidRegion {
         x = loc.x
@@ -94,40 +94,40 @@ open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region
     override fun getBottomLeft() = Location(x, y + h - 1)
     override fun getBottomRight() = Location(x + w - 1, y + h - 1)
 
-    override fun getLastMatch() = super.getLastMatch()?.let { AndroidMatch(it, androidScreen()) }
+    override fun getLastMatch() = super.getLastMatch()?.let { AndroidMatch(it, androidScreen) }
     override fun getLastMatches() =
-            super.getLastMatches().asSequence().map { AndroidMatch(it, androidScreen()) }.iterator()
+            super.getLastMatches().asSequence().map { AndroidMatch(it, androidScreen) }.iterator()
 
-    override fun offset(loc: Location) = AndroidRegion(super.offset(loc), androidScreen())
-    override fun grow(l: Int, r: Int, t: Int, b: Int) = AndroidRegion(super.grow(l, r, t, b), androidScreen())
-    override fun grow(w: Int, h: Int) = AndroidRegion(super.grow(w, h), androidScreen())
-    override fun grow(range: Int) = AndroidRegion(super.grow(range), androidScreen())
-    override fun grow() = AndroidRegion(super.grow(), androidScreen())
+    override fun offset(loc: Location) = AndroidRegion(super.offset(loc), androidScreen)
+    override fun grow(l: Int, r: Int, t: Int, b: Int) = AndroidRegion(super.grow(l, r, t, b), androidScreen)
+    override fun grow(w: Int, h: Int) = AndroidRegion(super.grow(w, h), androidScreen)
+    override fun grow(range: Int) = AndroidRegion(super.grow(range), androidScreen)
+    override fun grow() = AndroidRegion(super.grow(), androidScreen)
 
-    override fun union(region: Region) = AndroidRegion(super.union(region), androidScreen())
-    override fun intersection(region: Region) = AndroidRegion(super.intersection(region), androidScreen())
+    override fun union(region: Region) = AndroidRegion(super.union(region), androidScreen)
+    override fun intersection(region: Region) = AndroidRegion(super.intersection(region), androidScreen)
 
-    override fun above() = AndroidRegion(super.above(), androidScreen())
-    override fun below() = AndroidRegion(super.below(), androidScreen())
-    override fun left() = AndroidRegion(super.left(), androidScreen())
-    override fun right() = AndroidRegion(super.right(), androidScreen())
+    override fun above() = AndroidRegion(super.above(), androidScreen)
+    override fun below() = AndroidRegion(super.below(), androidScreen)
+    override fun left() = AndroidRegion(super.left(), androidScreen)
+    override fun right() = AndroidRegion(super.right(), androidScreen)
 
-    override fun above(height: Int) = AndroidRegion(super.above(height), androidScreen())
-    override fun below(height: Int) = AndroidRegion(super.below(height), androidScreen())
-    override fun left(width: Int) = AndroidRegion(super.left(width), androidScreen())
-    override fun right(width: Int) = AndroidRegion(super.right(width), androidScreen())
+    override fun above(height: Int) = AndroidRegion(super.above(height), androidScreen)
+    override fun below(height: Int) = AndroidRegion(super.below(height), androidScreen)
+    override fun left(width: Int) = AndroidRegion(super.left(width), androidScreen)
+    override fun right(width: Int) = AndroidRegion(super.right(width), androidScreen)
 
     //<editor-fold desc="Search operations">
 
-    override fun <PSI : Any> find(target: PSI) = AndroidMatch(super.find(target), androidScreen())
+    override fun <PSI : Any> find(target: PSI) = AndroidMatch(super.find(target), androidScreen)
     override fun <PSI : Any> findAll(target: PSI) =
-            super.findAll(target).asSequence().map { AndroidMatch(it, androidScreen()) }.iterator()
+            super.findAll(target).asSequence().map { AndroidMatch(it, androidScreen) }.iterator()
 
-    override fun <PSI : Any> wait(target: PSI) = AndroidMatch(super.wait(target), androidScreen())
-    override fun <PSI : Any> wait(target: PSI, timeout: Double) = AndroidMatch(super.wait(target, timeout), androidScreen())
+    override fun <PSI : Any> wait(target: PSI) = AndroidMatch(super.wait(target), androidScreen)
+    override fun <PSI : Any> wait(target: PSI, timeout: Double) = AndroidMatch(super.wait(target, timeout), androidScreen)
 
-    override fun <PSI : Any> exists(target: PSI) = super.exists(target)?.let { AndroidMatch(it, androidScreen()) }
-    override fun <PSI : Any> exists(target: PSI, timeout: Double) = super.exists(target, timeout)?.let { AndroidMatch(it, androidScreen()) }
+    override fun <PSI : Any> exists(target: PSI) = super.exists(target)?.let { AndroidMatch(it, androidScreen) }
+    override fun <PSI : Any> exists(target: PSI, timeout: Double) = super.exists(target, timeout)?.let { AndroidMatch(it, androidScreen) }
 
     //</editor-fold>
 
@@ -215,7 +215,7 @@ open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region
     }
 
     override fun paste(text: String): Int {
-        androidScreen().clipboard = text
+        androidScreen.clipboard = text
         keyboard.atomicAction {
             keyDown(Key.getHotkeyModifier())
             keyDown(KeyEvent.VK_V)
@@ -251,7 +251,7 @@ open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region
         0
     }
 
-    override fun wheel(direction: Int, steps: Int): Int = wheel(androidScreen().currentMousePosition(), direction, steps)
+    override fun wheel(direction: Int, steps: Int): Int = wheel(androidScreen.currentMousePosition(), direction, steps)
     override fun <PFRML : Any> wheel(target: PFRML, direction: Int, steps: Int): Int = wheel(target, direction, steps, Mouse.WHEEL_STEP_DELAY)
     override fun <PFRML : Any> wheel(target: PFRML, direction: Int, steps: Int, stepDelay: Int): Int {
         return 1
@@ -312,7 +312,7 @@ open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region
         val newWidth = if (width in 0..w) width else w
         val newHeight = if (height in 0..w) height else h
 
-        return androidScreen().newRegion(xCoord, yCoord, newWidth, newHeight).apply {
+        return androidScreen.newRegion(xCoord, yCoord, newWidth, newHeight).apply {
 
         }
     }
