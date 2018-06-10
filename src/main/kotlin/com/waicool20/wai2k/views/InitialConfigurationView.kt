@@ -129,12 +129,13 @@ class InitialConfigurationView : View() {
             text = Wai2KConfig.ocrPath.toString()
             action { DesktopUtils.open(Wai2KConfig.ocrPath) }
         }
-        val watcher = FileSystems.getDefault().newWatchService()
-        Wai2KConfig.ocrPath.register(watcher, arrayOf(ENTRY_MODIFY, ENTRY_CREATE, ENTRY_DELETE))
+        val ws = FileSystems.getDefault().newWatchService()
+        val watchKey = Wai2KConfig.ocrPath.register(ws, arrayOf(ENTRY_MODIFY, ENTRY_CREATE, ENTRY_DELETE))
         thread {
             while (true) {
-                val key = watcher.take()
+                val key = ws.take()
                 key.pollEvents().filterNot { it.kind() == OVERFLOW }.forEach {
+                    if (configs.wai2KConfig.ocrIsValid()) watchKey.cancel()
                     checkConfig()
                 }
                 if (!key.reset()) break
