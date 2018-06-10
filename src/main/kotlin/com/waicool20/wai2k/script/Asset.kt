@@ -30,7 +30,7 @@ import com.waicool20.wai2k.android.AndroidRegion
  * @param width Width of the asset
  * @param height Height of the asset
  */
-class Asset(
+data class Asset(
         val imageName: String,
         val x: Int,
         val y: Int,

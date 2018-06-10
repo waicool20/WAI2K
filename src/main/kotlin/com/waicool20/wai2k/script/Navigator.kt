@@ -76,17 +76,21 @@ class Navigator(
         val cLocation = gameState.currentGameLocation.takeIf { it.isInRegion(region) }
                 ?: identifyCurrentLocation()
         val path = cLocation.shortestPathTo(dest)
-        logger.debug("Found solution: ${path.joinToString("->") { "${it.first.id}" }}")
-        for ((loc, link) in path) {
-            if (gameState.currentGameLocation.isIntermediate && loc.isInRegion(region)) {
+        if (path == null) {
+            logger.warn("No known solution from $cLocation to $dest")
+            coroutineContext.cancelAndYield()
+        }
+        logger.debug("Found solution: ${path.joinToString("->") { "${it.dest.id}" }}")
+        for ((_, destLoc, link) in path) {
+            if (gameState.currentGameLocation.isIntermediate && destLoc.isInRegion(region)) {
                 continue
             }
-            gameState.currentGameLocation = loc
-            logger.info("Going to ${loc.id}")
+            gameState.currentGameLocation = destLoc
+            logger.info("Going to ${destLoc.id}")
             // Try extensions
             link.asset.getSubRegionFor(region).clickRandomly()
-            while (!loc.isInRegion(region)) delay(500)
-            logger.info("At ${loc.id}")
+            while (!destLoc.isInRegion(region)) delay(500)
+            logger.info("At ${destLoc.id}")
         }
     }
 }

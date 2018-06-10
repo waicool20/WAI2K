@@ -105,17 +105,25 @@ data class GameLocation(val id: LocationId, val isIntermediate: Boolean = false)
     }
 
     /**
+     * Wrapper class describing a node in a path
+     *
+     * @param source Source location
+     * @param dest Destination location
+     * @param link Link needed to traverse from source to dest
+     */
+    data class GameLocationLink(val source: GameLocation, val dest: GameLocation, val link: Link)
+
+    /**
      * Finds the shortest path to some destination
      *
      * @param dest Destination
-     * @return List of Pairs that contains in order the next location and corresponding link that
-     * need to be traversed to get to destination
+     * @return List of [GameLocationLink], null if no path solution is found
      */
-    fun shortestPathTo(dest: GameLocation): List<Pair<GameLocation, Link>> {
+    fun shortestPathTo(dest: GameLocation): List<GameLocationLink>? {
         if (this == dest) return emptyList()
 
         val visitedNodes = mutableSetOf<GameLocation>()
-        val path = mutableMapOf<GameLocation, Pair<GameLocation, Link>?>()
+        val paths = mutableMapOf<GameLocation, GameLocationLink>()
         val queue = LinkedList<Pair<GameLocation, GameLocation?>>()
 
         queue.add(this to null)
@@ -128,15 +136,24 @@ data class GameLocation(val id: LocationId, val isIntermediate: Boolean = false)
             }.map { it to currentNode }.let { queue.addAll(it) }
 
             // Add current node to path if a link exists
-            if (!path.values.any { it?.first == currentNode }) {
-                val link = parent?.links?.find { it.dest == currentNode.id }
-                if (link != null) path[parent] = currentNode to link
+            parent?.links?.find { it.dest == currentNode.id }?.let {
+                if (!paths.containsKey(currentNode)) {
+                    paths[currentNode] = GameLocationLink(parent, currentNode, it)
+                }
             }
 
-            visitedNodes.add(currentNode)
-            if (currentNode == dest) break
-        }
 
-        return path.values.filterNotNull()
+            visitedNodes.add(currentNode)
+            if (currentNode == dest) {
+                val list = mutableListOf<GameLocationLink>()
+                var loc = paths[currentNode]
+                while (loc != null) {
+                    list.add(loc)
+                    loc = paths[loc.source]
+                }
+                return list.reversed()
+            }
+        }
+        return null
     }
 }
