@@ -28,3 +28,23 @@
 .dark {
     -fx-text-fill: #666;
 }
+
+.bright-link {
+    -fx-border-color: transparent;
+    -fx-text-fill: #d6edff;
+}
+
+.bright-link:hover {
+    -fx-text-fill: #a6edff;
+    -fx-border-style: none;
+}
+
+.link {
+    -fx-border-color: transparent;
+    -fx-text-fill: #479eff;
+}
+
+.link:hover {
+    -fx-text-fill: #0049ff;
+    -fx-border-style: none;
+}

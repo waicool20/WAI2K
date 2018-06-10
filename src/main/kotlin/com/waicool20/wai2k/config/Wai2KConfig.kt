@@ -52,7 +52,7 @@ class Wai2KConfig(
 ) {
     private val logger = loggerFor<Wai2K>()
 
-    @get:JsonIgnore val isValid get() = sikulixJarIsValid()
+    @get:JsonIgnore val isValid get() = sikulixJarIsValid() && ocrIsValid()
     @get:JsonIgnore val logLevel get() = if (debugModeEnabled) "DEBUG" else "INFO"
     @get:JsonIgnore val androidDevice
         get() = AndroidDevice.listAll(false).find { it.adbSerial == lastDeviceSerial }
@@ -83,7 +83,12 @@ class Wai2KConfig(
         private val mapper = fxJacksonObjectMapper()
         private val loaderLogger = loggerFor<Loader>()
 
+        val requiredOcrFiles = listOf(
+                "eng.traineddata", "osd.traineddata"
+        )
+
         val path: Path = Wai2K.CONFIG_DIR.resolve("preferences.json")
+        val ocrPath: Path = Wai2K.CONFIG_DIR.resolve("ocr")
 
         fun load(): Wai2KConfig {
             loaderLogger.info("Attempting to load Wai2K configuration")
@@ -123,6 +128,10 @@ class Wai2KConfig(
             return manifest.mainAttributes.getValue("Main-Class") == "org.sikuli.ide.Sikulix"
         }
         return false
+    }
+
+    fun ocrIsValid(): Boolean {
+        return requiredOcrFiles.all { Files.exists(ocrPath.resolve(it)) }
     }
 
     fun save() {

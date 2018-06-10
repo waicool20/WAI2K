@@ -20,41 +20,67 @@
 package com.waicool20.wai2k.views
 
 import com.waicool20.wai2k.config.Configurations
+import com.waicool20.wai2k.config.Wai2KConfig
+import com.waicool20.waicoolutils.DesktopUtils
+import com.waicool20.waicoolutils.javafx.AlertFactory
 import com.waicool20.waicoolutils.javafx.listen
 import com.waicool20.waicoolutils.javafx.listenDebounced
+import javafx.geometry.Pos
 import javafx.scene.control.Button
+import javafx.scene.control.Hyperlink
 import javafx.scene.control.TextField
 import javafx.scene.layout.VBox
 import javafx.stage.FileChooser
 import tornadofx.*
+import java.nio.file.FileSystems
+import java.nio.file.Files
 import java.nio.file.Paths
+import java.nio.file.StandardWatchEventKinds.*
+import kotlin.concurrent.thread
 import kotlin.system.exitProcess
 
 class InitialConfigurationView : View() {
     override val root: VBox by fxml("/views/initial-config.fxml")
+
+    private val sikulixContent: VBox by fxid()
+    private val ocrContent: VBox by fxid()
+
     private val pathTextField: TextField by fxid()
     private val chooseButton: Button by fxid()
+
+    private val requiredFilesVBox: VBox by fxid()
+    private val ocrPathLink: Hyperlink by fxid()
 
     private val configs: Configurations by inject()
 
     init {
         title = "WAI2K - Initial Configuration"
+    }
+
+    override fun onDock() {
+        super.onDock()
+        currentStage?.isResizable = false
         pathTextField.textProperty().apply {
             listen { pathTextField.styleClass.setAll("unsure") }
             listenDebounced(1000, "InitialConfig-path") { newVal ->
                 configs.wai2KConfig.apply {
                     sikulixJarPath = Paths.get(newVal)
-                    if (isValid) {
+                    if (sikulixJarIsValid()) {
                         pathTextField.styleClass.setAll("valid")
-                        close()
                     } else {
                         pathTextField.styleClass.setAll("invalid")
                     }
                 }
+                checkConfig()
             }
         }
-
+        addRequiredOcrFilesHyperlinks()
+        configs.wai2KConfig.apply {
+            if (sikulixJarIsValid()) sikulixContent.removeFromParent()
+            if (ocrIsValid()) ocrContent.removeFromParent()
+        }
         chooseButton.action(::chooseSikulixPath)
+        monitorOcrFiles()
     }
 
     override fun onUndock() {
@@ -66,6 +92,10 @@ class InitialConfigurationView : View() {
         }
     }
 
+    private fun checkConfig() {
+        if (configs.wai2KConfig.isValid) runLater { close() }
+    }
+
     private fun chooseSikulixPath() {
         FileChooser().apply {
             title = "Path to Sikulix Jar File..."
@@ -75,5 +105,45 @@ class InitialConfigurationView : View() {
                 pathTextField.text = it.path
             }
         }
+    }
+
+    private fun addRequiredOcrFilesHyperlinks() {
+        requiredFilesVBox.apply {
+            Wai2KConfig.requiredOcrFiles.filterNot { Files.exists(Wai2KConfig.ocrPath.resolve(it)) }.forEach {
+                hbox(spacing = 10, alignment = Pos.CENTER_LEFT) {
+                    label("-")
+                    hyperlink(it) {
+                        styleClass.add("link")
+                        action {
+                            DesktopUtils.browse("https://github.com/tesseract-ocr/tessdata/blob/master/$it?raw=true")
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun monitorOcrFiles() = try {
+        if (Files.notExists(Wai2KConfig.ocrPath)) Files.createDirectories(Wai2KConfig.ocrPath)
+        ocrPathLink.apply {
+            text = Wai2KConfig.ocrPath.toString()
+            action { DesktopUtils.open(Wai2KConfig.ocrPath) }
+        }
+        val watcher = FileSystems.getDefault().newWatchService()
+        Wai2KConfig.ocrPath.register(watcher, arrayOf(ENTRY_MODIFY, ENTRY_CREATE, ENTRY_DELETE))
+        thread {
+            while (true) {
+                val key = watcher.take()
+                key.pollEvents().filterNot { it.kind() == OVERFLOW }.forEach {
+                    checkConfig()
+                }
+                if (!key.reset()) break
+            }
+        }
+    } catch (e: Exception) {
+        AlertFactory.error(
+                content = "Error occurred while checking ocr files, try again later: ${e.message}"
+        ).showAndWait()
+        exitProcess(0)
     }
 }

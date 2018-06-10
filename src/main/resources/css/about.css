@@ -39,16 +39,6 @@
     -fx-font-size: 20px;
 }
 
-.project-link {
-    -fx-border-color: transparent;
-    -fx-text-fill: #d6edff;
-}
-
-.project-link:hover {
-    -fx-text-fill: #a6edff;
-    -fx-border-style: none;
-}
-
 .version-text {
     -fx-font-size: 25px;
     -fx-text-fill: #888;

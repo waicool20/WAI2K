@@ -61,7 +61,8 @@
                   <String fx:value="medium" />
                </styleClass>
             </Label>
-            <Hyperlink fx:id="repoLink" styleClass="project-link" text="https://github.com/waicool20/WAI2K" />
+             <Hyperlink fx:id="repoLink" styleClass="bright-link"
+                        text="https://github.com/waicool20/WAI2K"/>
             <Label fx:id="versionText" styleClass="version-text" text="v0.0.0" />
          </children>
          <padding>
