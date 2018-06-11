@@ -46,10 +46,10 @@ class InitModule(
     private val logger = loggerFor<InitModule>()
     override suspend fun execute() {
         navigator.navigateTo(LocationId.HOME_STATUS)
-        val logisticJob = launch { updateLogistics() }
         val repairJob = launch { updateRepairs() }
-        logisticJob.join()
+        val logisticJob = launch { updateLogistics() }
         repairJob.join()
+        logisticJob.join()
         logger.info("Finished updating game state")
     }
 

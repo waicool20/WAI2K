@@ -30,6 +30,8 @@ class LogisticsSupport private constructor(
         @JsonIgnore val locationId: LocationId = LocationId.UNKNOWN
 ) {
     companion object {
+        val DISABLED = LogisticsSupport(-1, Duration.ZERO, LocationId.UNKNOWN)
+
         val list = listOf(
                 // Chapter 0
                 LogisticsSupport(1, of(minutes = 50), LocationId.LOGISTICS_SUPPORT_0),

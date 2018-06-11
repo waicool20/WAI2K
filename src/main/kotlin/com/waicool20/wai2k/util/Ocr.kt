@@ -26,6 +26,21 @@ import net.sourceforge.tess4j.ITesseract
 import net.sourceforge.tess4j.Tesseract
 
 object Ocr {
+    private val numberReplacements = mapOf(
+            "cCDGoOQ@" to "0", "iIl\\[\\]|!" to "1",
+            "zZ" to "2", "E" to "3",
+            "A" to "4", "sS" to "5",
+            "B:" to "8", " -" to ""
+    )
+
+    fun cleanNumericString(string: String): String {
+        var text = string
+        numberReplacements.forEach { r, num ->
+            text = text.replace(Regex("[$r]"), num)
+        }
+        return text
+    }
+
     fun forConfig(config: Wai2KConfig, digitsOnly: Boolean = false) = Tesseract().apply {
         setDatapath(config.ocrDirectory.toString())
         setPageSegMode(ITessAPI.TessPageSegMode.PSM_SINGLE_BLOCK)
