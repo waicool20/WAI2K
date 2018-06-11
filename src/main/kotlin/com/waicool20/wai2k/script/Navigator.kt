@@ -94,13 +94,14 @@ class Navigator(
             }
             gameState.currentGameLocation = destLoc
             logger.info("Going to ${destLoc.id}")
-            // Click the link every 5 seconds, check the region every 500 ms
+            // Click the link every 2 seconds, check the region every 500 ms
             var i = 0
             while (!destLoc.isInRegion(region)) {
-                if (i++ % 10 == 0) link.asset.getSubRegionFor(region).clickRandomly()
+                if (i++ % 6 == 0) link.asset.getSubRegionFor(region).clickRandomly()
                 delay(500)
             }
             logger.info("At ${destLoc.id}")
+            delay(500)
         }
     }
 }
