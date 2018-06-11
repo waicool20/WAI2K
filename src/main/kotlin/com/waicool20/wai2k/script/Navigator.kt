@@ -46,22 +46,25 @@ class Navigator(
      *
      * @return Current [GameLocation]
      */
-    suspend fun identifyCurrentLocation(): GameLocation {
+    suspend fun identifyCurrentLocation(retries: Int = 3): GameLocation {
         logger.info("Identifying current location")
         val channel = Channel<GameLocation?>()
-        val jobs = locations.entries.sortedBy { it.value.isIntermediate }
-                .map { (_, model) ->
-                    launch { channel.send(model.takeIf { model.isInRegion(region) }) }
+        repeat(retries) {
+            val jobs = locations.entries.sortedBy { it.value.isIntermediate }
+                    .map { (_, model) ->
+                        launch { channel.send(model.takeIf { model.isInRegion(region) }) }
+                    }
+            channel.consumeEach {
+                it?.let { model ->
+                    logger.info("GameLocation found: $model")
+                    gameState.currentGameLocation = model
+                    return model
                 }
-        channel.consumeEach {
-            it?.let { model ->
-                logger.info("GameLocation found: $model")
-                gameState.currentGameLocation = model
-                return model
+                if (jobs.all { it.isCompleted }) channel.close()
             }
-            if (jobs.all { it.isCompleted }) channel.close()
+            logger.warn("Could not find location in after ${it + 1} attempts, retries remaining: ${retries - it - 1}")
         }
-        logger.info("Current location could not be identified")
+        logger.warn("Current location could not be identified")
         coroutineContext.cancelAndYield()
     }
 
@@ -80,6 +83,10 @@ class Navigator(
             logger.warn("No known solution from $cLocation to $dest")
             coroutineContext.cancelAndYield()
         }
+        if (path.isEmpty()) {
+            logger.info("Already at ${dest.id}")
+            return
+        }
         logger.debug("Found solution: ${path.joinToString("->") { "${it.dest.id}" }}")
         for ((_, destLoc, link) in path) {
             if (gameState.currentGameLocation.isIntermediate && destLoc.isInRegion(region)) {
@@ -87,9 +94,12 @@ class Navigator(
             }
             gameState.currentGameLocation = destLoc
             logger.info("Going to ${destLoc.id}")
-            // Try extensions
-            link.asset.getSubRegionFor(region).clickRandomly()
-            while (!destLoc.isInRegion(region)) delay(500)
+            // Click the link every 5 seconds, check the region every 500 ms
+            var i = 0
+            while (!destLoc.isInRegion(region)) {
+                if (i++ % 10 == 0) link.asset.getSubRegionFor(region).clickRandomly()
+                delay(500)
+            }
             logger.info("At ${destLoc.id}")
         }
     }
