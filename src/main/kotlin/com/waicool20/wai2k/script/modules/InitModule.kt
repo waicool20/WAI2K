@@ -24,8 +24,15 @@ import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.game.GameState
 import com.waicool20.wai2k.game.LocationId
+import com.waicool20.wai2k.game.LogisticsSupport
+import com.waicool20.wai2k.game.LogisticsSupport.Assignment
 import com.waicool20.wai2k.script.Navigator
+import com.waicool20.wai2k.util.Ocr
+import com.waicool20.wai2k.util.doOCR
+import com.waicool20.waicoolutils.DurationUtils
 import com.waicool20.waicoolutils.logging.loggerFor
+import kotlinx.coroutines.experimental.async
+import java.time.LocalDateTime
 
 class InitModule(
         gameState: GameState,
@@ -37,6 +44,35 @@ class InitModule(
     private val logger = loggerFor<InitModule>()
     override suspend fun execute() {
         navigator.navigateTo(LocationId.HOME_STATUS)
-        println("Done")
+        updateLogistics()
+        logger.info("Finished updating game state")
+    }
+
+    private suspend fun updateLogistics() {
+        logger.info("Reading logistics support status")
+        region.subRegion(347, 0, 229, region.h).findAllOrEmpty("init/logistics.png")
+                // Map each region to whole logistic support entry
+                .map { region.subRegion(it.x - 143, it.y - 22, 1088, 144) }
+                .map {
+                    async {
+                        // Echelon section on the right without the word "Echelon"
+                        Ocr.forConfig(config).doOCR(it.subRegion(0, 25, 83, 119))
+                    } to async {
+                        // Brown region containing "In logistics x-x xx:xx:xx"
+                        Ocr.forConfig(config).doOCR(it.subRegion(114, 22, 859, 108))
+                    }
+                }
+                .map { "${it.first.await()} ${it.second.await()}" }
+                .mapNotNull {
+                    Regex("(\\d) In logistics (\\d) - (\\d) (\\d\\d):(\\d\\d):(\\d\\d)").matchEntire(it)?.destructured
+                }.forEach { (sEchelon, sChapter, sNumber, sHour, sMinutes, sSeconds) ->
+                    val echelon = sEchelon.toInt()
+                    val logisticsSupport = LogisticsSupport.list[sChapter.toInt() * 4 + sNumber.toInt() - 1]
+                    val duration = DurationUtils.of(sSeconds.toLong(), sMinutes.toLong(), sHour.toLong())
+                    val eta = LocalDateTime.now() + duration
+                    logger.info("Echelon $echelon is doing logistics support ${logisticsSupport.number}, ETA: $eta")
+                    gameState.echelons[echelon - 1].logisticsSupportAssignment =
+                            Assignment(logisticsSupport, eta)
+                }
     }
 }
