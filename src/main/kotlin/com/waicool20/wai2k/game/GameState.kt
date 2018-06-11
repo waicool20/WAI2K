@@ -21,5 +21,5 @@ package com.waicool20.wai2k.game
 
 class GameState {
     var currentGameLocation: GameLocation = GameLocation(LocationId.UNKNOWN)
-    val echelons: List<Echelon> = (1..10).map { Echelon(it) }
+    val echelons: List<Echelon> = List(10) { Echelon(it + 1) }
 }
