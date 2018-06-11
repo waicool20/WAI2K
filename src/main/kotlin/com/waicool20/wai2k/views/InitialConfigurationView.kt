@@ -52,6 +52,7 @@ class InitialConfigurationView : View() {
     private val ocrPathLink: Hyperlink by fxid()
 
     private val configs: Configurations by inject()
+    private val ocrDir = configs.wai2KConfig.ocrDirectory
 
     init {
         title = "WAI2K - Initial Configuration"
@@ -109,7 +110,7 @@ class InitialConfigurationView : View() {
 
     private fun addRequiredOcrFilesHyperlinks() {
         requiredFilesVBox.apply {
-            Wai2KConfig.requiredOcrFiles.filterNot { Files.exists(Wai2KConfig.ocrPath.resolve(it)) }.forEach {
+            Wai2KConfig.requiredOcrFiles.filterNot { Files.exists(ocrDir.resolve(it)) }.forEach {
                 hbox(spacing = 10, alignment = Pos.CENTER_LEFT) {
                     label("-")
                     hyperlink(it) {
@@ -124,14 +125,14 @@ class InitialConfigurationView : View() {
     }
 
     private fun monitorOcrFiles() = try {
-        if (Files.notExists(Wai2KConfig.ocrPath)) Files.createDirectories(Wai2KConfig.ocrPath)
+        if (Files.notExists(ocrDir)) Files.createDirectories(ocrDir)
         ocrPathLink.apply {
-            text = Wai2KConfig.ocrPath.toString()
-            action { DesktopUtils.open(Wai2KConfig.ocrPath) }
+            text = "$ocrDir"
+            action { DesktopUtils.open(ocrDir) }
         }
         val ws = FileSystems.getDefault().newWatchService()
-        val watchKey = Wai2KConfig.ocrPath.register(ws, arrayOf(ENTRY_MODIFY, ENTRY_CREATE, ENTRY_DELETE))
-        thread {
+        val watchKey = ocrDir.register(ws, arrayOf(ENTRY_MODIFY, ENTRY_CREATE, ENTRY_DELETE))
+        thread(name = "OCR Directory Watcher Thread") {
             while (true) {
                 val key = ws.take()
                 key.pollEvents().filterNot { it.kind() == OVERFLOW }.forEach {

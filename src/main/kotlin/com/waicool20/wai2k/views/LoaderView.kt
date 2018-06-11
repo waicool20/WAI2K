@@ -81,7 +81,6 @@ class LoaderView : View() {
         loadWai2KProfile()
         loadScriptRunner()
         thread {
-            parseCommandLine()
             loadSikuliX()
             closeAndShowMainApp()
         }
@@ -89,6 +88,7 @@ class LoaderView : View() {
 
     private fun loadWai2KConfig() {
         wai2KConfig = Wai2KConfig.load()
+        parseCommandLine()
         if (!wai2KConfig.isValid) {
             find<InitialConfigurationView>().openModal(owner = currentWindow, block = true)
         }
@@ -123,6 +123,13 @@ class LoaderView : View() {
             logger.info("Assets directory passed in through command line: $dir")
             if (Files.exists(dir)) {
                 wai2KConfig.assetsDirectory = dir
+            }
+        }
+
+        parameters.named["ocr-dir"]?.let { Paths.get(it) }?.let { dir ->
+            logger.info("OCR directory passed in through command line: $dir")
+            if (Files.exists(dir)) {
+                wai2KConfig.ocrDirectory = dir
             }
         }
     }

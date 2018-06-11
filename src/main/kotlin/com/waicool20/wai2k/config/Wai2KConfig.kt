@@ -44,6 +44,7 @@ class Wai2KConfig(
         currentProfile: String = Wai2KProfile.DEFAULT_NAME,
         sikulixJarPath: Path = Paths.get(""),
         assetsDirectory: Path = Wai2K.CONFIG_DIR.resolve("assets"),
+        ocrDirectory: Path = Wai2K.CONFIG_DIR.resolve("tessdata"),
         clearConsoleOnStart: Boolean = true,
         showConsoleOnStart: Boolean = true,
         debugModeEnabled: Boolean = true,
@@ -62,6 +63,7 @@ class Wai2KConfig(
     val currentProfileProperty = currentProfile.toProperty()
     val sikulixJarPathProperty = sikulixJarPath.toProperty()
     val assetsDirectoryProperty = assetsDirectory.toProperty()
+    val ocrDirectoryProperty = ocrDirectory.toProperty()
     val clearConsoleOnStartProperty = clearConsoleOnStart.toProperty()
     val showConsoleOnStartProperty = showConsoleOnStart.toProperty()
     val debugModeEnabledProperty = debugModeEnabled.toProperty()
@@ -71,6 +73,7 @@ class Wai2KConfig(
     var currentProfile by currentProfileProperty
     var sikulixJarPath by sikulixJarPathProperty
     @get:JsonIgnore var assetsDirectory by assetsDirectoryProperty
+    @get:JsonIgnore var ocrDirectory by ocrDirectoryProperty
     var clearConsoleOnStart by clearConsoleOnStartProperty
     var showConsoleOnStart by showConsoleOnStartProperty
     var debugModeEnabled by debugModeEnabledProperty
@@ -88,7 +91,6 @@ class Wai2KConfig(
         )
 
         val path: Path = Wai2K.CONFIG_DIR.resolve("preferences.json")
-        val ocrPath: Path = Wai2K.CONFIG_DIR.resolve("ocr")
 
         fun load(): Wai2KConfig {
             loaderLogger.info("Attempting to load Wai2K configuration")
@@ -131,7 +133,7 @@ class Wai2KConfig(
     }
 
     fun ocrIsValid(): Boolean {
-        return requiredOcrFiles.all { Files.exists(ocrPath.resolve(it)) }
+        return requiredOcrFiles.all { Files.exists(ocrDirectory.resolve(it)) }
     }
 
     fun save() {
