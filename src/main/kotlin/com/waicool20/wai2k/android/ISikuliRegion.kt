@@ -19,6 +19,7 @@
 
 package com.waicool20.wai2k.android
 
+import org.sikuli.basics.Settings
 import org.sikuli.script.*
 import java.awt.Rectangle
 import java.awt.image.BufferedImage
@@ -725,6 +726,30 @@ interface ISikuliRegion {
      * Takes a screenshot of the region and returns it as a buffered image
      */
     fun takeScreenshot(): BufferedImage
+
+    /**
+     * Find something in a region or return null instead of raising an Exception
+     */
+    fun <PSI : Any> findOrNull(
+            psi: PSI,
+            similarity: Double = Settings.MinSimilarity,
+            timeout: Double = Settings.AutoWaitTimeout.toDouble()
+    ): AndroidMatch?
+
+    /**
+     * Find all instances of something in a region or return an empty list
+     */
+    fun <PSI : Any> findAllOrEmpty(psi: PSI): List<AndroidMatch>
+
+    /**
+     * Checks if something is in the region
+     */
+    fun <PSI : Any> has(psi: PSI, similarity: Double = Settings.MinSimilarity): Boolean
+
+    /**
+     * Inverse of [has]
+     */
+    fun <PSI : Any> Region.doesntHave(psi: PSI, similarity: Double = Settings.MinSimilarity): Boolean
 
     /**
      * Gets a sub-region of this region

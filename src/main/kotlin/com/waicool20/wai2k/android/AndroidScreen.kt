@@ -82,7 +82,9 @@ class AndroidScreen(val device: AndroidDevice) : AndroidRegion(
     /**
      * Returns the geometry of the underlying android device.
      */
-    override fun getBounds(): Rectangle = Rectangle(w, h)
+    override fun getBounds(): Rectangle = device.properties.let {
+        Rectangle(it.displayWidth, it.displayHeight)
+    }
 
     /**
      * Takes a screenshot of the whole screen.
@@ -171,7 +173,7 @@ class AndroidScreen(val device: AndroidDevice) : AndroidRegion(
      *
      * @param element Region to set
      */
-    override fun setOther(element: Region): AndroidRegion =  newRegion(element).setOtherScreen(this)
+    override fun setOther(element: Region): AndroidRegion = newRegion(element).setOtherScreen(this)
 
     /**
      * Sets the locations screen to this screen

@@ -311,16 +311,36 @@ open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region
         return androidScreen.device.takeScreenshot().getSubimage(x, y, w, h)
     }
 
+    override fun <PSI : Any> findOrNull(psi: PSI, similarity: Double, timeout: Double): AndroidMatch? = when (psi) {
+        is String -> exists(Pattern(psi).similar(similarity.toFloat()), timeout)
+        is Pattern -> exists(Pattern(psi).similar(similarity.toFloat()), timeout)
+        is org.sikuli.script.Image -> exists(Pattern(psi).similar(similarity.toFloat()), timeout)
+        else -> throw IllegalArgumentException()
+    }
+
+    override fun <PSI : Any> findAllOrEmpty(psi: PSI): List<AndroidMatch> {
+        val matches = mutableListOf<AndroidMatch>()
+        try {
+            matches.addAll(findAll(psi).asSequence().toList())
+        } catch (e: FindFailed) {
+        }
+        return matches
+    }
+
     override fun subRegion(x: Int, y: Int, width: Int, height: Int): AndroidRegion {
         val xCoord = if (x in 0..w) (this.x + x) else w
         val yCoord = if (y in 0..h) (this.y + y) else h
         val newWidth = if (width in 0..w) width else w
         val newHeight = if (height in 0..w) height else h
 
-        return androidScreen.newRegion(xCoord, yCoord, newWidth, newHeight).apply {
-
-        }
+        return androidScreen.newRegion(xCoord, yCoord, newWidth, newHeight)
     }
+
+    override fun <PSI : Any> has(psi: PSI, similarity: Double) =
+            findOrNull(psi, similarity, 0.6) != null
+
+    override fun <PSI : Any> Region.doesntHave(psi: PSI, similarity: Double) =
+            !has(psi, similarity)
 
     override fun clickRandomly() {
         val rng = Random()
