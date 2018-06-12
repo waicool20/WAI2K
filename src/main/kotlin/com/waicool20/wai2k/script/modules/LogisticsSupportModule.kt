@@ -44,6 +44,7 @@ class LogisticsSupportModule(
 ) : ScriptModule(gameState, region, config, profile, navigator) {
     private val logger = loggerFor<LogisticsSupportModule>()
     override suspend fun execute() {
+        if (!profile.logistics.enabled) return
         val queue = profile.logistics.assignments.mapKeys { gameState.echelons[it.key - 1] }
                 // Keep all echelons that don't have an assignment already
                 .filter { it.key.logisticsSupportAssignment == null }

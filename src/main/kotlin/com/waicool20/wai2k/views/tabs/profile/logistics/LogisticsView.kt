@@ -19,11 +19,31 @@
 
 package com.waicool20.wai2k.views.tabs.profile.logistics
 
-import javafx.geometry.Pos
+import com.waicool20.wai2k.config.Configurations
+import com.waicool20.wai2k.config.Wai2KProfile.Logistics.ReceivalMode
+import com.waicool20.wai2k.util.Binder
+import javafx.scene.control.CheckBox
+import javafx.scene.control.ComboBox
+import javafx.scene.layout.VBox
 import tornadofx.*
 
-class LogisticsView: View() {
-    override val root = vbox(alignment = Pos.CENTER) {
-        label("Logistics WIP, add scheduling stuff here?")
+class LogisticsView : View(), Binder {
+    override val root: VBox by fxml("/views/tabs/profile/logistics/logistics.fxml")
+    private val enabledCheckBox: CheckBox by fxid()
+    private val receivalModeComboBox: ComboBox<ReceivalMode> by fxid()
+
+    private val configs: Configurations by inject()
+
+    override fun onDock() {
+        super.onDock()
+        createBindings()
+        receivalModeComboBox.items.addAll(ReceivalMode.values())
+    }
+
+    override fun createBindings() {
+        configs.currentProfile.logistics.apply {
+            enabledCheckBox.bind(enabledProperty)
+            receivalModeComboBox.bind(receiveModeProperty)
+        }
     }
 }

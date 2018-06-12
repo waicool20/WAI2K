@@ -116,11 +116,11 @@ class Navigator(
             logger.info("An echelon has arrived from logistics")
             region.clickRandomly(); delay(500)
             val image = when (profile.logistics.receiveMode) {
-                Wai2KProfile.Logistics.ReceiveMode.ALWAYS_CONTINUE -> {
+                Wai2KProfile.Logistics.ReceivalMode.ALWAYS_CONTINUE -> {
                     logger.info("Continuing this logistics support")
                     "confirm.png"
                 }
-                Wai2KProfile.Logistics.ReceiveMode.RANDOM -> {
+                Wai2KProfile.Logistics.ReceivalMode.RANDOM -> {
                     if (Random().nextBoolean()) {
                         logger.info("Randomized receive, continue logistics support this time")
                         "confirm.png"
@@ -129,11 +129,11 @@ class Navigator(
                         "cancel.png"
                     }
                 }
-                Wai2KProfile.Logistics.ReceiveMode.ALWAYS_CANCEL -> {
+                Wai2KProfile.Logistics.ReceivalMode.ALWAYS_CANCEL -> {
                     logger.info("Stopping this logistics support")
                     "cancel.png"
                 }
-                else -> error("Got an invalid ReceiveMode for some reason")
+                else -> error("Got an invalid ReceivalMode for some reason")
             }
             region.waitSuspending(image, 10)?.clickRandomly()
             gameState.requiresUpdate = true
