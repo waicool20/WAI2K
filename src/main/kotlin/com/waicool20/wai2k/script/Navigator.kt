@@ -95,18 +95,16 @@ class Navigator(
             if (gameState.currentGameLocation.isIntermediate && destLoc.isInRegion(region)) {
                 continue
             }
-            gameState.currentGameLocation = destLoc
             logger.info("Going to ${destLoc.id}")
-            repeat(2) { link.asset.getSubRegionFor(region).clickRandomly(); delay(200) }
-            checkLogistics()
-            // Click the link every 2 seconds, check the region every 500 ms in case the first clicks didn't get it
+            // Click the link every 3 seconds, check the region every 500 ms in case the first clicks didn't get it
             var i = 0
-            while (!destLoc.isInRegion(region)) {
+            do {
                 checkLogistics()
                 if (i++ % 6 == 0) link.asset.getSubRegionFor(region).clickRandomly()
                 delay(500)
-            }
+            } while (!destLoc.isInRegion(region))
             logger.info("At ${destLoc.id}")
+            gameState.currentGameLocation = destLoc
             delay(500)
         }
     }

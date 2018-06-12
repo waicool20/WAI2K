@@ -65,6 +65,7 @@ class ScriptRunner(wai2KConfig: Wai2KConfig = Wai2KConfig(), wai2KProfile: Wai2K
     fun run() {
         if (isRunning) return
         isPaused = false
+        gameState.requiresUpdate = true
         lastStartTime = ZonedDateTime.now()
         scriptJob = launch(dispatcher) {
             while (isActive) {

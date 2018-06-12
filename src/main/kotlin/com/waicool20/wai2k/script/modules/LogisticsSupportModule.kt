@@ -27,10 +27,7 @@ import com.waicool20.wai2k.game.GameState
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.game.LogisticsSupport
 import com.waicool20.wai2k.script.Navigator
-import com.waicool20.wai2k.util.Ocr
-import com.waicool20.wai2k.util.doOCR
 import com.waicool20.waicoolutils.logging.loggerFor
-import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.yield
 import java.time.ZonedDateTime
@@ -75,12 +72,15 @@ class LogisticsSupportModule(
         navigator.navigateTo(nextMission.locationId)
         val missionIndex = (nextMission.number - 1) % 4
         clickMissionStart(missionIndex)
+        region.waitSuspending("logistics/formation.png", 10)
         clickEchelon(echelon)
 
         // Click ok button
-        delay(200)
+        delay(300)
         region.subRegion(1761, 910, 251, 96).clickRandomly()
-        delay(200)
+
+        // Wait for logistics mission icon to appear again
+        region.subRegion(131, 306, 257, 118).waitSuspending("logistics/logistics.png")
 
         // Check if mission is running
         if (missionRunning(missionIndex)) {
@@ -127,20 +127,8 @@ class LogisticsSupportModule(
      * @param echelon Echelon to click
      */
     private suspend fun clickEchelon(echelon: Echelon) {
-        val map = region.subRegion(120, 0, 183, region.h).findAllOrEmpty("logistics/echelon.png")
-                .map { region.subRegion(it.x - 8, it.y, 183, 108) }
-                .associate {
-                    async {
-                        Ocr.forConfig(config).doOCR(it.subRegion(115, 0, 68, it.h))
-                    } to it
-                }.mapKeys {
-                    it.key.await().let { no ->
-                        no.filter { it.isDigit() }.toIntOrNull()
-                                ?: Ocr.cleanNumericString(no).filter { it.isDigit() }.toIntOrNull()
-                    }
-                }
-        logger.info("Found echelons ${map.keys}")
-        logger.info("Choosing echelon ${echelon.number}")
-        map[echelon.number]?.clickRandomly() ?: error("Could not choose echelon ${echelon.number}")
+        region.subRegion(120, 0, 183, region.h)
+                .findOrNull("logistics/echelon${echelon.number}.png")?.clickRandomly()
+        yield()
     }
 }
