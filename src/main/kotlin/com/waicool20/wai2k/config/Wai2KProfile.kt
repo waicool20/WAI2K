@@ -45,10 +45,16 @@ data class Wai2KProfile(
     }
 
     class Logistics(
+            receiveMode: ReceiveMode = ReceiveMode.RANDOM,
             assignments: MutableMap<Int, ListProperty<Int>> = (1..10).associate { it to SimpleListProperty<Int>() }.toMutableMap()
     ) {
+        enum class ReceiveMode {
+            ALWAYS_CONTINUE, RANDOM, ALWAYS_CANCEL
+        }
         val assignmentsProperty = assignments.toProperty()
+        val receiveModeProperty = receiveMode.toProperty()
         var assignments by assignmentsProperty
+        var receiveMode by receiveModeProperty
     }
 
     companion object Loader {

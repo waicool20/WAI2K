@@ -31,6 +31,7 @@ import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.consumeEach
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
+import java.util.*
 import kotlin.coroutines.experimental.coroutineContext
 
 class Navigator(
@@ -50,6 +51,7 @@ class Navigator(
         logger.info("Identifying current location")
         val channel = Channel<GameLocation?>()
         repeat(retries) {
+            checkLogistics()
             val jobs = locations.entries.sortedBy { it.value.isIntermediate }
                     .map { (_, model) ->
                         launch { channel.send(model.takeIf { model.isInRegion(region) }) }
@@ -63,6 +65,7 @@ class Navigator(
                 if (jobs.all { it.isCompleted }) channel.close()
             }
             logger.warn("Could not find location in after ${it + 1} attempts, retries remaining: ${retries - it - 1}")
+            delay(1000)
         }
         logger.warn("Current location could not be identified")
         coroutineContext.cancelAndYield()
@@ -94,14 +97,46 @@ class Navigator(
             }
             gameState.currentGameLocation = destLoc
             logger.info("Going to ${destLoc.id}")
-            // Click the link every 2 seconds, check the region every 500 ms
+            repeat(2) { link.asset.getSubRegionFor(region).clickRandomly(); delay(200) }
+            checkLogistics()
+            // Click the link every 2 seconds, check the region every 500 ms in case the first clicks didn't get it
             var i = 0
             while (!destLoc.isInRegion(region)) {
+                checkLogistics()
                 if (i++ % 6 == 0) link.asset.getSubRegionFor(region).clickRandomly()
                 delay(500)
             }
             logger.info("At ${destLoc.id}")
             delay(500)
+        }
+    }
+
+    suspend fun checkLogistics() {
+        if (region.has("navigator/logistics_arrived.png")) {
+            logger.info("An echelon has arrived from logistics")
+            region.clickRandomly(); delay(500)
+            val image = when (profile.logistics.receiveMode) {
+                Wai2KProfile.Logistics.ReceiveMode.ALWAYS_CONTINUE -> {
+                    logger.info("Continuing this logistics support")
+                    "confirm.png"
+                }
+                Wai2KProfile.Logistics.ReceiveMode.RANDOM -> {
+                    if (Random().nextBoolean()) {
+                        logger.info("Randomized receive, continue logistics support this time")
+                        "confirm.png"
+                    } else {
+                        logger.info("Randomized receive, stopping logistics support this time")
+                        "cancel.png"
+                    }
+                }
+                Wai2KProfile.Logistics.ReceiveMode.ALWAYS_CANCEL -> {
+                    logger.info("Stopping this logistics support")
+                    "cancel.png"
+                }
+                else -> error("Got an invalid ReceiveMode for some reason")
+            }
+            region.waitSuspending(image, 10)?.clickRandomly()
+            gameState.requiresUpdate = true
         }
     }
 }

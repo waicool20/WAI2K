@@ -45,6 +45,7 @@ class InitModule(
 ) : ScriptModule(gameState, region, config, profile, navigator) {
     private val logger = loggerFor<InitModule>()
     override suspend fun execute() {
+        navigator.checkLogistics()
         if (gameState.requiresUpdate) updateGameState()
     }
 
@@ -64,7 +65,7 @@ class InitModule(
      */
     private suspend fun updateLogistics() {
         logger.info("Reading logistics support status")
-        region.subRegion(347, 0, 229, region.h).findAllOrEmpty("init/logistics.png")
+        val entry = region.subRegion(347, 0, 229, region.h).findAllOrEmpty("init/logistics.png")
                 // Map each region to whole logistic support entry
                 .map { region.subRegion(it.x - 143, it.y - 22, 1088, 144) }
                 .map {
@@ -79,15 +80,18 @@ class InitModule(
                 .map { "${it.first.await()} ${it.second.await()}" }
                 .mapNotNull {
                     Regex("(\\d) In logistics (\\d) - (\\d) (\\d\\d):(\\d\\d):(\\d\\d)").matchEntire(it)?.destructured
-                }.forEach { (sEchelon, sChapter, sNumber, sHour, sMinutes, sSeconds) ->
-                    val echelon = sEchelon.toInt()
-                    val logisticsSupport = LogisticsSupport.list[sChapter.toInt() * 4 + sNumber.toInt() - 1]
-                    val duration = DurationUtils.of(sSeconds.toLong(), sMinutes.toLong(), sHour.toLong())
-                    val eta = ZonedDateTime.now() + duration
-                    logger.info("Echelon $echelon is doing logistics support ${logisticsSupport.number}, ETA: $eta")
-                    gameState.echelons[echelon - 1].logisticsSupportAssignment =
-                            Assignment(logisticsSupport, eta)
                 }
+        // Clear existing timers
+        gameState.echelons.forEach { it.logisticsSupportAssignment = null }
+        entry.forEach { (sEchelon, sChapter, sNumber, sHour, sMinutes, sSeconds) ->
+            val echelon = sEchelon.toInt()
+            val logisticsSupport = LogisticsSupport.list[sChapter.toInt() * 4 + sNumber.toInt() - 1]
+            val duration = DurationUtils.of(sSeconds.toLong(), sMinutes.toLong(), sHour.toLong())
+            val eta = ZonedDateTime.now() + duration
+            logger.info("Echelon $echelon is doing logistics support ${logisticsSupport.number}, ETA: $eta")
+            gameState.echelons[echelon - 1].logisticsSupportAssignment =
+                    Assignment(logisticsSupport, eta)
+        }
     }
 
     /**
@@ -101,20 +105,23 @@ class InitModule(
                 firstEntryRegion.findAllOrEmpty("init/standby.png")
 
         // Map each region to whole logistic support entry
-        entries.map { region.subRegion(it.x - 111, it.y - 12, 1088, 144) }
+        val mappedEntries = entries.map { region.subRegion(it.x - 111, it.y - 12, 1088, 144) }
                 .map {
                     async {
                         // Echelon section on the right without the word "Echelon"
                         Ocr.forConfig(config).doOCR(it.subRegion(0, 25, 83, 119))
                     } to async { readRepairTimers(it) }
                 }.map { it.first.await().toInt() to it.second.await() }
-                .forEach { (echelon, repairTimers) ->
-                    val members = gameState.echelons[echelon - 1].members
-                    logger.info("Echelon $echelon has repair timers: $repairTimers")
-                    repairTimers.forEach { (memberIndex, duration) ->
-                        members[memberIndex].repairEta = ZonedDateTime.now() + duration
-                    }
-                }
+
+        // Clear existing timers
+        gameState.echelons.flatMap { it.members }.forEach { it.repairEta = null }
+        mappedEntries.forEach { (echelon, repairTimers) ->
+            val members = gameState.echelons[echelon - 1].members
+            logger.info("Echelon $echelon has repair timers: $repairTimers")
+            repairTimers.forEach { (memberIndex, duration) ->
+                members[memberIndex].repairEta = ZonedDateTime.now() + duration
+            }
+        }
     }
 
     /**

@@ -23,6 +23,7 @@ import org.sikuli.basics.Settings
 import org.sikuli.script.*
 import java.awt.Rectangle
 import java.awt.image.BufferedImage
+import kotlin.math.roundToLong
 
 /**
  * Interfaces that copies most of the [Region] APIs
@@ -765,4 +766,9 @@ interface ISikuliRegion {
      * Clicks a spot randomly on this region
      */
     fun clickRandomly()
+
+    /**
+     * Waits for something to appear
+     */
+    suspend fun <PSI : Any> waitSuspending(target: PSI, timeout: Long = Settings.AutoWaitTimeout.roundToLong()): AndroidMatch?
 }

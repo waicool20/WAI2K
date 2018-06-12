@@ -21,12 +21,16 @@ package com.waicool20.wai2k.android
 
 import com.waicool20.wai2k.android.input.AndroidKeyboard
 import com.waicool20.waicoolutils.nextSign
+import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.withTimeoutOrNull
 import org.sikuli.script.*
 import java.awt.Image
 import java.awt.Rectangle
 import java.awt.event.KeyEvent
 import java.awt.image.BufferedImage
 import java.util.*
+import java.util.concurrent.TimeUnit
+import kotlin.math.roundToLong
 
 open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region(), ISikuliRegion {
     /**
@@ -347,6 +351,17 @@ open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region
         val dx = rng.nextInt((w * 0.45).toInt()) * rng.nextSign()
         val dy = rng.nextInt((h * 0.45).toInt()) * rng.nextSign()
         click(Location(center.x + dx, center.y + dy))
+    }
+
+    override suspend fun <PSI : Any> waitSuspending(target: PSI, timeout: Long): AndroidMatch? {
+        return withTimeoutOrNull(timeout, TimeUnit.SECONDS) {
+            var match: AndroidMatch? = null
+            while (match == null) {
+                match = findOrNull(target)
+                delay(((1 / waitScanRate) * 1000).roundToLong())
+            }
+            match
+        }
     }
 }
 
