@@ -42,7 +42,9 @@ class LogisticsSupportModule(
     private val logger = loggerFor<LogisticsSupportModule>()
     override suspend fun execute() {
         if (!profile.logistics.enabled) return
-        val queue = profile.logistics.assignments.mapKeys { gameState.echelons[it.key - 1] }
+        val queue = profile.logistics.assignments
+                // Map to echelon
+                .mapKeys { gameState.echelons[it.key - 1] }
                 // Keep all echelons that don't have an assignment already
                 .filter { it.key.logisticsSupportAssignment == null }
                 // Remove all echelons with disable logistics
@@ -52,9 +54,13 @@ class LogisticsSupportModule(
                 // Remove all the echelons that have repairs ongoing
                 .filterNot { it.key.hasRepairs() }
         // Return if no echelons to dispatch
-        if (queue.isEmpty()) return
+        if (queue.isEmpty() || logisticSupportLimitReached()) return
         navigator.navigateTo(LocationId.LOGISTICS_SUPPORT)
-        queue.forEach { (echelon, ls) ->
+        queue.entries.shuffled().forEach { (echelon, ls) ->
+            if (logisticSupportLimitReached()) {
+                logger.info("4 logistic support have been dispatched, ignoring further assignments")
+                return
+            }
             logger.info("Valid assignments for $echelon: ${ls.joinToString()}")
             dispatchEchelon(echelon, LogisticsSupport.list.filter { ls.contains(it.number) }.shuffled().first())
             yield()
@@ -130,5 +136,12 @@ class LogisticsSupportModule(
         region.subRegion(120, 0, 183, region.h)
                 .findOrNull("logistics/echelon${echelon.number}.png")?.clickRandomly()
         yield()
+    }
+
+    /**
+     * Checks if the amount of ongoing logistic support is 4
+     */
+    private fun logisticSupportLimitReached(): Boolean {
+        return gameState.echelons.mapNotNull { it.logisticsSupportAssignment }.size >= 4
     }
 }
