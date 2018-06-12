@@ -32,6 +32,7 @@ import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.experimental.*
 import org.reflections.Reflections
 import org.sikuli.basics.Settings
+import java.time.ZonedDateTime
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.experimental.coroutineContext
 import kotlin.reflect.full.primaryConstructor
@@ -51,6 +52,8 @@ class ScriptRunner(wai2KConfig: Wai2KConfig = Wai2KConfig(), wai2KProfile: Wai2K
     var isPaused: Boolean = false
     val isRunning get() = scriptJob?.isActive == true
     val gameState = GameState()
+    var lastStartTime: ZonedDateTime? = null
+        private set
 
     init {
         // Turn off logging for reflections library
@@ -62,6 +65,7 @@ class ScriptRunner(wai2KConfig: Wai2KConfig = Wai2KConfig(), wai2KProfile: Wai2K
     fun run() {
         if (isRunning) return
         isPaused = false
+        lastStartTime = ZonedDateTime.now()
         scriptJob = launch(dispatcher) {
             while (isActive) {
                 runScriptCycle()

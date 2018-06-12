@@ -34,7 +34,7 @@ import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
 import java.time.Duration
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 class InitModule(
         gameState: GameState,
@@ -45,17 +45,18 @@ class InitModule(
 ) : ScriptModule(gameState, region, config, profile, navigator) {
     private val logger = loggerFor<InitModule>()
     override suspend fun execute() {
-        navigator.navigateTo(LocationId.HOME_STATUS)
         if (gameState.requiresUpdate) updateGameState()
     }
 
     private suspend fun updateGameState() {
+        navigator.navigateTo(LocationId.HOME_STATUS)
         logger.info("Updating gamestate")
         val repairJob = launch { updateRepairs() }
         val logisticJob = launch { updateLogistics() }
         repairJob.join()
         logisticJob.join()
         logger.info("Finished updating game state")
+        gameState.requiresUpdate = false
     }
 
     /**
@@ -82,7 +83,7 @@ class InitModule(
                     val echelon = sEchelon.toInt()
                     val logisticsSupport = LogisticsSupport.list[sChapter.toInt() * 4 + sNumber.toInt() - 1]
                     val duration = DurationUtils.of(sSeconds.toLong(), sMinutes.toLong(), sHour.toLong())
-                    val eta = LocalDateTime.now() + duration
+                    val eta = ZonedDateTime.now() + duration
                     logger.info("Echelon $echelon is doing logistics support ${logisticsSupport.number}, ETA: $eta")
                     gameState.echelons[echelon - 1].logisticsSupportAssignment =
                             Assignment(logisticsSupport, eta)
@@ -111,7 +112,7 @@ class InitModule(
                     val members = gameState.echelons[echelon - 1].members
                     logger.info("Echelon $echelon has repair timers: $repairTimers")
                     repairTimers.forEach { (memberIndex, duration) ->
-                        members[memberIndex].repairTimer = duration
+                        members[memberIndex].repairEta = ZonedDateTime.now() + duration
                     }
                 }
     }

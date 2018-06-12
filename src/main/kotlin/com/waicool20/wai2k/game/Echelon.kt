@@ -19,16 +19,16 @@
 
 package com.waicool20.wai2k.game
 
-import java.time.Duration
+import java.time.ZonedDateTime
 
 data class Echelon(val number: Int) {
     var logisticsSupportAssignment: LogisticsSupport.Assignment? = null
     val members: List<Member> = List(5) { Member(it + 1) }
 
     data class Member(val number: Int) {
-        var repairTimer: Duration = Duration.ZERO
+        var repairEta: ZonedDateTime? = null
     }
 
-    fun hasRepairs() = !members.all { it.repairTimer.isZero }
+    fun hasRepairs() = !members.all { it.repairEta == null }
 }
 

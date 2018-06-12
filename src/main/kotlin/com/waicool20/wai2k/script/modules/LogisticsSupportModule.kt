@@ -33,7 +33,7 @@ import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.yield
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 class LogisticsSupportModule(
         gameState: GameState,
@@ -84,7 +84,7 @@ class LogisticsSupportModule(
         // Check if mission is running
         if (missionRunning(missionIndex)) {
             // Update eta
-            val eta = LocalDateTime.now() + nextMission.duration
+            val eta = ZonedDateTime.now() + nextMission.duration
             echelon.logisticsSupportAssignment = LogisticsSupport.Assignment(nextMission, eta)
             logger.info("Dispatched $echelon to logistic support ${nextMission.number}, ETA: $eta")
             return
@@ -96,7 +96,7 @@ class LogisticsSupportModule(
         // Click close button
         region.subRegion(940, 757, 280, 107).clickRandomly()
         // Disable echelon
-        echelon.logisticsSupportAssignment = LogisticsSupport.Assignment(LogisticsSupport.DISABLED, LocalDateTime.now())
+        echelon.logisticsSupportAssignment = LogisticsSupport.Assignment(LogisticsSupport.DISABLED, ZonedDateTime.now())
     }
 
     /**
