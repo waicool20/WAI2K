@@ -46,6 +46,11 @@ class InitModule(
     private val logger = loggerFor<InitModule>()
     override suspend fun execute() {
         navigator.navigateTo(LocationId.HOME_STATUS)
+        if (gameState.requiresUpdate) updateGameState()
+    }
+
+    private suspend fun updateGameState() {
+        logger.info("Updating gamestate")
         val repairJob = launch { updateRepairs() }
         val logisticJob = launch { updateLogistics() }
         repairJob.join()
