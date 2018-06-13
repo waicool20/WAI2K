@@ -22,6 +22,7 @@ package com.waicool20.wai2k.game
 import java.time.ZonedDateTime
 
 data class Echelon(val number: Int) {
+    var logisticsSupportEnabled = true
     var logisticsSupportAssignment: LogisticsSupport.Assignment? = null
     val members: List<Member> = List(5) { Member(it + 1) }
 

@@ -47,8 +47,8 @@ class LogisticsSupportModule(
                 .mapKeys { gameState.echelons[it.key - 1] }
                 // Keep all echelons that don't have an assignment already
                 .filter { it.key.logisticsSupportAssignment == null }
-                // Remove all echelons with disable logistics
-                .filterNot { it.key.logisticsSupportAssignment?.logisticSupport == LogisticsSupport.DISABLED }
+                // Remove all echelons with disabled logistics
+                .filter { it.key.logisticsSupportEnabled }
                 // Keep all echelons that have configured assignments
                 .filter { it.value.isNotEmpty() }
                 // Remove all the echelons that have repairs ongoing
@@ -103,7 +103,7 @@ class LogisticsSupportModule(
         // Click close button
         region.subRegion(940, 757, 280, 107).clickRandomly()
         // Disable echelon
-        echelon.logisticsSupportAssignment = LogisticsSupport.Assignment(LogisticsSupport.DISABLED, ZonedDateTime.now())
+        echelon.logisticsSupportEnabled = false
     }
 
     /**
