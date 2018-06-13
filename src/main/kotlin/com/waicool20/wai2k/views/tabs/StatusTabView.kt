@@ -66,7 +66,7 @@ class StatusTabView : View() {
 
     override fun onDock() {
         super.onDock()
-        fixedRateTimer("Status Tab View Updater", period = 1000) {
+        fixedRateTimer("Status Tab View Updater", period = 1000, daemon = true) {
             runLater { updateView() }
         }
     }
