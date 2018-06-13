@@ -96,22 +96,26 @@ class DeviceTabView : View(), Binder {
 
     override fun onDock() {
         super.onDock()
-        thread {
-            refreshDeviceLists()
-            configs.wai2KConfig.androidDevice?.let {
+        refreshDeviceLists { list ->
+            list.find { it.adbSerial == configs.wai2KConfig.lastDeviceSerial }?.let {
                 runLater { deviceComboBox.selectionModel.select(it) }
             }
         }
     }
 
-    private fun refreshDeviceLists() {
-        logger.debug("Refreshing device list")
-        val serial = deviceComboBox.selectedItem?.adbSerial
-        val list = AndroidDevice.listAll()
-        logger.debug("Found ${list.size} devices")
-        deviceComboBox.items.setAll(list)
-        list.find { it.adbSerial == serial }?.let {
-            deviceComboBox.selectionModel.select(it)
-        } ?: deviceComboBox.selectionModel.clearSelection()
+    private fun refreshDeviceLists(action: (List<AndroidDevice>) -> Unit = {}) {
+        thread(name = "Refresh Device List Task") {
+            logger.debug("Refreshing device list")
+            val serial = deviceComboBox.selectedItem?.adbSerial
+            val list = AndroidDevice.listAll()
+            logger.debug("Found ${list.size} devices")
+            runLater {
+                deviceComboBox.items.setAll(list)
+                list.find { it.adbSerial == serial }?.let {
+                    deviceComboBox.selectionModel.select(it)
+                } ?: deviceComboBox.selectionModel.clearSelection()
+            }
+            action(list)
+        }
     }
 }
