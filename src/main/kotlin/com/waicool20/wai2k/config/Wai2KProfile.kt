@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.waicool20.wai2k.Wai2K
 import com.waicool20.waicoolutils.javafx.json.fxJacksonObjectMapper
+import com.waicool20.waicoolutils.javafx.toProperty
 import com.waicool20.waicoolutils.logging.loggerFor
 import javafx.beans.property.ListProperty
 import javafx.beans.property.SimpleListProperty
