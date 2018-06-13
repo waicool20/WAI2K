@@ -34,7 +34,7 @@ import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
 import java.time.Duration
-import java.time.ZonedDateTime
+import java.time.Instant
 
 class InitModule(
         gameState: GameState,
@@ -87,7 +87,7 @@ class InitModule(
             val echelon = sEchelon.toInt()
             val logisticsSupport = LogisticsSupport.list[sChapter.toInt() * 4 + sNumber.toInt() - 1]
             val duration = DurationUtils.of(sSeconds.toLong(), sMinutes.toLong(), sHour.toLong())
-            val eta = ZonedDateTime.now() + duration
+            val eta = Instant.now() + duration
             logger.info("Echelon $echelon is doing logistics support ${logisticsSupport.number}, ETA: $eta")
             gameState.echelons[echelon - 1].logisticsSupportAssignment =
                     Assignment(logisticsSupport, eta)
@@ -119,7 +119,7 @@ class InitModule(
             val members = gameState.echelons[echelon - 1].members
             logger.info("Echelon $echelon has repair timers: $repairTimers")
             repairTimers.forEach { (memberIndex, duration) ->
-                members[memberIndex].repairEta = ZonedDateTime.now() + duration
+                members[memberIndex].repairEta = Instant.now() + duration
             }
         }
     }

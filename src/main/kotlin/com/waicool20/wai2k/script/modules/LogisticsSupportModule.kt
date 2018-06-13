@@ -30,7 +30,7 @@ import com.waicool20.wai2k.script.Navigator
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.yield
-import java.time.ZonedDateTime
+import java.time.Instant
 
 class LogisticsSupportModule(
         gameState: GameState,
@@ -91,7 +91,7 @@ class LogisticsSupportModule(
         // Check if mission is running
         if (missionRunning(missionIndex)) {
             // Update eta
-            val eta = ZonedDateTime.now() + nextMission.duration
+            val eta = Instant.now() + nextMission.duration
             echelon.logisticsSupportAssignment = LogisticsSupport.Assignment(nextMission, eta)
             logger.info("Dispatched $echelon to logistic support ${nextMission.number}, ETA: $eta")
             return

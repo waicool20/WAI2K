@@ -19,7 +19,7 @@
 
 package com.waicool20.wai2k.game
 
-import java.time.ZonedDateTime
+import java.time.Instant
 
 data class Echelon(val number: Int) {
     var logisticsSupportEnabled = true
@@ -27,7 +27,7 @@ data class Echelon(val number: Int) {
     val members: List<Member> = List(5) { Member(it + 1) }
 
     data class Member(val number: Int) {
-        var repairEta: ZonedDateTime? = null
+        var repairEta: Instant? = null
     }
 
     fun hasRepairs() = !members.all { it.repairEta == null }

@@ -27,7 +27,8 @@ import javafx.scene.layout.VBox
 import tornadofx.*
 import java.text.DecimalFormat
 import java.time.Duration
-import java.time.ZonedDateTime
+import java.time.Instant
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import kotlin.concurrent.fixedRateTimer
 
@@ -78,7 +79,9 @@ class StatusTabView : View() {
     }
 
     private fun updateTimes() {
-        startTimeLabel.text = scriptRunner.lastStartTime?.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) ?: ""
+        startTimeLabel.text = scriptRunner.lastStartTime?.atZone(ZoneId.systemDefault())?.let {
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(it)
+        } ?: ""
         if (scriptRunner.isRunning) elapsedTimeLabel.text = timeDelta(scriptRunner.lastStartTime)
     }
 
@@ -95,7 +98,7 @@ class StatusTabView : View() {
                 "${it.logisticSupport.chapter}-${it.logisticSupport.chapterIndex + 1} (ETA: $delta)"
             } ?: "---"
             echelonRepairs.text = echelon.members.joinToString("\n") {
-                if (it.repairEta?.isAfter(ZonedDateTime.now()) == true) {
+                if (it.repairEta?.isAfter(Instant.now()) == true) {
                     "${it.number}: ${timeDelta(it.repairEta)}"
                 } else {
                     "${it.number}: ---"
@@ -104,8 +107,8 @@ class StatusTabView : View() {
         }
     }
 
-    private fun timeDelta(time: ZonedDateTime?): String {
-        val duration = time?.let { Duration.between(it, ZonedDateTime.now()).abs() }
+    private fun timeDelta(time: Instant?): String {
+        val duration = time?.let { Duration.between(it, Instant.now()).abs() }
                 ?: return "00:00:00"
         return formatDuration(duration) ?: "00:00:00"
     }
@@ -114,8 +117,8 @@ class StatusTabView : View() {
         String.format("%02d:%02d:%02d", it / 3600, (it % 3600) / 60, it % 60)
     }
 
-    private fun hoursSince(time: ZonedDateTime?) =
-            time?.let { Duration.between(it, ZonedDateTime.now()).seconds / 3600.0 } ?: 0.0
+    private fun hoursSince(time: Instant?) =
+            time?.let { Duration.between(it, Instant.now()).seconds / 3600.0 } ?: 0.0
 
     private fun formatDecimal(d: Double) = DecimalFormat("0.00").format(d).replace("\uFFFD", "0.00")
 }

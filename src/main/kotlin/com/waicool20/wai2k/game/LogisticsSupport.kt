@@ -22,7 +22,7 @@ package com.waicool20.wai2k.game
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.waicool20.waicoolutils.DurationUtils.of
 import java.time.Duration
-import java.time.ZonedDateTime
+import java.time.Instant
 
 class LogisticsSupport private constructor(
         val number: Int,
@@ -72,5 +72,5 @@ class LogisticsSupport private constructor(
     val chapter = number / 4
     val chapterIndex = (number - 1) % 4
 
-    class Assignment(val logisticSupport: LogisticsSupport, val eta: ZonedDateTime)
+    class Assignment(val logisticSupport: LogisticsSupport, val eta: Instant)
 }
