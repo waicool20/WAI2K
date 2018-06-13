@@ -23,10 +23,8 @@ import com.waicool20.wai2k.android.input.AndroidInput
 import com.waicool20.wai2k.util.executeAndReadLines
 import com.waicool20.wai2k.util.executeAndReadText
 import org.sikuli.script.IScreen
-import se.vidstige.jadb.AdbServerLauncher
 import se.vidstige.jadb.JadbConnection
 import se.vidstige.jadb.JadbDevice
-import se.vidstige.jadb.Subprocess
 import java.awt.image.BufferedImage
 import java.io.InputStream
 import javax.imageio.ImageIO
@@ -87,17 +85,23 @@ class AndroidDevice private constructor(private val device: JadbDevice) {
                 displayHeight = displaySize[1]
         )
 
-        val deviceInfo = device.executeAndReadText("getevent -p").split("add device")
-                .find { it.contains("ABS") }
-                ?: error("This screen does not support touch/tap events")
+        fun readDeviceInfo(): String? {
+            return device.executeAndReadText("getevent -p").split("add device").find { it.contains("ABS") }
+        }
+
+        val deviceInfo = readDeviceInfo() ?: run {
+            adbServer.restart()
+            adbServer.waitForInitialized()
+            readDeviceInfo()
+        } ?: error("This screen does not support touch/tap events")
+
         input = AndroidInput.parse(deviceInfo)
     }
 
     companion object {
-        private val adb by lazy {
-            AdbServerLauncher(Subprocess(), emptyMap()).launch()
-            JadbConnection()
-        }
+        private val adbServer by lazy { AdbServer() }
+        private val adb
+            get() = newConnection()
         private var deviceCache: List<AndroidDevice> = emptyList()
 
         fun listAll(refresh: Boolean = true): List<AndroidDevice> {
@@ -106,6 +110,12 @@ class AndroidDevice private constructor(private val device: JadbDevice) {
             } else {
                 deviceCache
             }
+        }
+
+        private fun newConnection(): JadbConnection {
+            adbServer.start()
+            adbServer.waitForInitialized()
+            return JadbConnection()
         }
     }
 
