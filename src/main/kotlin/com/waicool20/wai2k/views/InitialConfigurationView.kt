@@ -122,6 +122,7 @@ class InitialConfigurationView : View() {
                 }
             }
         }
+        currentStage?.sizeToScene()
     }
 
     private fun monitorOcrFiles() = try {
