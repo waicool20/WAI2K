@@ -31,6 +31,9 @@ class AdbServer(val adbPath: String = resolveAdb()) {
         get() = newConnection()
 
     companion object {
+        /**
+         * Tries to resolve the path to default adb installation by checking path environment
+         */
         fun resolveAdb(): String {
             val home = System.getenv("ANDROID_HOME")
                     ?: System.getenv("ANDROID_SDK_ROOT") ?: return "adb"
@@ -38,18 +41,27 @@ class AdbServer(val adbPath: String = resolveAdb()) {
         }
     }
 
+    /**
+     * Starts the adb server if its not running already
+     */
     fun start() {
-        if (!isRunning()) {
-            logger.info("ADB Server not running, launching new instance")
+        do {
+            logger.info("Launching new adb server instance")
             ProcessBuilder(adbPath, "start-server").start()
             logger.info("ADB Server launched")
-        }
+        } while (!isRunning())
     }
 
+    /**
+     * Waits until the adb server is able to receive commands
+     */
     fun waitForInitialized() {
         while (!isRunning()) TimeUnit.MILLISECONDS.sleep(100)
     }
 
+    /**
+     * Restarts the adb server
+     */
     fun restart() {
         logger.info("Restarting ADB Server")
         stop()
@@ -57,6 +69,9 @@ class AdbServer(val adbPath: String = resolveAdb()) {
         start()
     }
 
+    /**
+     * Stops the adb server
+     */
     fun stop() {
         if (isRunning()) {
             logger.info("ADB Server running, killing it")
@@ -65,6 +80,9 @@ class AdbServer(val adbPath: String = resolveAdb()) {
         }
     }
 
+    /**
+     * Checks if the adb server is running
+     */
     fun isRunning(): Boolean {
         ProcessBuilder(adbPath, "devices").start().apply {
             return inputStream.bufferedReader().readText().isNotEmpty()
@@ -72,6 +90,9 @@ class AdbServer(val adbPath: String = resolveAdb()) {
         return false
     }
 
+    /**
+     * Lists all [AndroidDevice] connected to the server
+     */
     fun listDevices(refresh: Boolean = true): List<AndroidDevice> {
         return if (refresh) {
             adb.devices.map { AndroidDevice(this, it) }.also { deviceCache = it }
