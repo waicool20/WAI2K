@@ -19,7 +19,7 @@
 
 package com.waicool20.wai2k.views.tabs.preferences
 
-import com.waicool20.wai2k.config.Configurations
+import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.waicoolutils.DesktopUtils
 import javafx.scene.control.Hyperlink
 import javafx.scene.layout.VBox
@@ -29,11 +29,11 @@ class PathPrefView : View() {
     override val root: VBox by fxml("/views/tabs/preferences/path.fxml")
     private val sikulixJarPathLink: Hyperlink by fxid()
     private val assetsDirPathLink: Hyperlink by fxid()
-    private val configs: Configurations by inject()
+    private val context: Wai2KContext by inject()
 
     override fun onDock() {
         super.onDock()
-        configs.wai2KConfig.apply {
+        context.wai2KConfig.apply {
             sikulixJarPathLink.textProperty().bind(sikulixJarPathProperty.asString())
             assetsDirPathLink.textProperty().bind(assetsDirectoryProperty.asString())
             sikulixJarPathLink.setOnAction { DesktopUtils.open(sikulixJarPath.parent) }

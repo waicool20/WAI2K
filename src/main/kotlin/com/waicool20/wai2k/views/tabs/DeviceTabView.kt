@@ -20,7 +20,7 @@
 package com.waicool20.wai2k.views.tabs
 
 import com.waicool20.wai2k.android.AndroidDevice
-import com.waicool20.wai2k.config.Configurations
+import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.util.Binder
 import com.waicool20.waicoolutils.javafx.addListener
 import com.waicool20.waicoolutils.logging.loggerFor
@@ -45,7 +45,7 @@ class DeviceTabView : View(), Binder {
     private val deviceComboBox: ComboBox<AndroidDevice> by fxid()
     private val reloadDevicesButton: Button by fxid()
 
-    private val configs: Configurations by inject()
+    private val context: Wai2KContext by inject()
 
     private val logger = loggerFor<DeviceTabView>()
 
@@ -88,8 +88,8 @@ class DeviceTabView : View(), Binder {
         itemProp.addListener("AndroidDeviceSelection") { newVal ->
             if (newVal != null) {
                 logger.debug("Selected device: ${newVal.properties.name}")
-                configs.wai2KConfig.lastDeviceSerial = newVal.adbSerial
-                configs.wai2KConfig.save()
+                context.wai2KConfig.lastDeviceSerial = newVal.adbSerial
+                context.wai2KConfig.save()
             }
         }
     }
@@ -97,7 +97,7 @@ class DeviceTabView : View(), Binder {
     override fun onDock() {
         super.onDock()
         refreshDeviceLists { list ->
-            list.find { it.adbSerial == configs.wai2KConfig.lastDeviceSerial }?.let {
+            list.find { it.adbSerial == context.wai2KConfig.lastDeviceSerial }?.let {
                 runLater { deviceComboBox.selectionModel.select(it) }
             }
         }
@@ -107,7 +107,8 @@ class DeviceTabView : View(), Binder {
         thread(name = "Refresh Device List Task") {
             logger.debug("Refreshing device list")
             val serial = deviceComboBox.selectedItem?.adbSerial
-            val list = AndroidDevice.listAll()
+            val list = context.adbServer.listDevices()
+
             logger.debug("Found ${list.size} devices")
             runLater {
                 deviceComboBox.items.setAll(list)

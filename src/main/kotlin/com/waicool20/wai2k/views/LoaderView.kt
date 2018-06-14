@@ -22,8 +22,8 @@ package com.waicool20.wai2k.views
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.waicool20.wai2k.Wai2K
-import com.waicool20.wai2k.config.Configurations
 import com.waicool20.wai2k.config.Wai2KConfig
+import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.script.ScriptContext
 import com.waicool20.wai2k.script.ScriptRunner
@@ -46,9 +46,9 @@ class LoaderView : View() {
     private val parameters: Application.Parameters by param()
 
     private val logger = loggerFor<LoaderView>()
-    private val configs = Configurations().also { setInScope(it) }
-    private var wai2KConfig by configs.wai2KConfigProperty
-    private var currentProfile by configs.currentProfileProperty
+    private val context = Wai2KContext().also { setInScope(it) }
+    private var wai2KConfig by context.wai2KConfigProperty
+    private var currentProfile by context.currentProfileProperty
 
     init {
         title = "WAI2K - Startup"
@@ -60,7 +60,7 @@ class LoaderView : View() {
         startStatusListener()
         find<ConsoleView>()
         parseVersion()
-        logger.info("Starting WAI2K ${configs.versionInfo.version}")
+        logger.info("Starting WAI2K ${context.versionInfo.version}")
         logger.info("Config directory: ${Wai2K.CONFIG_DIR}")
         startLoading()
     }
@@ -73,7 +73,7 @@ class LoaderView : View() {
     }
 
     private fun parseVersion() {
-        configs.versionInfo = jacksonObjectMapper().readValue(javaClass.classLoader.getResourceAsStream("version.txt"))
+        context.versionInfo = jacksonObjectMapper().readValue(javaClass.classLoader.getResourceAsStream("version.txt"))
     }
 
     private fun startLoading() {

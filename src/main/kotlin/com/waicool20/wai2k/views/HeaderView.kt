@@ -20,7 +20,7 @@
 package com.waicool20.wai2k.views
 
 import com.waicool20.wai2k.Wai2K
-import com.waicool20.wai2k.config.Configurations
+import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.script.ScriptContext
 import com.waicool20.waicoolutils.javafx.AlertFactory
@@ -52,7 +52,7 @@ class HeaderView : View() {
     private val startPauseButton: SplitMenuButton by fxid()
     private val stopButton: Button by fxid()
 
-    private val configs: Configurations by inject()
+    private val context: Wai2KContext by inject()
     private val scriptRunner = find<ScriptContext>().scriptRunner
 
     val buttons: HBox by fxid()
@@ -68,7 +68,7 @@ class HeaderView : View() {
 
     override fun onSave() {
         super.onSave()
-        configs.currentProfile.apply {
+        context.currentProfile.apply {
             save()
             AlertFactory.info(content = "Profile $name was saved!").showAndWait()
         }
@@ -76,7 +76,7 @@ class HeaderView : View() {
 
     override fun onDelete() {
         super.onDelete()
-        configs.currentProfile.apply {
+        context.currentProfile.apply {
             val toDelete = name
             confirm(
                     header = "Delete profile [$toDelete]?",
@@ -92,13 +92,13 @@ class HeaderView : View() {
     override fun onRefresh() {
         super.onRefresh()
         thread {
-            setNewProfile(Wai2KProfile.load(configs.currentProfile.path))
+            setNewProfile(Wai2KProfile.load(context.currentProfile.path))
         }
     }
 
     private fun createBindings() {
-        profileComboBox.bind(configs.currentProfile.nameProperty)
-        configs.currentProfileProperty.addListener("HeaderViewProfile") { newVal ->
+        profileComboBox.bind(context.currentProfile.nameProperty)
+        context.currentProfileProperty.addListener("HeaderViewProfile") { newVal ->
             createBindings()
             runLater {
                 Tooltip("Profile ${newVal.name} has been loaded!").apply {
@@ -125,7 +125,7 @@ class HeaderView : View() {
     }
 
     private fun setNewProfile(profile: Wai2KProfile) {
-        configs.apply {
+        context.apply {
             wai2KConfig.currentProfile = profile.name
             wai2KConfig.save()
             currentProfileProperty.set(profile)
@@ -155,8 +155,8 @@ class HeaderView : View() {
             }
         } else {
             scriptRunner.apply {
-                config = configs.wai2KConfig
-                profile = configs.currentProfile
+                config = context.wai2KConfig
+                profile = context.currentProfile
             }.run()
             startPauseButton.text = "Pause"
             stopButton.show()

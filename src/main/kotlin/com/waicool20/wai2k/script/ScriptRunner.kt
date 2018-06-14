@@ -21,6 +21,7 @@ package com.waicool20.wai2k.script
 
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
+import com.waicool20.wai2k.android.AdbServer
 import com.waicool20.wai2k.android.AndroidDevice
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
@@ -94,7 +95,7 @@ class ScriptRunner(wai2KConfig: Wai2KConfig = Wai2KConfig(), wai2KProfile: Wai2K
             Settings.RepeatWaitTime = 0
         }
 
-        currentDevice = AndroidDevice.listAll().find { it.adbSerial == currentConfig.lastDeviceSerial }
+        currentDevice = AdbServer().listDevices().find { it.adbSerial == currentConfig.lastDeviceSerial }
         if (reloadModules) {
             modules.clear()
             val region = currentDevice?.screen ?: return

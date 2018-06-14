@@ -19,7 +19,7 @@
 
 package com.waicool20.wai2k.views.tabs.profile.logistics
 
-import com.waicool20.wai2k.config.Configurations
+import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.game.LogisticsSupport
 import com.waicool20.waicoolutils.controlsfx.bind
 import com.waicool20.waicoolutils.javafx.listen
@@ -35,13 +35,13 @@ class AssignmentsView : View() {
         fxmlLoader.namespace["echelon${it}CCBox"] as? CheckComboBox<Int>
     }
 
-    private val configs: Configurations by inject()
+    private val context: Wai2KContext by inject()
 
     override fun onDock() {
         super.onDock()
         setValues()
         createBindings()
-        configs.currentProfileProperty.listen { createBindings() }
+        context.currentProfileProperty.listen { createBindings() }
     }
 
     fun setValues() {
@@ -52,7 +52,7 @@ class AssignmentsView : View() {
 
     fun createBindings() {
         comboBoxes.forEachIndexed { index, box ->
-            configs.currentProfile.logistics.assignments.getOrPut(index + 1) {
+            context.currentProfile.logistics.assignments.getOrPut(index + 1) {
                 SimpleListProperty<Int>()
             }.let { box.bind(it) }
         }

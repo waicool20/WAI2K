@@ -19,7 +19,7 @@
 
 package com.waicool20.wai2k.views.tabs.profile
 
-import com.waicool20.wai2k.config.Configurations
+import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.views.ViewNode
 import com.waicool20.waicoolutils.javafx.addListener
 import com.waicool20.waicoolutils.javafx.listen
@@ -38,7 +38,7 @@ class ProfileTabView : View() {
     private val defaultMasterNode = hbox(alignment = Pos.CENTER) {
         label("Choose something to configure on the left!")
     }
-    private val configs: Configurations by inject()
+    private val context: Wai2KContext by inject()
 
     init {
         title = "Profile"
@@ -52,7 +52,7 @@ class ProfileTabView : View() {
 
     fun initializeTree() {
         profileTreeView.root = TreeItem<String>().apply {
-            configs.currentProfileProperty.apply {
+            context.currentProfileProperty.apply {
                 listen { valueProperty().bind(get().nameProperty) }
                 valueProperty().bind(get().nameProperty)
             }

@@ -19,8 +19,8 @@
 
 package com.waicool20.wai2k.views
 
-import com.waicool20.wai2k.config.Configurations
 import com.waicool20.wai2k.config.Wai2KConfig
+import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.waicoolutils.DesktopUtils
 import com.waicool20.waicoolutils.javafx.AlertFactory
 import com.waicool20.waicoolutils.javafx.listen
@@ -51,8 +51,8 @@ class InitialConfigurationView : View() {
     private val requiredFilesVBox: VBox by fxid()
     private val ocrPathLink: Hyperlink by fxid()
 
-    private val configs: Configurations by inject()
-    private val ocrDir = configs.wai2KConfig.ocrDirectory
+    private val context: Wai2KContext by inject()
+    private val ocrDir = context.wai2KConfig.ocrDirectory
 
     init {
         title = "WAI2K - Initial Configuration"
@@ -64,7 +64,7 @@ class InitialConfigurationView : View() {
         pathTextField.textProperty().apply {
             listen { pathTextField.styleClass.setAll("unsure") }
             listenDebounced(1000, "InitialConfig-path") { newVal ->
-                configs.wai2KConfig.apply {
+                context.wai2KConfig.apply {
                     sikulixJarPath = Paths.get(newVal)
                     if (sikulixJarIsValid()) {
                         pathTextField.styleClass.setAll("valid")
@@ -76,7 +76,7 @@ class InitialConfigurationView : View() {
             }
         }
         addRequiredOcrFilesHyperlinks()
-        configs.wai2KConfig.apply {
+        context.wai2KConfig.apply {
             if (sikulixJarIsValid()) sikulixContent.removeFromParent()
             if (ocrIsValid()) ocrContent.removeFromParent()
         }
@@ -86,15 +86,15 @@ class InitialConfigurationView : View() {
 
     override fun onUndock() {
         super.onUndock()
-        if (configs.wai2KConfig.isValid) {
-            configs.wai2KConfig.save()
+        if (context.wai2KConfig.isValid) {
+            context.wai2KConfig.save()
         } else {
             exitProcess(0)
         }
     }
 
     private fun checkConfig() {
-        if (configs.wai2KConfig.isValid) runLater { close() }
+        if (context.wai2KConfig.isValid) runLater { close() }
     }
 
     private fun chooseSikulixPath() {
@@ -102,7 +102,7 @@ class InitialConfigurationView : View() {
             title = "Path to Sikulix Jar File..."
             extensionFilters.add(FileChooser.ExtensionFilter("JAR files (*.jar)", "*.jar"))
             showOpenDialog(null)?.let {
-                configs.wai2KConfig.sikulixJarPath = it.toPath()
+                context.wai2KConfig.sikulixJarPath = it.toPath()
                 pathTextField.text = it.path
             }
         }
@@ -137,7 +137,7 @@ class InitialConfigurationView : View() {
             while (true) {
                 val key = ws.take()
                 key.pollEvents().filterNot { it.kind() == OVERFLOW }.forEach {
-                    if (configs.wai2KConfig.ocrIsValid()) watchKey.cancel()
+                    if (context.wai2KConfig.ocrIsValid()) watchKey.cancel()
                     checkConfig()
                 }
                 if (!key.reset()) break

@@ -19,7 +19,7 @@
 
 package com.waicool20.wai2k.views.tabs.profile.logistics
 
-import com.waicool20.wai2k.config.Configurations
+import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.config.Wai2KProfile.Logistics.ReceivalMode
 import com.waicool20.wai2k.util.Binder
 import javafx.scene.control.CheckBox
@@ -32,7 +32,7 @@ class LogisticsView : View(), Binder {
     private val enabledCheckBox: CheckBox by fxid()
     private val receivalModeComboBox: ComboBox<ReceivalMode> by fxid()
 
-    private val configs: Configurations by inject()
+    private val context: Wai2KContext by inject()
 
     override fun onDock() {
         super.onDock()
@@ -41,7 +41,7 @@ class LogisticsView : View(), Binder {
     }
 
     override fun createBindings() {
-        configs.currentProfile.logistics.apply {
+        context.currentProfile.logistics.apply {
             enabledCheckBox.bind(enabledProperty)
             receivalModeComboBox.bind(receiveModeProperty)
         }

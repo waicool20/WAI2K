@@ -19,7 +19,7 @@
 
 package com.waicool20.wai2k.views.tabs
 
-import com.waicool20.wai2k.config.Configurations
+import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.script.ScriptContext
 import javafx.scene.control.Button
 import javafx.scene.control.Label
@@ -35,7 +35,7 @@ import kotlin.concurrent.fixedRateTimer
 class StatusTabView : View() {
     override val root: VBox by fxml("/views/tabs/status-tab.fxml")
 
-    private val configs: Configurations by inject()
+    private val context: Wai2KContext by inject()
     private val scriptRunner = find<ScriptContext>().scriptRunner
 
     private val startTimeLabel: Label by fxid()

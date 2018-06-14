@@ -19,7 +19,7 @@
 
 package com.waicool20.wai2k.views
 
-import com.waicool20.wai2k.config.Configurations
+import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.waicoolutils.DesktopUtils
 import javafx.scene.control.Hyperlink
 import javafx.scene.control.Label
@@ -31,7 +31,7 @@ class AboutView : View() {
     private val repoLink: Hyperlink by fxid()
     private val versionText: Label by fxid()
 
-    private val configs: Configurations by inject()
+    private val context: Wai2KContext by inject()
 
     init {
         title = "WAI2K - About"
@@ -40,7 +40,7 @@ class AboutView : View() {
     override fun onDock() {
         super.onDock()
         root.setOnMouseClicked { close() }
-        versionText.text = configs.versionInfo.version
+        versionText.text = context.versionInfo.version
         repoLink.setOnAction {
             DesktopUtils.browse("https://github.com/waicool20/WAI2K")
         }
