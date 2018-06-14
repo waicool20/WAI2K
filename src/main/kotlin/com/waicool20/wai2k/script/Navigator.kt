@@ -110,6 +110,9 @@ class Navigator(
         }
     }
 
+    /**
+     * Checks if there are logistics, if there were then try and receive them
+     */
     suspend fun checkLogistics() {
         while (region.has("navigator/logistics_arrived.png")) {
             logger.info("An echelon has arrived from logistics")
@@ -138,7 +141,8 @@ class Navigator(
             scriptStats.logisticsSupportReceived++
             gameState.requiresUpdate = true
             // Wait a bit in case another echelon arrives
-            delay(2000)
+            logger.info("Waiting a bit to see if anymore echelons arrive")
+            delay(5000)
         }
     }
 }
