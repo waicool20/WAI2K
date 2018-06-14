@@ -37,7 +37,7 @@ class LogisticsView : View(), Binder {
     override fun onDock() {
         super.onDock()
         createBindings()
-        receivalModeComboBox.items.addAll(ReceivalMode.values())
+        receivalModeComboBox.items.setAll(ReceivalMode.values().toList())
     }
 
     override fun createBindings() {
