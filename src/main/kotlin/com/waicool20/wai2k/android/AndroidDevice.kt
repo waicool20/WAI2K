@@ -23,7 +23,6 @@ import com.waicool20.wai2k.android.input.AndroidInput
 import com.waicool20.wai2k.util.executeAndReadLines
 import com.waicool20.wai2k.util.executeAndReadText
 import org.sikuli.script.IScreen
-import se.vidstige.jadb.JadbConnection
 import se.vidstige.jadb.JadbDevice
 import java.awt.image.BufferedImage
 import java.io.InputStream
@@ -32,7 +31,10 @@ import javax.imageio.ImageIO
 /**
  * Represents an android device
  */
-class AndroidDevice private constructor(private val device: JadbDevice) {
+class AndroidDevice(
+        private val adbServer: AdbServer,
+        private val device: JadbDevice
+) {
     /**
      * Wrapper class containing the basic properties of an android device
      */
@@ -96,27 +98,6 @@ class AndroidDevice private constructor(private val device: JadbDevice) {
         } ?: error("This screen does not support touch/tap events")
 
         input = AndroidInput.parse(deviceInfo)
-    }
-
-    companion object {
-        private val adbServer by lazy { AdbServer() }
-        private val adb
-            get() = newConnection()
-        private var deviceCache: List<AndroidDevice> = emptyList()
-
-        fun listAll(refresh: Boolean = true): List<AndroidDevice> {
-            return if (refresh) {
-                adb.devices.map { AndroidDevice(it) }.also { deviceCache = it }
-            } else {
-                deviceCache
-            }
-        }
-
-        private fun newConnection(): JadbConnection {
-            adbServer.start()
-            adbServer.waitForInitialized()
-            return JadbConnection()
-        }
     }
 
     /**
