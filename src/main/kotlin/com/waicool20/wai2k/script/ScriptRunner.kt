@@ -52,6 +52,7 @@ class ScriptRunner(wai2KConfig: Wai2KConfig = Wai2KConfig(), wai2KProfile: Wai2K
     var isPaused: Boolean = false
     val isRunning get() = scriptJob?.isActive == true
     val gameState = GameState()
+    val scriptStats = ScriptStats()
     var lastStartTime: Instant? = null
         private set
 
@@ -67,6 +68,7 @@ class ScriptRunner(wai2KConfig: Wai2KConfig = Wai2KConfig(), wai2KProfile: Wai2K
         isPaused = false
         gameState.requiresUpdate = true
         lastStartTime = Instant.now()
+        scriptStats.reset()
         scriptJob = launch(dispatcher) {
             while (isActive) {
                 runScriptCycle()
@@ -96,14 +98,14 @@ class ScriptRunner(wai2KConfig: Wai2KConfig = Wai2KConfig(), wai2KProfile: Wai2K
         if (reloadModules) {
             modules.clear()
             val region = currentDevice?.screen ?: return
-            val nav = Navigator(gameState, region, currentConfig, currentProfile)
-            modules.add(InitModule(gameState, region, currentConfig, currentProfile, nav))
+            val nav = Navigator(scriptStats, gameState, region, currentConfig, currentProfile)
+            modules.add(InitModule(scriptStats, gameState, region, currentConfig, currentProfile, nav))
             Reflections("com.waicool20.wai2k.script.modules")
                     .getSubTypesOf(ScriptModule::class.java)
                     .map { it.kotlin }.filterNot { it.isAbstract }
                     .filterNot { it == InitModule::class }
                     .mapNotNull {
-                        it.primaryConstructor?.call(gameState, region, currentConfig, currentProfile, nav)
+                        it.primaryConstructor?.call(scriptStats, gameState, region, currentConfig, currentProfile, nav)
                     }
                     .let { modules.addAll(it) }
         }

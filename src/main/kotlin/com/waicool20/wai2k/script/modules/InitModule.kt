@@ -27,6 +27,7 @@ import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.game.LogisticsSupport
 import com.waicool20.wai2k.game.LogisticsSupport.Assignment
 import com.waicool20.wai2k.script.Navigator
+import com.waicool20.wai2k.script.ScriptStats
 import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.doOCR
 import com.waicool20.waicoolutils.DurationUtils
@@ -37,12 +38,13 @@ import java.time.Duration
 import java.time.Instant
 
 class InitModule(
+        scriptStats: ScriptStats,
         gameState: GameState,
         region: AndroidRegion,
         config: Wai2KConfig,
         profile: Wai2KProfile,
         navigator: Navigator
-) : ScriptModule(gameState, region, config, profile, navigator) {
+) : ScriptModule(scriptStats, gameState, region, config, profile, navigator) {
     private val logger = loggerFor<InitModule>()
     override suspend fun execute() {
         navigator.checkLogistics()

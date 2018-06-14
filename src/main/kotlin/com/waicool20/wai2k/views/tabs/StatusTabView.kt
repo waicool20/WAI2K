@@ -86,7 +86,8 @@ class StatusTabView : View() {
     }
 
     private fun updateScriptStats() {
-        // TODO Add script stats
+        logisticsSentLabel.text = "${scriptRunner.scriptStats.logisticsSupportSent}"
+        logisticsReceivedLabel.text = "${scriptRunner.scriptStats.logisticsSupportReceived}"
     }
 
     private fun updateEchelonStats() {

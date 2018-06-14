@@ -17,22 +17,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.waicool20.wai2k.script.modules
+package com.waicool20.wai2k.script
 
-import com.waicool20.wai2k.android.AndroidRegion
-import com.waicool20.wai2k.config.Wai2KConfig
-import com.waicool20.wai2k.config.Wai2KProfile
-import com.waicool20.wai2k.game.GameState
-import com.waicool20.wai2k.script.Navigator
-import com.waicool20.wai2k.script.ScriptStats
-
-abstract class ScriptModule(
-        protected val scriptStats: ScriptStats,
-        protected val gameState: GameState,
-        protected val region: AndroidRegion,
-        protected val config: Wai2KConfig,
-        protected val profile: Wai2KProfile,
-        protected val navigator: Navigator
+data class ScriptStats(
+        var logisticsSupportReceived: Int = 0,
+        var logisticsSupportSent: Int = 0
 ) {
-    abstract suspend fun execute()
+    fun reset() {
+        logisticsSupportReceived = 0
+        logisticsSupportSent = 0
+    }
 }

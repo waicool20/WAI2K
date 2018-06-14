@@ -27,18 +27,20 @@ import com.waicool20.wai2k.game.GameState
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.game.LogisticsSupport
 import com.waicool20.wai2k.script.Navigator
+import com.waicool20.wai2k.script.ScriptStats
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.yield
 import java.time.Instant
 
 class LogisticsSupportModule(
+        scriptStats: ScriptStats,
         gameState: GameState,
         region: AndroidRegion,
         config: Wai2KConfig,
         profile: Wai2KProfile,
         navigator: Navigator
-) : ScriptModule(gameState, region, config, profile, navigator) {
+) : ScriptModule(scriptStats, gameState, region, config, profile, navigator) {
     private val logger = loggerFor<LogisticsSupportModule>()
     override suspend fun execute() {
         if (!profile.logistics.enabled) return
@@ -94,6 +96,7 @@ class LogisticsSupportModule(
             val eta = Instant.now() + nextMission.duration
             echelon.logisticsSupportAssignment = LogisticsSupport.Assignment(nextMission, eta)
             logger.info("Dispatched $echelon to logistic support ${nextMission.number}, ETA: $eta")
+            scriptStats.logisticsSupportSent++
             return
         }
         // Mission not running, requirements not met

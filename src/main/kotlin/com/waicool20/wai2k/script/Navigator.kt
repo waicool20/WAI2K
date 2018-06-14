@@ -35,6 +35,7 @@ import java.util.*
 import kotlin.coroutines.experimental.coroutineContext
 
 class Navigator(
+        private val scriptStats: ScriptStats,
         private val gameState: GameState,
         private val region: AndroidRegion,
         private val config: Wai2KConfig,
@@ -110,7 +111,7 @@ class Navigator(
     }
 
     suspend fun checkLogistics() {
-        if (region.has("navigator/logistics_arrived.png")) {
+        while (region.has("navigator/logistics_arrived.png")) {
             logger.info("An echelon has arrived from logistics")
             region.clickRandomly(); delay(500)
             val image = when (profile.logistics.receiveMode) {
@@ -134,7 +135,10 @@ class Navigator(
                 else -> error("Got an invalid ReceivalMode for some reason")
             }
             region.waitSuspending(image, 10)?.clickRandomly()
+            scriptStats.logisticsSupportReceived++
             gameState.requiresUpdate = true
+            // Wait a bit in case another echelon arrives
+            delay(2000)
         }
     }
 }
