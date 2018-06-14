@@ -28,6 +28,7 @@ import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.game.LogisticsSupport
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptStats
+import com.waicool20.wai2k.util.formatted
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.yield
@@ -95,7 +96,7 @@ class LogisticsSupportModule(
             // Update eta
             val eta = Instant.now() + nextMission.duration
             echelon.logisticsSupportAssignment = LogisticsSupport.Assignment(nextMission, eta)
-            logger.info("Dispatched $echelon to logistic support ${nextMission.number}, ETA: $eta")
+            logger.info("Dispatched $echelon to logistic support ${nextMission.number}, ETA: ${eta.formatted()}")
             scriptStats.logisticsSupportSent++
             return
         }

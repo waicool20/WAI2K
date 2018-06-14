@@ -21,6 +21,7 @@ package com.waicool20.wai2k.views.tabs
 
 import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.script.ScriptContext
+import com.waicool20.wai2k.util.formatted
 import javafx.scene.control.Button
 import javafx.scene.control.Label
 import javafx.scene.layout.VBox
@@ -28,8 +29,6 @@ import tornadofx.*
 import java.text.DecimalFormat
 import java.time.Duration
 import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import kotlin.concurrent.fixedRateTimer
 
 class StatusTabView : View() {
@@ -79,9 +78,7 @@ class StatusTabView : View() {
     }
 
     private fun updateTimes() {
-        startTimeLabel.text = scriptRunner.lastStartTime?.atZone(ZoneId.systemDefault())?.let {
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(it)
-        } ?: ""
+        startTimeLabel.text = scriptRunner.lastStartTime?.formatted() ?: ""
         if (scriptRunner.isRunning) elapsedTimeLabel.text = timeDelta(scriptRunner.lastStartTime)
     }
 

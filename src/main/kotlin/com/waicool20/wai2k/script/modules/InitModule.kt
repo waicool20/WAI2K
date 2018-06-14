@@ -30,6 +30,7 @@ import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptStats
 import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.doOCR
+import com.waicool20.wai2k.util.formatted
 import com.waicool20.waicoolutils.DurationUtils
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.experimental.async
@@ -90,9 +91,8 @@ class InitModule(
             val logisticsSupport = LogisticsSupport.list[sChapter.toInt() * 4 + sNumber.toInt() - 1]
             val duration = DurationUtils.of(sSeconds.toLong(), sMinutes.toLong(), sHour.toLong())
             val eta = Instant.now() + duration
-            logger.info("Echelon $echelon is doing logistics support ${logisticsSupport.number}, ETA: $eta")
-            gameState.echelons[echelon - 1].logisticsSupportAssignment =
-                    Assignment(logisticsSupport, eta)
+            logger.info("Echelon $echelon is doing logistics support ${logisticsSupport.number}, ETA: ${eta.formatted()}")
+            gameState.echelons[echelon - 1].logisticsSupportAssignment = Assignment(logisticsSupport, eta)
         }
     }
 
