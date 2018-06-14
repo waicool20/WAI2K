@@ -50,9 +50,9 @@ class Navigator(
      */
     suspend fun identifyCurrentLocation(retries: Int = 3): GameLocation {
         logger.info("Identifying current location")
-        val channel = Channel<GameLocation?>()
         repeat(retries) {
             checkLogistics()
+            val channel = Channel<GameLocation?>()
             val jobs = locations.entries.sortedBy { it.value.isIntermediate }
                     .map { (_, model) ->
                         launch { channel.send(model.takeIf { model.isInRegion(region) }) }
