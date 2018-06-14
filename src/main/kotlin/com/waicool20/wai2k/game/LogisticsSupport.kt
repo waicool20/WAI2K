@@ -69,7 +69,7 @@ class LogisticsSupport private constructor(
         )
     }
 
-    val chapter = number / 4
+    val chapter = (number - 1) / 4
     val chapterIndex = (number - 1) % 4
 
     class Assignment(val logisticSupport: LogisticsSupport, val eta: Instant)

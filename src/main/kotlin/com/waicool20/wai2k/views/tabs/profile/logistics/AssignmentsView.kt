@@ -25,6 +25,7 @@ import com.waicool20.waicoolutils.controlsfx.bind
 import com.waicool20.waicoolutils.javafx.listen
 import javafx.beans.property.SimpleListProperty
 import javafx.scene.layout.VBox
+import javafx.util.StringConverter
 import org.controlsfx.control.CheckComboBox
 import tornadofx.*
 
@@ -45,7 +46,14 @@ class AssignmentsView : View() {
     }
 
     fun setValues() {
+        val converter = object : StringConverter<Int>() {
+            override fun toString(i: Int) = LogisticsSupport.list[i - 1]
+                    .let { String.format("No. %02d:  (%d - %d)", i, it.chapter, it.chapterIndex + 1) }
+
+            override fun fromString(s: String): Int? = null
+        }
         comboBoxes.forEach {
+            it.converter = converter
             it.items.setAll(LogisticsSupport.list.map { it.number })
         }
     }
