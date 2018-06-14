@@ -41,6 +41,7 @@ import kotlin.reflect.full.primaryConstructor
 class ScriptRunner(wai2KConfig: Wai2KConfig = Wai2KConfig(), wai2KProfile: Wai2KProfile = Wai2KProfile()) {
     private val dispatcher = newSingleThreadContext("Wai2K Script Runner Context")
 
+    private val logger = loggerFor<ScriptRunner>()
     private var currentDevice: AndroidDevice? = null
     private var currentConfig = wai2KConfig
     private var currentProfile = wai2KProfile
@@ -66,6 +67,7 @@ class ScriptRunner(wai2KConfig: Wai2KConfig = Wai2KConfig(), wai2KProfile: Wai2K
 
     fun run() {
         if (isRunning) return
+        logger.info("Starting new WAI2K session")
         isPaused = false
         gameState.requiresUpdate = true
         lastStartTime = Instant.now()
@@ -97,8 +99,12 @@ class ScriptRunner(wai2KConfig: Wai2KConfig = Wai2KConfig(), wai2KProfile: Wai2K
 
         currentDevice = AdbServer().listDevices().find { it.adbSerial == currentConfig.lastDeviceSerial }
         if (reloadModules) {
+            logger.info("Reloading modules")
             modules.clear()
-            val region = currentDevice?.screen ?: return
+            val region = currentDevice?.screen ?: run {
+                logger.info("Could not start due to invalid device")
+                return
+            }
             val nav = Navigator(scriptStats, gameState, region, currentConfig, currentProfile)
             modules.add(InitModule(scriptStats, gameState, region, currentConfig, currentProfile, nav))
             Reflections("com.waicool20.wai2k.script.modules")
@@ -109,6 +115,7 @@ class ScriptRunner(wai2KConfig: Wai2KConfig = Wai2KConfig(), wai2KProfile: Wai2K
                         it.primaryConstructor?.call(scriptStats, gameState, region, currentConfig, currentProfile, nav)
                     }
                     .let { modules.addAll(it) }
+            modules.map { it::class.simpleName }.forEach { logger.info("Loaded new instance of $it") }
         }
     }
 
@@ -117,6 +124,7 @@ class ScriptRunner(wai2KConfig: Wai2KConfig = Wai2KConfig(), wai2KProfile: Wai2K
     }
 
     fun stop() {
+        logger.info("Stopping the script")
         scriptJob?.cancel()
     }
 
