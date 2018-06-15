@@ -22,6 +22,7 @@ package com.waicool20.wai2k.android
 import com.waicool20.wai2k.android.input.AndroidInput
 import com.waicool20.wai2k.util.executeAndReadLines
 import com.waicool20.wai2k.util.executeAndReadText
+import com.waicool20.wai2k.util.executeOrShell
 import org.sikuli.script.IScreen
 import se.vidstige.jadb.JadbDevice
 import java.awt.image.BufferedImage
@@ -108,7 +109,7 @@ class AndroidDevice(
      *
      * @return [InputStream] of the given command
      */
-    fun execute(command: String, vararg args: String): InputStream = device.execute(command, *args)
+    fun execute(command: String, vararg args: String): InputStream = device.executeOrShell(command, *args)
 
     /**
      * Executes a given command on the device
@@ -153,6 +154,6 @@ class AndroidDevice(
      * @return [BufferedImage] containing the data of the screenshot
      */
     fun takeScreenshot(): BufferedImage {
-        return ImageIO.read(device.execute("screencap -p"))
+        return ImageIO.read(device.executeOrShell("screencap -p"))
     }
 }

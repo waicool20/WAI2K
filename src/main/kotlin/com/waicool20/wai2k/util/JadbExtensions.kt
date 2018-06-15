@@ -21,6 +21,7 @@ package com.waicool20.wai2k.util
 
 import se.vidstige.jadb.JadbDevice
 import se.vidstige.jadb.JadbException
+import java.io.InputStream
 
 private var useShell = false
 
@@ -93,3 +94,22 @@ fun JadbDevice.executeAndReadText(command: String, vararg args: String): String 
  */
 fun JadbDevice.executeShellAndReadText(command: String, vararg args: String) =
         executeShell(command, *args).bufferedReader().readText().trim()
+
+/**
+ * Just like execute, but falls back to executeShell if it fails
+ *
+ * @param command The command to execute
+ * @param args Arguments for the command
+ *
+ * @return InputStream of the command
+ */
+fun JadbDevice.executeOrShell(command: String, vararg args: String): InputStream {
+    return try {
+        if (useShell) executeShell(command, *args) else execute(command, *args)
+    } catch (e: JadbException) {
+        if (e.localizedMessage.contains("closed")) {
+            useShell = true
+            executeShell(command, *args)
+        } else throw e
+    }
+}
