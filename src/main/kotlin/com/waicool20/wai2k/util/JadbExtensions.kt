@@ -20,25 +20,76 @@
 package com.waicool20.wai2k.util
 
 import se.vidstige.jadb.JadbDevice
+import se.vidstige.jadb.JadbException
+
+private var useShell = false
 
 /**
- * Executes a given command on the device
+ * Executes a given command on the device, falls back to shell if device gives a
+ * closed error.
  *
  * @param command The command to execute
  * @param args Arguments for the command
  *
  * @return List of String containing each line output of the command
  */
-fun JadbDevice.executeAndReadLines(command: String, vararg args: String) =
-        execute(command, *args).bufferedReader().readLines().map(String::trim)
+fun JadbDevice.executeAndReadLines(command: String, vararg args: String): List<String> {
+    return try {
+        if (useShell) {
+            executeShellAndReadLines(command, *args)
+        } else {
+            execute(command, *args).bufferedReader().readLines().map(String::trim)
+        }
+    } catch (e: JadbException) {
+        if (e.localizedMessage.contains("closed")) {
+            useShell = true
+            executeShellAndReadLines(command, *args)
+        } else throw e
+    }
+}
 
 /**
- * Executes a given command on the device
+ * Executes a given command on the device using shell
+ *
+ * @param command The command to execute
+ * @param args Arguments for the command
+ *
+ * @return List of String containing each line output of the command
+ */
+fun JadbDevice.executeShellAndReadLines(command: String, vararg args: String) =
+        executeShell(command, *args).bufferedReader().readLines().map(String::trim)
+
+/**
+ * Executes a given command on the device, falls back to shell if device gives a
+ * closed error.
  *
  * @param command The command to execute
  * @param args Arguments for the command
  *
  * @return String containing output of the command
  */
-fun JadbDevice.executeAndReadText(command: String, vararg args: String) =
-        execute(command, *args).bufferedReader().readText().trim()
+fun JadbDevice.executeAndReadText(command: String, vararg args: String): String {
+    return try {
+        if (useShell) {
+            executeShellAndReadText(command, *args)
+        } else {
+            execute(command, *args).bufferedReader().readText().trim()
+        }
+    } catch (e: JadbException) {
+        if (e.localizedMessage.contains("closed")) {
+            useShell = true
+            executeShellAndReadText(command, *args)
+        } else throw e
+    }
+}
+
+/**
+ * Executes a given command on the device using shell
+ *
+ * @param command The command to execute
+ * @param args Arguments for the command
+ *
+ * @return String containing output of the command
+ */
+fun JadbDevice.executeShellAndReadText(command: String, vararg args: String) =
+        executeShell(command, *args).bufferedReader().readText().trim()
