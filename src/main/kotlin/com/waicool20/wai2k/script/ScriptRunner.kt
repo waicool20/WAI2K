@@ -76,6 +76,7 @@ class ScriptRunner(
         gameState.requiresUpdate = true
         lastStartTime = Instant.now()
         scriptStats.reset()
+        gameState.reset()
         scriptJob = launch(dispatcher) {
             while (isActive) {
                 runScriptCycle()
@@ -133,6 +134,7 @@ class ScriptRunner(
 
     fun stop() {
         logger.info("Stopping the script")
+        isPaused = false
         scriptJob?.cancel()
     }
 

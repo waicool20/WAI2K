@@ -23,4 +23,16 @@ class GameState {
     var requiresUpdate: Boolean = true
     var currentGameLocation: GameLocation = GameLocation(LocationId.UNKNOWN)
     val echelons: List<Echelon> = List(10) { Echelon(it + 1) }
+
+    fun reset() {
+        echelons.forEach { it.logisticsSupportEnabled = true }
+    }
+
+    fun resetAll() {
+        reset()
+        echelons.forEach {
+            it.logisticsSupportAssignment = null
+            it.members.forEach { it.repairEta = null }
+        }
+    }
 }
