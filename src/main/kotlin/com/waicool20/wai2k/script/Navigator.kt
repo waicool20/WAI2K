@@ -117,28 +117,38 @@ class Navigator(
         while (region.has("navigator/logistics_arrived.png")) {
             logger.info("An echelon has arrived from logistics")
             region.clickRandomly(); delay(500)
-            val image = when (profile.logistics.receiveMode) {
+
+            // Continue based on receival mode
+            val cont = when (profile.logistics.receiveMode) {
                 Wai2KProfile.Logistics.ReceivalMode.ALWAYS_CONTINUE -> {
                     logger.info("Continuing this logistics support")
-                    "confirm.png"
+                    true
                 }
                 Wai2KProfile.Logistics.ReceivalMode.RANDOM -> {
                     if (Random().nextBoolean()) {
                         logger.info("Randomized receive, continue logistics support this time")
-                        "confirm.png"
+                        true
                     } else {
                         logger.info("Randomized receive, stopping logistics support this time")
-                        "cancel.png"
+                        false
                     }
                 }
                 Wai2KProfile.Logistics.ReceivalMode.ALWAYS_CANCEL -> {
                     logger.info("Stopping this logistics support")
-                    "cancel.png"
+                    false
                 }
                 else -> error("Got an invalid ReceivalMode for some reason")
             }
+            val image = if (cont) {
+                // Increment sent stats if we are continuing
+                scriptStats.logisticsSupportSent++
+                "confirm.png"
+            } else "cancel.png"
+
             region.waitSuspending(image, 10)?.clickRandomly()
             scriptStats.logisticsSupportReceived++
+
+            // Mark game state dirty, needs updating
             gameState.requiresUpdate = true
             // Wait a bit in case another echelon arrives
             logger.info("Waiting a bit to see if anymore echelons arrive")
