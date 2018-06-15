@@ -24,6 +24,7 @@ import com.waicool20.wai2k.config.Wai2KConfig
 import net.sourceforge.tess4j.ITessAPI
 import net.sourceforge.tess4j.ITesseract
 import net.sourceforge.tess4j.Tesseract
+import java.awt.image.BufferedImage
 
 object Ocr {
     private val numberReplacements = mapOf(
@@ -48,5 +49,6 @@ object Ocr {
     }
 }
 
-fun ITesseract.doOCR(region: AndroidRegion) = doOCR(region.takeScreenshot()).trim()
+fun ITesseract.doOCRAndTrim(region: AndroidRegion) = doOCR(region.takeScreenshot()).trim()
+fun ITesseract.doOCRAndTrim(image: BufferedImage) = doOCR(image).trim()
 

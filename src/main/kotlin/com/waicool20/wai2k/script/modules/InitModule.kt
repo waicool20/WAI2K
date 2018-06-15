@@ -29,12 +29,13 @@ import com.waicool20.wai2k.game.LogisticsSupport.Assignment
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptStats
 import com.waicool20.wai2k.util.Ocr
-import com.waicool20.wai2k.util.doOCR
+import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.wai2k.util.formatted
 import com.waicool20.waicoolutils.DurationUtils
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
+import java.awt.image.BufferedImage
 import java.time.Duration
 import java.time.Instant
 
@@ -68,16 +69,18 @@ class InitModule(
      */
     private suspend fun updateLogistics() {
         logger.info("Reading logistics support status")
+        // Optimize by taking a single screenshot and working on that
+        val image = region.takeScreenshot()
         val entry = region.subRegion(347, 0, 229, region.h).findAllOrEmpty("init/logistics.png")
                 // Map each region to whole logistic support entry
-                .map { region.subRegion(it.x - 143, it.y - 22, 1088, 144) }
+                .map { image.getSubimage(it.x - 143, it.y - 22, 976, 144) }
                 .map {
                     async {
                         // Echelon section on the right without the word "Echelon"
-                        Ocr.forConfig(config).doOCR(it.subRegion(0, 25, 83, 119))
+                        Ocr.forConfig(config).doOCRAndTrim(it.getSubimage(0, 25, 83, 119))
                     } to async {
                         // Brown region containing "In logistics x-x xx:xx:xx"
-                        Ocr.forConfig(config).doOCR(it.subRegion(114, 22, 859, 108))
+                        Ocr.forConfig(config).doOCRAndTrim(it.getSubimage(114, 22, 859, 108))
                     }
                 }
                 .map { "${it.first.await()} ${it.second.await()}" }
@@ -101,17 +104,20 @@ class InitModule(
      */
     private suspend fun updateRepairs() {
         logger.info("Reading repair status")
+        // Optimize by taking a single screenshot and working on that
+        val image = region.takeScreenshot()
         val firstEntryRegion = region.subRegion(315, 0, 159, region.h)
         // Find all the echelons that have a girl in repair
         val entries = firstEntryRegion.findAllOrEmpty("init/repairing.png") +
                 firstEntryRegion.findAllOrEmpty("init/standby.png")
 
         // Map each region to whole logistic support entry
-        val mappedEntries = entries.map { region.subRegion(it.x - 111, it.y - 12, 1088, 144) }
+        val mappedEntries = entries
+                .map { image.getSubimage(it.x - 111, it.y - 12, 1088, 144) }
                 .map {
                     async {
                         // Echelon section on the right without the word "Echelon"
-                        Ocr.forConfig(config).doOCR(it.subRegion(0, 25, 83, 119))
+                        Ocr.forConfig(config).doOCRAndTrim(it.getSubimage(0, 25, 83, 119))
                     } to async { readRepairTimers(it) }
                 }.map { it.first.await().toInt() to it.second.await() }
 
@@ -129,14 +135,14 @@ class InitModule(
     /**
      * Reads repair timers for a single echelon row
      *
-     * @param region Region containing a single echelon row
+     * @param image Region containing a single echelon row
      * @returns Map with member index as key and repair timer duration as value
      */
-    private suspend fun readRepairTimers(region: AndroidRegion): Map<Int, Duration> {
+    private suspend fun readRepairTimers(image: BufferedImage): Map<Int, Duration> {
         val jobs = List(5) { entry ->
             async {
                 // Single repair entry without the "Repairing" or "Standby"
-                val timer = Ocr.forConfig(config).doOCR(region.subRegion(111 + 176 * entry, 82, 159, 51))
+                val timer = Ocr.forConfig(config).doOCRAndTrim(image.getSubimage(111 + 176 * entry, 82, 159, 51))
                 Regex("(\\d\\d):(\\d\\d):(\\d\\d)").matchEntire(timer)?.groupValues?.let {
                     entry to DurationUtils.of(it[3].toLong(), it[2].toLong(), it[1].toLong())
                 } ?: entry to Duration.ZERO
