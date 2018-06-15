@@ -77,6 +77,7 @@ class ScriptRunner(
         lastStartTime = Instant.now()
         scriptStats.reset()
         gameState.reset()
+        reload(true)
         scriptJob = launch(dispatcher) {
             while (isActive) {
                 runScriptCycle()
@@ -84,8 +85,8 @@ class ScriptRunner(
         }
     }
 
-    fun reload() {
-        var reloadModules = false
+    fun reload(forceReload: Boolean = false) {
+        var reloadModules = forceReload
         config?.let {
             if (currentConfig != it) {
                 currentConfig = it
@@ -106,14 +107,14 @@ class ScriptRunner(
             Settings.RepeatWaitTime = 0
         }
 
-        currentDevice = adbServer.listDevices().find { it.adbSerial == currentConfig.lastDeviceSerial }
+        currentDevice = adbServer.listDevices(true).find { it.adbSerial == currentConfig.lastDeviceSerial }
+        val region = currentDevice?.screen ?: run {
+            logger.info("Could not start due to invalid device")
+            return
+        }
         if (reloadModules) {
             logger.info("Reloading modules")
             modules.clear()
-            val region = currentDevice?.screen ?: run {
-                logger.info("Could not start due to invalid device")
-                return
-            }
             val nav = Navigator(scriptStats, gameState, region, currentConfig, currentProfile)
             modules.add(InitModule(scriptStats, gameState, region, currentConfig, currentProfile, nav))
             Reflections("com.waicool20.wai2k.script.modules")
