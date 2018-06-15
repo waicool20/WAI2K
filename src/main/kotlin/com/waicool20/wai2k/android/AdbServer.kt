@@ -102,7 +102,7 @@ class AdbServer(val adbPath: String = resolveAdb()) {
     }
 
     private fun newConnection(): JadbConnection {
-        start()
+        if (!isRunning()) start()
         waitForInitialized()
         return JadbConnection()
     }
