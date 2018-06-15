@@ -99,7 +99,7 @@ class LoaderView : View() {
     }
 
     private fun loadScriptRunner() {
-        setInScope(ScriptContext(ScriptRunner(wai2KConfig, currentProfile)))
+        setInScope(ScriptContext(ScriptRunner(wai2KConfig, currentProfile, context.adbServer)))
     }
 
     private fun parseCommandLine() {

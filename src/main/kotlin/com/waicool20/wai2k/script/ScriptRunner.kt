@@ -38,7 +38,11 @@ import java.util.concurrent.TimeUnit
 import kotlin.coroutines.experimental.coroutineContext
 import kotlin.reflect.full.primaryConstructor
 
-class ScriptRunner(wai2KConfig: Wai2KConfig = Wai2KConfig(), wai2KProfile: Wai2KProfile = Wai2KProfile()) {
+class ScriptRunner(
+        wai2KConfig: Wai2KConfig = Wai2KConfig(),
+        wai2KProfile: Wai2KProfile = Wai2KProfile(),
+        private val adbServer: AdbServer = AdbServer()
+) {
     private val dispatcher = newSingleThreadContext("Wai2K Script Runner Context")
 
     private val logger = loggerFor<ScriptRunner>()
@@ -82,12 +86,16 @@ class ScriptRunner(wai2KConfig: Wai2KConfig = Wai2KConfig(), wai2KProfile: Wai2K
     fun reload() {
         var reloadModules = false
         config?.let {
-            currentConfig = it
-            reloadModules = true
+            if (currentConfig != it) {
+                currentConfig = it
+                reloadModules = true
+            }
         }
         profile?.let {
-            currentProfile = it
-            reloadModules = true
+            if (currentProfile != it) {
+                currentProfile = it
+                reloadModules = true
+            }
         }
         currentConfig.scriptConfig.apply {
             Settings.MinSimilarity = defaultSimilaryThreshold
@@ -97,7 +105,7 @@ class ScriptRunner(wai2KConfig: Wai2KConfig = Wai2KConfig(), wai2KProfile: Wai2K
             Settings.RepeatWaitTime = 0
         }
 
-        currentDevice = AdbServer().listDevices().find { it.adbSerial == currentConfig.lastDeviceSerial }
+        currentDevice = adbServer.listDevices().find { it.adbSerial == currentConfig.lastDeviceSerial }
         if (reloadModules) {
             logger.info("Reloading modules")
             modules.clear()
