@@ -45,6 +45,14 @@ class LogisticsSupportModule(
     private val logger = loggerFor<LogisticsSupportModule>()
     override suspend fun execute() {
         if (!profile.logistics.enabled) return
+        checkAndDispatchEchelons()
+        checkLogisticTimers()
+    }
+
+    /**
+     * Checks if any echelons require dispatching then dispatches them
+     */
+    private suspend fun checkAndDispatchEchelons() {
         val queue = profile.logistics.assignments
                 // Map to echelon
                 .mapKeys { gameState.echelons[it.key - 1] }
@@ -56,7 +64,7 @@ class LogisticsSupportModule(
                 .filter { it.value.isNotEmpty() }
                 // Remove all the echelons that have repairs ongoing
                 .filterNot { it.key.hasRepairs() }
-        // Return if no echelons to dispatch
+        // Return if no echelons to dispatch or logistic support 4/4 was reached
         if (queue.isEmpty() || logisticSupportLimitReached()) return
         navigator.navigateTo(LocationId.LOGISTICS_SUPPORT)
         queue.entries.shuffled().forEach { (echelon, ls) ->
@@ -65,8 +73,24 @@ class LogisticsSupportModule(
                 return
             }
             logger.info("Valid assignments for $echelon: ${ls.joinToString()}")
-            dispatchEchelon(echelon, LogisticsSupport.list.filter { ls.contains(it.number) }.shuffled().first())
+            val assignment = LogisticsSupport.list
+                    .filter { ls.contains(it.number) }
+                    // Remove any logistic support that are being run by other echelons atm
+                    .filter { l -> gameState.echelons.none { it.logisticsSupportAssignment?.logisticSupport == l } }
+                    // Choose a random logistic support
+                    .shuffled().firstOrNull() ?: return
+            dispatchEchelon(echelon, assignment)
             yield()
+        }
+    }
+
+    /**
+     * Tries to return to home and receive echelons if any logistic timers have expired
+     */
+    private suspend fun checkLogisticTimers() {
+        if (gameState.echelons.any { it.logisticsSupportAssignment?.eta?.isBefore(Instant.now()) == true }) {
+            logger.info("An echelon probably came back, gonna check home")
+            navigator.navigateTo(LocationId.HOME)
         }
     }
 
@@ -80,16 +104,23 @@ class LogisticsSupportModule(
         logger.info("Next mission for $echelon is ${nextMission.number}")
         navigator.navigateTo(nextMission.locationId)
         val missionIndex = (nextMission.number - 1) % 4
+
+        if (missionRunning(missionIndex)) {
+            logger.info("An echelon is already running that mission, maybe ocr failed when updating game state")
+            gameState.requiresUpdate = true
+            return
+        }
+
+        // Start mission
         clickMissionStart(missionIndex)
         region.waitSuspending("logistics/formation.png", 10)
         clickEchelon(echelon)
-
         // Click ok button
         delay(300)
         region.subRegion(1761, 910, 251, 96).clickRandomly()
 
         // Wait for logistics mission icon to appear again
-        region.subRegion(131, 306, 257, 118).waitSuspending("logistics/logistics.png")
+        region.subRegion(131, 306, 257, 118).waitSuspending("logistics/logistics.png", 7)
 
         // Check if mission is running
         if (missionRunning(missionIndex)) {

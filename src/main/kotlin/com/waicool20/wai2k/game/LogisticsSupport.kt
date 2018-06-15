@@ -24,7 +24,7 @@ import com.waicool20.waicoolutils.DurationUtils.of
 import java.time.Duration
 import java.time.Instant
 
-class LogisticsSupport private constructor(
+data class LogisticsSupport private constructor(
         val number: Int,
         @JsonIgnore val duration: Duration,
         @JsonIgnore val locationId: LocationId = LocationId.UNKNOWN
