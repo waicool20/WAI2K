@@ -91,10 +91,12 @@ class StatusTabView : View() {
         currentEchelonLabel.text = "Echelon $currentEchelon"
         scriptRunner.gameState.apply {
             val echelon = echelons[currentEchelon - 1]
-            echelonLogisticsLabel.text = echelon.logisticsSupportAssignment?.let {
-                val delta = timeDelta(it.eta)
-                "${it.logisticSupport.chapter}-${it.logisticSupport.chapterIndex + 1} (ETA: $delta)"
-            } ?: "---"
+            echelonLogisticsLabel.text = echelon.logisticsSupportAssignment
+                    ?.takeIf { it.eta.isAfter(Instant.now()) }
+                    ?.let {
+                        val delta = timeDelta(it.eta)
+                        "${it.logisticSupport.chapter}-${it.logisticSupport.chapterIndex + 1} (ETA: $delta)"
+                    } ?: "---"
             echelonRepairs.text = echelon.members.joinToString("\n") {
                 if (it.repairEta?.isAfter(Instant.now()) == true) {
                     "${it.number}: ${timeDelta(it.repairEta)}"
