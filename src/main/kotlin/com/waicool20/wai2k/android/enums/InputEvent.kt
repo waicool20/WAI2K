@@ -52,6 +52,9 @@ enum class InputEvent(val code: Long) {
     ABS_MT_TOOL_X(0x3c),
     ABS_MT_TOOL_Y(0x3d),
 
+    /* Tool Events */
+    BTN_TOOL_FINGER(0x145),
+
     /* Key Events */
     KEY_UP(0),
     KEY_DOWN(1);

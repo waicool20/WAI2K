@@ -149,6 +149,14 @@ class AndroidDevice(
     }
 
     /**
+     * Get Orientation of the phone
+     */
+    fun getOrientation(): Int {
+        return device.executeAndReadText("dumpsys input | grep SurfaceOrientation")
+                .takeLast(1).toIntOrNull() ?: 0
+    }
+
+    /**
      * Takes a screenshot of the screen of the device
      *
      * @return [BufferedImage] containing the data of the screenshot

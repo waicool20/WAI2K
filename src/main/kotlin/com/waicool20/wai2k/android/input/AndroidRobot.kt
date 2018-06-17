@@ -373,6 +373,7 @@ class AndroidRobot(val screen: AndroidScreen) : IRobot {
                 sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_SLOT, slot.toLong())
                 sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_PRESSURE, 0)
                 sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_TRACKING_ID, 0xfffffffff)
+                sendEvent(EventType.EV_KEY, InputEvent.BTN_TOOL_FINGER, InputEvent.KEY_UP.code)
             }
         }
 
@@ -386,10 +387,11 @@ class AndroidRobot(val screen: AndroidScreen) : IRobot {
                 val rng = Random()
                 sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_SLOT, slot.toLong())
                 sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_TRACKING_ID, slot.toLong())
-                sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_TOUCH_MAJOR, 100L + rng.nextInt(100))
+                sendEvent(EventType.EV_KEY, InputEvent.BTN_TOOL_FINGER, InputEvent.KEY_DOWN.code)
+                sendCoords(_touches[slot].cursorX, _touches[slot].cursorY)
+                sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_TOUCH_MAJOR, 150L + rng.nextInt(50))
+                sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_TOUCH_MINOR, 100L + rng.nextInt(50))
                 sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_PRESSURE, 100L + rng.nextInt(100))
-                sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_POSITION_X, coordToValue(_touches[slot].cursorX, InputEvent.ABS_MT_POSITION_X))
-                sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_POSITION_Y, coordToValue(_touches[slot].cursorY, InputEvent.ABS_MT_POSITION_Y))
             }
         }
 
@@ -406,10 +408,41 @@ class AndroidRobot(val screen: AndroidScreen) : IRobot {
             _touches[slot].cursorX = if (xChanged) x else _touches[slot].cursorX
             _touches[slot].cursorY = if (yChanged) y else _touches[slot].cursorY
             if (_touches[slot].isTouching.get()) {
-                if (xChanged || yChanged) sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_SLOT, slot.toLong())
-                if (xChanged) sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_POSITION_X, coordToValue(x, InputEvent.ABS_MT_POSITION_X))
-                if (yChanged) sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_POSITION_Y, coordToValue(y, InputEvent.ABS_MT_POSITION_Y))
+                if (xChanged || yChanged) {
+                    sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_SLOT, slot.toLong())
+                    sendCoords(x, y)
+                }
             }
+        }
+
+        private fun sendCoords(x: Int, y: Int) {
+            var xCoord = x
+            var yCoord = y
+            if (screen.device.properties.displayWidth > screen.device.properties.displayHeight) {
+                when (screen.device.getOrientation()) {
+                    0, 2 -> {
+                        xCoord = x
+                        yCoord = y
+                    }
+                    1, 3 -> {
+                        xCoord = screen.device.properties.displayWidth - x
+                        yCoord = screen.device.properties.displayHeight - y
+                    }
+                }
+            } else {
+                when (screen.device.getOrientation()) {
+                    0, 2 -> {
+                        xCoord = y
+                        yCoord = screen.device.properties.displayHeight - x
+                    }
+                    1, 3 -> {
+                        xCoord = screen.device.properties.displayWidth - y
+                        yCoord = x
+                    }
+                }
+            }
+            sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_POSITION_X, coordToValue(xCoord, InputEvent.ABS_MT_POSITION_X))
+            sendEvent(EventType.EV_ABS, InputEvent.ABS_MT_POSITION_Y, coordToValue(yCoord, InputEvent.ABS_MT_POSITION_Y))
         }
     }
 
@@ -444,7 +477,7 @@ class AndroidRobot(val screen: AndroidScreen) : IRobot {
                     animator(it.src?.y ?: _touches[it.slot].cursorY, it.dest.y))
         }.toMap()
 
-        while (animator.values.any {  it.first.running() }) {
+        while (animator.values.any { it.first.running() }) {
             lowLevelTouchActions {
                 animator.forEach { touchMove, animators ->
                     val x = animators.first.step()
