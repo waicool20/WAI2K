@@ -799,7 +799,26 @@ interface ISikuliRegion {
      */
     fun randomLocation(): Location
 
-    fun <PFRML : Any> swipeToRandomly(target: PFRML)
-    fun <PFRML : Any> swipeRandomly(t1: PFRML, t2: PFRML)
+    /**
+     * Swipes to a target from this region randomly
+     *
+     * @param PSIMRL [Pattern], [String], [Image], [Match], [Region] or [Location]
+     */
+    fun <PSIMRL : Any> swipeToRandomly(target: PSIMRL)
+
+    /**
+     * Swipes from [t1] to [t2] randomly
+     *
+     * @param PSIMRL [Pattern], [String], [Image], [Match], [Region] or [Location]
+     */
+    fun <PSIMRL : Any> swipeRandomly(t1: PSIMRL, t2: PSIMRL)
+
+    /**
+     * Gets a random location from the target
+     *
+     * @param PSIMRL [Pattern], [String], [Image], [Match], [Region] or [Location]
+     *
+     * @returns Location object with randomize coordinates
+     */
     fun <PSIMRL : Any> getRandomLocationFromTarget(target: PSIMRL): Location
 }
