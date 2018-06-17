@@ -730,6 +730,10 @@ interface ISikuliRegion {
 
     /**
      * Find something in a region or return null instead of raising an Exception
+     *
+     * @param PSI [Pattern], [String], [Image]
+     * @param similarity Similarity threshold
+     * @param timeout Amount of time to wait at most in seconds
      */
     fun <PSI : Any> findOrNull(
             psi: PSI,
@@ -739,16 +743,23 @@ interface ISikuliRegion {
 
     /**
      * Find all instances of something in a region or return an empty list
+     *
+     * @param PSI [Pattern], [String], [Image]
      */
     fun <PSI : Any> findAllOrEmpty(psi: PSI): List<AndroidMatch>
 
     /**
      * Checks if something is in the region
+     *
+     * @param PSI [Pattern], [String], [Image]
+     * @param similarity Similarity threshold
      */
     fun <PSI : Any> has(psi: PSI, similarity: Double = Settings.MinSimilarity): Boolean
 
     /**
      * Inverse of [has]
+     *
+     * @param PSI [Pattern], [String], [Image]
      */
     fun <PSI : Any> Region.doesntHave(psi: PSI, similarity: Double = Settings.MinSimilarity): Boolean
 
@@ -768,7 +779,18 @@ interface ISikuliRegion {
     fun clickRandomly()
 
     /**
+     * Clicks something until it disappears
+     *
+     * @param PSI [Pattern], [String], [Image]
+     * @param timeout Maximum amount of time to be clicking in seconds
+     */
+    suspend fun <PSI : Any> clickUntilGone(psi: PSI, timeout: Long = Settings.AutoWaitTimeout.roundToLong())
+
+    /**
      * Waits for something to appear
+     *
+     * @param PSI [Pattern], [String], [Image]
+     * @param timeout Amount of time to wait at most in seconds
      */
     suspend fun <PSI : Any> waitSuspending(target: PSI, timeout: Long = Settings.AutoWaitTimeout.roundToLong()): AndroidMatch?
 }

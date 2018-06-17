@@ -117,7 +117,8 @@ class LogisticsSupportModule(
         clickEchelon(echelon)
         // Click ok button
         delay(300)
-        region.subRegion(1761, 910, 251, 96).clickRandomly()
+
+        region.clickUntilGone("logistics/ok.png", 10)
 
         // Wait for logistics mission icon to appear again
         region.subRegion(131, 306, 257, 118).waitSuspending("logistics/logistics.png", 7)

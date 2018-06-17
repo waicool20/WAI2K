@@ -23,6 +23,7 @@ import com.waicool20.wai2k.android.input.AndroidKeyboard
 import com.waicool20.waicoolutils.nextSign
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.withTimeoutOrNull
+import kotlinx.coroutines.experimental.yield
 import org.sikuli.script.*
 import java.awt.Image
 import java.awt.Rectangle
@@ -351,6 +352,15 @@ open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region
         val dx = rng.nextInt((w * 0.45).toInt()) * rng.nextSign()
         val dy = rng.nextInt((h * 0.45).toInt()) * rng.nextSign()
         click(Location(center.x + dx, center.y + dy))
+    }
+
+    override suspend fun <PSI : Any> clickUntilGone(psi: PSI, timeout: Long) {
+        withTimeoutOrNull(timeout, TimeUnit.SECONDS) {
+            while (has(psi)) {
+                yield()
+                findOrNull(psi)?.clickRandomly()
+            }
+        }
     }
 
     override suspend fun <PSI : Any> waitSuspending(target: PSI, timeout: Long): AndroidMatch? {
