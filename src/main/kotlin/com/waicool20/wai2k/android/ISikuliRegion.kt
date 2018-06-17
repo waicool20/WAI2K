@@ -761,7 +761,7 @@ interface ISikuliRegion {
      *
      * @param PSI [Pattern], [String], [Image]
      */
-    fun <PSI : Any> Region.doesntHave(psi: PSI, similarity: Double = Settings.MinSimilarity): Boolean
+    fun <PSI : Any> doesntHave(psi: PSI, similarity: Double = Settings.MinSimilarity): Boolean
 
     /**
      * Gets a sub-region of this region
@@ -793,4 +793,13 @@ interface ISikuliRegion {
      * @param timeout Amount of time to wait at most in seconds
      */
     suspend fun <PSI : Any> waitSuspending(target: PSI, timeout: Long = Settings.AutoWaitTimeout.roundToLong()): AndroidMatch?
+
+    /**
+     * Gets a random point within this region
+     */
+    fun randomLocation(): Location
+
+    fun <PFRML : Any> swipeToRandomly(target: PFRML)
+    fun <PFRML : Any> swipeRandomly(t1: PFRML, t2: PFRML)
+    fun <PSIMRL : Any> getRandomLocationFromTarget(target: PSIMRL): Location
 }

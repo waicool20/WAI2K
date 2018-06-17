@@ -102,7 +102,7 @@ class LogisticsSupportModule(
      */
     private suspend fun dispatchEchelon(echelon: Echelon, nextMission: LogisticsSupport) {
         logger.info("Next mission for $echelon is ${nextMission.number}")
-        navigator.navigateTo(nextMission.locationId)
+        clickLogisticSupportChapter(nextMission)
         val missionIndex = (nextMission.number - 1) % 4
 
         if (missionRunning(missionIndex)) {
@@ -140,6 +140,39 @@ class LogisticsSupportModule(
         region.subRegion(940, 757, 280, 107).clickRandomly()
         // Disable echelon
         echelon.logisticsSupportEnabled = false
+    }
+
+    /**
+     * Clicks the chapter of the given logistic support
+     *
+     * @param ls Logistic support
+     */
+    private suspend fun clickLogisticSupportChapter(ls: LogisticsSupport) {
+        logger.info("Choosing logistics support chapter ${ls.chapter}")
+        val lsRegion = region.subRegion(407, 0, 283, region.h)
+        val upperSwipeRegion = region.subRegion(407, 154, 192, 439)
+        val lowerSwipeRegion = region.subRegion(407, 612, 192, 439)
+
+        while (lsRegion.doesntHave("chapters/${ls.chapter}.png")) {
+            yield()
+            val currentLowestChapter = (0..6).firstOrNull { lsRegion.has("chapters/$it.png") } ?: 3
+            val currentHighestChapter = (6 downTo 0).firstOrNull { lsRegion.has("chapters/$it.png") }
+                    ?: 3
+            when {
+                ls.chapter < currentLowestChapter -> {
+                    logger.debug("Swiping down")
+                    upperSwipeRegion.swipeToRandomly(lowerSwipeRegion)
+                }
+                ls.chapter > currentHighestChapter -> {
+                    logger.debug("Swiping up")
+                    lowerSwipeRegion.swipeToRandomly(upperSwipeRegion)
+                }
+            }
+        }
+
+        yield()
+        logger.info("Found the chapter, clicking it...")
+        lsRegion.findOrNull("chapters/clickable/${ls.chapter}.png")?.clickRandomly(); yield()
     }
 
     /**

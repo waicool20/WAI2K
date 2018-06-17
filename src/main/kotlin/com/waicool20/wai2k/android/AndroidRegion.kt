@@ -294,9 +294,9 @@ open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region
 
     override fun <PSIMRL : Any> getLocationFromTarget(target: PSIMRL): Location = when (target) {
         is Pattern, is String, is Image -> find(target).target
-        is Match -> target.target
+        is Match -> AndroidMatch(target, androidScreen).target
         is AndroidRegion -> target.center
-        is Region -> target.center
+        is Region -> AndroidRegion(target, androidScreen).target
         is Location -> target
         else -> throw FindFailed("Not able to get location from $target")
     }.setOtherScreen(screen)
@@ -344,14 +344,11 @@ open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region
     override fun <PSI : Any> has(psi: PSI, similarity: Double) =
             findOrNull(psi, similarity, 0.6) != null
 
-    override fun <PSI : Any> Region.doesntHave(psi: PSI, similarity: Double) =
+    override fun <PSI : Any> doesntHave(psi: PSI, similarity: Double) =
             !has(psi, similarity)
 
     override fun clickRandomly() {
-        val rng = Random()
-        val dx = rng.nextInt((w * 0.45).toInt()) * rng.nextSign()
-        val dy = rng.nextInt((h * 0.45).toInt()) * rng.nextSign()
-        click(Location(center.x + dx, center.y + dy))
+        click(randomLocation())
     }
 
     override suspend fun <PSI : Any> clickUntilGone(psi: PSI, timeout: Long) {
@@ -373,5 +370,30 @@ open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region
             match
         }
     }
+
+    override fun <PFRML : Any> swipeToRandomly(target: PFRML) {
+        lastMatch?.let { swipeRandomly(it, target) } ?: swipeRandomly(this, target)
+    }
+
+    override fun <PFRML : Any> swipeRandomly(t1: PFRML, t2: PFRML) = try {
+        touchInterface.swipe(0, getRandomLocationFromTarget(t1), getRandomLocationFromTarget(t2))
+    } catch (e: FindFailed) {
+    }
+
+    override fun randomLocation(): Location {
+        val rng = Random()
+        val dx = rng.nextInt((w * 0.45).toInt()) * rng.nextSign()
+        val dy = rng.nextInt((h * 0.45).toInt()) * rng.nextSign()
+        return Location(center.x + dx, center.y + dy)
+    }
+
+    override fun <PSIMRL : Any> getRandomLocationFromTarget(target: PSIMRL): Location = when (target) {
+        is Pattern, is String, is Image -> find(target).randomLocation()
+        is Match -> AndroidMatch(target, androidScreen).randomLocation()
+        is AndroidRegion -> target.randomLocation()
+        is Region -> AndroidRegion(target, androidScreen).randomLocation()
+        is Location -> target
+        else -> throw FindFailed("Not able to get location from $target")
+    }.setOtherScreen(screen)
 }
 
