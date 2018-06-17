@@ -31,10 +31,12 @@
             <Button fx:id="reloadDevicesButton" mnemonicParsing="false" />
          </children>
       </HBox>
-      <GridPane>
+       <GridPane alignment="CENTER_LEFT">
         <columnConstraints>
-          <ColumnConstraints hgrow="SOMETIMES" maxWidth="151.0" minWidth="10.0" prefWidth="124.0" />
-          <ColumnConstraints hgrow="SOMETIMES" prefWidth="300.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="183.0" minWidth="10.0"
+                               prefWidth="154.0"/>
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="294.0" minWidth="241.0"
+                               prefWidth="270.0"/>
         </columnConstraints>
         <rowConstraints>
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
@@ -43,6 +45,7 @@
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
         </rowConstraints>
          <children>
             <Label text="ADB Serial:" />
@@ -57,6 +60,8 @@
             <Label fx:id="manufacturerLabel" GridPane.columnIndex="1" GridPane.rowIndex="3" />
             <Label fx:id="modelLabel" GridPane.columnIndex="1" GridPane.rowIndex="4" />
             <Label fx:id="displayLabel" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+             <Button fx:id="pointerButton" mnemonicParsing="false" text="Toggle Pointer Info"
+                     GridPane.rowIndex="6"/>
          </children>
          <VBox.margin>
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />

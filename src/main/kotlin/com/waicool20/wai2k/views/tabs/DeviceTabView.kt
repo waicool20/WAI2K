@@ -44,6 +44,7 @@ class DeviceTabView : View(), Binder {
     private val displayLabel: Label by fxid()
     private val deviceComboBox: ComboBox<AndroidDevice> by fxid()
     private val reloadDevicesButton: Button by fxid()
+    private val pointerButton: Button by fxid()
 
     private val context: Wai2KContext by inject()
 
@@ -91,6 +92,9 @@ class DeviceTabView : View(), Binder {
                 context.wai2KConfig.lastDeviceSerial = newVal.adbSerial
                 context.wai2KConfig.save()
             }
+        }
+        pointerButton.action {
+            deviceComboBox.selectedItem?.togglePointerInfo()
         }
     }
 

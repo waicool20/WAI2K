@@ -132,6 +132,15 @@ class AndroidDevice(
     fun executeAndReadText(command: String, vararg args: String) = device.executeAndReadText(command, *args)
 
     /**
+     * Checks if the showing pointer information
+     *
+     * @returns True if pointer info is on screen
+     */
+    fun isShowingPointerInfo(): Boolean {
+        return device.executeAndReadText("settings get system pointer_location") == "1"
+    }
+
+    /**
      * Controls whether or not to show the pointer info on screen
      *
      * @param display Displays pointer info if True
@@ -144,8 +153,7 @@ class AndroidDevice(
      * Toggles pointer info
      */
     fun togglePointerInfo() {
-        val isShowing = device.executeAndReadText("settings get system pointer_location") == "1"
-        device.execute("settings put system pointer_location ${if (isShowing) "0" else "1"}")
+        device.execute("settings put system pointer_location ${if (isShowingPointerInfo()) "0" else "1"}")
     }
 
     /**
