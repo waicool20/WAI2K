@@ -159,7 +159,7 @@ class LogisticsSupportModule(
 
         var retries = 0
         while (lsRegion.doesntHave("chapters/${ls.chapter}.png") && retries++ < 5) {
-            yield()
+            delay(100)
             val currentLowestChapter = (0..6).firstOrNull { lsRegion.has("chapters/$it.png") } ?: 3
             val currentHighestChapter = (6 downTo 0).firstOrNull { lsRegion.has("chapters/$it.png") }
                     ?: 3
@@ -204,7 +204,9 @@ class LogisticsSupportModule(
     private suspend fun clickMissionStart(mission: Int) {
         // Left most mission button x: 704 y: 219 w: 306 h: 856
         val missionRegion = region.subRegion(704 + (333 * mission), 219, 306, 856)
-        missionRegion.clickRandomly(); yield()
+        while (missionRegion.has("logistics/by.png")) {
+            missionRegion.clickRandomly(); yield()
+        }
     }
 
     /**
