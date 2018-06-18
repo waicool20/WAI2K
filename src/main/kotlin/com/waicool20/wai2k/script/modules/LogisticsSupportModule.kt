@@ -28,11 +28,13 @@ import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.game.LogisticsSupport
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptStats
+import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.wai2k.util.formatted
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.yield
 import java.time.Instant
+import kotlin.coroutines.experimental.coroutineContext
 
 class LogisticsSupportModule(
         scriptStats: ScriptStats,
@@ -112,8 +114,10 @@ class LogisticsSupportModule(
         }
 
         // Start mission
+        logger.debug("Opening up the logistic support menu")
         clickMissionStart(missionIndex)
         region.waitSuspending("logistics/formation.png", 10)
+        logger.debug("Clicking the echelon")
         clickEchelon(echelon)
         // Click ok button
         delay(300)
@@ -153,26 +157,33 @@ class LogisticsSupportModule(
         val upperSwipeRegion = region.subRegion(407, 154, 192, 439)
         val lowerSwipeRegion = region.subRegion(407, 612, 192, 439)
 
-        while (lsRegion.doesntHave("chapters/${ls.chapter}.png")) {
+        var retries = 0
+        while (lsRegion.doesntHave("chapters/${ls.chapter}.png") && retries++ < 5) {
             yield()
             val currentLowestChapter = (0..6).firstOrNull { lsRegion.has("chapters/$it.png") } ?: 3
             val currentHighestChapter = (6 downTo 0).firstOrNull { lsRegion.has("chapters/$it.png") }
                     ?: 3
             when {
                 ls.chapter < currentLowestChapter -> {
-                    logger.debug("Swiping down")
+                    logger.debug("Swiping down the chapters")
                     upperSwipeRegion.swipeToRandomly(lowerSwipeRegion)
                 }
                 ls.chapter > currentHighestChapter -> {
-                    logger.debug("Swiping up")
+                    logger.debug("Swiping up the chapters")
                     lowerSwipeRegion.swipeToRandomly(upperSwipeRegion)
                 }
             }
+            delay(300)
         }
 
-        yield()
-        logger.info("Found the chapter, clicking it...")
-        lsRegion.findOrNull("chapters/clickable/${ls.chapter}.png")?.clickRandomly(); yield()
+        if (lsRegion.has("chapters/${ls.chapter}.png")) {
+            logger.debug("Found the chapter, clicking it...")
+            lsRegion.findOrNull("chapters/clickable/${ls.chapter}.png")?.clickRandomly()
+            delay(200)
+        } else {
+            logger.warn("Couldn't find the chapter")
+            coroutineContext.cancelAndYield()
+        }
     }
 
     /**
