@@ -93,7 +93,7 @@ class AndroidDevice(
         }
 
         val deviceInfo = readDeviceInfo() ?: run {
-            adbServer.restart()
+            if (!adbServer.isRunning()) adbServer.restart()
             adbServer.waitForInitialized()
             readDeviceInfo()
         } ?: error("This screen does not support touch/tap events")

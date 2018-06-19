@@ -27,6 +27,7 @@ class AdbServer(val adbPath: String = resolveAdb()) {
 
     private val logger = loggerFor<AdbServer>()
     private var deviceCache: List<AndroidDevice> = emptyList()
+    private var process: Process? = null
     private val adb
         get() = newConnection()
 
@@ -49,6 +50,8 @@ class AdbServer(val adbPath: String = resolveAdb()) {
             logger.info("Launching new adb server instance")
             ProcessBuilder(adbPath, "start-server").start()
             logger.info("ADB Server launched")
+            // Launch a blocking adb operation that stays alive with the adb server
+            process = ProcessBuilder(adbPath, "wait-for-any-recovery").start()
         } while (!isRunning())
     }
 
@@ -56,7 +59,10 @@ class AdbServer(val adbPath: String = resolveAdb()) {
      * Waits until the adb server is able to receive commands
      */
     fun waitForInitialized() {
-        while (!isRunning()) TimeUnit.MILLISECONDS.sleep(100)
+        while (
+                !ProcessBuilder(adbPath, "devices").start().inputStream
+                        .bufferedReader().readText().contains("List")
+        ) TimeUnit.MILLISECONDS.sleep(100)
     }
 
     /**
@@ -74,6 +80,7 @@ class AdbServer(val adbPath: String = resolveAdb()) {
      */
     fun stop() {
         if (isRunning()) {
+            process?.destroy()
             logger.info("ADB Server running, killing it")
             ProcessBuilder(adbPath, "kill-server").start().waitFor()
             logger.info("ADB Server Killed")
@@ -83,12 +90,7 @@ class AdbServer(val adbPath: String = resolveAdb()) {
     /**
      * Checks if the adb server is running
      */
-    fun isRunning(): Boolean {
-        ProcessBuilder(adbPath, "devices").start().apply {
-            return inputStream.bufferedReader().readText().isNotEmpty()
-        }
-        return false
-    }
+    fun isRunning() = process?.isAlive == true
 
     /**
      * Lists all [AndroidDevice] connected to the server
