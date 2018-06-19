@@ -91,19 +91,19 @@ class Navigator(
             logger.info("Already at ${dest.id}")
             return
         }
-        logger.debug("Found solution: ${path.joinToString("->") { "${it.dest.id}" }}")
-        for ((_, destLoc, link) in path) {
+        logger.debug("Found solution: CURRENT->${path.joinToString("->") { "${it.dest.id}" }}")
+        for ((sourceLoc, destLoc, link) in path) {
             if (gameState.currentGameLocation.isIntermediate && destLoc.isInRegion(region)) {
                 continue
             }
             logger.info("Going to ${destLoc.id}")
-            // Click the link every 3 seconds, check the region every 500 ms in case the first clicks didn't get it
+            // Click the link every 1.5 seconds, check the region every 500 ms in case the first clicks didn't get it
             var i = 0
             do {
                 checkLogistics()
-                if (i++ % 6 == 0) link.asset.getSubRegionFor(region).clickRandomly()
+                if (i++ % 3 == 0) link.asset.getSubRegionFor(region).clickRandomly()
                 delay(500)
-            } while (!destLoc.isInRegion(region))
+            } while (sourceLoc.isInRegion(region) && !destLoc.isInRegion(region))
             logger.info("At ${destLoc.id}")
             gameState.currentGameLocation = destLoc
             delay(500)
