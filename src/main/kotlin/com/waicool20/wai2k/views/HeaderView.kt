@@ -161,7 +161,6 @@ class HeaderView : View() {
 
 
     private fun onStop() = launch(JavaFx) {
-        scriptRunner.stop()
         startPauseButton.text = "Start"
         stopButton.hide()
     }
