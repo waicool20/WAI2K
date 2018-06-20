@@ -77,8 +77,8 @@ class ScriptRunner(
         lastStartTime = Instant.now()
         scriptStats.reset()
         gameState.reset()
-        reload(true)
         scriptJob = launch(dispatcher) {
+            reload(true)
             while (isActive) {
                 runScriptCycle()
             }

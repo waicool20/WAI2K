@@ -39,7 +39,6 @@ import org.controlsfx.glyphfont.FontAwesome
 import org.controlsfx.glyphfont.Glyph
 import tornadofx.*
 import java.nio.file.Files
-import kotlin.concurrent.thread
 import kotlin.streams.toList
 
 class HeaderView : View() {
@@ -52,7 +51,7 @@ class HeaderView : View() {
     private val startPauseButton: SplitMenuButton by fxid()
     private val stopButton: Button by fxid()
 
-    private val context: Wai2KContext by inject()
+    private val wai2KContext: Wai2KContext by inject()
     private val scriptRunner = find<ScriptContext>().scriptRunner
 
     val buttons: HBox by fxid()
@@ -68,7 +67,7 @@ class HeaderView : View() {
 
     override fun onSave() {
         super.onSave()
-        context.currentProfile.apply {
+        wai2KContext.currentProfile.apply {
             save()
             AlertFactory.info(content = "Profile $name was saved!").showAndWait()
         }
@@ -76,7 +75,7 @@ class HeaderView : View() {
 
     override fun onDelete() {
         super.onDelete()
-        context.currentProfile.apply {
+        wai2KContext.currentProfile.apply {
             val toDelete = name
             confirm(
                     header = "Delete profile [$toDelete]?",
@@ -91,16 +90,14 @@ class HeaderView : View() {
 
     override fun onRefresh() {
         super.onRefresh()
-        thread {
-            setNewProfile(Wai2KProfile.load(context.currentProfile.path))
-        }
+        launch { setNewProfile(Wai2KProfile.load(wai2KContext.currentProfile.path)) }
     }
 
     private fun createBindings() {
-        profileComboBox.bind(context.currentProfile.nameProperty)
-        context.currentProfileProperty.addListener("HeaderViewProfile") { newVal ->
+        profileComboBox.bind(wai2KContext.currentProfile.nameProperty)
+        wai2KContext.currentProfileProperty.addListener("HeaderViewProfile") { newVal ->
             createBindings()
-            runLater {
+            launch(JavaFx) {
                 Tooltip("Profile ${newVal.name} has been loaded!").apply {
                     fadeAfter(700)
                     showAt(profileComboBox, TooltipSide.TOP_LEFT)
@@ -119,13 +116,11 @@ class HeaderView : View() {
 
     private fun selectProfile() {
         val newProfile = profileComboBox.value
-        thread {
-            setNewProfile(Wai2KProfile.load(newProfile))
-        }
+        launch { setNewProfile(Wai2KProfile.load(newProfile)) }
     }
 
     private fun setNewProfile(profile: Wai2KProfile) {
-        context.apply {
+        wai2KContext.apply {
             wai2KConfig.currentProfile = profile.name
             wai2KConfig.save()
             currentProfileProperty.set(profile)
@@ -144,7 +139,7 @@ class HeaderView : View() {
         }
     }
 
-    private fun onStartPause() = runLater {
+    private fun onStartPause() = launch(JavaFx) {
         if (scriptRunner.isRunning) {
             if (scriptRunner.isPaused) {
                 scriptRunner.isPaused = false
@@ -155,8 +150,8 @@ class HeaderView : View() {
             }
         } else {
             scriptRunner.apply {
-                config = context.wai2KConfig
-                profile = context.currentProfile
+                config = wai2KContext.wai2KConfig
+                profile = wai2KContext.currentProfile
             }.run()
             startPauseButton.text = "Pause"
             stopButton.show()
@@ -164,16 +159,15 @@ class HeaderView : View() {
         }
     }
 
-    private fun onStop() = runLater {
+
+    private fun onStop() = launch(JavaFx) {
         scriptRunner.stop()
         startPauseButton.text = "Start"
         stopButton.hide()
     }
 
-    private fun startScriptMonitor() {
-        launch(JavaFx) {
-            scriptRunner.scriptJob?.join()
-            onStop()
-        }
+    private fun startScriptMonitor() = launch(JavaFx) {
+        scriptRunner.scriptJob?.join()
+        onStop()
     }
 }
