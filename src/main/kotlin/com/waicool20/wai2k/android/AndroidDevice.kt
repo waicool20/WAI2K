@@ -23,6 +23,7 @@ import com.waicool20.wai2k.android.input.AndroidInput
 import com.waicool20.wai2k.util.executeAndReadLines
 import com.waicool20.wai2k.util.executeAndReadText
 import com.waicool20.wai2k.util.executeOrShell
+import com.waicool20.waicoolutils.logging.loggerFor
 import org.sikuli.script.IScreen
 import se.vidstige.jadb.JadbDevice
 import java.awt.image.BufferedImage
@@ -36,6 +37,8 @@ class AndroidDevice(
         private val adbServer: AdbServer,
         private val device: JadbDevice
 ) {
+
+    private val logger = loggerFor<AndroidDevice>()
     /**
      * Wrapper class containing the basic properties of an android device
      */
@@ -93,7 +96,8 @@ class AndroidDevice(
         }
 
         val deviceInfo = readDeviceInfo() ?: run {
-            if (!adbServer.isRunning()) adbServer.restart()
+            logger.warn("Failed to read device info, will try to restart adb and retry")
+            adbServer.restart()
             adbServer.waitForInitialized()
             readDeviceInfo()
         } ?: error("This screen does not support touch/tap events")
