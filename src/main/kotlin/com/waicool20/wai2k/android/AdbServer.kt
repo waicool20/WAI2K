@@ -50,8 +50,14 @@ class AdbServer(val adbPath: String = resolveAdb()) {
             logger.info("Launching new adb server instance")
             ProcessBuilder(adbPath, "start-server").start()
             logger.info("ADB Server launched")
+            waitForInitialized()
             // Launch a blocking adb operation that stays alive with the adb server
-            process = ProcessBuilder(adbPath, "wait-for-any-recovery").start()
+            process = ProcessBuilder(
+                    adbPath,
+                    "-s", "some-unlikely-device-id-123",
+                    "wait-for-any-recovery"
+            ).start()
+            TimeUnit.SECONDS.sleep(1)
         } while (!isRunning())
     }
 
@@ -63,6 +69,7 @@ class AdbServer(val adbPath: String = resolveAdb()) {
                 !ProcessBuilder(adbPath, "devices").start().inputStream
                         .bufferedReader().readText().contains("List")
         ) TimeUnit.MILLISECONDS.sleep(100)
+        TimeUnit.SECONDS.sleep(1)
     }
 
     /**
