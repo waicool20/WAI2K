@@ -93,6 +93,7 @@ class LogisticsSupportModule(
         if (gameState.echelons.any { it.logisticsSupportAssignment?.eta?.isBefore(Instant.now()) == true }) {
             logger.info("An echelon probably came back, gonna check home")
             navigator.navigateTo(LocationId.HOME)
+            navigator.checkLogistics()
         }
     }
 
