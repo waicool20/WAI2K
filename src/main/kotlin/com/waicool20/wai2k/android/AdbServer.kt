@@ -21,6 +21,7 @@ package com.waicool20.wai2k.android
 
 import com.waicool20.waicoolutils.logging.loggerFor
 import se.vidstige.jadb.JadbConnection
+import se.vidstige.jadb.JadbException
 import java.util.concurrent.TimeUnit
 
 class AdbServer(val adbPath: String = resolveAdb()) {
@@ -49,8 +50,8 @@ class AdbServer(val adbPath: String = resolveAdb()) {
         do {
             logger.info("Launching new adb server instance")
             ProcessBuilder(adbPath, "start-server").start()
-            logger.info("ADB Server launched")
             waitForInitialized()
+            logger.info("ADB Server launched")
             // Launch a blocking adb operation that stays alive with the adb server
             process = ProcessBuilder(
                     adbPath,
@@ -104,7 +105,14 @@ class AdbServer(val adbPath: String = resolveAdb()) {
      */
     fun listDevices(refresh: Boolean = true): List<AndroidDevice> {
         return if (refresh) {
-            adb.devices.map { AndroidDevice(this, it) }.also { deviceCache = it }
+            adb.devices.mapNotNull {
+                try {
+                    AndroidDevice(this, it)
+                } catch (e: JadbException) {
+                    logger.warn("Failed to read one device: ${e.localizedMessage}")
+                    null
+                }
+            }.also { deviceCache = it }
         } else {
             deviceCache
         }
