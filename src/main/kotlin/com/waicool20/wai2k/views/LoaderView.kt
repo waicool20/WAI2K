@@ -118,18 +118,19 @@ class LoaderView : View() {
                 wai2KConfig.debugModeEnabled
             }
         }
-
-        parameters.named["assets-dir"]?.let { Paths.get(it) }?.let { dir ->
-            logger.info("Assets directory passed in through command line: $dir")
-            if (Files.exists(dir)) {
-                wai2KConfig.assetsDirectory = dir
+        with(parameters) {
+            (named["assets-dir"] ?: named["asset-dir"])?.let { Paths.get(it) }?.let { dir ->
+                logger.info("Assets directory passed in through command line: $dir")
+                if (Files.exists(dir)) {
+                    wai2KConfig.assetsDirectory = dir
+                }
             }
-        }
 
-        parameters.named["ocr-dir"]?.let { Paths.get(it) }?.let { dir ->
-            logger.info("OCR directory passed in through command line: $dir")
-            if (Files.exists(dir)) {
-                wai2KConfig.ocrDirectory = dir
+            named["ocr-dir"]?.let { Paths.get(it) }?.let { dir ->
+                logger.info("OCR directory passed in through command line: $dir")
+                if (Files.exists(dir)) {
+                    wai2KConfig.ocrDirectory = dir
+                }
             }
         }
     }
