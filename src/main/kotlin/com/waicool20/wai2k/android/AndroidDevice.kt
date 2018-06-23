@@ -23,12 +23,14 @@ import com.waicool20.wai2k.android.input.AndroidInput
 import com.waicool20.wai2k.util.executeAndReadLines
 import com.waicool20.wai2k.util.executeAndReadText
 import com.waicool20.wai2k.util.executeOrShell
+import com.waicool20.waicoolutils.and
 import com.waicool20.waicoolutils.logging.loggerFor
 import org.sikuli.script.IScreen
 import se.vidstige.jadb.JadbDevice
 import java.awt.image.BufferedImage
 import java.io.InputStream
-import javax.imageio.ImageIO
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 
 /**
  * Represents an android device
@@ -39,6 +41,7 @@ class AndroidDevice(
 ) {
 
     private val logger = loggerFor<AndroidDevice>()
+
     /**
      * Wrapper class containing the basic properties of an android device
      */
@@ -174,6 +177,25 @@ class AndroidDevice(
      * @return [BufferedImage] containing the data of the screenshot
      */
     fun takeScreenshot(): BufferedImage {
-        return ImageIO.read(device.executeOrShell("screencap -p"))
+        val buffer = ByteBuffer.wrap(device.executeOrShell("screencap").readBytes())
+                .order(ByteOrder.LITTLE_ENDIAN)
+
+        val width = buffer.int
+        val height = buffer.int
+        val image = BufferedImage(width, height, buffer.int)
+        buffer.int // Ignore the 4th int
+
+        val byteArray = ByteArray(4)
+        for (y in 0 until height) {
+            for (x in 0 until width) {
+                buffer.get(byteArray)
+                val a = ((byteArray[3] and 0xFF) shl 24)
+                val r = ((byteArray[0] and 0xFF) shl 16)
+                val g = ((byteArray[1] and 0xFF) shl 8)
+                val b = (byteArray[2] and 0xFF)
+                image.setRGB(x, y, a or r or g or b)
+            }
+        }
+        return image
     }
 }
