@@ -155,17 +155,16 @@ class LogisticsSupportModule(
         val lsRegion = region.subRegion(407, 146, 283, 934)
         val upperSwipeRegion = lsRegion.subRegion(0, 0, lsRegion.w, lsRegion.h / 2)
         val lowerSwipeRegion = lsRegion.subRegion(0, lsRegion.h / 2, lsRegion.w, lsRegion.h / 2)
-
-        var retries = 0
-        while (lsRegion.doesntHave("chapters/${ls.chapter}.png") && retries++ < 5) {
+        val cSimilarity = 0.86
+        while (lsRegion.doesntHave("chapters/${ls.chapter}.png", cSimilarity)) {
             delay(100)
             val lChapter = (0..6).firstOrNull {
                 yield()
-                lsRegion.has("chapters/$it.png")
+                lsRegion.has("chapters/$it.png", cSimilarity)
             } ?: 3
             val hChapter = (6 downTo 0).firstOrNull {
                 yield()
-                lsRegion.has("chapters/$it.png")
+                lsRegion.has("chapters/$it.png", cSimilarity)
             } ?: 3
             logger.debug("Visible chapters: [${(lChapter..hChapter).joinToString()}]")
 
@@ -183,7 +182,7 @@ class LogisticsSupportModule(
         }
 
         lsRegion.subRegion(0, 0, 195, lsRegion.h)
-                .clickUntilGone("chapters/clickable/${ls.chapter}.png", 20, 0.85)
+                .clickUntilGone("chapters/clickable/${ls.chapter}.png", 20, cSimilarity)
         logger.info("At logistics support chapter ${ls.chapter}")
     }
 

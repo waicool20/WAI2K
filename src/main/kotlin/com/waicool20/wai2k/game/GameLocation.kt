@@ -27,7 +27,6 @@ import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.script.Asset
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.experimental.async
-import org.sikuli.script.Pattern
 import java.util.*
 
 /**
@@ -97,7 +96,7 @@ data class GameLocation(val id: LocationId, val isIntermediate: Boolean = false)
     suspend fun isInRegion(region: AndroidRegion): Boolean {
         if (landmarks.isEmpty()) return false
         return landmarks.map {
-            async { it.asset.getSubRegionFor(region.androidScreen).has(Pattern(it.asset.imagePath).exact()) }
+            async { it.asset.getSubRegionFor(region.androidScreen).has(it.asset.imagePath) }
         }.all { it.await() }
     }
 
