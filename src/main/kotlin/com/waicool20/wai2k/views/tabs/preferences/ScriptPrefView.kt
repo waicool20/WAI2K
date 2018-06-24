@@ -39,7 +39,7 @@ class ScriptPrefView : View() {
         super.onDock()
         loopDelaySpinner.valueFactory = IntegerSpinnerValueFactory(1, Int.MAX_VALUE)
         scanRateSpinner.valueFactory = IntegerSpinnerValueFactory(1, Int.MAX_VALUE)
-        defaultSimThresholdSpinner.valueFactory = DoubleSpinnerValueFactory(0.0, 1.0)
+        defaultSimThresholdSpinner.valueFactory = DoubleSpinnerValueFactory(0.0, 1.0, 0.8, 0.05)
         context.wai2KConfig.scriptConfig.apply {
             loopDelaySpinner.bind(loopDelayProperty)
             scanRateSpinner.bind(sikulixScanRateProperty)
