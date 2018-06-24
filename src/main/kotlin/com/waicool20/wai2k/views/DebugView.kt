@@ -72,7 +72,8 @@ class DebugView : View() {
                     logger.warn("Could not find device!")
                     return
                 }
-                device.screen.exists(Pattern(path.fileName.toString()))
+                // Set similarity to 0.1f to make sikulix report the similarity value down to 0.1
+                device.screen.exists(Pattern(path.fileName.toString()).similar(0.1f))
                         ?.let { logger.info("Found ${path.fileName}: $it") }
                         ?: run { logger.warn("Could not find the asset anywhere") }
                 ImagePath.remove(path.parent.toString())
