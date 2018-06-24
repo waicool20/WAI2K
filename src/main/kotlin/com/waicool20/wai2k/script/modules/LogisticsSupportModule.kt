@@ -28,13 +28,11 @@ import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.game.LogisticsSupport
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptStats
-import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.wai2k.util.formatted
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.yield
 import java.time.Instant
-import kotlin.coroutines.experimental.coroutineContext
 
 class LogisticsSupportModule(
         scriptStats: ScriptStats,
@@ -154,22 +152,23 @@ class LogisticsSupportModule(
      */
     private suspend fun clickLogisticSupportChapter(ls: LogisticsSupport) {
         logger.info("Choosing logistics support chapter ${ls.chapter}")
-        val lsRegion = region.subRegion(407, 0, 283, region.h)
-        val upperSwipeRegion = region.subRegion(407, 154, 192, 439)
-        val lowerSwipeRegion = region.subRegion(407, 612, 192, 439)
+        val lsRegion = region.subRegion(407, 146, 283, 934)
+        val upperSwipeRegion = lsRegion.subRegion(0, 0, lsRegion.w, lsRegion.h / 2)
+        val lowerSwipeRegion = lsRegion.subRegion(0, lsRegion.h / 2, lsRegion.w, lsRegion.h / 2)
 
         var retries = 0
         while (lsRegion.doesntHave("chapters/${ls.chapter}.png") && retries++ < 5) {
             delay(100)
-            val currentLowestChapter = (0..6).firstOrNull { lsRegion.has("chapters/$it.png") } ?: 3
-            val currentHighestChapter = (6 downTo 0).firstOrNull { lsRegion.has("chapters/$it.png") }
-                    ?: 3
+            val lChapter = (0..6).firstOrNull { lsRegion.has("chapters/$it.png") } ?: 3
+            val hChapter = (6 downTo 0).firstOrNull { lsRegion.has("chapters/$it.png") } ?: 3
+            logger.debug("Visible chapters: [${(lChapter..hChapter).joinToString()}]")
+
             when {
-                ls.chapter < currentLowestChapter -> {
+                ls.chapter < lChapter -> {
                     logger.debug("Swiping down the chapters")
                     upperSwipeRegion.swipeToRandomly(lowerSwipeRegion)
                 }
-                ls.chapter > currentHighestChapter -> {
+                ls.chapter > hChapter -> {
                     logger.debug("Swiping up the chapters")
                     lowerSwipeRegion.swipeToRandomly(upperSwipeRegion)
                 }
@@ -177,14 +176,9 @@ class LogisticsSupportModule(
             delay(300)
         }
 
-        if (lsRegion.has("chapters/${ls.chapter}.png")) {
-            logger.debug("Found the chapter, clicking it...")
-            lsRegion.findOrNull("chapters/clickable/${ls.chapter}.png")?.clickRandomly()
-            delay(200)
-        } else {
-            logger.warn("Couldn't find the chapter")
-            coroutineContext.cancelAndYield()
-        }
+        lsRegion.subRegion(0, 0, 195, lsRegion.h)
+                .clickUntilGone("chapters/clickable/${ls.chapter}.png", 20, 0.85)
+        logger.info("At logistics support chapter ${ls.chapter}")
     }
 
     /**
