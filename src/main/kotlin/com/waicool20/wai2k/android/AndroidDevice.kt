@@ -185,15 +185,13 @@ class AndroidDevice(
         val image = BufferedImage(width, height, buffer.int)
         buffer.int // Ignore the 4th int
 
-        val byteArray = ByteArray(4)
         for (y in 0 until height) {
             for (x in 0 until width) {
-                buffer.get(byteArray)
-                val a = ((byteArray[3] and 0xFF) shl 24)
-                val r = ((byteArray[0] and 0xFF) shl 16)
-                val g = ((byteArray[1] and 0xFF) shl 8)
-                val b = (byteArray[2] and 0xFF)
-                image.setRGB(x, y, a or r or g or b)
+                val r = ((buffer.get() and 0xFF) shl 16)
+                val g = ((buffer.get() and 0xFF) shl 8)
+                val b = (buffer.get() and 0xFF)
+                buffer.get() // Ignore alpha channel
+                image.setRGB(x, y, r or g or b)
             }
         }
         return image
