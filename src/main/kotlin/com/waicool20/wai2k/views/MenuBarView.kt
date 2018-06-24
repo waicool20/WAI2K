@@ -30,11 +30,13 @@ class MenuBarView : View() {
     private val quitItem: MenuItem by fxid()
     private val consoleItem: MenuItem by fxid()
     private val aboutItem: MenuItem by fxid()
+    private val toolsItem: MenuItem by fxid()
 
     override fun onDock() {
         super.onDock()
         quitItem.setOnAction { exitProcess(0) }
         consoleItem.setOnAction { find<ConsoleView>().openWindow(owner = null)?.toFront() }
         aboutItem.setOnAction { find<AboutView>().openModal(stageStyle = StageStyle.UNDECORATED) }
+        toolsItem.setOnAction { find<DebugView>().openWindow(owner = null)?.toFront() }
     }
 }

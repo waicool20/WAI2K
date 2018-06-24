@@ -37,6 +37,7 @@
                <accelerator>
                   <KeyCodeCombination alt="UP" code="D" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                </accelerator></MenuItem>
+             <MenuItem fx:id="toolsItem" mnemonicParsing="false" text="Debug Tools"/>
          </items>
       </Menu>
       <Menu mnemonicParsing="false" text="Help">
