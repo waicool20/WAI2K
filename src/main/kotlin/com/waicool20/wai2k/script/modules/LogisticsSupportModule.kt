@@ -159,8 +159,14 @@ class LogisticsSupportModule(
         var retries = 0
         while (lsRegion.doesntHave("chapters/${ls.chapter}.png") && retries++ < 5) {
             delay(100)
-            val lChapter = (0..6).firstOrNull { lsRegion.has("chapters/$it.png") } ?: 3
-            val hChapter = (6 downTo 0).firstOrNull { lsRegion.has("chapters/$it.png") } ?: 3
+            val lChapter = (0..6).firstOrNull {
+                yield()
+                lsRegion.has("chapters/$it.png")
+            } ?: 3
+            val hChapter = (6 downTo 0).firstOrNull {
+                yield()
+                lsRegion.has("chapters/$it.png")
+            } ?: 3
             logger.debug("Visible chapters: [${(lChapter..hChapter).joinToString()}]")
 
             when {
