@@ -783,16 +783,26 @@ interface ISikuliRegion {
      *
      * @param PSI [Pattern], [String], [Image]
      * @param timeout Maximum amount of time to be clicking in seconds
+     * @param similarity Similarity threshold
      */
-    suspend fun <PSI : Any> clickUntilGone(psi: PSI, timeout: Long = Settings.AutoWaitTimeout.roundToLong())
+    suspend fun <PSI : Any> clickUntilGone(
+            psi: PSI,
+            timeout: Long = Settings.AutoWaitTimeout.roundToLong(),
+            similarity: Double = Settings.MinSimilarity
+    )
 
     /**
      * Waits for something to appear
      *
      * @param PSI [Pattern], [String], [Image]
      * @param timeout Amount of time to wait at most in seconds
+     * @param similarity Similarity threshold
      */
-    suspend fun <PSI : Any> waitSuspending(target: PSI, timeout: Long = Settings.AutoWaitTimeout.roundToLong()): AndroidMatch?
+    suspend fun <PSI : Any> waitSuspending(
+            target: PSI,
+            timeout: Long = Settings.AutoWaitTimeout.roundToLong(),
+            similarity: Double = Settings.MinSimilarity
+    ): AndroidMatch?
 
     /**
      * Gets a random point within this region

@@ -351,20 +351,20 @@ open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region
         click(randomLocation())
     }
 
-    override suspend fun <PSI : Any> clickUntilGone(psi: PSI, timeout: Long) {
+    override suspend fun <PSI : Any> clickUntilGone(psi: PSI, timeout: Long, similarity: Double) {
         withTimeoutOrNull(timeout, TimeUnit.SECONDS) {
-            while (has(psi)) {
+            while (has(psi, similarity)) {
                 yield()
-                findOrNull(psi)?.clickRandomly()
+                findOrNull(psi, similarity)?.clickRandomly()
             }
         }
     }
 
-    override suspend fun <PSI : Any> waitSuspending(target: PSI, timeout: Long): AndroidMatch? {
+    override suspend fun <PSI : Any> waitSuspending(target: PSI, timeout: Long, similarity: Double): AndroidMatch? {
         return withTimeoutOrNull(timeout, TimeUnit.SECONDS) {
             var match: AndroidMatch? = null
             while (match == null) {
-                match = findOrNull(target)
+                match = findOrNull(target, similarity)
                 delay(((1 / waitScanRate) * 1000).roundToLong())
             }
             match
