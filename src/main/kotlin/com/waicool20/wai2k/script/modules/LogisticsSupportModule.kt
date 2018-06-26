@@ -155,7 +155,7 @@ class LogisticsSupportModule(
         val lsRegion = region.subRegion(407, 146, 283, 934)
         val upperSwipeRegion = lsRegion.subRegion(0, 0, lsRegion.w, lsRegion.h / 2)
         val lowerSwipeRegion = lsRegion.subRegion(0, lsRegion.h / 2, lsRegion.w, lsRegion.h / 2)
-        val cSimilarity = 0.86
+        val cSimilarity = 0.9
         while (lsRegion.doesntHave("chapters/${ls.chapter}.png", cSimilarity)) {
             delay(100)
             val lChapter = (0..6).firstOrNull {
