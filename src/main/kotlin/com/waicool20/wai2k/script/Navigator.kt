@@ -94,6 +94,7 @@ class Navigator(
         logger.debug("Found solution: CURRENT->${path.joinToString("->") { "${it.dest.id}" }}")
         for ((_, destLoc, link) in path) {
             if (gameState.currentGameLocation.isIntermediate && destLoc.isInRegion(region)) {
+                logger.info("At ${destLoc.id}")
                 continue
             }
             logger.info("Going to ${destLoc.id}")

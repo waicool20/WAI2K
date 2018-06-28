@@ -99,13 +99,70 @@
         }
       },
       {
+        "dest": "combat",
+        "asset": {
+          "imageName": "",
+          "x": 131,
+          "y": 166,
+          "width": 257,
+          "height": 118
+        }
+      },
+      {
         "dest": "logistics_support",
         "asset": {
           "imageName": "",
           "x": 131,
           "y": 306,
           "width": 257,
-          "height": 117
+          "height": 118
+        }
+      }
+    ]
+  },
+  {
+    "id": "combat",
+    "isIntermediate": true,
+    "landmarks": [
+      {
+        "asset": {
+          "imageName": "combat",
+          "x": 1519,
+          "y": 151,
+          "width": 60,
+          "height": 60
+        }
+      }
+    ],
+    "links": [
+      {
+        "dest": "home",
+        "asset": {
+          "imageName": "",
+          "x": 126,
+          "y": 5,
+          "width": 194,
+          "height": 134
+        }
+      },
+      {
+        "dest": "logistics_support",
+        "asset": {
+          "imageName": "",
+          "x": 131,
+          "y": 306,
+          "width": 257,
+          "height": 118
+        }
+      },
+      {
+        "dest": "combat_menu",
+        "asset": {
+          "imageName": "",
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
         }
       }
     ]
@@ -133,6 +190,16 @@
           "y": 5,
           "width": 194,
           "height": 134
+        }
+      },
+      {
+        "dest": "combat",
+        "asset": {
+          "imageName": "",
+          "x": 131,
+          "y": 166,
+          "width": 257,
+          "height": 118
         }
       },
       {

@@ -23,6 +23,7 @@ enum class LocationId {
     HOME,
     HOME_STATUS,
     COMBAT_MENU,
+    COMBAT,
     LOGISTICS_SUPPORT,
     UNKNOWN
 }
