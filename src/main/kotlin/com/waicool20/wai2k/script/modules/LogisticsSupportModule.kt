@@ -182,7 +182,7 @@ class LogisticsSupportModule(
         }
 
         lsRegion.subRegion(0, 0, 195, lsRegion.h)
-                .clickUntilGone("chapters/clickable/${ls.chapter}.png", 20, cSimilarity)
+                .clickUntilGone("chapters/clickable/${ls.chapter}.png", 20, 0.96)
         logger.info("At logistics support chapter ${ls.chapter}")
     }
 
