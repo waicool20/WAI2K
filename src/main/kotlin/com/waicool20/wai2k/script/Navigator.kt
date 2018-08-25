@@ -114,7 +114,7 @@ class Navigator(
      * Checks if there are logistics, if there were then try and receive them
      */
     suspend fun checkLogistics() {
-        while (region.has("navigator/logistics_arrived.png")) {
+        while (region.contains("navigator/logistics_arrived.png")) {
             logger.info("An echelon has arrived from logistics")
             region.clickRandomly(); delay(500)
 

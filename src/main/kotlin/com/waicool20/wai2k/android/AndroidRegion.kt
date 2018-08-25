@@ -317,9 +317,9 @@ open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region
     }
 
     override fun <PSI : Any> findOrNull(psi: PSI, similarity: Double, timeout: Double): AndroidMatch? = when (psi) {
-        is String -> exists(Pattern(psi).similar(similarity.toFloat()), timeout)
-        is Pattern -> exists(Pattern(psi).similar(similarity.toFloat()), timeout)
-        is org.sikuli.script.Image -> exists(Pattern(psi).similar(similarity.toFloat()), timeout)
+        is String -> exists(Pattern(psi).similar(similarity), timeout)
+        is Pattern -> exists(Pattern(psi).similar(similarity), timeout)
+        is org.sikuli.script.Image -> exists(Pattern(psi).similar(similarity), timeout)
         else -> throw IllegalArgumentException()
     }
 
@@ -341,11 +341,11 @@ open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region
         return androidScreen.newRegion(xCoord, yCoord, newWidth, newHeight)
     }
 
-    override fun <PSI : Any> has(psi: PSI, similarity: Double) =
+    override fun <PSI : Any> contains(psi: PSI, similarity: Double) =
             findOrNull(psi, similarity, 0.6) != null
 
-    override fun <PSI : Any> doesntHave(psi: PSI, similarity: Double) =
-            !has(psi, similarity)
+    override fun <PSI : Any> doesntContain(psi: PSI, similarity: Double) =
+            !contains(psi, similarity)
 
     override fun clickRandomly() {
         click(randomLocation())
@@ -353,7 +353,7 @@ open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region
 
     override suspend fun <PSI : Any> clickUntilGone(psi: PSI, timeout: Long, similarity: Double) {
         withTimeoutOrNull(timeout, TimeUnit.SECONDS) {
-            while (has(psi, similarity)) {
+            while (contains(psi, similarity)) {
                 yield()
                 findOrNull(psi, similarity)?.clickRandomly()
             }

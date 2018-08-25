@@ -96,7 +96,7 @@ data class GameLocation(val id: LocationId, val isIntermediate: Boolean = false)
     suspend fun isInRegion(region: AndroidRegion): Boolean {
         if (landmarks.isEmpty()) return false
         return landmarks.map {
-            async { it.asset.getSubRegionFor(region.androidScreen).has(it.asset.imagePath) }
+            async { it.asset.getSubRegionFor(region.androidScreen).contains(it.asset.imagePath) }
         }.all { it.await() }
     }
 

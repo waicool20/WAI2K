@@ -156,15 +156,15 @@ class LogisticsSupportModule(
         val upperSwipeRegion = lsRegion.subRegion(0, 0, lsRegion.w, lsRegion.h / 2)
         val lowerSwipeRegion = lsRegion.subRegion(0, lsRegion.h / 2, lsRegion.w, lsRegion.h / 2)
         val cSimilarity = 0.9
-        while (lsRegion.doesntHave("chapters/${ls.chapter}.png", cSimilarity)) {
+        while (lsRegion.doesntContain("chapters/${ls.chapter}.png", cSimilarity)) {
             delay(100)
             val lChapter = (0..6).firstOrNull {
                 yield()
-                lsRegion.has("chapters/$it.png", cSimilarity)
+                lsRegion.contains("chapters/$it.png", cSimilarity)
             } ?: 3
             val hChapter = (6 downTo 0).firstOrNull {
                 yield()
-                lsRegion.has("chapters/$it.png", cSimilarity)
+                lsRegion.contains("chapters/$it.png", cSimilarity)
             } ?: 3
             logger.debug("Visible chapters: [${(lChapter..hChapter).joinToString()}]")
 
@@ -193,7 +193,7 @@ class LogisticsSupportModule(
      */
     private fun missionRunning(mission: Int): Boolean {
         val missionRegion = region.subRegion(704 + (333 * mission), 219, 306, 856)
-        return missionRegion.has("logistics/retreat.png")
+        return missionRegion.contains("logistics/retreat.png")
     }
 
     /**
@@ -204,7 +204,7 @@ class LogisticsSupportModule(
     private suspend fun clickMissionStart(mission: Int) {
         // Left most mission button x: 704 y: 219 w: 306 h: 856
         val missionRegion = region.subRegion(704 + (333 * mission), 219, 306, 856)
-        while (missionRegion.has("logistics/by.png")) {
+        while (missionRegion.contains("logistics/by.png")) {
             missionRegion.clickRandomly(); yield()
         }
     }
