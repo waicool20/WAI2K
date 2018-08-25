@@ -123,8 +123,9 @@ class Wai2KConfig(
 
     fun sikulixJarIsValid(): Boolean {
         if (Files.exists(sikulixJarPath) && Files.isRegularFile(sikulixJarPath)) {
-            val manifest = JarFile(sikulixJarPath.toFile()).manifest
-            return manifest.mainAttributes.getValue("Main-Class") == "org.sikuli.ide.Sikulix"
+            return JarFile(sikulixJarPath.toFile()).manifest?.mainAttributes?.getValue("Main-Class")?.let {
+                it == "org.sikuli.ide.Sikulix" || it == "org.sikuli.script.Sikulix"
+            } ?: false
         }
         return false
     }
