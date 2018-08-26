@@ -134,6 +134,7 @@ open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region
 
     override fun <PSI : Any> exists(target: PSI) = super.exists(target)?.let { AndroidMatch(it, androidScreen) }
     override fun <PSI : Any> exists(target: PSI, timeout: Double) = super.exists(target, timeout)?.let { AndroidMatch(it, androidScreen) }
+    override fun <PSI : Any> has(target: PSI) = super.has(target)?.let { AndroidMatch(it, androidScreen) }
 
     //</editor-fold>
 
@@ -316,10 +317,10 @@ open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region
         return androidScreen.device.takeScreenshot().getSubimage(x, y, w, h)
     }
 
-    override fun <PSI : Any> findOrNull(psi: PSI, similarity: Double, timeout: Double): AndroidMatch? = when (psi) {
-        is String -> exists(Pattern(psi).similar(similarity), timeout)
-        is Pattern -> exists(Pattern(psi).similar(similarity), timeout)
-        is org.sikuli.script.Image -> exists(Pattern(psi).similar(similarity), timeout)
+    override fun <PSI : Any> findOrNull(psi: PSI, similarity: Double): AndroidMatch? = when (psi) {
+        is String -> has(Pattern(psi).similar(similarity))
+        is Pattern -> has(Pattern(psi).similar(similarity))
+        is org.sikuli.script.Image -> has(Pattern(psi).similar(similarity))
         else -> throw IllegalArgumentException()
     }
 
@@ -342,7 +343,7 @@ open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region
     }
 
     override fun <PSI : Any> contains(psi: PSI, similarity: Double) =
-            findOrNull(psi, similarity, 0.6) != null
+            findOrNull(psi, similarity) != null
 
     override fun <PSI : Any> doesntContain(psi: PSI, similarity: Double) =
             !contains(psi, similarity)
