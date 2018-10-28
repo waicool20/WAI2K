@@ -78,8 +78,8 @@ class LogisticsSupportModule(
                     // Remove any logistic support that are being run by other echelons atm
                     .filter { l -> gameState.echelons.none { it.logisticsSupportAssignment?.logisticSupport == l } }
                     // Choose a random logistic support
-                    .shuffled().firstOrNull() ?: return
-            dispatchEchelon(echelon, assignment)
+                    .shuffled().firstOrNull()
+            if (assignment != null) dispatchEchelon(echelon, assignment)
             yield()
         }
     }
@@ -215,7 +215,7 @@ class LogisticsSupportModule(
      * @param echelon Echelon to click
      */
     private suspend fun clickEchelon(echelon: Echelon) {
-        region.subRegion(120, 0, 183, region.h)
+        region.subRegion(115, 0, 150, region.h)
                 .findOrNull("logistics/echelon${echelon.number}.png")?.clickRandomly()
         yield()
     }
