@@ -754,14 +754,14 @@ interface ISikuliRegion {
      * @param PSI [Pattern], [String], [Image]
      * @param similarity Similarity threshold
      */
-    fun <PSI : Any> contains(psi: PSI, similarity: Double = Settings.MinSimilarity): Boolean
+    fun <PSI : Any> has(psi: PSI, similarity: Double = Settings.MinSimilarity): Boolean
 
     /**
-     * Inverse of [contains]
+     * Inverse of [has]
      *
      * @param PSI [Pattern], [String], [Image]
      */
-    fun <PSI : Any> doesntContain(psi: PSI, similarity: Double = Settings.MinSimilarity): Boolean
+    fun <PSI : Any> doesntHave(psi: PSI, similarity: Double = Settings.MinSimilarity): Boolean
 
     /**
      * Gets a sub-region of this region
