@@ -113,18 +113,19 @@ class InitModule(
         logger.info("Reading repair status")
         // Optimize by taking a single screenshot and working on that
         val image = region.takeScreenshot()
-        val firstEntryRegion = region.subRegion(315, 0, 159, region.h)
+
+        val firstEntryRegion = region.subRegion(450, 0, 159, region.h)
         // Find all the echelons that have a girl in repair
         val entries = firstEntryRegion.findAllOrEmpty("init/repairing.png") +
                 firstEntryRegion.findAllOrEmpty("init/standby.png")
 
         // Map each region to whole logistic support entry
         val mappedEntries = entries
-                .map { image.getSubimage(it.x - 111, it.y - 12, 1088, 144) }
+                .map { image.getSubimage(it.x - 110, it.y - 11, 853, 144) }
                 .map {
                     async {
                         // Echelon section on the right without the word "Echelon"
-                        Ocr.forConfig(config).doOCRAndTrim(it.getSubimage(0, 25, 83, 119))
+                        Ocr.forConfig(config).doOCRAndTrim(it.getSubimage(0, 26, 83, 118))
                     } to async { readRepairTimers(it) }
                 }.map { it.first.await().toInt() to it.second.await() }
 
@@ -149,7 +150,7 @@ class InitModule(
         val jobs = List(5) { entry ->
             async {
                 // Single repair entry without the "Repairing" or "Standby"
-                val timer = Ocr.forConfig(config).doOCRAndTrim(image.getSubimage(111 + 176 * entry, 82, 159, 51))
+                val timer = Ocr.forConfig(config).doOCRAndTrim(image.getSubimage(110 + 145 * entry, 82, 134, 28))
                 Regex("(\\d\\d):(\\d\\d):(\\d\\d)").matchEntire(timer)?.groupValues?.let {
                     entry to DurationUtils.of(it[3].toLong(), it[2].toLong(), it[1].toLong())
                 } ?: entry to Duration.ZERO
