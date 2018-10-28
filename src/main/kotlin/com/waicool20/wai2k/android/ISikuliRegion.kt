@@ -309,14 +309,6 @@ interface ISikuliRegion {
      */
     fun <PSI : Any> exists(target: PSI, timeout: Double): AndroidMatch?
 
-    /**
-     * Same as [exists] but only checks once
-     *
-     * @param PSI [Pattern], [String] or [Image].
-     * @param target The target to check for.
-     */
-    fun <PSI : Any> has(target: PSI): AndroidMatch?
-
     //</editor-fold>
 
     //<editor-fold desc="Mouse and Keyboard Actions">
@@ -745,7 +737,8 @@ interface ISikuliRegion {
      */
     fun <PSI : Any> findOrNull(
             psi: PSI,
-            similarity: Double = Settings.MinSimilarity
+            similarity: Double = Settings.MinSimilarity,
+            timeout: Double = Settings.AutoWaitTimeout.toDouble()
     ): AndroidMatch?
 
     /**
