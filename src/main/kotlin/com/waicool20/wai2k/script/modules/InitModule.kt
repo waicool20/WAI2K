@@ -71,21 +71,28 @@ class InitModule(
         logger.info("Reading logistics support status")
         // Optimize by taking a single screenshot and working on that
         val image = region.takeScreenshot()
-        val entry = region.subRegion(347, 0, 229, region.h).findAllOrEmpty("init/logistics.png")
+        val entry = region.subRegion(485, 0, 229, region.h).findAllOrEmpty("init/logistics.png")
                 // Map each region to whole logistic support entry
-                .map { image.getSubimage(it.x - 143, it.y - 22, 976, 144) }
+                .map { image.getSubimage(it.x - 130, it.y - 80, 853, 144) }
                 .map {
-                    async {
-                        // Echelon section on the right without the word "Echelon"
-                        Ocr.forConfig(config).doOCRAndTrim(it.getSubimage(0, 25, 83, 119))
-                    } to async {
-                        // Brown region containing "In logistics x-x xx:xx:xx"
-                        Ocr.forConfig(config).doOCRAndTrim(it.getSubimage(114, 22, 859, 108))
-                    }
+                    listOf(
+                            async {
+                                // Echelon section on the right without the word "Echelon"
+                                Ocr.forConfig(config).doOCRAndTrim(it.getSubimage(0, 26, 83, 118))
+                            },
+                            async {
+                                // Logistics number ie. 1-1
+                                Ocr.forConfig(config).doOCRAndTrim(it.getSubimage(120, 27, 105, 50))
+                            },
+                            async {
+                                // Timer xx:xx:xx
+                                Ocr.forConfig(config).doOCRAndTrim(it.getSubimage(593, 49, 200, 50))
+                            }
+                    )
                 }
-                .map { "${it.first.await()} ${it.second.await()}" }
+                .map { "${it[0].await()} ${it[1].await()} ${it[2].await()}" }
                 .mapNotNull {
-                    Regex("(\\d) In logistics (\\d) - (\\d) (\\d\\d):(\\d\\d):(\\d\\d)").matchEntire(it)?.destructured
+                    Regex("(\\d) (\\d)\\s?-\\s?(\\d) (\\d\\d):(\\d\\d):(\\d\\d)").matchEntire(it)?.destructured
                 }
         // Clear existing timers
         gameState.echelons.forEach { it.logisticsSupportAssignment = null }
