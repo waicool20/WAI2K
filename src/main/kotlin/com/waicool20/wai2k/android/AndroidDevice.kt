@@ -99,10 +99,16 @@ class AndroidDevice(
         }
 
         val deviceInfo = readDeviceInfo() ?: run {
-            logger.warn("Failed to read device info, will try to restart adb and retry")
-            adbServer.restart()
-            adbServer.waitForInitialized()
-            readDeviceInfo()
+            repeat(5) { i ->
+                logger.warn("Failed to read device info, will try to restart adb and retry")
+                adbServer.restart()
+                adbServer.waitForInitialized()
+                readDeviceInfo()?.let {
+                    logger.info("Restarted ${i + 1} times")
+                    return@run it
+                }
+            }
+            null
         } ?: error("This screen does not support touch/tap events")
 
         input = AndroidInput.parse(deviceInfo)
