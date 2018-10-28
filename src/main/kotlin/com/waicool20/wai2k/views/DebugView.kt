@@ -31,7 +31,6 @@ import org.sikuli.script.Pattern
 import tornadofx.*
 import java.nio.file.Files
 import java.nio.file.Paths
-import kotlin.system.measureTimeMillis
 
 class DebugView : View() {
     override val root: VBox by fxml("/views/debug.fxml")
@@ -74,10 +73,9 @@ class DebugView : View() {
                     return
                 }
                 // Set similarity to 0.1 to make sikulix report the similarity value down to 0.1
-                measureTimeMillis {
-                    device.screen.findAllOrEmpty(Pattern("${path.fileName}").similar(0.1))
-                            .forEach { logger.info("Found ${path.fileName}: $it") }
-                }.let { logger.info("Search complete, took $it ms") }
+                device.screen.exists(Pattern(path.fileName.toString()).similar(0.1))
+                        ?.let { logger.info("Found ${path.fileName}: $it") }
+                        ?: run { logger.warn("Could not find the asset anywhere") }
                 ImagePath.remove(path.parent.toString())
             } else {
                 logger.warn("That asset doesn't exist!")
