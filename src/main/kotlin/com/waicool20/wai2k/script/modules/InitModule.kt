@@ -78,7 +78,7 @@ class InitModule(
                     listOf(
                             async {
                                 // Echelon section on the right without the word "Echelon"
-                                Ocr.forConfig(config).doOCRAndTrim(it.getSubimage(0, 26, 83, 118))
+                                Ocr.forConfig(config, digitsOnly = true).doOCRAndTrim(it.getSubimage(0, 26, 83, 118))
                             },
                             async {
                                 // Logistics number ie. 1-1
@@ -125,7 +125,7 @@ class InitModule(
                 .map {
                     async {
                         // Echelon section on the right without the word "Echelon"
-                        Ocr.forConfig(config).doOCRAndTrim(it.getSubimage(0, 26, 83, 118))
+                        Ocr.forConfig(config, digitsOnly = true).doOCRAndTrim(it.getSubimage(0, 26, 83, 118))
                     } to async { readRepairTimers(it) }
                 }.map { it.first.await().toInt() to it.second.await() }
 
