@@ -72,10 +72,12 @@ class DebugView : View() {
                     logger.warn("Could not find device!")
                     return
                 }
-                // Set similarity to 0.1f to make sikulix report the similarity value down to 0.1
-                device.screen.exists(Pattern(path.fileName.toString()).similar(0.1f))
-                        ?.let { logger.info("Found ${path.fileName}: $it") }
-                        ?: run { logger.warn("Could not find the asset anywhere") }
+                // Set similarity to 0.1f to make sikulix report the similarity value down to 0.6
+                device.screen.findAllOrEmpty(Pattern(path.fileName.toString()).similar(0.6f))
+                        .takeIf { it.isNotEmpty() }
+                        ?.forEach {
+                            logger.info("Found ${path.fileName}: $it")
+                        } ?: run { logger.warn("Could not find the asset anywhere") }
                 ImagePath.remove(path.parent.toString())
             } else {
                 logger.warn("That asset doesn't exist!")
