@@ -33,8 +33,10 @@ import javafx.scene.control.ComboBox
 import javafx.scene.control.SplitMenuButton
 import javafx.scene.control.Tooltip
 import javafx.scene.layout.HBox
-import kotlinx.coroutines.experimental.javafx.JavaFx
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.javafx.JavaFx
+import kotlinx.coroutines.launch
 import org.controlsfx.glyphfont.FontAwesome
 import org.controlsfx.glyphfont.Glyph
 import tornadofx.*
@@ -90,14 +92,14 @@ class HeaderView : View() {
 
     override fun onRefresh() {
         super.onRefresh()
-        launch { setNewProfile(Wai2KProfile.load(wai2KContext.currentProfile.path)) }
+        GlobalScope.launch { setNewProfile(Wai2KProfile.load(wai2KContext.currentProfile.path)) }
     }
 
     private fun createBindings() {
         profileComboBox.bind(wai2KContext.currentProfile.nameProperty)
         wai2KContext.currentProfileProperty.addListener("HeaderViewProfile") { newVal ->
             createBindings()
-            launch(JavaFx) {
+            GlobalScope.launch(Dispatchers.JavaFx) {
                 Tooltip("Profile ${newVal.name} has been loaded!").apply {
                     fadeAfter(700)
                     showAt(profileComboBox, TooltipSide.TOP_LEFT)
@@ -116,7 +118,7 @@ class HeaderView : View() {
 
     private fun selectProfile() {
         val newProfile = profileComboBox.value
-        launch { setNewProfile(Wai2KProfile.load(newProfile)) }
+        GlobalScope.launch { setNewProfile(Wai2KProfile.load(newProfile)) }
     }
 
     private fun setNewProfile(profile: Wai2KProfile) {
@@ -139,7 +141,7 @@ class HeaderView : View() {
         }
     }
 
-    private fun onStartPause() = launch(JavaFx) {
+    private fun onStartPause() = GlobalScope.launch(Dispatchers.JavaFx) {
         if (scriptRunner.isRunning) {
             if (scriptRunner.isPaused) {
                 scriptRunner.isPaused = false
@@ -160,12 +162,12 @@ class HeaderView : View() {
     }
 
 
-    private fun onStop() = launch(JavaFx) {
+    private fun onStop() = GlobalScope.launch(Dispatchers.JavaFx) {
         startPauseButton.text = "Start"
         stopButton.hide()
     }
 
-    private fun startScriptMonitor() = launch(JavaFx) {
+    private fun startScriptMonitor() = GlobalScope.launch(Dispatchers.JavaFx) {
         scriptRunner.scriptJob?.join()
         onStop()
     }

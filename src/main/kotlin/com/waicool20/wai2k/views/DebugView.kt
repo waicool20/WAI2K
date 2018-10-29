@@ -25,7 +25,8 @@ import javafx.scene.control.Button
 import javafx.scene.control.TextField
 import javafx.scene.layout.VBox
 import javafx.stage.FileChooser
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.sikuli.script.ImagePath
 import org.sikuli.script.Pattern
 import tornadofx.*
@@ -58,7 +59,7 @@ class DebugView : View() {
             }
         }
 
-        testButton.setOnAction { launch { testPath() } }
+        testButton.setOnAction { GlobalScope.launch { testPath() } }
     }
 
     private fun testPath() {

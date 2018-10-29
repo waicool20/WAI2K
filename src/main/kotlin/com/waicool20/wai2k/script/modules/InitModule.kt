@@ -33,8 +33,7 @@ import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.wai2k.util.formatted
 import com.waicool20.waicoolutils.DurationUtils
 import com.waicool20.waicoolutils.logging.loggerFor
-import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.*
 import java.awt.image.BufferedImage
 import java.time.Duration
 import java.time.Instant
@@ -56,8 +55,8 @@ class InitModule(
     private suspend fun updateGameState() {
         navigator.navigateTo(LocationId.HOME_STATUS)
         logger.info("Updating gamestate")
-        val repairJob = launch { updateRepairs() }
-        val logisticJob = launch { updateLogistics() }
+        val repairJob = GlobalScope.launch { updateRepairs() }
+        val logisticJob = GlobalScope.launch { updateLogistics() }
         repairJob.join()
         logisticJob.join()
         logger.info("Finished updating game state")
@@ -76,15 +75,15 @@ class InitModule(
                 .map { image.getSubimage(it.x - 130, it.y - 80, 853, 144) }
                 .map {
                     listOf(
-                            async {
+                            GlobalScope.async {
                                 // Echelon section on the right without the word "Echelon"
                                 Ocr.forConfig(config, digitsOnly = true).doOCRAndTrim(it.getSubimage(0, 26, 83, 118))
                             },
-                            async {
+                            GlobalScope.async {
                                 // Logistics number ie. 1-1
                                 Ocr.forConfig(config).doOCRAndTrim(it.getSubimage(120, 27, 105, 50))
                             },
-                            async {
+                            GlobalScope.async {
                                 // Timer xx:xx:xx
                                 Ocr.forConfig(config).doOCRAndTrim(it.getSubimage(593, 49, 200, 50))
                             }
@@ -123,10 +122,10 @@ class InitModule(
         val mappedEntries = entries
                 .map { image.getSubimage(it.x - 110, it.y - 11, 853, 144) }
                 .map {
-                    async {
+                    GlobalScope.async {
                         // Echelon section on the right without the word "Echelon"
                         Ocr.forConfig(config, digitsOnly = true).doOCRAndTrim(it.getSubimage(0, 26, 83, 118))
-                    } to async { readRepairTimers(it) }
+                    } to GlobalScope.async { readRepairTimers(it) }
                 }.map { it.first.await().toInt() to it.second.await() }
 
         // Clear existing timers
@@ -148,7 +147,7 @@ class InitModule(
      */
     private suspend fun readRepairTimers(image: BufferedImage): Map<Int, Duration> {
         val jobs = List(5) { entry ->
-            async {
+            GlobalScope.async {
                 // Single repair entry without the "Repairing" or "Standby"
                 val timer = Ocr.forConfig(config).doOCRAndTrim(image.getSubimage(110 + 145 * entry, 82, 134, 28))
                 Regex("(\\d\\d):(\\d\\d):(\\d\\d)").matchEntire(timer)?.groupValues?.let {

@@ -30,8 +30,8 @@ import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptStats
 import com.waicool20.wai2k.util.formatted
 import com.waicool20.waicoolutils.logging.loggerFor
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.yield
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.yield
 import java.time.Instant
 
 class LogisticsSupportModule(
@@ -215,6 +215,7 @@ class LogisticsSupportModule(
      * @param echelon Echelon to click
      */
     private suspend fun clickEchelon(echelon: Echelon) {
+        // TODO: Add support for clicking echelons not on screen
         region.subRegion(115, 0, 150, region.h)
                 .findOrNull("logistics/echelon${echelon.number}.png")?.clickRandomly()
         yield()

@@ -27,12 +27,13 @@ import com.waicool20.wai2k.game.GameState
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.waicoolutils.logging.loggerFor
-import kotlinx.coroutines.experimental.channels.Channel
-import kotlinx.coroutines.experimental.channels.consumeEach
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.*
-import kotlin.coroutines.experimental.coroutineContext
+import kotlin.coroutines.coroutineContext
 
 class Navigator(
         private val scriptStats: ScriptStats,
@@ -55,7 +56,7 @@ class Navigator(
             val channel = Channel<GameLocation?>()
             val jobs = locations.entries.sortedBy { it.value.isIntermediate }
                     .map { (_, model) ->
-                        launch { channel.send(model.takeIf { model.isInRegion(region) }) }
+                        GlobalScope.launch { channel.send(model.takeIf { model.isInRegion(region) }) }
                     }
             channel.consumeEach {
                 it?.let { model ->

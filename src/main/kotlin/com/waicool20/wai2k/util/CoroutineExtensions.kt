@@ -19,12 +19,12 @@
 
 package com.waicool20.wai2k.util
 
-import kotlinx.coroutines.experimental.cancel
-import kotlinx.coroutines.experimental.yield
-import kotlin.coroutines.experimental.CoroutineContext
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.yield
+import kotlin.coroutines.CoroutineContext
 
-suspend fun CoroutineContext.cancelAndYield(cause: Throwable? = null): Nothing {
-    cancel(cause)
+suspend fun CoroutineContext.cancelAndYield(): Nothing {
+    cancel()
     yield()
     error("Coroutine cancelled and yielded, this should not be reached")
 }

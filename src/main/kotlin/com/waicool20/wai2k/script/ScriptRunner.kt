@@ -30,12 +30,12 @@ import com.waicool20.wai2k.script.modules.InitModule
 import com.waicool20.wai2k.script.modules.ScriptModule
 import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.waicoolutils.logging.loggerFor
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.*
 import org.reflections.Reflections
 import org.sikuli.basics.Settings
 import java.time.Instant
 import java.util.concurrent.TimeUnit
-import kotlin.coroutines.experimental.coroutineContext
+import kotlin.coroutines.coroutineContext
 import kotlin.reflect.full.primaryConstructor
 
 class ScriptRunner(
@@ -77,7 +77,7 @@ class ScriptRunner(
         lastStartTime = Instant.now()
         scriptStats.reset()
         gameState.reset()
-        scriptJob = launch(dispatcher) {
+        scriptJob = GlobalScope.launch(dispatcher) {
             reload(true)
             while (isActive) {
                 runScriptCycle()
@@ -144,7 +144,7 @@ class ScriptRunner(
         if (modules.isEmpty()) coroutineContext.cancelAndYield()
         modules.forEach { it.execute() }
         do {
-            delay(currentConfig.scriptConfig.loopDelay.toLong(), TimeUnit.SECONDS)
+            delay(currentConfig.scriptConfig.loopDelay * 1000L)
         } while (isPaused)
     }
 }
