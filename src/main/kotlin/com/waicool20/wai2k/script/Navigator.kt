@@ -29,7 +29,6 @@ import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.*
@@ -51,22 +50,22 @@ class Navigator(
      */
     suspend fun identifyCurrentLocation(retries: Int = 3): GameLocation {
         logger.info("Identifying current location")
-        repeat(retries) {
+        repeat(retries) { i ->
             checkLogistics()
             val channel = Channel<GameLocation?>()
             val jobs = locations.entries.sortedBy { it.value.isIntermediate }
                     .map { (_, model) ->
                         GlobalScope.launch { channel.send(model.takeIf { model.isInRegion(region) }) }
                     }
-            channel.consumeEach {
-                it?.let { model ->
+            for (loc in channel) {
+                loc?.let { model ->
                     logger.info("GameLocation found: $model")
                     gameState.currentGameLocation = model
                     return model
                 }
                 if (jobs.all { it.isCompleted }) channel.close()
             }
-            logger.warn("Could not find location in after ${it + 1} attempts, retries remaining: ${retries - it - 1}")
+            logger.warn("Could not find location in after ${i + 1} attempts, retries remaining: ${retries - i - 1}")
             delay(1000)
         }
         logger.warn("Current location could not be identified")
