@@ -24,6 +24,7 @@ import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.script.ScriptContext
 import com.waicool20.waicoolutils.javafx.AlertFactory
+import com.waicool20.waicoolutils.javafx.CoroutineScopeView
 import com.waicool20.waicoolutils.javafx.addListener
 import com.waicool20.waicoolutils.javafx.tooltips.TooltipSide
 import com.waicool20.waicoolutils.javafx.tooltips.fadeAfter
@@ -34,8 +35,6 @@ import javafx.scene.control.SplitMenuButton
 import javafx.scene.control.Tooltip
 import javafx.scene.layout.HBox
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.javafx.JavaFx
 import kotlinx.coroutines.launch
 import org.controlsfx.glyphfont.FontAwesome
 import org.controlsfx.glyphfont.Glyph
@@ -43,7 +42,7 @@ import tornadofx.*
 import java.nio.file.Files
 import kotlin.streams.toList
 
-class HeaderView : View() {
+class HeaderView : CoroutineScopeView() {
     override val root: HBox by fxml("/views/header.fxml")
 
     private val PLAY_GLYPH = Glyph("FontAwesome", FontAwesome.Glyph.PLAY)
@@ -92,14 +91,14 @@ class HeaderView : View() {
 
     override fun onRefresh() {
         super.onRefresh()
-        GlobalScope.launch { setNewProfile(Wai2KProfile.load(wai2KContext.currentProfile.path)) }
+        launch(Dispatchers.Default) { setNewProfile(Wai2KProfile.load(wai2KContext.currentProfile.path)) }
     }
 
     private fun createBindings() {
         profileComboBox.bind(wai2KContext.currentProfile.nameProperty)
         wai2KContext.currentProfileProperty.addListener("HeaderViewProfile") { newVal ->
             createBindings()
-            GlobalScope.launch(Dispatchers.JavaFx) {
+            launch {
                 Tooltip("Profile ${newVal.name} has been loaded!").apply {
                     fadeAfter(700)
                     showAt(profileComboBox, TooltipSide.TOP_LEFT)
@@ -118,7 +117,7 @@ class HeaderView : View() {
 
     private fun selectProfile() {
         val newProfile = profileComboBox.value
-        GlobalScope.launch { setNewProfile(Wai2KProfile.load(newProfile)) }
+        launch(Dispatchers.Default) { setNewProfile(Wai2KProfile.load(newProfile)) }
     }
 
     private fun setNewProfile(profile: Wai2KProfile) {
@@ -141,33 +140,36 @@ class HeaderView : View() {
         }
     }
 
-    private fun onStartPause() = GlobalScope.launch(Dispatchers.JavaFx) {
-        if (scriptRunner.isRunning) {
-            if (scriptRunner.isPaused) {
-                scriptRunner.isPaused = false
-                startPauseButton.text = "Pause"
+    private fun onStartPause() {
+        println("Hello")
+        launch {
+            if (scriptRunner.isRunning) {
+                if (scriptRunner.isPaused) {
+                    scriptRunner.isPaused = false
+                    startPauseButton.text = "Pause"
+                } else {
+                    scriptRunner.isPaused = true
+                    startPauseButton.text = "Cont."
+                }
             } else {
-                scriptRunner.isPaused = true
-                startPauseButton.text = "Cont."
+                scriptRunner.apply {
+                    config = wai2KContext.wai2KConfig
+                    profile = wai2KContext.currentProfile
+                }.run()
+                startPauseButton.text = "Pause"
+                stopButton.show()
+                startScriptMonitor()
             }
-        } else {
-            scriptRunner.apply {
-                config = wai2KContext.wai2KConfig
-                profile = wai2KContext.currentProfile
-            }.run()
-            startPauseButton.text = "Pause"
-            stopButton.show()
-            startScriptMonitor()
         }
     }
 
 
-    private fun onStop() = GlobalScope.launch(Dispatchers.JavaFx) {
+    private fun onStop() = launch {
         startPauseButton.text = "Start"
         stopButton.hide()
     }
 
-    private fun startScriptMonitor() = GlobalScope.launch {
+    private fun startScriptMonitor() = launch(Dispatchers.Default) {
         scriptRunner.join()
         onStop()
     }
