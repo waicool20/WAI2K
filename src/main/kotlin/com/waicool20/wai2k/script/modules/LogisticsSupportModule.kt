@@ -151,8 +151,10 @@ class LogisticsSupportModule(
     private suspend fun clickLogisticSupportChapter(ls: LogisticsSupport) {
         logger.info("Choosing logistics support chapter ${ls.chapter}")
         val lsRegion = region.subRegion(407, 146, 283, 934)
-        val upperSwipeRegion = lsRegion.subRegion(0, 0, lsRegion.w, lsRegion.h / 2)
-        val lowerSwipeRegion = lsRegion.subRegion(0, lsRegion.h / 2, lsRegion.w, lsRegion.h / 2)
+        // Top 1/4 part of lsRegioni can test it out
+        val upperSwipeRegion = lsRegion.subRegion(lsRegion.w / 2 - 15, 0, 30, lsRegion.h / 4)
+        // Lower 1/4 part of lsRegion
+        val lowerSwipeRegion = lsRegion.subRegion(lsRegion.w / 2 - 15, lsRegion.h / 4 + lsRegion.h / 2, 30, lsRegion.h / 4)
         val cSimilarity = 0.9
         while (lsRegion.doesntHave("chapters/${ls.chapter}.png", cSimilarity)) {
             delay(100)
