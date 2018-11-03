@@ -22,17 +22,23 @@ package com.waicool20.wai2k.script.modules
 import com.waicool20.wai2k.android.AndroidRegion
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
-import com.waicool20.wai2k.game.GameState
 import com.waicool20.wai2k.script.Navigator
-import com.waicool20.wai2k.script.ScriptStats
+import com.waicool20.wai2k.script.ScriptRunner
+import kotlinx.coroutines.CoroutineScope
+import kotlin.coroutines.CoroutineContext
 
 abstract class ScriptModule(
-        protected val scriptStats: ScriptStats,
-        protected val gameState: GameState,
+        protected val scriptRunner: ScriptRunner,
         protected val region: AndroidRegion,
         protected val config: Wai2KConfig,
         protected val profile: Wai2KProfile,
         protected val navigator: Navigator
-) {
+) : CoroutineScope {
+    override val coroutineContext: CoroutineContext
+        get() = scriptRunner.coroutineContext
+
+    val gameState get() = scriptRunner.gameState
+    val scriptStats get() = scriptRunner.scriptStats
+
     abstract suspend fun execute()
 }

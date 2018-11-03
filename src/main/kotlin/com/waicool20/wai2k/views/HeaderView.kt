@@ -167,8 +167,8 @@ class HeaderView : View() {
         stopButton.hide()
     }
 
-    private fun startScriptMonitor() = GlobalScope.launch(Dispatchers.JavaFx) {
-        scriptRunner.scriptJob?.join()
+    private fun startScriptMonitor() = GlobalScope.launch {
+        scriptRunner.join()
         onStop()
     }
 }

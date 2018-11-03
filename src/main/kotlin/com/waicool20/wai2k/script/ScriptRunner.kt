@@ -34,16 +34,17 @@ import kotlinx.coroutines.*
 import org.reflections.Reflections
 import org.sikuli.basics.Settings
 import java.time.Instant
-import java.util.concurrent.TimeUnit
-import kotlin.coroutines.coroutineContext
+import kotlin.coroutines.CoroutineContext
 import kotlin.reflect.full.primaryConstructor
 
 class ScriptRunner(
         wai2KConfig: Wai2KConfig = Wai2KConfig(),
         wai2KProfile: Wai2KProfile = Wai2KProfile(),
         private val adbServer: AdbServer = AdbServer()
-) {
-    private val dispatcher = newSingleThreadContext("Wai2K Script Runner Context")
+) : CoroutineScope {
+    private var scriptJob: Job? = null
+    override val coroutineContext: CoroutineContext
+        get() = scriptJob?.plus(Dispatchers.Default) ?: Dispatchers.Default
 
     private val logger = loggerFor<ScriptRunner>()
     private var currentDevice: AndroidDevice? = null
@@ -52,8 +53,6 @@ class ScriptRunner(
 
     var config: Wai2KConfig? = null
     var profile: Wai2KProfile? = null
-
-    var scriptJob: Job? = null
 
     var isPaused: Boolean = false
     val isRunning get() = scriptJob?.isActive == true
@@ -77,7 +76,7 @@ class ScriptRunner(
         lastStartTime = Instant.now()
         scriptStats.reset()
         gameState.reset()
-        scriptJob = GlobalScope.launch(dispatcher) {
+        scriptJob = launch {
             reload(true)
             while (isActive) {
                 runScriptCycle()
@@ -115,21 +114,21 @@ class ScriptRunner(
         if (reloadModules) {
             logger.info("Reloading modules")
             modules.clear()
-            val nav = Navigator(scriptStats, gameState, region, currentConfig, currentProfile)
-            modules.add(InitModule(scriptStats, gameState, region, currentConfig, currentProfile, nav))
+            val nav = Navigator(this, region, currentConfig, currentProfile)
+            modules.add(InitModule(this, region, currentConfig, currentProfile, nav))
             Reflections("com.waicool20.wai2k.script.modules")
                     .getSubTypesOf(ScriptModule::class.java)
                     .map { it.kotlin }.filterNot { it.isAbstract }
                     .filterNot { it == InitModule::class }
                     .mapNotNull {
-                        it.primaryConstructor?.call(scriptStats, gameState, region, currentConfig, currentProfile, nav)
+                        it.primaryConstructor?.call(this, region, currentConfig, currentProfile, nav)
                     }
                     .let { modules.addAll(it) }
             modules.map { it::class.simpleName }.forEach { logger.info("Loaded new instance of $it") }
         }
     }
 
-    fun waitFor() = runBlocking {
+    fun join() = runBlocking {
         scriptJob?.join()
     }
 

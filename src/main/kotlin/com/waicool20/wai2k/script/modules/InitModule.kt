@@ -22,30 +22,29 @@ package com.waicool20.wai2k.script.modules
 import com.waicool20.wai2k.android.AndroidRegion
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
-import com.waicool20.wai2k.game.GameState
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.game.LogisticsSupport
 import com.waicool20.wai2k.game.LogisticsSupport.Assignment
 import com.waicool20.wai2k.script.Navigator
-import com.waicool20.wai2k.script.ScriptStats
+import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.wai2k.util.formatted
 import com.waicool20.waicoolutils.DurationUtils
 import com.waicool20.waicoolutils.logging.loggerFor
-import kotlinx.coroutines.*
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import java.awt.image.BufferedImage
 import java.time.Duration
 import java.time.Instant
 
 class InitModule(
-        scriptStats: ScriptStats,
-        gameState: GameState,
+        scriptRunner: ScriptRunner,
         region: AndroidRegion,
         config: Wai2KConfig,
         profile: Wai2KProfile,
         navigator: Navigator
-) : ScriptModule(scriptStats, gameState, region, config, profile, navigator) {
+) : ScriptModule(scriptRunner, region, config, profile, navigator) {
     private val logger = loggerFor<InitModule>()
     override suspend fun execute() {
         navigator.checkLogistics()
@@ -55,8 +54,8 @@ class InitModule(
     private suspend fun updateGameState() {
         navigator.navigateTo(LocationId.HOME_STATUS)
         logger.info("Updating gamestate")
-        val repairJob = GlobalScope.launch { updateRepairs() }
-        val logisticJob = GlobalScope.launch { updateLogistics() }
+        val repairJob = launch { updateRepairs() }
+        val logisticJob = launch { updateLogistics() }
         repairJob.join()
         logisticJob.join()
         logger.info("Finished updating game state")
@@ -75,15 +74,15 @@ class InitModule(
                 .map { image.getSubimage(it.x - 130, it.y - 80, 853, 144) }
                 .map {
                     listOf(
-                            GlobalScope.async {
+                            async {
                                 // Echelon section on the right without the word "Echelon"
                                 Ocr.forConfig(config, digitsOnly = true).doOCRAndTrim(it.getSubimage(0, 26, 83, 118))
                             },
-                            GlobalScope.async {
+                            async {
                                 // Logistics number ie. 1-1
                                 Ocr.forConfig(config).doOCRAndTrim(it.getSubimage(120, 27, 105, 50))
                             },
-                            GlobalScope.async {
+                            async {
                                 // Timer xx:xx:xx
                                 Ocr.forConfig(config).doOCRAndTrim(it.getSubimage(593, 49, 200, 50))
                             }
@@ -122,10 +121,10 @@ class InitModule(
         val mappedEntries = entries
                 .map { image.getSubimage(it.x - 110, it.y - 11, 853, 144) }
                 .map {
-                    GlobalScope.async {
+                    async {
                         // Echelon section on the right without the word "Echelon"
                         Ocr.forConfig(config, digitsOnly = true).doOCRAndTrim(it.getSubimage(0, 26, 83, 118))
-                    } to GlobalScope.async { readRepairTimers(it) }
+                    } to async { readRepairTimers(it) }
                 }.map { it.first.await().toInt() to it.second.await() }
 
         // Clear existing timers
@@ -147,7 +146,7 @@ class InitModule(
      */
     private suspend fun readRepairTimers(image: BufferedImage): Map<Int, Duration> {
         val jobs = List(5) { entry ->
-            GlobalScope.async {
+            async {
                 // Single repair entry without the "Repairing" or "Standby"
                 val timer = Ocr.forConfig(config).doOCRAndTrim(image.getSubimage(110 + 145 * entry, 82, 134, 28))
                 Regex("(\\d\\d):(\\d\\d):(\\d\\d)").matchEntire(timer)?.groupValues?.let {

@@ -22,19 +22,16 @@ package com.waicool20.wai2k.script.modules
 import com.waicool20.wai2k.android.AndroidRegion
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
-import com.waicool20.wai2k.game.GameState
-import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.Navigator
-import com.waicool20.wai2k.script.ScriptStats
+import com.waicool20.wai2k.script.ScriptRunner
 
 class CombatModule(
-        scriptStats: ScriptStats,
-        gameState: GameState,
+        scriptRunner: ScriptRunner,
         region: AndroidRegion,
         config: Wai2KConfig,
         profile: Wai2KProfile,
         navigator: Navigator
-): ScriptModule(scriptStats, gameState, region, config, profile, navigator) {
+) : ScriptModule(scriptRunner, region, config, profile, navigator) {
     override suspend fun execute() {
         //navigator.navigateTo(LocationId.COMBAT)
     }

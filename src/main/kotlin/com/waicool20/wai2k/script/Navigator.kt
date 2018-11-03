@@ -23,25 +23,27 @@ import com.waicool20.wai2k.android.AndroidRegion
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.game.GameLocation
-import com.waicool20.wai2k.game.GameState
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.waicoolutils.logging.loggerFor
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.*
-import kotlin.coroutines.coroutineContext
+import kotlin.coroutines.CoroutineContext
 
 class Navigator(
-        private val scriptStats: ScriptStats,
-        private val gameState: GameState,
+        private val scriptRunner: ScriptRunner,
         private val region: AndroidRegion,
         private val config: Wai2KConfig,
         private val profile: Wai2KProfile
-) {
+) : CoroutineScope {
+    override val coroutineContext: CoroutineContext
+        get() = scriptRunner.coroutineContext
     private val logger = loggerFor<Navigator>()
+    private val gameState get() = scriptRunner.gameState
+    private val scriptStats get() = scriptRunner.scriptStats
     private val locations by lazy { GameLocation.mappings(config, true) }
     /**
      * Finds the current location
@@ -55,7 +57,7 @@ class Navigator(
             val channel = Channel<GameLocation?>()
             val jobs = locations.entries.sortedBy { it.value.isIntermediate }
                     .map { (_, model) ->
-                        GlobalScope.launch { channel.send(model.takeIf { model.isInRegion(region) }) }
+                        launch { channel.send(model.takeIf { model.isInRegion(region) }) }
                     }
             for (loc in channel) {
                 loc?.let { model ->
