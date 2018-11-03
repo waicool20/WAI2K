@@ -136,6 +136,7 @@ class ScriptRunner(
         logger.info("Stopping the script")
         isPaused = false
         scriptJob?.cancel()
+        scriptJob = null
     }
 
     private suspend fun runScriptCycle() {

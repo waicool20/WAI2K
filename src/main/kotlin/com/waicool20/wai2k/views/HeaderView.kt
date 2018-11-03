@@ -140,26 +140,23 @@ class HeaderView : CoroutineScopeView() {
         }
     }
 
-    private fun onStartPause() {
-        println("Hello")
-        launch {
-            if (scriptRunner.isRunning) {
-                if (scriptRunner.isPaused) {
-                    scriptRunner.isPaused = false
-                    startPauseButton.text = "Pause"
-                } else {
-                    scriptRunner.isPaused = true
-                    startPauseButton.text = "Cont."
-                }
-            } else {
-                scriptRunner.apply {
-                    config = wai2KContext.wai2KConfig
-                    profile = wai2KContext.currentProfile
-                }.run()
+    private fun onStartPause() = launch {
+        if (scriptRunner.isRunning) {
+            if (scriptRunner.isPaused) {
+                scriptRunner.isPaused = false
                 startPauseButton.text = "Pause"
-                stopButton.show()
-                startScriptMonitor()
+            } else {
+                scriptRunner.isPaused = true
+                startPauseButton.text = "Cont."
             }
+        } else {
+            scriptRunner.apply {
+                config = wai2KContext.wai2KConfig
+                profile = wai2KContext.currentProfile
+            }.run()
+            startPauseButton.text = "Pause"
+            stopButton.show()
+            startScriptMonitor()
         }
     }
 
