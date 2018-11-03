@@ -44,7 +44,7 @@ class ScriptRunner(
 ) : CoroutineScope {
     private var scriptJob: Job? = null
     override val coroutineContext: CoroutineContext
-        get() = scriptJob?.plus(Dispatchers.Default) ?: Dispatchers.Default
+        get() = scriptJob?.takeIf { it.isActive }?.let { it + Dispatchers.Default } ?: Dispatchers.Default
 
     private val logger = loggerFor<ScriptRunner>()
     private var currentDevice: AndroidDevice? = null
@@ -136,7 +136,6 @@ class ScriptRunner(
         logger.info("Stopping the script")
         isPaused = false
         scriptJob?.cancel()
-        scriptJob = null
     }
 
     private suspend fun runScriptCycle() {
