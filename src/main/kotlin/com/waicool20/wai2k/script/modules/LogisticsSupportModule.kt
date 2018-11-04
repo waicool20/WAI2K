@@ -29,6 +29,8 @@ import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.formatted
 import com.waicool20.waicoolutils.logging.loggerFor
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
 import java.time.Instant
@@ -111,10 +113,8 @@ class LogisticsSupportModule(
         }
 
         // Start mission
-        logger.debug("Opening up the logistic support menu")
         clickMissionStart(missionIndex)
         region.waitSuspending("logistics/formation.png", 10)
-        logger.debug("Clicking the echelon")
         clickEchelon(echelon)
         // Click ok button
         delay(300)
@@ -151,29 +151,23 @@ class LogisticsSupportModule(
     private suspend fun clickLogisticSupportChapter(ls: LogisticsSupport) {
         logger.info("Choosing logistics support chapter ${ls.chapter}")
         val lsRegion = region.subRegion(407, 146, 283, 934)
-        // Top 1/4 part of lsRegioni can test it out
+        // Top 1/4 part of lsRegion
         val upperSwipeRegion = lsRegion.subRegion(lsRegion.w / 2 - 15, 0, 30, lsRegion.h / 4)
         // Lower 1/4 part of lsRegion
         val lowerSwipeRegion = lsRegion.subRegion(lsRegion.w / 2 - 15, lsRegion.h / 4 + lsRegion.h / 2, 30, lsRegion.h / 4)
         val cSimilarity = 0.9
         while (lsRegion.doesntHave("chapters/${ls.chapter}.png", cSimilarity)) {
             delay(100)
-            val lChapter = (0..6).firstOrNull {
-                yield()
-                lsRegion.has("chapters/$it.png", cSimilarity)
-            } ?: 3
-            val hChapter = (6 downTo 0).firstOrNull {
-                yield()
-                lsRegion.has("chapters/$it.png", cSimilarity)
-            } ?: 3
-            logger.debug("Visible chapters: [${(lChapter..hChapter).joinToString()}]")
-
+            val chapters = (0..7).map {
+                it to GlobalScope.async { lsRegion.has("chapters/$it.png", cSimilarity) }
+            }.filter { it.second.await() }.map { it.first }
+            logger.debug("Visible chapters: $chapters")
             when {
-                ls.chapter < lChapter -> {
+                ls.chapter <= chapters.min() ?: 3 -> {
                     logger.debug("Swiping down the chapters")
                     upperSwipeRegion.swipeToRandomly(lowerSwipeRegion)
                 }
-                ls.chapter > hChapter -> {
+                ls.chapter >= chapters.max() ?: 4 -> {
                     logger.debug("Swiping up the chapters")
                     lowerSwipeRegion.swipeToRandomly(upperSwipeRegion)
                 }
@@ -202,6 +196,7 @@ class LogisticsSupportModule(
      * @param mission Index of mission from left to right 0-3
      */
     private suspend fun clickMissionStart(mission: Int) {
+        logger.debug("Opening up the logistic support menu")
         // Left most mission button x: 704 y: 219 w: 306 h: 856
         val missionRegion = region.subRegion(704 + (333 * mission), 219, 306, 856)
         while (missionRegion.has("logistics/by.png")) {
@@ -215,9 +210,30 @@ class LogisticsSupportModule(
      * @param echelon Echelon to click
      */
     private suspend fun clickEchelon(echelon: Echelon) {
-        // TODO: Add support for clicking echelons not on screen
-        region.subRegion(115, 0, 150, region.h)
-                .findOrNull("logistics/echelon${echelon.number}.png")?.clickRandomly()
+        logger.debug("Clicking the echelon")
+        val eRegion = region.subRegion(119, 0, 150, region.h)
+
+        while (eRegion.doesntHave("logistics/echelon${echelon.number}.png")) {
+            delay(100)
+            val echelons = (1..7).map {
+                it to GlobalScope.async { eRegion.findOrNull("logistics/echelon$it.png") }
+            }.mapNotNull { p -> p.second.await()?.let { p.first to it } }
+            logger.debug("Visible echelons: ${echelons.map { it.first }}")
+            val lEchelon = echelons.minBy { it.first } ?: echelons.first()
+            val hEchelon = echelons.maxBy { it.first } ?: echelons.last()
+            when {
+                echelon.number <= lEchelon.first -> {
+                    logger.debug("Swiping down the echelons")
+                    lEchelon.second.swipeToRandomly(hEchelon.second)
+                }
+                echelon.number >= hEchelon.first -> {
+                    logger.debug("Swiping up the echelons")
+                    hEchelon.second.swipeToRandomly(lEchelon.second)
+                }
+            }
+            delay(300)
+        }
+        eRegion.findOrNull("logistics/echelon${echelon.number}.png")?.clickRandomly()
         yield()
     }
 
