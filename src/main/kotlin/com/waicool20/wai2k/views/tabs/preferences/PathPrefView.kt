@@ -28,6 +28,7 @@ import tornadofx.*
 class PathPrefView : View() {
     override val root: VBox by fxml("/views/tabs/preferences/path.fxml")
     private val sikulixJarPathLink: Hyperlink by fxid()
+    private val adbPathLink: Hyperlink by fxid()
     private val assetsDirPathLink: Hyperlink by fxid()
     private val context: Wai2KContext by inject()
 
@@ -35,8 +36,10 @@ class PathPrefView : View() {
         super.onDock()
         context.wai2KConfig.apply {
             sikulixJarPathLink.textProperty().bind(sikulixJarPathProperty.asString())
+            adbPathLink.textProperty().bind(adbPathProperty.asString())
             assetsDirPathLink.textProperty().bind(assetsDirectoryProperty.asString())
             sikulixJarPathLink.setOnAction { DesktopUtils.open(sikulixJarPath.parent) }
+            adbPathLink.setOnAction { DesktopUtils.open(adbPath.parent) }
             assetsDirPathLink.setOnAction { DesktopUtils.open(assetsDirectory) }
         }
     }

@@ -22,9 +22,14 @@ package com.waicool20.wai2k.android
 import com.waicool20.waicoolutils.logging.loggerFor
 import se.vidstige.jadb.JadbConnection
 import se.vidstige.jadb.JadbException
+import java.io.IOException
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
 
-class AdbServer(val adbPath: String = resolveAdb()) {
+class AdbServer(path: String = resolveEnvAdb()) {
+    constructor(path: Path) : this("$path")
 
     private val logger = loggerFor<AdbServer>()
     private var deviceCache: List<AndroidDevice> = emptyList()
@@ -32,11 +37,41 @@ class AdbServer(val adbPath: String = resolveAdb()) {
     private val adb
         get() = newConnection()
 
+    private val adbPath = findAdb() ?: path
+
     companion object {
+        /**
+         * Tries to find the adb executable using the given path or by resolving through
+         * environment
+         *
+         * @return null if a valid adb executable was not found
+         */
+        fun findAdb(path: String = ""): String? {
+            return resolveEnvAdb().takeIf { validateAdb(it) } ?: path.takeIf { validateAdb(it) }
+        }
+
+        /**
+         * Validates Adb executable
+         *
+         * @return true if Adb is ok
+         */
+        private fun validateAdb(sPath: String): Boolean {
+            val path = Paths.get(sPath)
+            return sPath.isNotBlank() &&
+                    Files.exists(path) &&
+                    Files.isRegularFile(path) &&
+                    try {
+                        ProcessBuilder(sPath).start().inputStream
+                                .bufferedReader().readText().startsWith("Android Debug Bridge")
+                    } catch (e: IOException) {
+                        false
+                    }
+        }
+
         /**
          * Tries to resolve the path to default adb installation by checking path environment
          */
-        fun resolveAdb(): String {
+        private fun resolveEnvAdb(): String {
             val home = System.getenv("ANDROID_HOME")
                     ?: System.getenv("ANDROID_SDK_ROOT") ?: return "adb"
             return "$home/platform-tools/adb".takeIf { home.isNotBlank() } ?: "adb"
@@ -48,7 +83,7 @@ class AdbServer(val adbPath: String = resolveAdb()) {
      */
     fun start() {
         do {
-            logger.info("Launching new adb server instance")
+            logger.info("Launching new adb server instance (Path: $adbPath)")
             ProcessBuilder(adbPath, "start-server").start()
             waitForInitialized()
             logger.info("ADB Server launched")

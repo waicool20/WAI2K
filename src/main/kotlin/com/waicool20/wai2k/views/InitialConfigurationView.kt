@@ -19,6 +19,7 @@
 
 package com.waicool20.wai2k.views
 
+import com.waicool20.wai2k.android.AdbServer
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.waicoolutils.DesktopUtils
@@ -43,10 +44,14 @@ class InitialConfigurationView : View() {
     override val root: VBox by fxml("/views/initial-config.fxml")
 
     private val sikulixContent: VBox by fxid()
+    private val adbContent: VBox by fxid()
     private val ocrContent: VBox by fxid()
 
     private val pathTextField: TextField by fxid()
     private val chooseButton: Button by fxid()
+
+    private val adbPathTextField: TextField by fxid()
+    private val adbChooseButton: Button by fxid()
 
     private val requiredFilesVBox: VBox by fxid()
     private val ocrPathLink: Hyperlink by fxid()
@@ -75,12 +80,28 @@ class InitialConfigurationView : View() {
                 checkConfig()
             }
         }
+        adbPathTextField.textProperty().apply {
+            listen { adbPathTextField.styleClass.setAll("unsure") }
+            listenDebounced(1000, "InitialConfig-adbpath") { newVal ->
+                context.wai2KConfig.apply {
+                    adbPath = Paths.get(newVal)
+                    if (AdbServer.findAdb("$adbPath") != null) {
+                        adbPathTextField.styleClass.setAll("valid")
+                    } else {
+                        adbPathTextField.styleClass.setAll("invalid")
+                    }
+                }
+                checkConfig()
+            }
+        }
         addRequiredOcrFilesHyperlinks()
         context.wai2KConfig.apply {
             if (sikulixJarIsValid()) sikulixContent.removeFromParent()
+            if (AdbServer.findAdb("$adbPath") != null) adbContent.removeFromParent()
             if (ocrIsValid()) ocrContent.removeFromParent()
         }
         chooseButton.action(::chooseSikulixPath)
+        adbChooseButton.action(::chooseAdbPath)
         monitorOcrFiles()
     }
 
@@ -104,6 +125,16 @@ class InitialConfigurationView : View() {
             showOpenDialog(null)?.let {
                 context.wai2KConfig.sikulixJarPath = it.toPath()
                 pathTextField.text = it.path
+            }
+        }
+    }
+
+    private fun chooseAdbPath() {
+        FileChooser().apply {
+            title = "Path to adb executable..."
+            showOpenDialog(null)?.let {
+                context.wai2KConfig.adbPath = it.toPath()
+                adbPathTextField.text = it.path
             }
         }
     }

@@ -22,6 +22,7 @@ package com.waicool20.wai2k.views
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.waicool20.wai2k.Wai2K
+import com.waicool20.wai2k.android.AdbServer
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.config.Wai2KProfile
@@ -78,6 +79,7 @@ class LoaderView : View() {
 
     private fun startLoading() {
         loadWai2KConfig()
+        loadAdbServer()
         loadWai2KProfile()
         loadScriptRunner()
         thread {
@@ -92,6 +94,12 @@ class LoaderView : View() {
         if (!wai2KConfig.isValid) {
             find<InitialConfigurationView>().openModal(owner = currentWindow, block = true)
         }
+        AdbServer.findAdb("${wai2KConfig.adbPath}")?.let { wai2KConfig.adbPath = Paths.get(it).toAbsolutePath() }
+    }
+
+    private fun loadAdbServer() {
+        logger.info("Loaded adb executable @ ${wai2KConfig.adbPath}")
+        context.adbServer = AdbServer(wai2KConfig.adbPath)
     }
 
     private fun loadWai2KProfile() {

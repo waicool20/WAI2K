@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.waicool20.wai2k.Wai2K
+import com.waicool20.wai2k.android.AdbServer
 import com.waicool20.waicoolutils.javafx.addListener
 import com.waicool20.waicoolutils.javafx.json.fxJacksonObjectMapper
 import com.waicool20.waicoolutils.logging.LoggerUtils
@@ -42,6 +43,7 @@ import java.util.jar.JarFile
 class Wai2KConfig(
         currentProfile: String = Wai2KProfile.DEFAULT_NAME,
         sikulixJarPath: Path = Paths.get(""),
+        adbPath: Path = Paths.get(""),
         assetsDirectory: Path = Wai2K.CONFIG_DIR.resolve("assets"),
         ocrDirectory: Path = Wai2K.CONFIG_DIR.resolve("tessdata"),
         clearConsoleOnStart: Boolean = true,
@@ -52,13 +54,14 @@ class Wai2KConfig(
 ) {
     private val logger = loggerFor<Wai2K>()
 
-    @get:JsonIgnore val isValid get() = sikulixJarIsValid() && ocrIsValid()
+    @get:JsonIgnore val isValid get() = sikulixJarIsValid() && ocrIsValid() && AdbServer.findAdb("$adbPath") != null
     @get:JsonIgnore val logLevel get() = if (debugModeEnabled) "DEBUG" else "INFO"
 
     //<editor-fold desc="Properties">
 
     val currentProfileProperty = currentProfile.toProperty()
     val sikulixJarPathProperty = sikulixJarPath.toProperty()
+    val adbPathProperty = adbPath.toProperty()
     val assetsDirectoryProperty = assetsDirectory.toProperty()
     val ocrDirectoryProperty = ocrDirectory.toProperty()
     val clearConsoleOnStartProperty = clearConsoleOnStart.toProperty()
@@ -69,6 +72,7 @@ class Wai2KConfig(
 
     var currentProfile by currentProfileProperty
     var sikulixJarPath by sikulixJarPathProperty
+    var adbPath by adbPathProperty
     @get:JsonIgnore var assetsDirectory by assetsDirectoryProperty
     @get:JsonIgnore var ocrDirectory by ocrDirectoryProperty
     var clearConsoleOnStart by clearConsoleOnStartProperty
