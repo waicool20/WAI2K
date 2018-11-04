@@ -29,7 +29,6 @@ import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.formatted
 import com.waicool20.waicoolutils.logging.loggerFor
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
@@ -159,7 +158,7 @@ class LogisticsSupportModule(
         while (lsRegion.doesntHave("chapters/${ls.chapter}.png", cSimilarity)) {
             delay(100)
             val chapters = (0..7).map {
-                it to GlobalScope.async { lsRegion.has("chapters/$it.png", cSimilarity) }
+                it to async { lsRegion.has("chapters/$it.png", cSimilarity) }
             }.filter { it.second.await() }.map { it.first }
             logger.debug("Visible chapters: $chapters")
             when {
@@ -216,7 +215,7 @@ class LogisticsSupportModule(
         while (eRegion.doesntHave("logistics/echelon${echelon.number}.png")) {
             delay(100)
             val echelons = (1..7).map {
-                it to GlobalScope.async { eRegion.findOrNull("logistics/echelon$it.png") }
+                it to async { eRegion.findOrNull("logistics/echelon$it.png") }
             }.mapNotNull { p -> p.second.await()?.let { p.first to it } }
             logger.debug("Visible echelons: ${echelons.map { it.first }}")
             val lEchelon = echelons.minBy { it.first } ?: echelons.first()
