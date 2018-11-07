@@ -22,6 +22,7 @@ package com.waicool20.wai2k.game
 enum class LocationId {
     HOME,
     HOME_STATUS,
+    FORMATION,
     COMBAT_MENU,
     COMBAT,
     LOGISTICS_SUPPORT,

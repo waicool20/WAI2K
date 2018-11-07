@@ -33,6 +33,16 @@
           "width": 82,
           "height": 110
         }
+      },
+      {
+        "dest": "formation",
+        "asset": {
+          "imageName": "",
+          "x": 1694,
+          "y": 632,
+          "width": 317,
+          "height": 149
+        }
       }
     ]
   },
@@ -69,6 +79,43 @@
           "y": 596,
           "width": 328,
           "height": 149
+        }
+      },
+      {
+        "dest": "formation",
+        "asset": {
+          "imageName": "",
+          "x": 1694,
+          "y": 632,
+          "width": 317,
+          "height": 149
+        }
+      }
+    ]
+  },
+  {
+    "id": "formation",
+    "isIntermediate": false,
+    "landmarks": [
+      {
+        "asset": {
+          "imageName": "formation",
+          "x": 430,
+          "y": 64,
+          "width": 60,
+          "height": 60
+        }
+      }
+    ],
+    "links": [
+      {
+        "dest": "home",
+        "asset": {
+          "imageName": "",
+          "x": 120,
+          "y": 0,
+          "width": 205,
+          "height": 104
         }
       }
     ]

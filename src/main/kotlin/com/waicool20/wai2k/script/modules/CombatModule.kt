@@ -22,6 +22,7 @@ package com.waicool20.wai2k.script.modules
 import com.waicool20.wai2k.android.AndroidRegion
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
+import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
 
@@ -33,6 +34,7 @@ class CombatModule(
         navigator: Navigator
 ) : ScriptModule(scriptRunner, region, config, profile, navigator) {
     override suspend fun execute() {
-        //navigator.navigateTo(LocationId.COMBAT)
+        if (!profile.combat.enabled) return
+        navigator.navigateTo(LocationId.FORMATION)
     }
 }
