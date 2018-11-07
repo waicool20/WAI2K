@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.waicool20.wai2k.Wai2K
+import com.waicool20.wai2k.game.DollType
 import com.waicool20.waicoolutils.javafx.json.fxJacksonObjectMapper
 import com.waicool20.waicoolutils.javafx.toProperty
 import com.waicool20.waicoolutils.logging.loggerFor
@@ -38,7 +39,8 @@ import java.nio.file.Path
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy::class)
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Wai2KProfile(
-        val logistics: Logistics = Logistics()
+        val logistics: Logistics = Logistics(),
+        val combat: Combat = Combat()
 ) {
 
     constructor(name: String, logistics: Logistics) : this(logistics) {
@@ -60,6 +62,38 @@ data class Wai2KProfile(
         var assignments by assignmentsProperty
         var receiveMode by receiveModeProperty
         val enabled by enabledProperty
+    }
+
+    class Combat(
+            enabled: Boolean = true,
+            doll1Stars: Int = 5,
+            doll1Type: DollType = DollType.RF,
+            doll1Level: Int = 100,
+            doll1Name: String = "WA2000",
+            doll2Stars: Int = 5,
+            doll2Type: DollType = DollType.AR,
+            doll2Level: Int = 100,
+            doll2Name: String = "FAL"
+    ) {
+        val enabledProperty = enabled.toProperty()
+        val doll1StarsProperty = doll1Stars.toProperty()
+        val doll1TypeProperty = doll1Type.toProperty()
+        val doll1LevelProperty = doll1Level.toProperty()
+        val doll1NameProperty = doll1Name.toProperty()
+        val doll2StarsProperty = doll2Stars.toProperty()
+        val doll2TypeProperty = doll2Type.toProperty()
+        val doll2LevelProperty = doll2Level.toProperty()
+        val doll2NameProperty = doll2Name.toProperty()
+
+        val enabled by enabledProperty
+        val doll1Stars by doll1StarsProperty
+        val doll1Type by doll1TypeProperty
+        val doll1Level by doll1LevelProperty
+        val doll1Name by doll1NameProperty
+        val doll2Stars by doll2StarsProperty
+        val doll2Type by doll2TypeProperty
+        val doll2Level by doll2LevelProperty
+        val doll2Name by doll2NameProperty
     }
 
     companion object Loader {

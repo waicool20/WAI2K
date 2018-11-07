@@ -17,28 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.waicool20.wai2k.views.tabs.profile.combat
+package com.waicool20.wai2k.game
 
-import com.waicool20.wai2k.config.Wai2KContext
-import com.waicool20.wai2k.util.Binder
-import javafx.scene.control.CheckBox
-import javafx.scene.layout.VBox
-import tornadofx.*
-
-class CombatView: View(), Binder {
-    override val root: VBox by fxml("/views/tabs/profile/combat/combat.fxml")
-    private val enabledCheckBox: CheckBox by fxid()
-
-    private val context: Wai2KContext by inject()
-
-    override fun onDock() {
-        super.onDock()
-        createBindings()
-    }
-
-    override fun createBindings() {
-        context.currentProfile.combat.apply {
-            enabledCheckBox.bind(enabledProperty)
-        }
-    }
+enum class DollType {
+    HG, SMG, RF, AR, MG, SG
 }
