@@ -22,9 +22,13 @@ package com.waicool20.wai2k.script.modules
 import com.waicool20.wai2k.android.AndroidRegion
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
+import com.waicool20.wai2k.game.DollType
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
+import com.waicool20.waicoolutils.logging.loggerFor
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.yield
 
 class CombatModule(
         scriptRunner: ScriptRunner,
@@ -33,8 +37,53 @@ class CombatModule(
         profile: Wai2KProfile,
         navigator: Navigator
 ) : ScriptModule(scriptRunner, region, config, profile, navigator) {
+    private val logger = loggerFor<CombatModule>()
     override suspend fun execute() {
         if (!profile.combat.enabled) return
+        switchDolls()
+    }
+
+    private suspend fun switchDolls() {
         navigator.navigateTo(LocationId.FORMATION)
+        logger.info("Switching doll 2 of echelon 1")
+        // Doll 2 region ( excludes stuff below name/type )
+        region.subRegion(612, 167, 263, 667).clickRandomly()
+        delay(100)
+        applyFilters(1)
+    }
+
+    private suspend fun applyFilters(doll: Int) {
+        logger.info("Applying doll filters for dragging doll $doll")
+        val stars: Int
+        val type: DollType
+        with(profile.combat) {
+            when (doll) {
+                1 -> {
+                    stars = doll1Stars
+                    type = doll1Type
+                }
+                2 -> {
+                    stars = doll2Stars
+                    type = doll2Type
+                }
+                else -> error("Invalid doll: $doll")
+            }
+        }
+
+        // Filter By button
+        val filterButtonRegion = region.subRegion(1765, 348, 257, 161)
+        filterButtonRegion.clickRandomly(); yield()
+        // Filter popup region
+        region.subRegion(900, 159, 834, 910).run {
+            logger.info("Resetting filters")
+            find("filters/reset.png").clickRandomly(); delay(300)
+            filterButtonRegion.clickRandomly(); yield()
+            logger.info("Applying filter $stars star")
+            find("filters/${stars}star.png").clickRandomly(); delay(100)
+            logger.info("Applying filter $type")
+            find("filters/$type.png").clickRandomly(); delay(100)
+            logger.info("Confirming filters")
+            find("filters/confirm.png").clickRandomly(); delay(100)
+        }
     }
 }
