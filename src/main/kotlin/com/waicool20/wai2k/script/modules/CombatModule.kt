@@ -74,16 +74,17 @@ class CombatModule(
         val filterButtonRegion = region.subRegion(1765, 348, 257, 161)
         filterButtonRegion.clickRandomly(); yield()
         // Filter popup region
+        val prefix = "combat/formation/filters"
         region.subRegion(900, 159, 834, 910).run {
             logger.info("Resetting filters")
-            find("filters/reset.png").clickRandomly(); delay(300)
+            find("$prefix/reset.png").clickRandomly(); delay(300)
             filterButtonRegion.clickRandomly(); yield()
             logger.info("Applying filter $stars star")
-            find("filters/${stars}star.png").clickRandomly(); delay(100)
+            find("$prefix/${stars}star.png").clickRandomly(); delay(100)
             logger.info("Applying filter $type")
-            find("filters/$type.png").clickRandomly(); delay(100)
+            find("$prefix/$type.png").clickRandomly(); delay(100)
             logger.info("Confirming filters")
-            find("filters/confirm.png").clickRandomly(); delay(100)
+            find("$prefix/confirm.png").clickRandomly(); delay(100)
         }
     }
 }
