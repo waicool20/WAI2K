@@ -51,7 +51,7 @@ data class Wai2KProfile(
     data class DollCriteria(var name: String, var level: Int, var stars: Int, var type: DollType)
 
     class Logistics(
-            enabled: Boolean = true,
+            enabled: Boolean = false,
             receivalMode: ReceivalMode = ReceivalMode.RANDOM,
             assignments: MutableMap<Int, ListProperty<Int>> = (1..10).associate { it to SimpleListProperty<Int>() }.toMutableMap()
     ) {
@@ -68,7 +68,7 @@ data class Wai2KProfile(
     }
 
     class Combat(
-            enabled: Boolean = true,
+            enabled: Boolean = false,
             draggers: MutableMap<Int, DollCriteria> = mutableMapOf(
                     1 to DollCriteria("WA2000", 100, 5, DollType.RF),
                     2 to DollCriteria("FAL", 100, 5, DollType.AR)
