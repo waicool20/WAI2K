@@ -113,7 +113,7 @@ class CombatModule(
      *
      * @return List of regions that can be clicked to select the valid doll
      */
-    private suspend fun scanValidDolls(doll: Int): List<AndroidRegion> {
+    private suspend fun scanValidDolls(doll: Int, retries: Int = 3): List<AndroidRegion> {
         logger.info("Scanning for valid dolls in filtered list for dragging doll $doll")
         val name: String
         val level: Int
@@ -134,31 +134,37 @@ class CombatModule(
         class DollRegions(val nameRegion: BufferedImage, val levelRegion: BufferedImage, val clickRegion: AndroidRegion)
         // Optimize by taking a single screenshot and working on that
         val image = region.takeScreenshot()
-        return region.findAllOrEmpty("combat/formation/lock.png")
-                // Transform the lock region into 3 distinct regions used for ocr and clicking by offset
-                .map {
-                    DollRegions(
-                            image.getSubimage(it.x + 67, it.y + 72, 161, 52),
-                            image.getSubimage(it.x + 183, it.y + 124, 45, 32),
-                            region.subRegion(it.x - 7, it.y, 244, 164)
-                    )
-                }
-                // Filter by name
-                .filterAsync(this) { Ocr.forConfig(config).doOCRAndTrim(it.nameRegion).distanceTo(name, Ocr.OCR_DISTANCE_MAP) < OCR_THRESHOLD }
-                // Filter by level
-                .filterAsync(this) {
-                    it.levelRegion.binarizeImage().scale(2.0).pad(20, 10, Color.WHITE).let { bi ->
-                        Ocr.forConfig(config, digitsOnly = true).doOCRAndTrim(bi).toIntOrNull() ?: 0 > level
+        logger.info("Attempting to find dragging doll $doll with given criteria name = $name, level > $level")
+        repeat(retries) { i ->
+            region.findAllOrEmpty("combat/formation/lock.png")
+                    .also { logger.info("Found ${it.size} dolls on screen") }
+                    // Transform the lock region into 3 distinct regions used for ocr and clicking by offset
+                    .map {
+                        DollRegions(
+                                image.getSubimage(it.x + 67, it.y + 72, 161, 52),
+                                image.getSubimage(it.x + 183, it.y + 124, 45, 32),
+                                region.subRegion(it.x - 7, it.y, 244, 164)
+                        )
                     }
-                }
-                // Return click regions
-                .map { it.clickRegion }
-                .also {
-                    if (it.isEmpty()) {
-                        error("Failed to find dragging doll $doll that matches criteria")
-                    } else {
-                        logger.info("Found ${it.size} dolls that match the criteria for doll $doll")
+                    // Filter by name
+                    .filterAsync(this) { Ocr.forConfig(config).doOCRAndTrim(it.nameRegion).distanceTo(name, Ocr.OCR_DISTANCE_MAP) < OCR_THRESHOLD }
+                    // Filter by level
+                    .filterAsync(this) {
+                        it.levelRegion.binarizeImage().scale(2.0).pad(20, 10, Color.WHITE).let { bi ->
+                            Ocr.forConfig(config, digitsOnly = true).doOCRAndTrim(bi).toIntOrNull() ?: 0 > level
+                        }
                     }
-                }
+                    // Return click regions
+                    .map { it.clickRegion }
+                    .also {
+                        if (it.isEmpty()) {
+                            logger.info("Failed to find dragging doll $doll with given criteria after ${i + 1} attempts, retries remaining: ${retries - i - 1}")
+                        } else {
+                            logger.info("Found ${it.size} dolls that match the criteria for doll $doll")
+                            return it
+                        }
+                    }
+        }
+        error("Failed to find dragging doll $doll that matches criteria after $retries attempts")
     }
 }
