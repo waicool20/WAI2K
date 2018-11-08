@@ -28,8 +28,9 @@ import com.waicool20.wai2k.game.LogisticsSupport
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.formatted
+import com.waicool20.waicoolutils.filterAsync
 import com.waicool20.waicoolutils.logging.loggerFor
-import kotlinx.coroutines.async
+import com.waicool20.waicoolutils.mapAsync
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
 import java.time.Instant
@@ -157,9 +158,7 @@ class LogisticsSupportModule(
         val cSimilarity = 0.9
         while (lsRegion.doesntHave("chapters/${ls.chapter}.png", cSimilarity)) {
             delay(100)
-            val chapters = (0..7).map {
-                it to async { lsRegion.has("chapters/$it.png", cSimilarity) }
-            }.filter { it.second.await() }.map { it.first }
+            val chapters = (0..7).filterAsync(this) { lsRegion.has("chapters/$it.png", cSimilarity) }
             logger.debug("Visible chapters: $chapters")
             when {
                 ls.chapter <= chapters.min() ?: 3 -> {
@@ -214,9 +213,9 @@ class LogisticsSupportModule(
 
         while (eRegion.doesntHave("logistics/echelon${echelon.number}.png")) {
             delay(100)
-            val echelons = (1..7).map {
-                it to async { eRegion.findOrNull("logistics/echelon$it.png") }
-            }.mapNotNull { p -> p.second.await()?.let { p.first to it } }
+            val echelons = (1..7).mapAsync(this) {
+                it to eRegion.findOrNull("logistics/echelon$it.png")
+            }.filter { it.second == null }.map { it.first to it.second!! }
             logger.debug("Visible echelons: ${echelons.map { it.first }}")
             val lEchelon = echelons.minBy { it.first } ?: echelons.first()
             val hEchelon = echelons.maxBy { it.first } ?: echelons.last()
