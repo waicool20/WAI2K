@@ -48,9 +48,7 @@ class AssignmentsView : View(), Binder {
 
     fun setValues() {
         val converter = object : StringConverter<Int>() {
-            override fun toString(i: Int) = LogisticsSupport.list[i - 1]
-                    .let { String.format("No. %02d:  (%d - %d)", i, it.chapter, it.chapterIndex + 1) }
-
+            override fun toString(i: Int) = LogisticsSupport.list[i - 1].formattedString
             override fun fromString(s: String): Int? = null
         }
         comboBoxes.forEach {

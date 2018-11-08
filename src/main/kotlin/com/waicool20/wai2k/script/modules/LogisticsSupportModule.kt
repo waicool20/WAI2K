@@ -128,7 +128,7 @@ class LogisticsSupportModule(
             // Update eta
             val eta = Instant.now() + nextMission.duration
             echelon.logisticsSupportAssignment = LogisticsSupport.Assignment(nextMission, eta)
-            logger.info("Dispatched $echelon to logistic support ${nextMission.number}, ETA: ${eta.formatted()}")
+            logger.info("Dispatched $echelon to logistic support ${nextMission.formattedString}, ETA: ${eta.formatted()}")
             scriptStats.logisticsSupportSent++
             return
         }

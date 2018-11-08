@@ -99,7 +99,7 @@ class InitModule(
             val logisticsSupport = LogisticsSupport.list[sChapter.toInt() * 4 + sNumber.toInt() - 1]
             val duration = DurationUtils.of(sSeconds.toLong(), sMinutes.toLong(), sHour.toLong())
             val eta = Instant.now() + duration
-            logger.info("Echelon $echelon is doing logistics support ${logisticsSupport.number}, ETA: ${eta.formatted()}")
+            logger.info("Echelon $echelon is doing logistics support ${logisticsSupport.formattedString}, ETA: ${eta.formatted()}")
             gameState.echelons[echelon - 1].logisticsSupportAssignment = Assignment(logisticsSupport, eta)
         }
     }

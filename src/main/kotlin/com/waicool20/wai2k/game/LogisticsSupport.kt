@@ -75,6 +75,7 @@ data class LogisticsSupport private constructor(
 
     val chapter = (number - 1) / 4
     val chapterIndex = (number - 1) % 4
+    val formattedString = String.format("No. %02d:  (%d - %d)", number, chapter, chapterIndex + 1)
 
     class Assignment(val logisticSupport: LogisticsSupport, val eta: Instant)
 }
