@@ -55,14 +55,14 @@ class CombatModule(
         navigator.navigateTo(LocationId.FORMATION)
         logger.info("Switching doll 2 of echelon 1")
         // Doll 2 region ( excludes stuff below name/type )
-        region.subRegion(612, 167, 263, 667).clickRandomly(); delay(100)
+        region.subRegion(612, 167, 263, 667).clickRandomly(); yield()
         applyFilters(1)
         scanValidDolls(1).shuffled().first().clickRandomly()
 
         // Select echelon 2
-        region.subRegion(120, 296, 184, 109).clickRandomly(); delay(200)
+        region.subRegion(120, 296, 184, 109).clickRandomly(); yield()
         // Doll 1 region ( excludes stuff below name/type )
-        region.subRegion(335, 167, 263, 667).clickRandomly(); delay(100)
+        region.subRegion(335, 167, 263, 667).clickRandomly(); yield()
         applyFilters(2)
         scanValidDolls(2).shuffled().first().clickRandomly()
     }
@@ -95,15 +95,17 @@ class CombatModule(
         val prefix = "combat/formation/filters"
         region.subRegion(900, 159, 834, 910).run {
             logger.info("Resetting filters")
-            find("$prefix/reset.png").clickRandomly(); delay(300)
+            find("$prefix/reset.png").clickRandomly(); yield()
             filterButtonRegion.clickRandomly(); yield()
             logger.info("Applying filter $stars star")
-            find("$prefix/${stars}star.png").clickRandomly(); delay(100)
+            find("$prefix/${stars}star.png").clickRandomly(); yield()
             logger.info("Applying filter $type")
-            find("$prefix/$type.png").clickRandomly(); delay(100)
+            find("$prefix/$type.png").clickRandomly(); yield()
             logger.info("Confirming filters")
-            find("$prefix/confirm.png").clickRandomly(); delay(100)
+            find("$prefix/confirm.png").clickRandomly(); yield()
         }
+        // Wait for menu to settle
+        delay(150)
     }
 
     /**
