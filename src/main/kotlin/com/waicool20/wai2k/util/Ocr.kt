@@ -31,7 +31,18 @@ object Ocr {
             "cCDGoOQ@" to "0", "iIl\\[\\]|!" to "1",
             "zZ" to "2", "E" to "3",
             "A" to "4", "sS" to "5",
-            "B:" to "8", " -" to ""
+            "B:" to "8", "- —" to ""
+    )
+
+    val OCR_DISTANCE_MAP = mapOf(
+            "-—" to 0.1,
+            "0cCDGoOQ@" to 0.3,
+            "1iIl\\[\\]|!" to 0.3,
+            "2Zz" to 0.1,
+            "3E" to 0.2,
+            "4A" to 0.1,
+            "5sS" to 0.1,
+            "8B:" to 0.2
     )
 
     fun cleanNumericString(string: String): String {
