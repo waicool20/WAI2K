@@ -55,10 +55,16 @@ class CombatModule(
         navigator.navigateTo(LocationId.FORMATION)
         logger.info("Switching doll 2 of echelon 1")
         // Doll 2 region ( excludes stuff below name/type )
-        region.subRegion(612, 167, 263, 667).clickRandomly()
-        delay(100)
+        region.subRegion(612, 167, 263, 667).clickRandomly(); delay(100)
         applyFilters(1)
         scanValidDolls(1).shuffled().first().clickRandomly()
+
+        // Select echelon 2
+        region.subRegion(120, 296, 184, 109).clickRandomly(); delay(200)
+        // Doll 1 region ( excludes stuff below name/type )
+        region.subRegion(335, 167, 263, 667).clickRandomly(); delay(100)
+        applyFilters(2)
+        scanValidDolls(2).shuffled().first().clickRandomly()
     }
 
     /**
