@@ -21,6 +21,7 @@ package com.waicool20.wai2k.config
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming
@@ -47,6 +48,8 @@ data class Wai2KProfile(
         this.name = name
     }
 
+    data class DollCriteria(var name: String, var level: Int, var stars: Int, var type: DollType)
+
     class Logistics(
             enabled: Boolean = true,
             receivalMode: ReceivalMode = ReceivalMode.RANDOM,
@@ -66,39 +69,21 @@ data class Wai2KProfile(
 
     class Combat(
             enabled: Boolean = true,
-            doll1Stars: Int = 5,
-            doll1Type: DollType = DollType.RF,
-            doll1Level: Int = 100,
-            doll1Name: String = "WA2000",
-            doll2Stars: Int = 5,
-            doll2Type: DollType = DollType.AR,
-            doll2Level: Int = 100,
-            doll2Name: String = "FAL"
+            draggers: MutableMap<Int, DollCriteria> = mutableMapOf(
+                    1 to DollCriteria("WA2000", 100, 5, DollType.RF),
+                    2 to DollCriteria("FAL", 100, 5, DollType.AR)
+            )
     ) {
         val enabledProperty = enabled.toProperty()
-        val doll1StarsProperty = doll1Stars.toProperty()
-        val doll1TypeProperty = doll1Type.toProperty()
-        val doll1LevelProperty = doll1Level.toProperty()
-        val doll1NameProperty = doll1Name.toProperty()
-        val doll2StarsProperty = doll2Stars.toProperty()
-        val doll2TypeProperty = doll2Type.toProperty()
-        val doll2LevelProperty = doll2Level.toProperty()
-        val doll2NameProperty = doll2Name.toProperty()
+        val draggersProperty = draggers.toProperty()
 
         val enabled by enabledProperty
-        val doll1Stars by doll1StarsProperty
-        val doll1Type by doll1TypeProperty
-        val doll1Level by doll1LevelProperty
-        val doll1Name by doll1NameProperty
-        val doll2Stars by doll2StarsProperty
-        val doll2Type by doll2TypeProperty
-        val doll2Level by doll2LevelProperty
-        val doll2Name by doll2NameProperty
+        val draggers by draggersProperty
     }
 
     companion object Loader {
         private val loaderLogger = loggerFor<Loader>()
-        private val mapper = fxJacksonObjectMapper()
+        private val mapper = fxJacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         val PROFILE_DIR: Path = Wai2K.CONFIG_DIR.resolve("profiles")
         const val DEFAULT_NAME = "Default"
 

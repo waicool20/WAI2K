@@ -72,21 +72,9 @@ class CombatModule(
      */
     private suspend fun applyFilters(doll: Int) {
         logger.info("Applying doll filters for dragging doll $doll")
-        val stars: Int
-        val type: DollType
-        with(profile.combat) {
-            when (doll) {
-                1 -> {
-                    stars = doll1Stars
-                    type = doll1Type
-                }
-                2 -> {
-                    stars = doll2Stars
-                    type = doll2Type
-                }
-                else -> error("Invalid doll: $doll")
-            }
-        }
+        val criteria = profile.combat.draggers[doll] ?: error("Invalid doll: $doll")
+        val stars = criteria.stars
+        val type = criteria.type
 
         // Filter By button
         val filterButtonRegion = region.subRegion(1765, 348, 257, 161)
@@ -115,21 +103,10 @@ class CombatModule(
      */
     private suspend fun scanValidDolls(doll: Int, retries: Int = 3): List<AndroidRegion> {
         logger.info("Scanning for valid dolls in filtered list for dragging doll $doll")
-        val name: String
-        val level: Int
-        with(profile.combat) {
-            when (doll) {
-                1 -> {
-                    name = doll1Name
-                    level = doll1Level
-                }
-                2 -> {
-                    name = doll2Name
-                    level = doll2Level
-                }
-                else -> error("Invalid doll: $doll")
-            }
-        }
+        val criteria = profile.combat.draggers[doll] ?: error("Invalid doll: $doll")
+        val name = criteria.name
+        val level = criteria.level
+
         // Temporary convenience class for storing doll regions
         class DollRegions(val nameRegion: BufferedImage, val levelRegion: BufferedImage, val clickRegion: AndroidRegion)
         // Optimize by taking a single screenshot and working on that

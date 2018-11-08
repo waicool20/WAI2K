@@ -24,7 +24,6 @@ import com.waicool20.wai2k.game.DollType
 import com.waicool20.wai2k.util.Binder
 import com.waicool20.waicoolutils.javafx.addListener
 import com.waicool20.waicoolutils.javafx.listen
-import com.waicool20.waicoolutils.javafx.bind
 import javafx.scene.control.ComboBox
 import javafx.scene.control.Spinner
 import javafx.scene.control.SpinnerValueFactory.IntegerSpinnerValueFactory
@@ -55,34 +54,53 @@ class DraggersView : View(), Binder {
     }
 
     fun setValues() {
-        IntegerSpinnerValueFactory(1, 100).let {
-            doll1LevelSpinner.valueFactory = it
-            doll2LevelSpinner.valueFactory = it
-        }
+        doll1LevelSpinner.valueFactory = IntegerSpinnerValueFactory(1, 100)
+        doll2LevelSpinner.valueFactory = IntegerSpinnerValueFactory(1, 100)
         doll1TypeComboBox.items.setAll(DollType.values().toList())
         doll2TypeComboBox.items.setAll(DollType.values().toList())
 
-        doll1StarsRating.rating = context.currentProfile.combat.doll1Stars.toDouble()
-        doll2StarsRating.rating = context.currentProfile.combat.doll2Stars.toDouble()
+        with(context.currentProfile.combat) {
+            val doll1 = draggers[1]!!
+            val doll2 = draggers[2]!!
+            doll1NameTextField.text = doll1.name
+            doll1LevelSpinner.valueFactory.value = doll1.level
+            doll1StarsRating.rating = doll1.stars.toDouble()
+            doll1TypeComboBox.value = doll1.type
+
+            doll2NameTextField.text = doll2.name
+            doll2LevelSpinner.valueFactory.value = doll2.level
+            doll2StarsRating.rating = doll2.stars.toDouble()
+            doll2TypeComboBox.value = doll2.type
+        }
     }
 
     override fun createBindings() {
-        with (context.currentProfile.combat) {
-            doll1NameTextField.bind(doll1NameProperty)
-            doll2NameTextField.bind(doll2NameProperty)
-
+        with(context.currentProfile.combat) {
+            doll1NameTextField.textProperty().addListener("Doll1NameTextFieldListener") { newVal ->
+                draggers[1]?.name = newVal
+            }
+            doll1LevelSpinner.valueProperty().addListener("Doll1LevelSpinnerListener") { newVal ->
+                draggers[1]?.level = newVal
+            }
             doll1StarsRating.ratingProperty().addListener("Doll1StarsRatingListener") { newVal ->
-                doll1StarsProperty.value = newVal.toInt()
+                draggers[1]?.stars = newVal.toInt()
+            }
+            doll1TypeComboBox.valueProperty().addListener("Doll1TypeComboBoxListener") { newVal ->
+                draggers[1]?.type = newVal
+            }
+
+            doll2NameTextField.textProperty().addListener("Doll2NameTextFieldListener") { newVal ->
+                draggers[2]?.name = newVal
+            }
+            doll2LevelSpinner.valueProperty().addListener("Doll2LevelSpinnerListener") { newVal ->
+                draggers[2]?.level = newVal
             }
             doll2StarsRating.ratingProperty().addListener("Doll2StarsRatingListener") { newVal ->
-                doll2StarsProperty.value = newVal.toInt()
+                draggers[2]?.stars = newVal.toInt()
             }
-
-            doll1LevelSpinner.bind(doll1LevelProperty)
-            doll2LevelSpinner.bind(doll2LevelProperty)
-
-            doll1TypeComboBox.bind(doll1TypeProperty)
-            doll2TypeComboBox.bind(doll2TypeProperty)
+            doll2TypeComboBox.valueProperty().addListener("Doll2TypeComboBoxListener") { newVal ->
+                draggers[2]?.type = newVal
+            }
         }
     }
 }
