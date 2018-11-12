@@ -120,6 +120,11 @@ class LogisticsSupportModule(
         delay(300)
 
         region.clickUntilGone("logistics/ok.png", 10)
+        delay(100)
+        region.findOrNull("confirm.png")?.let {
+            logger.info("One of the resources reached its limit!")
+            it.clickRandomly()
+        }
 
         // Wait for logistics mission icon to appear again
         region.subRegion(131, 306, 257, 118).waitSuspending("logistics/logistics.png", 7)
