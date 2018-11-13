@@ -52,9 +52,9 @@ class Navigator(
      */
     suspend fun identifyCurrentLocation(retries: Int = 3): GameLocation {
         logger.info("Identifying current location")
+        val channel = Channel<GameLocation?>()
         repeat(retries) { i ->
             checkLogistics()
-            val channel = Channel<GameLocation?>()
             val jobs = locations.entries.sortedBy { it.value.isIntermediate }
                     .map { (_, model) ->
                         launch { channel.send(model.takeIf { model.isInRegion(region) }) }
@@ -65,11 +65,12 @@ class Navigator(
                     gameState.currentGameLocation = model
                     return model
                 }
-                if (jobs.all { it.isCompleted }) channel.close()
+                if (jobs.all { it.isCompleted }) break
             }
-            logger.warn("Could not find location in after ${i + 1} attempts, retries remaining: ${retries - i - 1}")
+            logger.warn("Could not find location after ${i + 1} attempts, retries remaining: ${retries - i - 1}")
             delay(1000)
         }
+        channel.close()
         logger.warn("Current location could not be identified")
         coroutineContext.cancelAndYield()
     }

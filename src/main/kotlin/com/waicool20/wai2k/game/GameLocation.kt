@@ -81,7 +81,7 @@ data class GameLocation(val id: LocationId, val isIntermediate: Boolean = false)
         fun mappings(wai2KConfig: Wai2KConfig, refresh: Boolean = false): Map<LocationId, GameLocation> {
             return if (refresh) {
                 val file = wai2KConfig.assetsDirectory.resolve("locations/locations.json").toFile()
-                mapper.readValue<List<GameLocation>>(file).associate { it.id to it }.also {
+                mapper.readValue<List<GameLocation>>(file).associateBy { it.id }.also {
                     loaderLogger.info("Loaded ${it.size} location entries")
                     locations = it
                 }
