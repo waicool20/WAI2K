@@ -55,11 +55,12 @@ object Ocr {
 
     fun forConfig(config: Wai2KConfig, digitsOnly: Boolean = false) = Tesseract().apply {
         setDatapath(config.ocrDirectory.toString())
+        setOcrEngineMode(ITessAPI.TessOcrEngineMode.OEM_TESSERACT_ONLY)
         setPageSegMode(ITessAPI.TessPageSegMode.PSM_SINGLE_BLOCK)
         if (digitsOnly) setTessVariable("tessedit_char_whitelist", "0123456789")
     }
 }
 
-fun ITesseract.doOCRAndTrim(region: AndroidRegion) = doOCR(region.takeScreenshot()).trim()
+fun ITesseract.doOCRAndTrim(region: AndroidRegion) = doOCRAndTrim(region.takeScreenshot())
 fun ITesseract.doOCRAndTrim(image: BufferedImage) = doOCR(image).trim()
 
