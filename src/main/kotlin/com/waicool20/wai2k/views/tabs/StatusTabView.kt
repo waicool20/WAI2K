@@ -22,16 +22,20 @@ package com.waicool20.wai2k.views.tabs
 import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.script.ScriptContext
 import com.waicool20.wai2k.util.formatted
-import javafx.scene.control.Button
+import com.waicool20.waicoolutils.divAssign
+import com.waicool20.waicoolutils.javafx.CoroutineScopeView
+import com.waicool20.waicoolutils.plusAssign
 import javafx.scene.control.Label
 import javafx.scene.layout.VBox
-import tornadofx.*
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import java.text.DecimalFormat
 import java.time.Duration
 import java.time.Instant
-import kotlin.concurrent.fixedRateTimer
 
-class StatusTabView : View() {
+class StatusTabView : CoroutineScopeView() {
     override val root: VBox by fxml("/views/tabs/status-tab.fxml")
 
     private val context: Wai2KContext by inject()
@@ -43,31 +47,19 @@ class StatusTabView : View() {
     private val logisticsSentLabel: Label by fxid()
     private val logisticsReceivedLabel: Label by fxid()
 
-    private val prevEchelonButton: Button by fxid()
-    private val currentEchelonLabel: Label by fxid()
-    private val nextEchelonButton: Button by fxid()
-
-    private val echelonLogisticsLabel: Label by fxid()
-    private val echelonRepairs: Label by fxid()
-
-    private var currentEchelon: Int = 1
+    private val timersLabel: Label by fxid()
 
     init {
         title = "Status"
-        prevEchelonButton.action {
-            currentEchelon = if (currentEchelon == 1) 10 else currentEchelon - 1
-            updateView()
-        }
-        nextEchelonButton.action {
-            currentEchelon = if (currentEchelon == 10) 1 else currentEchelon + 1
-            updateView()
-        }
     }
 
     override fun onDock() {
         super.onDock()
-        fixedRateTimer("Status Tab View Updater", period = 1000, daemon = true) {
-            runLater { updateView() }
+        launch(CoroutineName("Status Tab View Updater")) {
+            while (isActive) {
+                updateView()
+                delay(1000)
+            }
         }
     }
 
@@ -88,23 +80,34 @@ class StatusTabView : View() {
     }
 
     private fun updateEchelonStats() {
-        currentEchelonLabel.text = "Echelon $currentEchelon"
+        val builder = StringBuilder()
         scriptRunner.gameState.apply {
-            val echelon = echelons[currentEchelon - 1]
-            echelonLogisticsLabel.text = echelon.logisticsSupportAssignment
-                    ?.takeIf { it.eta.isAfter(Instant.now()) }
-                    ?.let {
-                        val delta = timeDelta(it.eta)
-                        "${it.logisticSupport.chapter}-${it.logisticSupport.chapterIndex + 1} (ETA: $delta)"
-                    } ?: "---"
-            echelonRepairs.text = echelon.members.joinToString("\n") {
-                if (it.repairEta?.isAfter(Instant.now()) == true) {
-                    "${it.number}: ${timeDelta(it.repairEta)}"
-                } else {
-                    "${it.number}: ---"
+            val echelonLogistics = echelons.filter { it.logisticsSupportAssignment?.eta?.isAfter(Instant.now()) == true }
+                    .sortedBy { it.logisticsSupportAssignment?.eta }
+            if (echelonLogistics.isNotEmpty()) {
+                builder /= "Logistics:"
+                builder += echelonLogistics.joinToString("\n") {
+                    "\t- Echelon ${it.number} [${it.logisticsSupportAssignment?.logisticSupport?.formattedString}]: ${timeDelta(it.logisticsSupportAssignment?.eta)}"
+                }
+                builder.appendln()
+            }
+
+            val echelonRepairs = echelons
+                    .flatMap { echelon -> echelon.members.map { echelon.number to it } }
+                    .filter { it.second.repairEta?.isAfter(Instant.now()) == true }
+                    .sortedBy { it.second.repairEta }
+            if (echelonRepairs.isNotEmpty()) {
+                builder /= "Repairs:"
+                builder += echelonRepairs.joinToString("\n") { (echelonNumber, member) ->
+                    "\t- Echelon $echelonNumber [${member.number}]: ${timeDelta(member.repairEta)}"
                 }
             }
+
+            if (builder.isEmpty()) {
+                builder += "Nothing is going on right now!"
+            }
         }
+        timersLabel.text = builder.toString()
     }
 
     private fun timeDelta(time: Instant?): String {
