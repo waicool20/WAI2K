@@ -26,7 +26,8 @@ class Wai2KWorkspace : Workspace() {
 
     init {
         add(MenuBarView::class)
-        setWindowMinSize(560.0, 700.0)
+        setWindowMinSize(560, 700)
+        setWindowMaxSize(560, 700)
     }
 
     override fun onDock() {
