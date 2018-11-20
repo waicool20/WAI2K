@@ -32,11 +32,13 @@ import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.wai2k.util.formatted
 import com.waicool20.waicoolutils.DurationUtils
 import com.waicool20.waicoolutils.logging.loggerFor
+import com.waicool20.waicoolutils.mapAsync
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.awt.image.BufferedImage
 import java.time.Duration
 import java.time.Instant
+import kotlin.system.measureTimeMillis
 
 class InitModule(
         scriptRunner: ScriptRunner,
@@ -54,11 +56,12 @@ class InitModule(
     private suspend fun updateGameState() {
         navigator.navigateTo(LocationId.HOME_STATUS)
         logger.info("Updating gamestate")
-        val repairJob = launch { updateRepairs() }
-        val logisticJob = launch { updateLogistics() }
-        repairJob.join()
-        logisticJob.join()
-        logger.info("Finished updating game state")
+        measureTimeMillis {
+            val repairJob = launch { updateRepairs() }
+            val logisticJob = launch { updateLogistics() }
+            repairJob.join()
+            logisticJob.join()
+        }.let { logger.info("Finished updating game state in $it ms") }
         gameState.requiresUpdate = false
     }
 
@@ -115,7 +118,8 @@ class InitModule(
         val firstEntryRegion = region.subRegion(450, 0, 159, region.h)
         // Find all the echelons that have a girl in repair
         val entries = firstEntryRegion.findAllOrEmpty("init/repairing.png") +
-                firstEntryRegion.findAllOrEmpty("init/standby.png")
+                firstEntryRegion.findAllOrEmpty("init/standby.png") +
+                firstEntryRegion.findAllOrEmpty("init/in-training.png")
 
         // Map each region to whole logistic support entry
         val mappedEntries = entries
@@ -130,10 +134,9 @@ class InitModule(
         // Clear existing timers
         gameState.echelons.flatMap { it.members }.forEach { it.repairEta = null }
         mappedEntries.forEach { (echelon, repairTimers) ->
-            val members = gameState.echelons[echelon - 1].members
             logger.info("Echelon $echelon has repair timers: $repairTimers")
             repairTimers.forEach { (memberIndex, duration) ->
-                members[memberIndex].repairEta = Instant.now() + duration
+                gameState.echelons[echelon - 1].members[memberIndex].repairEta = Instant.now() + duration
             }
         }
     }
@@ -145,15 +148,15 @@ class InitModule(
      * @returns Map with member index as key and repair timer duration as value
      */
     private suspend fun readRepairTimers(image: BufferedImage): Map<Int, Duration> {
-        val jobs = List(5) { entry ->
-            async {
-                // Single repair entry without the "Repairing" or "Standby"
-                val timer = Ocr.forConfig(config).doOCRAndTrim(image.getSubimage(110 + 145 * entry, 82, 134, 28))
-                Regex("(\\d\\d):(\\d\\d):(\\d\\d)").matchEntire(timer)?.groupValues?.let {
-                    entry to DurationUtils.of(it[3].toLong(), it[2].toLong(), it[1].toLong())
-                } ?: entry to Duration.ZERO
-            }
-        }
-        return jobs.map { it.await() }.toMap()
+        return (0 until 5).mapAsync(this) { entry ->
+            // Single repair entry without the "Repairing" or "Standby"
+            Ocr.forConfig(config).doOCRAndTrim(image.getSubimage(110 + 145 * entry, 45, 134, 65))
+                    .takeIf { it.contains("Repairing") }
+                    ?.let { timer ->
+                        Regex("(\\d\\d):(\\d\\d):(\\d\\d)").find(timer)?.groupValues?.let {
+                            entry to DurationUtils.of(it[3].toLong(), it[2].toLong(), it[1].toLong())
+                        }
+                    } ?: entry to Duration.ZERO
+        }.toMap()
     }
 }
