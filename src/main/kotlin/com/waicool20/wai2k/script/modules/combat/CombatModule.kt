@@ -126,7 +126,12 @@ class CombatModule(
                         )
                     }
                     // Filter by name
-                    .filterAsync(this) { Ocr.forConfig(config).doOCRAndTrim(it.nameRegion).distanceTo(name, Ocr.OCR_DISTANCE_MAP) < OCR_THRESHOLD }
+                    .filterAsync(this) {
+                        val ocrName = Ocr.forConfig(config).doOCRAndTrim(it.nameRegion)
+                        val distance = ocrName.distanceTo(name, Ocr.OCR_DISTANCE_MAP)
+                        logger.debug("Found doll: $ocrName | Distance: $distance | Threshold: $OCR_THRESHOLD")
+                        distance < OCR_THRESHOLD
+                    }
                     // Filter by level
                     .filterAsync(this) {
                         it.levelRegion.binarizeImage().scale(2.0).pad(20, 10, Color.WHITE).let { bi ->
