@@ -174,10 +174,10 @@
       {
         "asset": {
           "imageName": "combat",
-          "x": 1519,
-          "y": 151,
-          "width": 60,
-          "height": 60
+          "x": 1509,
+          "y": 156,
+          "width": 45,
+          "height": 45
         }
       }
     ],
