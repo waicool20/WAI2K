@@ -27,6 +27,7 @@ import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.game.LogisticsSupport
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
+import com.waicool20.wai2k.util.CombatChapter
 import com.waicool20.wai2k.util.formatted
 import com.waicool20.waicoolutils.filterAsync
 import com.waicool20.waicoolutils.logging.loggerFor
@@ -155,31 +156,7 @@ class LogisticsSupportModule(
      */
     private suspend fun clickLogisticSupportChapter(ls: LogisticsSupport) {
         logger.info("Choosing logistics support chapter ${ls.chapter}")
-        val lsRegion = region.subRegion(407, 146, 283, 934)
-        // Top 1/4 part of lsRegion
-        val upperSwipeRegion = lsRegion.subRegion(lsRegion.w / 2 - 15, 0, 30, lsRegion.h / 4)
-        // Lower 1/4 part of lsRegion
-        val lowerSwipeRegion = lsRegion.subRegion(lsRegion.w / 2 - 15, lsRegion.h / 4 + lsRegion.h / 2, 30, lsRegion.h / 4)
-        val cSimilarity = 0.9
-        while (lsRegion.doesntHave("chapters/${ls.chapter}.png", cSimilarity)) {
-            delay(100)
-            val chapters = (0..7).filterAsync(this) { lsRegion.has("chapters/$it.png", cSimilarity) }
-            logger.debug("Visible chapters: $chapters")
-            when {
-                ls.chapter <= chapters.min() ?: 3 -> {
-                    logger.debug("Swiping down the chapters")
-                    upperSwipeRegion.swipeToRandomly(lowerSwipeRegion)
-                }
-                ls.chapter >= chapters.max() ?: 4 -> {
-                    logger.debug("Swiping up the chapters")
-                    lowerSwipeRegion.swipeToRandomly(upperSwipeRegion)
-                }
-            }
-            delay(300)
-        }
-
-        lsRegion.subRegion(0, 0, 195, lsRegion.h)
-                .clickUntilGone("chapters/clickable/${ls.chapter}.png", 20, 0.96)
+        CombatChapter.clickChapter(ls.chapter, region)
         logger.info("At logistics support chapter ${ls.chapter}")
     }
 

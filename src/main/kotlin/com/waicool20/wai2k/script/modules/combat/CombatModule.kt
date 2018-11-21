@@ -26,6 +26,7 @@ import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.script.modules.ScriptModule
+import com.waicool20.wai2k.util.CombatChapter
 import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.waicoolutils.*
@@ -49,6 +50,8 @@ class CombatModule(
     override suspend fun execute() {
         if (!profile.combat.enabled) return
         switchDolls()
+        navigator.navigateTo(LocationId.COMBAT)
+        clickCombatChapter()
     }
 
     //<editor-fold desc="Doll Switching">
@@ -154,5 +157,13 @@ class CombatModule(
 
     //</editor-fold>
 
+    //<editor-fold desc="Map Selection">
 
+    private suspend fun clickCombatChapter() {
+        logger.info("Choosing combat chapter 7")
+        CombatChapter.clickChapter(7, region)
+        logger.info("At combat chapter 7")
+    }
+
+    //</editor-fold>
 }
