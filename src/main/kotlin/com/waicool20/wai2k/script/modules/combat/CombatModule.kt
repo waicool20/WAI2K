@@ -114,10 +114,12 @@ class CombatModule(
 
         // Temporary convenience class for storing doll regions
         class DollRegions(val nameRegionImage: BufferedImage, val levelRegionImage: BufferedImage, val clickRegion: AndroidRegion)
-        // Optimize by taking a single screenshot and working on that
-        val image = region.takeScreenshot()
+
         logger.info("Attempting to find dragging doll $doll with given criteria name = $name, level > $level")
         repeat(retries) { i ->
+            // Take a screenshot after each retry, just in case it was a bad one in case its not OCRs fault
+            // Optimize by taking a single screenshot and working on that
+            val image = region.takeScreenshot()
             region.findAllOrEmpty("combat/formation/lock.png")
                     .also { logger.info("Found ${it.size} dolls on screen") }
                     // Transform the lock region into 3 distinct regions used for ocr and clicking by offset
