@@ -17,15 +17,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.waicool20.wai2k.script.modules
+package com.waicool20.wai2k.script.modules.combat
 
 import com.waicool20.wai2k.android.AndroidRegion
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
-import com.waicool20.wai2k.game.DollType
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
+import com.waicool20.wai2k.script.modules.ScriptModule
 import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.waicoolutils.*
@@ -50,6 +50,8 @@ class CombatModule(
         if (!profile.combat.enabled) return
         switchDolls()
     }
+
+    //<editor-fold desc="Doll Switching">
 
     private suspend fun switchDolls() {
         navigator.navigateTo(LocationId.FORMATION)
@@ -144,4 +146,8 @@ class CombatModule(
         }
         error("Failed to find dragging doll $doll that matches criteria after $retries attempts")
     }
+
+    //</editor-fold>
+
+
 }
