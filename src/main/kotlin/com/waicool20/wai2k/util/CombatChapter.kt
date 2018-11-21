@@ -24,6 +24,8 @@ import com.waicool20.waicoolutils.filterAsync
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
 
+private const val CHAPTER_SIMILARITY = 0.9
+
 object CombatChapter {
     private val logger = loggerFor<CombatChapter>()
 
@@ -37,10 +39,9 @@ object CombatChapter {
         val upperSwipeRegion = cRegion.subRegion(cRegion.w / 2 - 15, 0, 30, cRegion.h / 4)
         // Lower 1/4 part of lsRegion
         val lowerSwipeRegion = cRegion.subRegion(cRegion.w / 2 - 15, cRegion.h / 4 + cRegion.h / 2, 30, cRegion.h / 4)
-        val cSimilarity = 0.9
-        while (cRegion.doesntHave("chapters/$chapter.png", cSimilarity)) {
+        while (cRegion.doesntHave("chapters/$chapter.png", CHAPTER_SIMILARITY)) {
             delay(100)
-            val chapters = (0..7).filterAsync { cRegion.has("chapters/$it.png", cSimilarity) }
+            val chapters = (0..7).filterAsync { cRegion.has("chapters/$it.png", CHAPTER_SIMILARITY) }
             logger.debug("Visible chapters: $chapters")
             when {
                 chapter <= chapters.min() ?: 3 -> {

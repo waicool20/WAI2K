@@ -113,7 +113,7 @@ class CombatModule(
         val level = criteria.level
 
         // Temporary convenience class for storing doll regions
-        class DollRegions(val nameRegion: BufferedImage, val levelRegion: BufferedImage, val clickRegion: AndroidRegion)
+        class DollRegions(val nameRegionImage: BufferedImage, val levelRegionImage: BufferedImage, val clickRegion: AndroidRegion)
         // Optimize by taking a single screenshot and working on that
         val image = region.takeScreenshot()
         logger.info("Attempting to find dragging doll $doll with given criteria name = $name, level > $level")
@@ -130,14 +130,14 @@ class CombatModule(
                     }
                     // Filter by name
                     .filterAsync(this) {
-                        val ocrName = Ocr.forConfig(config).doOCRAndTrim(it.nameRegion)
+                        val ocrName = Ocr.forConfig(config).doOCRAndTrim(it.nameRegionImage)
                         val distance = ocrName.distanceTo(name, Ocr.OCR_DISTANCE_MAP)
-                        logger.debug("Found doll: $ocrName | Distance: $distance | Threshold: $OCR_THRESHOLD")
+                        logger.debug("Doll name ocr result: $ocrName | Distance: $distance | Threshold: $OCR_THRESHOLD")
                         distance < OCR_THRESHOLD
                     }
                     // Filter by level
                     .filterAsync(this) {
-                        it.levelRegion.binarizeImage().scale(2.0).pad(20, 10, Color.WHITE).let { bi ->
+                        it.levelRegionImage.binarizeImage().scale(2.0).pad(20, 10, Color.WHITE).let { bi ->
                             Ocr.forConfig(config, digitsOnly = true).doOCRAndTrim(bi).toIntOrNull() ?: 0 > level
                         }
                     }
