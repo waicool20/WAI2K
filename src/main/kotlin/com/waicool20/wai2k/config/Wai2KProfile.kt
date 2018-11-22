@@ -69,15 +69,18 @@ data class Wai2KProfile(
 
     class Combat(
             enabled: Boolean = false,
+            map: String = "4-3E",
             draggers: MutableMap<Int, DollCriteria> = mutableMapOf(
                     1 to DollCriteria("WA2000", 100, 5, DollType.RF),
                     2 to DollCriteria("FAL", 100, 5, DollType.AR)
             )
     ) {
         val enabledProperty = enabled.toProperty()
+        val mapProperty = map.toProperty()
         val draggersProperty = draggers.toProperty()
 
         val enabled by enabledProperty
+        val map by mapProperty
         val draggers by draggersProperty
     }
 

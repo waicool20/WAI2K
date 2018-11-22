@@ -21,24 +21,38 @@ package com.waicool20.wai2k.views.tabs.profile.combat
 
 import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.util.Binder
+import com.waicool20.waicoolutils.javafx.cellfactories.NoneSelectableCellFactory
 import javafx.scene.control.CheckBox
+import javafx.scene.control.ComboBox
 import javafx.scene.layout.VBox
 import tornadofx.*
 
 class CombatView: View(), Binder {
     override val root: VBox by fxml("/views/tabs/profile/combat/combat.fxml")
     private val enabledCheckBox: CheckBox by fxid()
+    private val mapComboBox: ComboBox<String> by fxid()
+
+    private val mapTypes = listOf(
+            "-- Normal --", "-- Emergency --", "4-3E", "-- Night Battle --"
+    )
 
     private val context: Wai2KContext by inject()
 
     override fun onDock() {
         super.onDock()
+        setValues()
         createBindings()
+    }
+
+    private fun setValues() {
+        mapComboBox.cellFactory = NoneSelectableCellFactory(Regex("--.+?--"))
+        mapComboBox.items = mapTypes.observable()
     }
 
     override fun createBindings() {
         context.currentProfile.combat.apply {
             enabledCheckBox.bind(enabledProperty)
+            mapComboBox.bind(mapProperty)
         }
     }
 }
