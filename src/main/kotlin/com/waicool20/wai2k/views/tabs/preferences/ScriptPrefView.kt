@@ -43,7 +43,7 @@ class ScriptPrefView : View() {
         context.wai2KConfig.scriptConfig.apply {
             loopDelaySpinner.bind(loopDelayProperty)
             scanRateSpinner.bind(sikulixScanRateProperty)
-            defaultSimThresholdSpinner.bind(defaultSimilaryThresholdProperty)
+            defaultSimThresholdSpinner.bind(defaultSimilarityThresholdProperty)
         }
     }
 }
