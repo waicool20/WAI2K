@@ -49,9 +49,10 @@ class CombatModule(
 
     override suspend fun execute() {
         if (!profile.combat.enabled) return
-        switchDolls()
+        //switchDolls()
         navigator.navigateTo(LocationId.COMBAT)
-        clickCombatChapter()
+        clickCombatChapter(profile.combat.map.take(1).toInt())
+        clickCombatMap(profile.combat.map)
     }
 
     //<editor-fold desc="Doll Switching">
@@ -161,10 +162,34 @@ class CombatModule(
 
     //<editor-fold desc="Map Selection">
 
-    private suspend fun clickCombatChapter() {
-        logger.info("Choosing combat chapter 7")
-        CombatChapter.clickChapter(7, region)
-        logger.info("At combat chapter 7")
+    private suspend fun clickCombatChapter(chapter: Int) {
+        logger.info("Choosing combat chapter $chapter")
+        CombatChapter.clickChapter(chapter, region)
+        logger.info("At combat chapter $chapter")
+    }
+
+    private suspend fun clickCombatMap(map: String) {
+        logger.info("Choosing combat map $map")
+        when {
+            map.endsWith("e", true) -> {
+                logger.info("Selecting emergency map")
+                region.subRegion(1709, 265, 125, 25).clickRandomly()
+            }
+            map.endsWith("n", true) -> {
+                logger.info("Selecting night map")
+                region.subRegion(1871, 265, 142, 25).clickRandomly()
+            }
+            else -> {
+                // Just in case, shouldn't be needed
+                // region.subRegion(1558, 265, 84, 25).clickRandomly()
+            }
+        }
+        yield()
+
+        // TODO: Implement scrolling for other maps
+        // Narrow vertical region containing the map names, 1-1, 1-2 etc.
+        region.subRegion(1089, 336, 80, 744)
+                .clickUntilGone("combat/maps/${map.replace(Regex("[enEN]"), "")}.png", 10)
     }
 
     //</editor-fold>
