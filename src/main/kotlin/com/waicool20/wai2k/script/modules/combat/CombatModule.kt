@@ -32,6 +32,8 @@ import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.waicoolutils.*
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.yield
 import java.awt.Color
 import java.awt.image.BufferedImage
@@ -189,8 +191,19 @@ class CombatModule(
 
         // TODO: Implement scrolling for other maps
         // Narrow vertical region containing the map names, 1-1, 1-2 etc.
-        region.subRegion(1089, 336, 80, 744)
-                .clickUntilGone("combat/maps/${map.replace(Regex("[enEN]"), "")}.png", 10)
+        val findRegion = region.subRegion(1089, 336, 80, 744)
+        // Click until map asset is gone
+        withTimeoutOrNull( 10000) {
+            val asset = "combat/maps/${map.replace(Regex("[enEN]"), "")}.png"
+            while (findRegion.has(asset)) {
+                yield()
+                findRegion.findOrNull(asset)
+                        // Map to whole length of map entry, can't do height as it might not be
+                        // on screen
+                        ?.let { region.subRegion(it.x - 342, it.y, 1274, 50) }
+                        ?.clickRandomly()
+            }
+        }
     }
 
     //</editor-fold>
