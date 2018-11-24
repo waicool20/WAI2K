@@ -20,6 +20,7 @@
 package com.waicool20.wai2k.views.tabs.profile.combat
 
 import com.waicool20.wai2k.config.Wai2KContext
+import com.waicool20.wai2k.script.modules.combat.MapRunner
 import com.waicool20.wai2k.util.Binder
 import com.waicool20.waicoolutils.javafx.cellfactories.NoneSelectableCellFactory
 import javafx.scene.control.CheckBox
@@ -27,14 +28,10 @@ import javafx.scene.control.ComboBox
 import javafx.scene.layout.VBox
 import tornadofx.*
 
-class CombatView: View(), Binder {
+class CombatView : View(), Binder {
     override val root: VBox by fxml("/views/tabs/profile/combat/combat.fxml")
     private val enabledCheckBox: CheckBox by fxid()
     private val mapComboBox: ComboBox<String> by fxid()
-
-    private val mapTypes = listOf(
-            "-- Normal --", "-- Emergency --", "4-3E", "-- Night Battle --"
-    )
 
     private val context: Wai2KContext by inject()
 
@@ -46,7 +43,14 @@ class CombatView: View(), Binder {
 
     private fun setValues() {
         mapComboBox.cellFactory = NoneSelectableCellFactory(Regex("--.+?--"))
-        mapComboBox.items = mapTypes.observable()
+        mapComboBox.items.apply {
+            add("-- Normal --")
+            addAll(MapRunner.list.keys.filterNot { it.matches(Regex(".*?[enEN]$")) })
+            add("-- Emergency --")
+            addAll(MapRunner.list.keys.filter { it.endsWith("e", true) })
+            add("-- Night Battle --")
+            addAll(MapRunner.list.keys.filter { it.endsWith("n", true) })
+        }
     }
 
     override fun createBindings() {

@@ -49,6 +49,7 @@ class CombatModule(
 
     override suspend fun execute() {
         if (!profile.combat.enabled) return
+        // TODO RE-ENABLE
         //switchDolls()
         navigator.navigateTo(LocationId.COMBAT)
         clickCombatChapter(profile.combat.map.take(1).toInt())
