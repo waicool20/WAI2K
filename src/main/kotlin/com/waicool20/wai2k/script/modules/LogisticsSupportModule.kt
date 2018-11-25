@@ -119,7 +119,7 @@ class LogisticsSupportModule(
         // Click ok button
         delay(300)
 
-        region.clickUntilGone("logistics/ok.png", 10)
+        region.clickUntilGone("ok.png", 10)
         delay(100)
         region.findOrNull("confirm.png")?.let {
             logger.info("One of the resources reached its limit!")
