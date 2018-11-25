@@ -138,9 +138,10 @@ class AndroidTouchInterface(val robot: AndroidRobot) {
      * @param fromRadius Radius to start the pinch gesture at
      * @param toRadius Radius to stop the pinch gesture at
      * @param angle Angle of pinch gesture
+     * @param ms Length of time to complete this action within in milliseconds.
      */
     @Synchronized
-    fun pinch(centerPoint: Location, fromRadius: Int, toRadius: Int, angle: Double = 0.0) {
+    fun pinch(centerPoint: Location, fromRadius: Int, toRadius: Int, angle: Double = 0.0, ms: Long = (Settings.MoveMouseDelay * 1000).toLong()) {
         val rad = (angle * PI) / 180
         robot.smoothTouchMove(listOf(
                 AndroidRobot.Swipe(0, dest = centerPoint.offset((fromRadius * cos(rad)).roundToInt(), (fromRadius * sin(rad)).roundToInt())),
@@ -153,7 +154,7 @@ class AndroidTouchInterface(val robot: AndroidRobot) {
         robot.smoothTouchMove(listOf(
                 AndroidRobot.Swipe(0, dest = centerPoint.offset((toRadius * cos(rad)).roundToInt(), (toRadius * sin(rad)).roundToInt())),
                 AndroidRobot.Swipe(1, dest = centerPoint.offset((-toRadius * cos(rad)).roundToInt(), (-toRadius * sin(rad)).roundToInt()))
-        ))
+        ), ms)
         robot.lowLevelTouchActions {
             touchUp(0)
             touchUp(1)

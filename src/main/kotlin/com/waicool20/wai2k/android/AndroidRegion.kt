@@ -198,8 +198,8 @@ open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region
         0
     }
 
-    override fun pinch(centerPoint: Location, fromRadius: Int, toRadius: Int, angle: Double) {
-        touchInterface.pinch(centerPoint, fromRadius, toRadius, angle)
+    override fun pinch(centerPoint: Location, fromRadius: Int, toRadius: Int, angle: Double, ms: Long) {
+        touchInterface.pinch(centerPoint, fromRadius, toRadius, angle, ms)
     }
 
     override fun type(text: String): Int = type(text, 0)

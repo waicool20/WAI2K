@@ -444,8 +444,9 @@ interface ISikuliRegion {
      * @param fromRadius Radius to start the pinch gesture at
      * @param toRadius Radius to stop the pinch gesture at
      * @param angle Angle of pinch gesture
+     * @param ms Length of time to complete this action within in milliseconds.
      */
-    fun pinch(centerPoint: Location, fromRadius: Int, toRadius: Int, angle: Double = 0.0)
+    fun pinch(centerPoint: Location, fromRadius: Int, toRadius: Int, angle: Double = 0.0, ms: Long = (Settings.MoveMouseDelay * 1000).toLong())
 
     /**
      * Types the given text into the current caret position. Only ASCII characters are supported.
