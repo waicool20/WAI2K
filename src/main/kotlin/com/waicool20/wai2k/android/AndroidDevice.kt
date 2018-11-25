@@ -183,23 +183,31 @@ class AndroidDevice(
      * @return [BufferedImage] containing the data of the screenshot
      */
     fun takeScreenshot(): BufferedImage {
-        val buffer = ByteBuffer.wrap(device.executeOrShell("screencap").readBytes())
-                .order(ByteOrder.LITTLE_ENDIAN)
+        var exception: Exception? = null
+        for (i in 0 until 3) {
+            try {
+                val buffer = ByteBuffer.wrap(device.executeOrShell("screencap").readBytes())
+                        .order(ByteOrder.LITTLE_ENDIAN)
 
-        val width = buffer.int
-        val height = buffer.int
-        val image = BufferedImage(width, height, buffer.int)
-        buffer.int // Ignore the 4th int
+                val width = buffer.int
+                val height = buffer.int
+                val image = BufferedImage(width, height, buffer.int)
+                buffer.int // Ignore the 4th int
 
-        for (y in 0 until height) {
-            for (x in 0 until width) {
-                val r = ((buffer.get() and 0xFF) shl 16)
-                val g = ((buffer.get() and 0xFF) shl 8)
-                val b = (buffer.get() and 0xFF)
-                buffer.get() // Ignore alpha channel
-                image.setRGB(x, y, r or g or b)
+                for (y in 0 until height) {
+                    for (x in 0 until width) {
+                        val r = ((buffer.get() and 0xFF) shl 16)
+                        val g = ((buffer.get() and 0xFF) shl 8)
+                        val b = (buffer.get() and 0xFF)
+                        buffer.get() // Ignore alpha channel
+                        image.setRGB(x, y, r or g or b)
+                    }
+                }
+                return image
+            } catch (e: Exception) {
+                exception = e
             }
         }
-        return image
+        throw exception ?: error("Could not take screenshot due to unknown error")
     }
 }
