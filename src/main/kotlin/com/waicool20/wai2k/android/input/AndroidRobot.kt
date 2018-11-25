@@ -472,10 +472,10 @@ class AndroidRobot(val screen: AndroidScreen) : IRobot {
         fun animator(x: Int, y: Int) =
                 AnimatorTimeBased(AnimatorOutQuarticEase(x.toFloat(), y.toFloat(), ms))
 
-        val animator = swipes.map {
-            it to (animator(it.src?.x ?: _touches[it.slot].cursorX, it.dest.x) to
-                    animator(it.src?.y ?: _touches[it.slot].cursorY, it.dest.y))
-        }.toMap()
+        val animator = swipes.associateWith {
+            animator(it.src?.x ?: _touches[it.slot].cursorX, it.dest.x) to
+                    animator(it.src?.y ?: _touches[it.slot].cursorY, it.dest.y)
+        }
 
         while (animator.values.any { it.first.running() }) {
             lowLevelTouchActions {
@@ -483,7 +483,6 @@ class AndroidRobot(val screen: AndroidScreen) : IRobot {
                     val x = animators.first.step()
                     val y = animators.second.step()
                     touchMove(touchMove.slot, x.roundToInt(), y.roundToInt())
-                    delay(10)
                 }
             }
         }
