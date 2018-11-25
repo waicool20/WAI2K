@@ -234,7 +234,8 @@ class CombatModule(
                     region.center,
                     Random.nextInt(500, 700),
                     Random.nextInt(20, 50),
-                    Random.nextDouble(-10.0, 10.0)
+                    Random.nextDouble(-10.0, 10.0),
+                    2500
             )
             delay(1000)
         }
