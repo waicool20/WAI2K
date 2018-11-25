@@ -36,6 +36,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.yield
 import java.awt.Color
 import java.awt.image.BufferedImage
+import kotlin.random.Random
 import kotlin.reflect.full.primaryConstructor
 
 private const val OCR_THRESHOLD = 2
@@ -60,6 +61,7 @@ class CombatModule(
         clickCombatChapter(map.take(1).toInt())
         clickCombatMap(map)
         enterBattle(map)
+        zoomMap(map)
 
         mapRunner.execute()
     }
@@ -222,6 +224,21 @@ class CombatModule(
         // map specific files
         region.waitSuspending("combat/battle/start.png", 15)
         logger.info("Entered map $map")
+    }
+
+    private suspend fun zoomMap(map: String) {
+        // TODO make zoom-anchor optional by checking if asset exists?
+        while (region.doesntHave("combat/maps/${map.toUpperCase()}/zoom-anchor.png")) {
+            logger.info("Zoom anchor not found, attempting to zoom out")
+            region.pinch(
+                    region.center,
+                    Random.nextInt(500, 700),
+                    Random.nextInt(20, 50),
+                    Random.nextDouble(-10.0, 10.0)
+            )
+            delay(1000)
+        }
+        logger.info("Zoom anchor found, ready to begin map")
     }
 
     //</editor-fold>
