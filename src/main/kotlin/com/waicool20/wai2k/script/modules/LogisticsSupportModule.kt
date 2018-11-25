@@ -192,10 +192,10 @@ class LogisticsSupportModule(
         logger.debug("Clicking the echelon")
         val eRegion = region.subRegion(119, 0, 150, region.h)
 
-        while (eRegion.doesntHave("logistics/echelon${echelon.number}.png")) {
+        while (eRegion.doesntHave("echelons/echelon${echelon.number}.png")) {
             delay(100)
             val echelons = (1..7).mapAsync(this) {
-                it to eRegion.findOrNull("logistics/echelon$it.png")
+                it to eRegion.findOrNull("echelons/echelon$it.png")
             }.filter { it.second == null }.map { it.first to it.second!! }
             logger.debug("Visible echelons: ${echelons.map { it.first }}")
             val lEchelon = echelons.minBy { it.first } ?: echelons.first()
@@ -212,7 +212,7 @@ class LogisticsSupportModule(
             }
             delay(300)
         }
-        eRegion.findOrNull("logistics/echelon${echelon.number}.png")?.clickRandomly()
+        eRegion.findOrNull("echelons/echelon${echelon.number}.png")?.clickRandomly()
         yield()
     }
 
