@@ -24,6 +24,11 @@ import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.script.modules.combat.MapRunner
+import com.waicool20.waicoolutils.logging.loggerFor
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.yield
+
+private const val PREFIX = "combat/maps/4-3E"
 
 class Map4_3E(
         scriptRunner: ScriptRunner,
@@ -31,7 +36,24 @@ class Map4_3E(
         config: Wai2KConfig,
         profile: Wai2KProfile
 ) : MapRunner(scriptRunner, region, config, profile) {
-    override suspend fun execute() {
+    private val logger = loggerFor<Map4_3E>()
 
+    override suspend fun execute() {
+        deployEchelons()
+    }
+
+    private suspend fun deployEchelons() {
+        logger.info("Deploying echelon 1 to heliport")
+        region.find("$PREFIX/heliport.png").clickRandomly(); delay(200)
+        region.find("ok.png").clickRandomly()
+
+        delay(200)
+
+        logger.info("Deploying echelon 2 to command post")
+        region.find("$PREFIX/commandpost.png").clickRandomly(); delay(200)
+        region.find("echelons/echelon2.png").clickRandomly(); yield()
+        region.find("ok.png").clickRandomly(); yield()
+
+        logger.info("Deployment complete")
     }
 }
