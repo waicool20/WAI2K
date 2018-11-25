@@ -32,11 +32,11 @@ import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.waicoolutils.*
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.yield
 import java.awt.Color
 import java.awt.image.BufferedImage
+import kotlin.reflect.full.primaryConstructor
 
 private const val OCR_THRESHOLD = 2
 
@@ -48,14 +48,20 @@ class CombatModule(
         navigator: Navigator
 ) : ScriptModule(scriptRunner, region, config, profile, navigator) {
     private val logger = loggerFor<CombatModule>()
+    private val mapRunner = MapRunner.list[profile.combat.map]?.primaryConstructor
+            ?.call(scriptRunner, region, config, profile) ?: error("Unsupported map")
 
     override suspend fun execute() {
         if (!profile.combat.enabled) return
         // TODO RE-ENABLE
         //switchDolls()
+        val map = profile.combat.map
         navigator.navigateTo(LocationId.COMBAT)
-        clickCombatChapter(profile.combat.map.take(1).toInt())
-        clickCombatMap(profile.combat.map)
+        clickCombatChapter(map.take(1).toInt())
+        clickCombatMap(map)
+        enterBattle(map)
+
+        mapRunner.execute()
     }
 
     //<editor-fold desc="Doll Switching">
@@ -193,7 +199,7 @@ class CombatModule(
         // Narrow vertical region containing the map names, 1-1, 1-2 etc.
         val findRegion = region.subRegion(1089, 336, 80, 744)
         // Click until map asset is gone
-        withTimeoutOrNull( 10000) {
+        withTimeoutOrNull(10000) {
             val asset = "combat/maps/${map.replace(Regex("[enEN]"), "")}.png"
             while (findRegion.has(asset)) {
                 yield()
@@ -204,6 +210,18 @@ class CombatModule(
                         ?.clickRandomly()
             }
         }
+    }
+
+    private suspend fun enterBattle(map: String) {
+        // Enter battle, use higher similarity threshold to exclude possibly disabled
+        // button which will be slightly transparent
+        logger.info("Entering normal battle at $map")
+        region.subRegion(790, 800, 580, 140)
+                .clickUntilGone("combat/battle/normal.png", 10, 0.96)
+        // Wait for start operation button to appear first before handing off control to
+        // map specific files
+        region.waitSuspending("combat/battle/start.png", 15)
+        logger.info("Entered map $map")
     }
 
     //</editor-fold>
