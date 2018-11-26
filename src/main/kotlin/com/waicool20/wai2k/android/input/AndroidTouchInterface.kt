@@ -68,10 +68,11 @@ class AndroidTouchInterface(val robot: AndroidRobot) {
      * Moves the cursor to a given location.
      *
      * @param location The location to move the cursor to.
+     * @param ms Length of time to complete this action within in milliseconds.
      */
     @Synchronized
-    fun moveTo(slot: Int, location: Location) =
-            synchronized(this) { robot.smoothTouchMove(listOf(AndroidRobot.Swipe(slot, dest = location))) }
+    fun moveTo(slot: Int, location: Location, ms: Long = (Settings.MoveMouseDelay * 1000).toLong()) =
+            synchronized(this) { robot.smoothTouchMove(listOf(AndroidRobot.Swipe(slot, dest = location)), ms) }
 
     /* Low level actions */
 
@@ -110,10 +111,11 @@ class AndroidTouchInterface(val robot: AndroidRobot) {
      *
      * @param location Location to release the swipe.
      * @param resetDelays Whether or not to reset delays after releasing.
+     * @param ms Length of time to complete this action within in milliseconds.
      */
     @Synchronized
-    fun endSwipe(slot: Int, location: Location, resetDelays: Boolean = true) = synchronized(this) {
-        moveTo(slot, location)
+    fun endSwipe(slot: Int, location: Location, resetDelays: Boolean = true, ms: Long = (Settings.MoveMouseDelay * 1000).toLong()) = synchronized(this) {
+        moveTo(slot, location, ms)
         robot.delay((Settings.DelayBeforeDrop * 1000).toInt())
         touchUp(slot)
         if (resetDelays) resetSwipeDelays()
@@ -125,11 +127,12 @@ class AndroidTouchInterface(val robot: AndroidRobot) {
      *
      * @param loc1 Location to begin startSwipe.
      * @param loc2 Location to drop at.
+     * @param ms Length of time to complete this action within in milliseconds.
      */
     @Synchronized
-    fun swipe(slot: Int, loc1: Location, loc2: Location) = synchronized(this) {
+    fun swipe(slot: Int, loc1: Location, loc2: Location, ms: Long = (Settings.MoveMouseDelay * 1000).toLong()) = synchronized(this) {
         startSwipe(slot, loc1, false)
-        endSwipe(slot, loc2)
+        endSwipe(slot, loc2, ms = ms)
     }
 
     /**

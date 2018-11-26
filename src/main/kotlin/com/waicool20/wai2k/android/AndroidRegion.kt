@@ -371,12 +371,12 @@ open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region
         }
     }
 
-    override fun <PSIMRL : Any> swipeToRandomly(target: PSIMRL) {
-        lastMatch?.let { swipeRandomly(it, target) } ?: swipeRandomly(this, target)
+    override fun <PSIMRL : Any> swipeToRandomly(target: PSIMRL, ms: Long) {
+        lastMatch?.let { swipeRandomly(it, target, ms) } ?: swipeRandomly(this, target, ms)
     }
 
-    override fun <PSIMRL : Any> swipeRandomly(t1: PSIMRL, t2: PSIMRL) = try {
-        touchInterface.swipe(0, getRandomLocationFromTarget(t1), getRandomLocationFromTarget(t2))
+    override fun <PSIMRL : Any> swipeRandomly(t1: PSIMRL, t2: PSIMRL, ms: Long) = try {
+        touchInterface.swipe(0, getRandomLocationFromTarget(t1), getRandomLocationFromTarget(t2), ms)
     } catch (e: FindFailed) {
     }
 

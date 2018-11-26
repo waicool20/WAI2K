@@ -814,15 +814,17 @@ interface ISikuliRegion {
      * Swipes to a target from this region randomly
      *
      * @param PSIMRL [Pattern], [String], [Image], [Match], [Region] or [Location]
+     * @param ms Length of time to complete this action within in milliseconds.
      */
-    fun <PSIMRL : Any> swipeToRandomly(target: PSIMRL)
+    fun <PSIMRL : Any> swipeToRandomly(target: PSIMRL, ms: Long = (Settings.MoveMouseDelay * 1000).toLong())
 
     /**
      * Swipes from [t1] to [t2] randomly
      *
      * @param PSIMRL [Pattern], [String], [Image], [Match], [Region] or [Location]
+     * @param ms Length of time to complete this action within in milliseconds.
      */
-    fun <PSIMRL : Any> swipeRandomly(t1: PSIMRL, t2: PSIMRL)
+    fun <PSIMRL : Any> swipeRandomly(t1: PSIMRL, t2: PSIMRL, ms: Long = (Settings.MoveMouseDelay * 1000).toLong())
 
     /**
      * Gets a random location from the target
