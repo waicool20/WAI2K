@@ -42,6 +42,7 @@ class Map4_3E(
         deployEchelons()
         region.find("combat/battle/start.png").clickRandomly(); yield()
         resupplyEchelons()
+        planPath()
     }
 
     private suspend fun deployEchelons() {
@@ -60,12 +61,43 @@ class Map4_3E(
     }
 
     private suspend fun resupplyEchelons() {
+        logger.info("Resupplying echelon at command post")
         region.find("$PREFIX/commandpost-deployed.png").grow(0, 135, 0, 135)
                 .clickRandomly()
         delay(200)
         region.clickUntilGone("combat/battle/resupply.png")
 
         region.findOrNull("close.png")?.clickRandomly()
+        logger.info("Resupply complete")
+    }
 
+    private suspend fun planPath() {
+        logger.info("Entering planning mode")
+        region.clickUntilGone("combat/battle/plan.png")
+        logger.info("Selecting echelon at heliport")
+        region.find("$PREFIX/heliport-deployed.png").grow(100, 0, 100, 0)
+                .clickRandomly(); yield()
+        logger.info("Selecting node 1")
+        region.find("$PREFIX/node1.png").grow(90, 0, 0, 0)
+                .clickRandomly(); yield()
+        logger.info("Selecting node 2")
+        region.find("$PREFIX/node2.png").grow(0, 75, 0, 0)
+                .clickRandomly(); yield()
+
+        // Pan up
+        region.subRegion(1033, 225, 240, 100).let {
+            it.swipeToRandomly(it.offset(0, 700)); yield()
+        }
+
+        logger.info("Selecting node 3")
+        region.find("$PREFIX/node3.png").grow(0, 80, 0, 0)
+                .clickRandomly(); yield()
+
+        logger.info("Selecting node 4")
+        region.find("$PREFIX/node4.png").grow(0, 110, 0, 0)
+                .clickRandomly(); yield()
+
+        logger.info("Executing plan")
+        region.clickUntilGone("combat/battle/plan-execute.png")
     }
 }
