@@ -21,10 +21,12 @@ package com.waicool20.wai2k.script
 
 data class ScriptStats(
         var logisticsSupportReceived: Int = 0,
-        var logisticsSupportSent: Int = 0
+        var logisticsSupportSent: Int = 0,
+        var sortiesDone: Int = 0
 ) {
     fun reset() {
         logisticsSupportReceived = 0
         logisticsSupportSent = 0
+        sortiesDone = 0
     }
 }

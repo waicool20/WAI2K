@@ -69,5 +69,6 @@ abstract class MapRunner(
             region.clickRandomly()
             delay(1000)
         }
+        scriptStats.sortiesDone += 1
     }
 }

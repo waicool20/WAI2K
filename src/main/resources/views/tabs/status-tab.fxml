@@ -66,6 +66,12 @@
                                                 <Label fx:id="logisticsReceivedLabel" />
                                             </children>
                                         </HBox>
+                              <HBox spacing="5.0">
+                                 <children>
+                                    <Label text="Sorties done:" />
+                                    <Label fx:id="sortiesDoneLabel" />
+                                 </children>
+                              </HBox>
                                     </children>
                                 </VBox>
                             </content>

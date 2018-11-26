@@ -37,6 +37,7 @@ import kotlinx.coroutines.yield
 import org.sikuli.basics.Settings
 import java.awt.Color
 import java.awt.image.BufferedImage
+import java.nio.file.Files
 import kotlin.random.Random
 import kotlin.reflect.full.primaryConstructor
 
@@ -55,8 +56,7 @@ class CombatModule(
 
     override suspend fun execute() {
         if (!profile.combat.enabled) return
-        // TODO RE-ENABLE
-        //switchDolls()
+        switchDolls()
         val map = profile.combat.map
         navigator.navigateTo(LocationId.COMBAT)
         clickCombatChapter(map.take(1).toInt())
@@ -65,6 +65,9 @@ class CombatModule(
         zoomMap(map)
 
         executeMapRunner()
+        logger.info("Sortie complete")
+        // Back to combat menu or home, check logistics
+        navigator.checkLogistics()
     }
 
     //<editor-fold desc="Doll Switching">
@@ -74,15 +77,21 @@ class CombatModule(
         logger.info("Switching doll 2 of echelon 1")
         // Doll 2 region ( excludes stuff below name/type )
         region.subRegion(612, 167, 263, 667).clickRandomly(); yield()
-        applyFilters(1)
-        scanValidDolls(1).shuffled().first().clickRandomly()
+
+        // If sorties done is even use doll 1 else doll 2
+        val echelon1Doll = (scriptStats.sortiesDone and 1) + 1
+        applyFilters(echelon1Doll)
+        scanValidDolls(echelon1Doll).shuffled().first().clickRandomly()
 
         // Select echelon 2
         region.subRegion(120, 296, 184, 109).clickRandomly(); yield()
         // Doll 1 region ( excludes stuff below name/type )
         region.subRegion(335, 167, 263, 667).clickRandomly(); yield()
-        applyFilters(2)
-        scanValidDolls(2).shuffled().first().clickRandomly()
+
+        // If sorties done is even use doll 2 else doll 1
+        val echelon2Doll = ((scriptStats.sortiesDone + 1) and 1) + 1
+        applyFilters(echelon2Doll)
+        scanValidDolls(echelon2Doll).shuffled().first().clickRandomly()
     }
 
     /**
@@ -228,8 +237,9 @@ class CombatModule(
     }
 
     private suspend fun zoomMap(map: String) {
-        // TODO make zoom-anchor optional by checking if asset exists?
-        while (region.doesntHave("combat/maps/${map.toUpperCase()}/zoom-anchor.png")) {
+        val asset = "combat/maps/${map.toUpperCase()}/zoom-anchor.png"
+        if (Files.notExists(config.assetsDirectory.resolve(asset))) return
+        while (region.doesntHave(asset)) {
             logger.info("Zoom anchor not found, attempting to zoom out")
             region.pinch(
                     region.center,
@@ -244,9 +254,8 @@ class CombatModule(
     }
 
     private suspend fun executeMapRunner() {
-        // TODO add to script config
         // Set similarity to slightly lower threshold for discrepancies because of zoom level
-        Settings.MinSimilarity = 0.85
+        Settings.MinSimilarity = config.scriptConfig.mapRunnerSimilarityThreshold
         mapRunner.execute()
         // Restore script threshold
         Settings.MinSimilarity = config.scriptConfig.defaultSimilarityThreshold

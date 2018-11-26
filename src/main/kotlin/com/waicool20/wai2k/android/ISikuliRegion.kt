@@ -785,11 +785,13 @@ interface ISikuliRegion {
      * @param PSI [Pattern], [String], [Image]
      * @param timeout Maximum amount of time to be clicking in seconds
      * @param similarity Similarity threshold
+     * @param ms Time between cycles of polling the given target and clicking it
      */
     suspend fun <PSI : Any> clickUntilGone(
             psi: PSI,
             timeout: Long = Settings.AutoWaitTimeout.roundToLong(),
-            similarity: Double = Settings.MinSimilarity
+            similarity: Double = Settings.MinSimilarity,
+            ms: Long = 1500
     )
 
     /**

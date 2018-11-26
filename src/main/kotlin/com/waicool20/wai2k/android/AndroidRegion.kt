@@ -24,15 +24,12 @@ import com.waicool20.waicoolutils.nextSign
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withTimeoutOrNull
-import kotlinx.coroutines.yield
 import org.sikuli.script.*
 import java.awt.Image
 import java.awt.Rectangle
 import java.awt.event.KeyEvent
 import java.awt.image.BufferedImage
 import java.util.*
-import java.util.concurrent.TimeUnit
-import kotlin.math.roundToLong
 
 open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region(), ISikuliRegion {
     /**
@@ -352,10 +349,11 @@ open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region
         click(randomLocation())
     }
 
-    override suspend fun <PSI : Any> clickUntilGone(psi: PSI, timeout: Long, similarity: Double) {
+    override suspend fun <PSI : Any> clickUntilGone(psi: PSI, timeout: Long, similarity: Double, ms: Long) {
         withTimeoutOrNull(timeout * 1000) {
-            while (has(psi, similarity) && isActive) {
-                findOrNull(psi, similarity)?.clickRandomly()
+            while (isActive) {
+                findOrNull(psi, similarity)?.clickRandomly() ?: break
+                delay(ms)
             }
         }
     }
