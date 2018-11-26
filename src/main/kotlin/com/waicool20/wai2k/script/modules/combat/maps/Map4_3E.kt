@@ -43,6 +43,7 @@ class Map4_3E(
         region.find("combat/battle/start.png").clickRandomly()
         resupplyEchelons()
         planPath()
+        waitForBattleEnd()
     }
 
     private suspend fun deployEchelons() {
@@ -105,5 +106,13 @@ class Map4_3E(
 
         logger.info("Executing plan")
         region.clickUntilGone("combat/battle/plan-execute.png")
+    }
+
+    private suspend fun waitForBattleEnd() {
+        logger.info("Waiting for battle to end")
+        // Use a higher similarity threshold to prevent prematurely exiting the wait
+        region.waitSuspending("$PREFIX/complete-condition.png", 600, 0.95)
+        logger.info("Battle ended")
+        region.waitSuspending("combat/battle/end.png", 15)?.clickRandomly()
     }
 }
