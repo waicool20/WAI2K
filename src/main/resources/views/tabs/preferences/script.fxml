@@ -20,13 +20,16 @@
   -->
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10.0" xmlns="http://javafx.com/javafx/8.0.162-ea" xmlns:fx="http://javafx.com/fxml/1">
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <HBox alignment="CENTER_LEFT" spacing="10.0">
          <children>
-            <Label prefWidth="200.0" text="Loop delay:" />
+            <Label prefWidth="220.0" text="Loop delay:" />
             <Spinner fx:id="loopDelaySpinner" />
          </children>
          <VBox.margin>
@@ -35,14 +38,20 @@
       </HBox>
       <HBox alignment="CENTER_LEFT" spacing="10.0">
          <children>
-            <Label prefWidth="200.0" text="SikuliX scan rate:" />
+            <Label prefWidth="220.0" text="SikuliX scan rate:" />
             <Spinner fx:id="scanRateSpinner" />
          </children>
       </HBox>
       <HBox alignment="CENTER_LEFT" spacing="10.0">
          <children>
-            <Label prefWidth="200.0" text="Default similarity threshold:" />
+            <Label prefWidth="220.0" text="Default similarity threshold:" />
             <Spinner fx:id="defaultSimThresholdSpinner" />
+         </children>
+      </HBox>
+      <HBox alignment="CENTER_LEFT" spacing="10.0">
+         <children>
+            <Label prefWidth="220.0" text="Map runner similarity threshold:" />
+            <Spinner fx:id="mapRunnerSimThresholdSpinner" />
          </children>
       </HBox>
    </children>

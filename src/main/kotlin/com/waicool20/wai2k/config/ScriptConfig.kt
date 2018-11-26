@@ -26,13 +26,16 @@ import tornadofx.*
 class ScriptConfig(
         loopDelay: Int = 15,
         sikulixScanRate: Int = 20,
-        defaultSimilarityThreshold: Double = 0.9
+        defaultSimilarityThreshold: Double = 0.9,
+        mapRunnerSimilarityThreshold: Double = 0.85
 ) {
     val loopDelayProperty = loopDelay.toProperty()
     val sikulixScanRateProperty = sikulixScanRate.toProperty()
     val defaultSimilarityThresholdProperty = defaultSimilarityThreshold.toProperty()
+    val mapRunnerSimilarityThresholdProperty = mapRunnerSimilarityThreshold.toProperty()
 
     var loopDelay by loopDelayProperty
     var sikulixScanRate by sikulixScanRateProperty
     var defaultSimilarityThreshold by defaultSimilarityThresholdProperty
+    var mapRunnerSimilarityThreshold by mapRunnerSimilarityThresholdProperty
 }

@@ -254,9 +254,8 @@ class CombatModule(
     }
 
     private suspend fun executeMapRunner() {
-        // TODO add to script config
         // Set similarity to slightly lower threshold for discrepancies because of zoom level
-        Settings.MinSimilarity = 0.85
+        Settings.MinSimilarity = config.scriptConfig.mapRunnerSimilarityThreshold
         mapRunner.execute()
         // Restore script threshold
         Settings.MinSimilarity = config.scriptConfig.defaultSimilarityThreshold
