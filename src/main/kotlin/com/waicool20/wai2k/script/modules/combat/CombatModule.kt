@@ -56,8 +56,7 @@ class CombatModule(
 
     override suspend fun execute() {
         if (!profile.combat.enabled) return
-        // TODO RE-ENABLE
-        //switchDolls()
+        switchDolls()
         val map = profile.combat.map
         navigator.navigateTo(LocationId.COMBAT)
         clickCombatChapter(map.take(1).toInt())
@@ -78,15 +77,21 @@ class CombatModule(
         logger.info("Switching doll 2 of echelon 1")
         // Doll 2 region ( excludes stuff below name/type )
         region.subRegion(612, 167, 263, 667).clickRandomly(); yield()
-        applyFilters(1)
-        scanValidDolls(1).shuffled().first().clickRandomly()
+
+        // If sorties done is even use doll 1 else doll 2
+        val echelon1Doll = (scriptStats.sortiesDone and 1) + 1
+        applyFilters(echelon1Doll)
+        scanValidDolls(echelon1Doll).shuffled().first().clickRandomly()
 
         // Select echelon 2
         region.subRegion(120, 296, 184, 109).clickRandomly(); yield()
         // Doll 1 region ( excludes stuff below name/type )
         region.subRegion(335, 167, 263, 667).clickRandomly(); yield()
-        applyFilters(2)
-        scanValidDolls(2).shuffled().first().clickRandomly()
+
+        // If sorties done is even use doll 2 else doll 1
+        val echelon2Doll = ((scriptStats.sortiesDone + 1) and 1) + 1
+        applyFilters(echelon2Doll)
+        scanValidDolls(echelon2Doll).shuffled().first().clickRandomly()
     }
 
     /**
