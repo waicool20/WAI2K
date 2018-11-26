@@ -34,6 +34,7 @@ import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.yield
+import org.sikuli.basics.Settings
 import java.awt.Color
 import java.awt.image.BufferedImage
 import kotlin.random.Random
@@ -63,7 +64,7 @@ class CombatModule(
         enterBattle(map)
         zoomMap(map)
 
-        mapRunner.execute()
+        executeMapRunner()
     }
 
     //<editor-fold desc="Doll Switching">
@@ -242,5 +243,13 @@ class CombatModule(
         logger.info("Zoom anchor found, ready to begin map")
     }
 
+    private suspend fun executeMapRunner() {
+        // TODO add to script config
+        // Set similarity to slightly lower threshold for discrepancies because of zoom level
+        Settings.MinSimilarity = 0.85
+        mapRunner.execute()
+        // Restore script threshold
+        Settings.MinSimilarity = config.scriptConfig.defaultSimilarityThreshold
+    }
     //</editor-fold>
 }
