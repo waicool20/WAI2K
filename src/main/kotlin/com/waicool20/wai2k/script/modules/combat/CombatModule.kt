@@ -66,6 +66,9 @@ class CombatModule(
         zoomMap(map)
 
         executeMapRunner()
+        logger.info("Sortie complete")
+        // Back to combat menu or home, check logistics
+        navigator.checkLogistics()
     }
 
     //<editor-fold desc="Doll Switching">
