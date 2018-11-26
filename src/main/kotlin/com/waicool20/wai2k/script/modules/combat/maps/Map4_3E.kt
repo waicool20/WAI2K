@@ -41,7 +41,6 @@ class Map4_3E(
     override suspend fun execute() {
         deployEchelons()
         region.find("combat/battle/start.png").clickRandomly()
-        delay(3000)
         resupplyEchelons()
         planPath()
     }
@@ -65,10 +64,11 @@ class Map4_3E(
 
     private suspend fun resupplyEchelons() {
         logger.info("Resupplying echelon at command post")
-        region.find("$PREFIX/commandpost-deployed.png").grow(0, 135, 0, 135).apply {
+        delay(3000)
+        region.waitSuspending("$PREFIX/commandpost-deployed.png", 15)?.grow(0, 135, 0, 135)?.apply {
             clickRandomly(); yield()
             clickRandomly(); yield()
-        }
+        } ?: error("Could not find command post")
 
         delay(200)
         region.clickUntilGone("combat/battle/resupply.png")
