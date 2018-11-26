@@ -92,7 +92,7 @@ class Map4_3E(
 
         // Pan up
         region.subRegion(1033, 225, 240, 100).let {
-            it.swipeToRandomly(it.offset(0, 700)); yield()
+            it.swipeToRandomly(it.offset(0, 700), 1500); yield()
         }
 
         logger.info("Selecting node 3")
