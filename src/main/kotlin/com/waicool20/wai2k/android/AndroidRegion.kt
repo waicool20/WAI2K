@@ -354,8 +354,8 @@ open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region
 
     override suspend fun <PSI : Any> clickUntilGone(psi: PSI, timeout: Long, similarity: Double) {
         withTimeoutOrNull(timeout * 1000) {
-            while (has(psi, similarity) && isActive) {
-                findOrNull(psi, similarity)?.clickRandomly()
+            while (isActive) {
+                findOrNull(psi, similarity)?.clickRandomly() ?: break
             }
         }
     }
