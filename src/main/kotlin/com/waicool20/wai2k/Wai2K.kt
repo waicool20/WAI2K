@@ -21,6 +21,7 @@ package com.waicool20.wai2k
 
 import com.waicool20.wai2k.views.LoaderView
 import com.waicool20.wai2k.views.Wai2KWorkspace
+import com.waicool20.waicoolutils.CLib
 import javafx.stage.Stage
 import javafx.stage.StageStyle
 import tornadofx.*
@@ -39,6 +40,7 @@ class Wai2K : App(Wai2KWorkspace::class) {
             val jarPath = Paths.get(Wai2K::class.java.protectionDomain.codeSource.location.toURI())
             if (isRunningJar()) _configDirectory = jarPath.resolveSibling(CONFIG_DIR_NAME)
             Files.createDirectories(_configDirectory)
+            CLib.Locale.setLocale(CLib.Locale.LC_ALL, "C")
         }
 
         private fun isRunningJar(): Boolean {
