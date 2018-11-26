@@ -44,6 +44,7 @@ class Map4_3E(
         resupplyEchelons()
         planPath()
         waitForBattleEnd()
+        handleBattleResults()
     }
 
     private suspend fun deployEchelons() {

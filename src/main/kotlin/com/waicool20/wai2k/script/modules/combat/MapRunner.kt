@@ -23,7 +23,9 @@ import com.waicool20.wai2k.android.AndroidRegion
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.script.ScriptRunner
+import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import org.reflections.Reflections
 import kotlin.coroutines.CoroutineContext
 
@@ -33,6 +35,7 @@ abstract class MapRunner(
         protected val config: Wai2KConfig,
         protected val profile: Wai2KProfile
 ) : CoroutineScope {
+    private val logger = loggerFor<MapRunner>()
 
     companion object {
         val list = Reflections("com.waicool20.wai2k.script.modules.combat.maps")
@@ -51,4 +54,20 @@ abstract class MapRunner(
     val scriptStats get() = scriptRunner.scriptStats
 
     abstract suspend fun execute()
+
+    protected suspend fun handleBattleResults() {
+        logger.info("Waiting for battle results")
+        region.waitSuspending("combat/battle/results.png", 30, 0.9)
+        delay(3000)
+        region.clickRandomly()
+        region.waitSuspending("combat/battle/drop.png", 10)?.let {
+            logger.info("There was a drop")
+            region.clickRandomly()
+            delay(1000)
+            logger.info("Waiting for battle results")
+            region.waitSuspending("combat/battle/results.png", 30, 0.9)
+            region.clickRandomly()
+            delay(1000)
+        }
+    }
 }
