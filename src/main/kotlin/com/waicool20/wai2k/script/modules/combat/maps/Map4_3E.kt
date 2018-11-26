@@ -40,7 +40,8 @@ class Map4_3E(
 
     override suspend fun execute() {
         deployEchelons()
-        region.find("combat/battle/start.png").clickRandomly(); yield()
+        region.find("combat/battle/start.png").clickRandomly()
+        delay(3000)
         resupplyEchelons()
         planPath()
     }
@@ -55,15 +56,20 @@ class Map4_3E(
         logger.info("Deploying echelon 2 to command post")
         region.clickUntilGone("$PREFIX/commandpost.png", 10)
         region.find("echelons/echelon2.png").clickRandomly(); yield()
-        region.find("ok.png").clickRandomly(); yield()
+        region.find("ok.png").clickRandomly()
+
+        delay(200)
 
         logger.info("Deployment complete")
     }
 
     private suspend fun resupplyEchelons() {
         logger.info("Resupplying echelon at command post")
-        region.find("$PREFIX/commandpost-deployed.png").grow(0, 135, 0, 135)
-                .clickRandomly()
+        region.find("$PREFIX/commandpost-deployed.png").grow(0, 135, 0, 135).apply {
+            clickRandomly(); yield()
+            clickRandomly(); yield()
+        }
+
         delay(200)
         region.clickUntilGone("combat/battle/resupply.png")
 
