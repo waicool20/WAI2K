@@ -37,6 +37,7 @@ import kotlinx.coroutines.yield
 import org.sikuli.basics.Settings
 import java.awt.Color
 import java.awt.image.BufferedImage
+import java.nio.file.Files
 import kotlin.random.Random
 import kotlin.reflect.full.primaryConstructor
 
@@ -228,8 +229,9 @@ class CombatModule(
     }
 
     private suspend fun zoomMap(map: String) {
-        // TODO make zoom-anchor optional by checking if asset exists?
-        while (region.doesntHave("combat/maps/${map.toUpperCase()}/zoom-anchor.png")) {
+        val asset = "combat/maps/${map.toUpperCase()}/zoom-anchor.png"
+        if (Files.notExists(config.assetsDirectory.resolve(asset))) return
+        while (region.doesntHave(asset)) {
             logger.info("Zoom anchor not found, attempting to zoom out")
             region.pinch(
                     region.center,
