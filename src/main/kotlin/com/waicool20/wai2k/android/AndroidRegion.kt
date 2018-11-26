@@ -22,6 +22,7 @@ package com.waicool20.wai2k.android
 import com.waicool20.wai2k.android.input.AndroidKeyboard
 import com.waicool20.waicoolutils.nextSign
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.yield
 import org.sikuli.script.*
@@ -353,8 +354,7 @@ open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region
 
     override suspend fun <PSI : Any> clickUntilGone(psi: PSI, timeout: Long, similarity: Double) {
         withTimeoutOrNull(timeout * 1000) {
-            while (has(psi, similarity)) {
-                yield()
+            while (has(psi, similarity) && isActive) {
                 findOrNull(psi, similarity)?.clickRandomly()
             }
         }
@@ -363,9 +363,8 @@ open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region
     override suspend fun <PSI : Any> waitSuspending(target: PSI, timeout: Long, similarity: Double): AndroidMatch? {
         return withTimeoutOrNull(timeout * 1000) {
             var match: AndroidMatch? = null
-            while (match == null) {
+            while (match == null && isActive) {
                 match = findOrNull(target, similarity)
-                delay(((1 / waitScanRate) * 1000).roundToLong())
             }
             match
         }
