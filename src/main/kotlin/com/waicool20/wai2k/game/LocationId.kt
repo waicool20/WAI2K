@@ -32,5 +32,6 @@ enum class LocationId {
     COMBAT_MENU,
     COMBAT,
     LOGISTICS_SUPPORT,
+    BATTLE,
     UNKNOWN
 }

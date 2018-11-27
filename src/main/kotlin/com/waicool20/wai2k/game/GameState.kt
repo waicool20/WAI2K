@@ -21,6 +21,8 @@ package com.waicool20.wai2k.game
 
 class GameState {
     var requiresUpdate: Boolean = true
+
+    var dollOverflow: Boolean = false
     var currentGameLocation: GameLocation = GameLocation(LocationId.UNKNOWN)
     val echelons: List<Echelon> = List(10) { Echelon(it + 1) }
 
