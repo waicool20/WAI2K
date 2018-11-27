@@ -72,6 +72,11 @@ class CombatModule(
 
     //<editor-fold desc="Doll Switching">
 
+    /**
+     * Switches the dolls in the echelons who will be dragging, which doll goes into which
+     * echelon depends on the sortie cycle. On even sortie cycles (ie. 0, 2, 4...)
+     * doll 1 goes into echelon 1, doll 2 goes into echelon 2 and vice versa
+     */
     private suspend fun switchDolls() {
         navigator.navigateTo(LocationId.FORMATION)
         logger.info("Switching doll 2 of echelon 1")
@@ -183,12 +188,20 @@ class CombatModule(
 
     //<editor-fold desc="Map Selection">
 
+    /**
+     * Clicks the given combat map chapter
+     */
     private suspend fun clickCombatChapter(chapter: Int) {
         logger.info("Choosing combat chapter $chapter")
         CombatChapter.clickChapter(chapter, region)
         logger.info("At combat chapter $chapter")
     }
 
+    /**
+     * Clicks the map given the map name, it will switch the combat type depending on the suffix
+     * of the given map string, 'N' for night battle and 'E for emergency battles
+     * else it is assumed to be a normal map
+     */
     private suspend fun clickCombatMap(map: String) {
         logger.info("Choosing combat map $map")
         when {
@@ -224,6 +237,9 @@ class CombatModule(
         }
     }
 
+    /**
+     * Enters the map and waits for the start button to appear
+     */
     private suspend fun enterBattle(map: String) {
         // Enter battle, use higher similarity threshold to exclude possibly disabled
         // button which will be slightly transparent
@@ -236,6 +252,10 @@ class CombatModule(
         logger.info("Entered map $map")
     }
 
+    /**
+     * Checks if a given map has a given asset called 'zoom-anchor.png' and tries to zoom out until
+     * it can find that asset on the screen
+     */
     private suspend fun zoomMap(map: String) {
         val asset = "combat/maps/${map.toUpperCase()}/zoom-anchor.png"
         if (Files.notExists(config.assetsDirectory.resolve(asset))) return
@@ -253,6 +273,10 @@ class CombatModule(
         logger.info("Zoom anchor found, ready to begin map")
     }
 
+    /**
+     * Sets the similarity threshold to map runner settings then executes the map runner,
+     * it restores the default similarity threshold before finishing
+     */
     private suspend fun executeMapRunner() {
         // Set similarity to slightly lower threshold for discrepancies because of zoom level
         Settings.MinSimilarity = config.scriptConfig.mapRunnerSimilarityThreshold
