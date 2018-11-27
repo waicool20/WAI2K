@@ -22,28 +22,30 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.input.KeyCodeCombination?>
 <MenuBar xmlns="http://javafx.com/javafx/8.0.162-ea" xmlns:fx="http://javafx.com/fxml/1">
-   <menus>
-      <Menu mnemonicParsing="false" text="File">
-         <items>
-            <MenuItem fx:id="quitItem" mnemonicParsing="false" text="Quit">
-               <accelerator>
-                  <KeyCodeCombination alt="UP" code="Q" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
-               </accelerator></MenuItem>
-         </items>
-      </Menu>
-      <Menu mnemonicParsing="false" text="Debug">
-         <items>
-            <MenuItem fx:id="consoleItem" mnemonicParsing="false" text="Debug Console">
-               <accelerator>
-                  <KeyCodeCombination alt="UP" code="D" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
-               </accelerator></MenuItem>
-             <MenuItem fx:id="toolsItem" mnemonicParsing="false" text="Debug Tools"/>
-         </items>
-      </Menu>
-      <Menu mnemonicParsing="false" text="Help">
-         <items>
-            <MenuItem fx:id="aboutItem" mnemonicParsing="false" text="About" />
-         </items>
-      </Menu>
-   </menus>
+    <menus>
+        <Menu mnemonicParsing="false" text="File">
+            <items>
+                <MenuItem fx:id="quitItem" mnemonicParsing="false" text="Quit">
+                    <accelerator>
+                        <KeyCodeCombination alt="UP" code="Q" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
+                    </accelerator>
+                </MenuItem>
+            </items>
+        </Menu>
+        <Menu mnemonicParsing="false" text="Debug">
+            <items>
+                <MenuItem fx:id="consoleItem" mnemonicParsing="false" text="Debug Console">
+                    <accelerator>
+                        <KeyCodeCombination alt="UP" code="D" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
+                    </accelerator>
+                </MenuItem>
+                <MenuItem fx:id="toolsItem" mnemonicParsing="false" text="Debug Tools"/>
+            </items>
+        </Menu>
+        <Menu mnemonicParsing="false" text="Help">
+            <items>
+                <MenuItem fx:id="aboutItem" mnemonicParsing="false" text="About"/>
+            </items>
+        </Menu>
+    </menus>
 </MenuBar>

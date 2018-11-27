@@ -54,8 +54,12 @@ class Wai2KConfig(
 ) {
     private val logger = loggerFor<Wai2K>()
 
-    @get:JsonIgnore val isValid get() = sikulixJarIsValid() && ocrIsValid() && AdbServer.findAdb("$adbPath") != null
-    @get:JsonIgnore val logLevel get() = if (debugModeEnabled) "DEBUG" else "INFO"
+    @get:JsonIgnore
+    val isValid
+        get() = sikulixJarIsValid() && ocrIsValid() && AdbServer.findAdb("$adbPath") != null
+    @get:JsonIgnore
+    val logLevel
+        get() = if (debugModeEnabled) "DEBUG" else "INFO"
 
     //<editor-fold desc="Properties">
 
@@ -73,8 +77,10 @@ class Wai2KConfig(
     var currentProfile by currentProfileProperty
     var sikulixJarPath by sikulixJarPathProperty
     var adbPath by adbPathProperty
-    @get:JsonIgnore var assetsDirectory by assetsDirectoryProperty
-    @get:JsonIgnore var ocrDirectory by ocrDirectoryProperty
+    @get:JsonIgnore
+    var assetsDirectory by assetsDirectoryProperty
+    @get:JsonIgnore
+    var ocrDirectory by ocrDirectoryProperty
     var clearConsoleOnStart by clearConsoleOnStartProperty
     var showConsoleOnStart by showConsoleOnStartProperty
     var debugModeEnabled by debugModeEnabledProperty

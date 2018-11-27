@@ -124,7 +124,8 @@ data class Wai2KProfile(
     private val logger = loggerFor<Wai2KProfile>()
 
     val nameProperty = DEFAULT_NAME.toProperty()
-    @get:JsonIgnore var name by nameProperty
+    @get:JsonIgnore
+    var name by nameProperty
 
     @get:JsonIgnore
     val path: Path

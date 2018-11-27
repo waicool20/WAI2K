@@ -30,67 +30,70 @@
   -->
 
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="15.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
-   <children>
-      <VBox spacing="10.0">
-         <children>
-            <HBox alignment="CENTER_LEFT" spacing="5.0">
-               <children>
-                  <Label text="Name:" />
-                  <TextField fx:id="doll1NameTextField" />
-               </children>
-            </HBox>
-            <HBox alignment="CENTER_LEFT" spacing="5.0">
-               <children>
-                  <Label text="Stars:" />
-                  <Rating fx:id="doll1StarsRating" prefWidth="100.0" rating="0.0" scaleX="0.7" scaleY="0.7" scaleZ="0.7" />
-               </children>
-            </HBox>
-            <HBox alignment="CENTER_LEFT" spacing="5.0">
-               <children>
-                  <Label text="Level:" />
-                  <Spinner fx:id="doll1LevelSpinner" prefWidth="75.0" />
-                  <Label text="Type:">
-                     <HBox.margin>
-                        <Insets left="15.0" />
-                     </HBox.margin>
-                  </Label>
-                  <ComboBox fx:id="doll1TypeComboBox" prefWidth="75.0" />
-               </children>
-            </HBox>
-         </children>
-      </VBox>
-      <Separator prefWidth="200.0" />
-      <VBox spacing="10.0">
-         <children>
-            <HBox alignment="CENTER_LEFT" spacing="5.0">
-               <children>
-                  <Label text="Name:" />
-                  <TextField fx:id="doll2NameTextField" />
-               </children>
-            </HBox>
-            <HBox alignment="CENTER_LEFT" spacing="5.0">
-               <children>
-                  <Label text="Stars:" />
-                  <Rating fx:id="doll2StarsRating" prefWidth="100.0" rating="0.0" scaleX="0.7" scaleY="0.7" scaleZ="0.7" />
-               </children>
-            </HBox>
-            <HBox alignment="CENTER_LEFT" spacing="5.0">
-               <children>
-                  <Label text="Level:" />
-                  <Spinner fx:id="doll2LevelSpinner" prefWidth="75.0" />
-                  <Label text="Type:">
-                     <HBox.margin>
-                        <Insets left="15.0" />
-                     </HBox.margin>
-                  </Label>
-                  <ComboBox fx:id="doll2TypeComboBox" prefWidth="75.0" />
-               </children>
-            </HBox>
-         </children>
-      </VBox>
-   </children>
-   <padding>
-      <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
-   </padding>
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="15.0"
+      xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <VBox spacing="10.0">
+            <children>
+                <HBox alignment="CENTER_LEFT" spacing="5.0">
+                    <children>
+                        <Label text="Name:"/>
+                        <TextField fx:id="doll1NameTextField"/>
+                    </children>
+                </HBox>
+                <HBox alignment="CENTER_LEFT" spacing="5.0">
+                    <children>
+                        <Label text="Stars:"/>
+                        <Rating fx:id="doll1StarsRating" prefWidth="100.0" rating="0.0" scaleX="0.7" scaleY="0.7"
+                                scaleZ="0.7"/>
+                    </children>
+                </HBox>
+                <HBox alignment="CENTER_LEFT" spacing="5.0">
+                    <children>
+                        <Label text="Level:"/>
+                        <Spinner fx:id="doll1LevelSpinner" prefWidth="75.0"/>
+                        <Label text="Type:">
+                            <HBox.margin>
+                                <Insets left="15.0"/>
+                            </HBox.margin>
+                        </Label>
+                        <ComboBox fx:id="doll1TypeComboBox" prefWidth="75.0"/>
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+        <Separator prefWidth="200.0"/>
+        <VBox spacing="10.0">
+            <children>
+                <HBox alignment="CENTER_LEFT" spacing="5.0">
+                    <children>
+                        <Label text="Name:"/>
+                        <TextField fx:id="doll2NameTextField"/>
+                    </children>
+                </HBox>
+                <HBox alignment="CENTER_LEFT" spacing="5.0">
+                    <children>
+                        <Label text="Stars:"/>
+                        <Rating fx:id="doll2StarsRating" prefWidth="100.0" rating="0.0" scaleX="0.7" scaleY="0.7"
+                                scaleZ="0.7"/>
+                    </children>
+                </HBox>
+                <HBox alignment="CENTER_LEFT" spacing="5.0">
+                    <children>
+                        <Label text="Level:"/>
+                        <Spinner fx:id="doll2LevelSpinner" prefWidth="75.0"/>
+                        <Label text="Type:">
+                            <HBox.margin>
+                                <Insets left="15.0"/>
+                            </HBox.margin>
+                        </Label>
+                        <ComboBox fx:id="doll2TypeComboBox" prefWidth="75.0"/>
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </children>
+    <padding>
+        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0"/>
+    </padding>
 </VBox>

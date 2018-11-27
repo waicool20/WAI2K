@@ -65,7 +65,7 @@ class Map5_4(
     private suspend fun resupplyEchelons() {
         logger.info("Resupplying echelon at command post")
         delay(3000)
-        region.waitSuspending("$PREFIX/commandpost-deployed.png", 15)?.grow(80, 0, 100, 0)?.apply {
+        region.waitSuspending("$PREFIX/commandpost-deployed.png", 15)?.grow(50, 10, 80, 0)?.apply {
             clickRandomly(); yield()
             clickRandomly(); yield()
         } ?: error("Could not find command post")
@@ -84,19 +84,19 @@ class Map5_4(
         region.find("$PREFIX/heliport-deployed.png").grow(0, 0, 80, 0)
                 .clickRandomly(); yield()
         logger.info("Selecting node 1")
-        region.find("$PREFIX/node1.png").grow(0, 0, 100, 0)
+        region.find("$PREFIX/node1.png").grow(0, 0, 60, 0)
                 .clickRandomly(); yield()
         logger.info("Selecting node 2")
-        region.find("$PREFIX/node2.png").grow(80, 0, 0, 0)
+        region.find("$PREFIX/node2.png").grow(80, 0, 10, 10)
                 .clickRandomly(); yield()
         logger.info("Selecting node 3")
-        region.find("$PREFIX/node3.png").grow(0, 0, 110, 0)
+        region.find("$PREFIX/node3.png").grow(10, 10, 70, 0)
                 .clickRandomly(); yield()
         logger.info("Selecting node 4")
         region.find("$PREFIX/node4.png").grow(0, 0, 80, 0)
                 .clickRandomly(); yield()
         logger.info("Selecting node 5")
-        region.find("$PREFIX/node5.png").grow(30, 0, 100, 0)
+        region.find("$PREFIX/node5.png").grow(10, 0, 70, 0)
                 .clickRandomly(); yield()
 
         logger.info("Executing plan")

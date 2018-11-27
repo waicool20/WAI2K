@@ -27,50 +27,54 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<GridPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="300.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.162-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.waicool20.wai2k.views.ConsoleView">
+<GridPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="300.0" prefWidth="600.0"
+          xmlns="http://javafx.com/javafx/8.0.162-ea" xmlns:fx="http://javafx.com/fxml/1"
+          fx:controller="com.waicool20.wai2k.views.ConsoleView">
     <columnConstraints>
-        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
     </columnConstraints>
     <rowConstraints>
-        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-        <RowConstraints maxHeight="45.0" minHeight="45.0" prefHeight="45.0" vgrow="SOMETIMES" />
+        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+        <RowConstraints maxHeight="45.0" minHeight="45.0" prefHeight="45.0" vgrow="SOMETIMES"/>
     </rowConstraints>
     <children>
         <GridPane GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
             <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="-Infinity" percentWidth="50.0" />
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="-Infinity" percentWidth="50.0" prefWidth="100.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="-Infinity" percentWidth="50.0"/>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="-Infinity" percentWidth="50.0" prefWidth="100.0"/>
             </columnConstraints>
             <rowConstraints>
-                <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" vgrow="SOMETIMES"/>
             </rowConstraints>
             <children>
                 <HBox fillHeight="false" prefHeight="45.0" spacing="10.0">
                     <children>
-                        <Button mnemonicParsing="false" onAction="#onClear" text="Clear" />
-                        <Button fx:id="copyButton" mnemonicParsing="false" onAction="#onCopyAll" text="Copy All" />
+                        <Button mnemonicParsing="false" onAction="#onClear" text="Clear"/>
+                        <Button fx:id="copyButton" mnemonicParsing="false" onAction="#onCopyAll" text="Copy All"/>
                     </children>
                     <padding>
-                        <Insets bottom="10.0" left="30.0" />
+                        <Insets bottom="10.0" left="30.0"/>
                     </padding>
                 </HBox>
-                <HBox alignment="TOP_RIGHT" fillHeight="false" prefHeight="45.0" spacing="10.0" GridPane.columnIndex="1">
+                <HBox alignment="TOP_RIGHT" fillHeight="false" prefHeight="45.0" spacing="10.0"
+                      GridPane.columnIndex="1">
                     <children>
-                        <Button mnemonicParsing="false" onAction="#toTop" text="To Top" />
-                        <Button mnemonicParsing="false" onAction="#toBottom" text="To Bottom" />
+                        <Button mnemonicParsing="false" onAction="#toTop" text="To Top"/>
+                        <Button mnemonicParsing="false" onAction="#toBottom" text="To Bottom"/>
                     </children>
                     <padding>
-                        <Insets bottom="10.0" right="30.0" />
+                        <Insets bottom="10.0" right="30.0"/>
                     </padding>
                 </HBox>
             </children>
         </GridPane>
         <HBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
             <padding>
-                <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+                <Insets bottom="30.0" left="30.0" right="30.0" top="30.0"/>
             </padding>
             <children>
-                <TextArea fx:id="consoleTextArea" editable="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" wrapText="true" HBox.hgrow="ALWAYS" />
+                <TextArea fx:id="consoleTextArea" editable="false" maxHeight="1.7976931348623157E308"
+                          maxWidth="1.7976931348623157E308" wrapText="true" HBox.hgrow="ALWAYS"/>
             </children>
         </HBox>
     </children>
