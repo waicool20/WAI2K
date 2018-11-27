@@ -43,6 +43,16 @@
           "width": 317,
           "height": 149
         }
+      },
+      {
+        "dest": "factory_menu",
+        "asset": {
+          "imageName": "",
+          "x": 1694,
+          "y": 491,
+          "width": 317,
+          "height": 124
+        }
       }
     ]
   },
@@ -90,6 +100,16 @@
           "width": 317,
           "height": 149
         }
+      },
+      {
+        "dest": "factory_menu",
+        "asset": {
+          "imageName": "",
+          "x": 1694,
+          "y": 491,
+          "width": 317,
+          "height": 124
+        }
       }
     ]
   },
@@ -120,6 +140,419 @@
       }
     ]
   },
+  {
+    "id": "factory_menu",
+    "isIntermediate": true,
+    "landmarks": [
+      {
+        "asset": {
+          "imageName": "factory_menu",
+          "x": 420,
+          "y": 50,
+          "width": 60,
+          "height": 60
+        }
+      }
+    ],
+    "links": [
+      {
+        "dest": "home",
+        "asset": {
+          "imageName": "",
+          "x": 120,
+          "y": 0,
+          "width": 205,
+          "height": 104
+        }
+      },
+      {
+        "dest": "tdoll_production",
+        "asset": {
+          "imageName": "",
+          "x": 126,
+          "y": 179,
+          "width": 257,
+          "height": 117
+        }
+      },
+      {
+        "dest": "dummy_link",
+        "asset": {
+          "imageName": "",
+          "x": 126,
+          "y": 318,
+          "width": 257,
+          "height": 117
+        }
+      },
+      {
+        "dest": "tdoll_enhancement",
+        "asset": {
+          "imageName": "",
+          "x": 126,
+          "y": 458,
+          "width": 257,
+          "height": 117
+        }
+      },
+      {
+        "dest": "tdoll_retirement",
+        "asset": {
+          "imageName": "",
+          "x": 126,
+          "y": 598,
+          "width": 257,
+          "height": 117
+        }
+      },
+      {
+        "dest": "equipment_production",
+        "asset": {
+          "imageName": "",
+          "x": 126,
+          "y": 738,
+          "width": 257,
+          "height": 117
+        }
+      }
+    ]
+  },
+  {
+    "id": "tdoll_production",
+    "isIntermediate": false,
+    "landmarks": [
+      {
+        "asset": {
+          "imageName": "tdoll_production",
+          "x": 445,
+          "y": 150,
+          "width": 60,
+          "height": 60
+        }
+      }
+    ],
+    "links": [
+      {
+        "dest": "home",
+        "asset": {
+          "imageName": "",
+          "x": 120,
+          "y": 0,
+          "width": 205,
+          "height": 104
+        }
+      },
+      {
+        "dest": "dummy_link",
+        "asset": {
+          "imageName": "",
+          "x": 126,
+          "y": 318,
+          "width": 257,
+          "height": 117
+        }
+      },
+      {
+        "dest": "tdoll_enhancement",
+        "asset": {
+          "imageName": "",
+          "x": 126,
+          "y": 458,
+          "width": 257,
+          "height": 117
+        }
+      },
+      {
+        "dest": "tdoll_retirement",
+        "asset": {
+          "imageName": "",
+          "x": 126,
+          "y": 598,
+          "width": 257,
+          "height": 117
+        }
+      },
+      {
+        "dest": "equipment_production",
+        "asset": {
+          "imageName": "",
+          "x": 126,
+          "y": 738,
+          "width": 257,
+          "height": 117
+        }
+      }
+    ]
+  },
+  {
+    "id": "dummy_link",
+    "isIntermediate": false,
+    "landmarks": [
+      {
+        "asset": {
+          "imageName": "dummy_link",
+          "x": 1840,
+          "y": 750,
+          "width": 60,
+          "height": 60
+        }
+      }
+    ],
+    "links": [
+      {
+        "dest": "home",
+        "asset": {
+          "imageName": "",
+          "x": 120,
+          "y": 0,
+          "width": 205,
+          "height": 104
+        }
+      },
+      {
+        "dest": "tdoll_production",
+        "asset": {
+          "imageName": "",
+          "x": 126,
+          "y": 179,
+          "width": 257,
+          "height": 117
+        }
+      },
+      {
+        "dest": "tdoll_enhancement",
+        "asset": {
+          "imageName": "",
+          "x": 126,
+          "y": 458,
+          "width": 257,
+          "height": 117
+        }
+      },
+      {
+        "dest": "tdoll_retirement",
+        "asset": {
+          "imageName": "",
+          "x": 126,
+          "y": 598,
+          "width": 257,
+          "height": 117
+        }
+      },
+      {
+        "dest": "equipment_production",
+        "asset": {
+          "imageName": "",
+          "x": 126,
+          "y": 738,
+          "width": 257,
+          "height": 117
+        }
+      }
+    ]
+  },
+  {
+    "id": "tdoll_enhancement",
+    "isIntermediate": false,
+    "landmarks": [
+      {
+        "asset": {
+          "imageName": "tdoll_enhancement",
+          "x": 1850,
+          "y": 890,
+          "width": 60,
+          "height": 60
+        }
+      }
+    ],
+    "links": [
+      {
+        "dest": "home",
+        "asset": {
+          "imageName": "",
+          "x": 120,
+          "y": 0,
+          "width": 205,
+          "height": 104
+        }
+      },
+      {
+        "dest": "tdoll_production",
+        "asset": {
+          "imageName": "",
+          "x": 126,
+          "y": 179,
+          "width": 257,
+          "height": 117
+        }
+      },
+      {
+        "dest": "dummy_link",
+        "asset": {
+          "imageName": "",
+          "x": 126,
+          "y": 318,
+          "width": 257,
+          "height": 117
+        }
+      },
+      {
+        "dest": "tdoll_retirement",
+        "asset": {
+          "imageName": "",
+          "x": 126,
+          "y": 598,
+          "width": 257,
+          "height": 117
+        }
+      },
+      {
+        "dest": "equipment_production",
+        "asset": {
+          "imageName": "",
+          "x": 126,
+          "y": 738,
+          "width": 257,
+          "height": 117
+        }
+      }
+    ]
+  },
+  {
+    "id": "tdoll_retirement",
+    "isIntermediate": false,
+    "landmarks": [
+      {
+        "asset": {
+          "imageName": "tdoll_retirement",
+          "x": 1830,
+          "y": 900,
+          "width": 60,
+          "height": 60
+        }
+      }
+    ],
+    "links": [
+      {
+        "dest": "home",
+        "asset": {
+          "imageName": "",
+          "x": 120,
+          "y": 0,
+          "width": 205,
+          "height": 104
+        }
+      },
+      {
+        "dest": "tdoll_production",
+        "asset": {
+          "imageName": "",
+          "x": 126,
+          "y": 179,
+          "width": 257,
+          "height": 117
+        }
+      },
+      {
+        "dest": "dummy_link",
+        "asset": {
+          "imageName": "",
+          "x": 126,
+          "y": 318,
+          "width": 257,
+          "height": 117
+        }
+      },
+      {
+        "dest": "tdoll_enhancement",
+        "asset": {
+          "imageName": "",
+          "x": 126,
+          "y": 458,
+          "width": 257,
+          "height": 117
+        }
+      },
+      {
+        "dest": "equipment_production",
+        "asset": {
+          "imageName": "",
+          "x": 126,
+          "y": 738,
+          "width": 257,
+          "height": 117
+        }
+      }
+    ]
+  },
+  {
+    "id": "equipment_production",
+    "isIntermediate": false,
+    "landmarks": [
+      {
+        "asset": {
+          "imageName": "equipment_production",
+          "x": 440,
+          "y": 150,
+          "width": 60,
+          "height": 60
+        }
+      }
+    ],
+    "links": [
+      {
+        "dest": "home",
+        "asset": {
+          "imageName": "",
+          "x": 120,
+          "y": 0,
+          "width": 205,
+          "height": 104
+        }
+      },
+      {
+        "dest": "tdoll_production",
+        "asset": {
+          "imageName": "",
+          "x": 126,
+          "y": 179,
+          "width": 257,
+          "height": 117
+        }
+      },
+      {
+        "dest": "dummy_link",
+        "asset": {
+          "imageName": "",
+          "x": 126,
+          "y": 318,
+          "width": 257,
+          "height": 117
+        }
+      },
+      {
+        "dest": "tdoll_enhancement",
+        "asset": {
+          "imageName": "",
+          "x": 126,
+          "y": 458,
+          "width": 257,
+          "height": 117
+        }
+      },
+      {
+        "dest": "tdoll_retirement",
+        "asset": {
+          "imageName": "",
+          "x": 126,
+          "y": 598,
+          "width": 257,
+          "height": 117
+        }
+      }
+    ]
+  },
+
   {
     "id": "combat_menu",
     "isIntermediate": true,
