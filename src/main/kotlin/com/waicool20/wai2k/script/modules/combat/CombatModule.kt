@@ -57,6 +57,15 @@ class CombatModule(
 
     override suspend fun execute() {
         if (!profile.combat.enabled) return
+        // Return if the base doll limit is already reached
+        if (gameState.dollOverflow) return
+        runCombatCycle()
+    }
+
+    /**
+     * Runs a combat cycle
+     */
+    private suspend fun runCombatCycle() {
         switchDolls()
         val map = profile.combat.map
         navigator.navigateTo(LocationId.COMBAT)
