@@ -47,6 +47,7 @@ class StatusTabView : CoroutineScopeView() {
     private val logisticsSentLabel: Label by fxid()
     private val logisticsReceivedLabel: Label by fxid()
     private val sortiesDoneLabel: Label by fxid()
+    private val sphLabel: Label by fxid()
 
     private val timersLabel: Label by fxid()
 
@@ -80,6 +81,7 @@ class StatusTabView : CoroutineScopeView() {
             logisticsSentLabel.text = "$logisticsSupportSent"
             logisticsReceivedLabel.text = "$logisticsSupportReceived"
             sortiesDoneLabel.text = "$sortiesDone"
+            sphLabel.text = formatDecimal(sortiesDone / hoursSince(scriptRunner.lastStartTime))
         }
     }
 

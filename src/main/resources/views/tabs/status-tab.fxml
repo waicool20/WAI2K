@@ -72,6 +72,12 @@
                                     <Label fx:id="sortiesDoneLabel" />
                                  </children>
                               </HBox>
+                              <HBox spacing="5.0">
+                                 <children>
+                                    <Label text="Sorties per hour (SPH):" />
+                                    <Label fx:id="sphLabel" />
+                                 </children>
+                              </HBox>
                                     </children>
                                 </VBox>
                             </content>
