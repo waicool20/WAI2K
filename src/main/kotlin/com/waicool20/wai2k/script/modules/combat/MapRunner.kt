@@ -53,7 +53,18 @@ abstract class MapRunner(
     val gameState get() = scriptRunner.gameState
     val scriptStats get() = scriptRunner.scriptStats
 
+    val PREFIX = "combat/maps/${javaClass.simpleName.replace("_", "-").drop(3)}"
+
     abstract suspend fun execute()
+
+    protected suspend fun waitForBattleEnd() {
+        logger.info("Waiting for battle to end")
+        // Use a higher similarity threshold to prevent prematurely exiting the wait
+        region.waitSuspending("$PREFIX/complete-condition.png", 600, 0.95)
+        logger.info("Battle ended")
+
+        region.clickUntilGone("combat/battle/end.png", 15, 0.75)
+    }
 
     protected suspend fun handleBattleResults() {
         logger.info("Waiting for battle results")

@@ -28,8 +28,6 @@ import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
 
-private const val PREFIX = "combat/maps/5-4"
-
 class Map5_4(
         scriptRunner: ScriptRunner,
         region: AndroidRegion,
@@ -103,13 +101,5 @@ class Map5_4(
 
         logger.info("Executing plan")
         region.clickUntilGone("combat/battle/plan-execute.png")
-    }
-
-    private suspend fun waitForBattleEnd() {
-        logger.info("Waiting for battle to end")
-        // Use a higher similarity threshold to prevent prematurely exiting the wait
-        region.waitSuspending("$PREFIX/complete-condition.png", 600, 0.95)
-        logger.info("Battle ended")
-        region.waitSuspending("combat/battle/end.png", 15)?.clickRandomly()
     }
 }
