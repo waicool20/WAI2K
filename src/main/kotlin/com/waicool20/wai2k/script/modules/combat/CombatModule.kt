@@ -22,6 +22,7 @@ package com.waicool20.wai2k.script.modules.combat
 import com.waicool20.wai2k.android.AndroidRegion
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
+import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
@@ -62,9 +63,14 @@ class CombatModule(
         clickCombatChapter(map.take(1).toInt())
         clickCombatMap(map)
         enterBattle(map)
-        zoomMap(map)
+        // Cancel further execution if not in battle, maybe due to doll/equip overflow
+        if (gameState.currentGameLocation.id != LocationId.BATTLE) return
 
+        zoomMap(map)
         executeMapRunner()
+
+        // Set game location back to combat menu now that battle has ended
+        gameState.currentGameLocation = GameLocation.mappings(config)[LocationId.COMBAT_MENU] ?: error("Bad locations.json file")
         logger.info("Sortie complete")
         // Back to combat menu or home, check logistics
         navigator.checkLogistics()
@@ -186,7 +192,7 @@ class CombatModule(
 
     //</editor-fold>
 
-    //<editor-fold desc="Map Selection">
+    //<editor-fold desc="Map Selection and Combat">
 
     /**
      * Clicks the given combat map chapter
@@ -246,10 +252,23 @@ class CombatModule(
         logger.info("Entering normal battle at $map")
         region.subRegion(790, 800, 580, 140)
                 .clickUntilGone("combat/battle/normal.png", 10, 0.96)
+        delay(200)
+
+        region.subRegion(1185, 696, 278,95).findOrNull("combat/enhancement.png")?.apply {
+            logger.info("T-doll limit reached, cancelling sortie")
+            clickRandomly()
+            gameState.dollOverflow = true
+            gameState.currentGameLocation = GameLocation.mappings(config)[LocationId.TDOLL_ENHANCEMENT] ?: error("Bad locations.json file")
+            return
+        }
+
         // Wait for start operation button to appear first before handing off control to
         // map specific files
         region.waitSuspending("combat/battle/start.png", 15)
         logger.info("Entered map $map")
+
+        // Set location to battle
+        gameState.currentGameLocation = GameLocation(LocationId.BATTLE)
     }
 
     /**
