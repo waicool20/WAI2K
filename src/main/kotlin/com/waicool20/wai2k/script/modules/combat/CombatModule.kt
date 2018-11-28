@@ -56,6 +56,8 @@ class CombatModule(
     private val mapRunner = MapRunner.list[profile.combat.map]?.primaryConstructor
             ?.call(scriptRunner, region, config, profile) ?: error("Unsupported map")
 
+    private var wasCancelled = false
+
     override suspend fun execute() {
         if (!profile.combat.enabled) return
         // Return if the base doll limit is already reached
@@ -67,14 +69,16 @@ class CombatModule(
      * Runs a combat cycle
      */
     private suspend fun runCombatCycle() {
-        switchDolls()
+        // Don't need to switch dolls if previous run was cancelled
+        if (!wasCancelled) switchDolls()
         val map = profile.combat.map
         navigator.navigateTo(LocationId.COMBAT)
         clickCombatChapter(map.take(1).toInt())
         clickCombatMap(map)
         enterBattle(map)
         // Cancel further execution if not in battle, maybe due to doll/equip overflow
-        if (gameState.currentGameLocation.id != LocationId.BATTLE) return
+        wasCancelled = gameState.currentGameLocation.id != LocationId.BATTLE
+        if (wasCancelled) return
 
         zoomMap(map)
         executeMapRunner()
