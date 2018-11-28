@@ -39,6 +39,7 @@ import org.sikuli.basics.Settings
 import java.awt.Color
 import java.awt.image.BufferedImage
 import java.nio.file.Files
+import kotlin.math.abs
 import kotlin.random.Random
 import kotlin.reflect.full.primaryConstructor
 
@@ -157,7 +158,7 @@ class CombatModule(
         // Temporary convenience class for storing doll regions
         class DollRegions(val nameRegionImage: BufferedImage, val levelRegionImage: BufferedImage, val clickRegion: AndroidRegion)
 
-        logger.info("Attempting to find dragging doll $doll with given criteria name = $name, level > $level")
+        logger.info("Attempting to find dragging doll $doll with given criteria name = $name, level >= $level")
         repeat(retries) { i ->
             // Take a screenshot after each retry, just in case it was a bad one in case its not OCRs fault
             // Optimize by taking a single screenshot and working on that
@@ -182,7 +183,7 @@ class CombatModule(
                     // Filter by level
                     .filterAsync(this) {
                         it.levelRegionImage.binarizeImage().scale(2.0).pad(20, 10, Color.WHITE).let { bi ->
-                            Ocr.forConfig(config, digitsOnly = true).doOCRAndTrim(bi).toIntOrNull() ?: 1 >= level
+                            abs(Ocr.forConfig(config, digitsOnly = true).doOCRAndTrim(bi).toIntOrNull() ?: 1) >= level
                         }
                     }
                     // Return click regions
