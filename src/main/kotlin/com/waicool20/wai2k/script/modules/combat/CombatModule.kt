@@ -108,6 +108,8 @@ class CombatModule(
         applyFilters(echelon1Doll)
         scanValidDolls(echelon1Doll).shuffled().first().clickRandomly()
 
+        delay(250)
+
         // Select echelon 2
         region.subRegion(120, 296, 184, 109).clickRandomly(); yield()
         // Doll 1 region ( excludes stuff below name/type )
@@ -128,15 +130,16 @@ class CombatModule(
         val stars = criteria.stars
         val type = criteria.type
 
+        delay(100)
         // Filter By button
         val filterButtonRegion = region.subRegion(1765, 348, 257, 161)
-        filterButtonRegion.clickRandomly(); yield()
+        filterButtonRegion.clickRandomly(); delay(100)
         // Filter popup region
         val prefix = "doll-list/filters"
         region.subRegion(900, 159, 834, 910).run {
             logger.info("Resetting filters")
             find("$prefix/reset.png").clickRandomly(); yield()
-            filterButtonRegion.clickRandomly(); yield()
+            filterButtonRegion.clickRandomly(); delay(100)
             logger.info("Applying filter $stars star")
             find("$prefix/${stars}star.png").clickRandomly(); yield()
             logger.info("Applying filter $type")
