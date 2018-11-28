@@ -93,7 +93,10 @@ class HeaderView : CoroutineScopeView() {
 
     override fun onRefresh() {
         super.onRefresh()
-        launch(Dispatchers.Default) { setNewProfile(Wai2KProfile.load(wai2KContext.currentProfile.path)) }
+        launch(Dispatchers.IO) {
+            val profile = Wai2KProfile.load(wai2KContext.currentProfile.path)
+            withContext(Dispatchers.JavaFx) { setNewProfile(profile) }
+        }
     }
 
     private fun createBindings() {
@@ -173,7 +176,7 @@ class HeaderView : CoroutineScopeView() {
         stopButton.hide()
     }
 
-    private fun startScriptMonitor() = launch(Dispatchers.Default) {
+    private fun startScriptMonitor() = launch(Dispatchers.IO) {
         scriptRunner.join()
         onStop()
     }
