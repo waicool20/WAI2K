@@ -237,7 +237,7 @@ class CombatModule(
 
         // TODO: Implement scrolling for other maps
         // Narrow vertical region containing the map names, 1-1, 1-2 etc.
-        val findRegion = region.subRegion(1089, 336, 80, 744)
+        val findRegion = region.subRegion(1085, 336, 90, 744)
         // Click until map asset is gone
         withTimeoutOrNull(10000) {
             val asset = "combat/maps/${map.replace(Regex("[enEN]"), "")}.png"
