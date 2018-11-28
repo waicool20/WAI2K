@@ -54,7 +54,6 @@ class Map5_4(
 
         logger.info("Deploying echelon 2 to command post")
         region.clickUntilGone("$PREFIX/commandpost.png", 10)
-        region.find("echelons/echelon2.png").clickRandomly(); yield()
         region.find("ok.png").clickRandomly()
 
         delay(200)
