@@ -196,7 +196,7 @@
         }
       },
       {
-        "dest": "tdoll_retirement",
+        "dest": "tdoll_disassembly",
         "asset": {
           "imageName": "",
           "x": 126,
@@ -263,7 +263,7 @@
         }
       },
       {
-        "dest": "tdoll_retirement",
+        "dest": "tdoll_disassembly",
         "asset": {
           "imageName": "",
           "x": 126,
@@ -330,7 +330,7 @@
         }
       },
       {
-        "dest": "tdoll_retirement",
+        "dest": "tdoll_disassembly",
         "asset": {
           "imageName": "",
           "x": 126,
@@ -397,7 +397,7 @@
         }
       },
       {
-        "dest": "tdoll_retirement",
+        "dest": "tdoll_disassembly",
         "asset": {
           "imageName": "",
           "x": 126,
@@ -419,12 +419,12 @@
     ]
   },
   {
-    "id": "tdoll_retirement",
+    "id": "tdoll_disassembly",
     "isIntermediate": false,
     "landmarks": [
       {
         "asset": {
-          "imageName": "tdoll_retirement",
+          "imageName": "tdoll_disassembly",
           "x": 1830,
           "y": 900,
           "width": 60,
@@ -541,7 +541,7 @@
         }
       },
       {
-        "dest": "tdoll_retirement",
+        "dest": "tdoll_disassembly",
         "asset": {
           "imageName": "",
           "x": 126,
