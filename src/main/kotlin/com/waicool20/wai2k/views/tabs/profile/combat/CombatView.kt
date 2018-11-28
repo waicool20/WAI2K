@@ -43,13 +43,15 @@ class CombatView : View(), Binder {
 
     private fun setValues() {
         mapComboBox.cellFactory = NoneSelectableCellFactory(Regex("--.+?--"))
-        mapComboBox.items.apply {
-            add("-- Normal --")
-            addAll(MapRunner.list.keys.filterNot { it.matches(Regex(".*?[enEN]$")) })
-            add("-- Emergency --")
-            addAll(MapRunner.list.keys.filter { it.endsWith("e", true) })
-            add("-- Night Battle --")
-            addAll(MapRunner.list.keys.filter { it.endsWith("n", true) })
+        if (mapComboBox.items.isEmpty()) {
+            mapComboBox.items.apply {
+                add("-- Normal --")
+                addAll(MapRunner.list.keys.filterNot { it.matches(Regex(".*?[enEN]$")) })
+                add("-- Emergency --")
+                addAll(MapRunner.list.keys.filter { it.endsWith("e", true) })
+                add("-- Night Battle --")
+                addAll(MapRunner.list.keys.filter { it.endsWith("n", true) })
+            }
         }
     }
 
