@@ -182,7 +182,7 @@ class CombatModule(
                     // Filter by level
                     .filterAsync(this) {
                         it.levelRegionImage.binarizeImage().scale(2.0).pad(20, 10, Color.WHITE).let { bi ->
-                            Ocr.forConfig(config, digitsOnly = true).doOCRAndTrim(bi).toIntOrNull() ?: 0 > level
+                            Ocr.forConfig(config, digitsOnly = true).doOCRAndTrim(bi).toIntOrNull() ?: 1 >= level
                         }
                     }
                     // Return click regions
