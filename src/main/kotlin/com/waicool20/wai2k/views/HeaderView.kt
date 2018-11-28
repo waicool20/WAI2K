@@ -117,7 +117,9 @@ class HeaderView : CoroutineScopeView() {
 
     private fun selectProfile() {
         val newProfile = profileComboBox.value
-        launch(Dispatchers.Default) { setNewProfile(Wai2KProfile.load(newProfile)) }
+        if (Wai2KProfile.profileExists(newProfile)) {
+            launch(Dispatchers.Default) { setNewProfile(Wai2KProfile.load(newProfile)) }
+        }
     }
 
     private fun setNewProfile(profile: Wai2KProfile) {

@@ -120,6 +120,8 @@ data class Wai2KProfile(
         val PROFILE_DIR: Path = Wai2K.CONFIG_DIR.resolve("profiles")
         const val DEFAULT_NAME = "Default"
 
+        fun profileExists(name: String) = Files.exists(PROFILE_DIR.resolve("$name${Wai2K.CONFIG_SUFFIX}"))
+
         fun load(name: String): Wai2KProfile {
             return load(PROFILE_DIR.resolve("${name.takeIf { it.isNotBlank() }
                     ?: DEFAULT_NAME}${Wai2K.CONFIG_SUFFIX}")).also { it.name = name }
