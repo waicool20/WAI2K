@@ -35,7 +35,9 @@ import javafx.scene.control.SplitMenuButton
 import javafx.scene.control.Tooltip
 import javafx.scene.layout.HBox
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.javafx.JavaFx
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.controlsfx.glyphfont.FontAwesome
 import org.controlsfx.glyphfont.Glyph
 import tornadofx.*
@@ -118,7 +120,10 @@ class HeaderView : CoroutineScopeView() {
     private fun selectProfile() {
         val newProfile = profileComboBox.value
         if (Wai2KProfile.profileExists(newProfile)) {
-            launch(Dispatchers.Default) { setNewProfile(Wai2KProfile.load(newProfile)) }
+            launch(Dispatchers.IO) {
+                val profile = Wai2KProfile.load(newProfile)
+                withContext(Dispatchers.JavaFx) { setNewProfile(profile) }
+            }
         }
     }
 
