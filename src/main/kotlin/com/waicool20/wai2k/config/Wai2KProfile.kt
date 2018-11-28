@@ -41,7 +41,8 @@ import java.nio.file.Path
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Wai2KProfile(
         val logistics: Logistics = Logistics(),
-        val combat: Combat = Combat()
+        val combat: Combat = Combat(),
+        val factory: Factory = Factory()
 ) {
 
     constructor(name: String, logistics: Logistics) : this(logistics) {
@@ -84,6 +85,33 @@ data class Wai2KProfile(
         val enabled by enabledProperty
         val map by mapProperty
         val draggers by draggersProperty
+    }
+
+    class Factory(
+            enhancement: Enhancement = Enhancement(),
+            disassembly: Disassembly = Disassembly()
+    ) {
+        class Enhancement(
+                enabled: Boolean = true
+        ) {
+            val enabledProperty = enabled.toProperty()
+
+            val enabled by enabledProperty
+        }
+
+        class Disassembly(
+                enabled: Boolean = false
+        ) {
+            val enabledProperty = enabled.toProperty()
+
+            val enabled by enabledProperty
+        }
+
+        val enhancementProperty = enhancement.toProperty()
+        val disassemblyProperty = disassembly.toProperty()
+
+        val enhancement by enhancementProperty
+        val disassembly by disassemblyProperty
     }
 
     companion object Loader {
