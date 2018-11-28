@@ -53,7 +53,9 @@ data class Wai2KProfile(
     class Logistics(
             enabled: Boolean = false,
             receivalMode: ReceivalMode = ReceivalMode.RANDOM,
-            assignments: MutableMap<Int, ListProperty<Int>> = (1..10).associate { it to SimpleListProperty<Int>() }.toMutableMap()
+            assignments: MutableMap<Int, ListProperty<Int>> = (1..10).associateWith {
+                SimpleListProperty<Int>(ArrayList<Int>().observable())
+            }.toMutableMap()
     ) {
         enum class ReceivalMode {
             ALWAYS_CONTINUE, RANDOM, ALWAYS_CANCEL
