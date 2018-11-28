@@ -23,6 +23,7 @@ import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.script.modules.combat.MapRunner
 import com.waicool20.wai2k.util.Binder
 import com.waicool20.waicoolutils.javafx.cellfactories.NoneSelectableCellFactory
+import com.waicool20.waicoolutils.javafx.listen
 import javafx.scene.control.CheckBox
 import javafx.scene.control.ComboBox
 import javafx.scene.layout.VBox
@@ -39,6 +40,7 @@ class CombatView : View(), Binder {
         super.onDock()
         setValues()
         createBindings()
+        context.currentProfileProperty.listen { createBindings() }
     }
 
     private fun setValues() {
