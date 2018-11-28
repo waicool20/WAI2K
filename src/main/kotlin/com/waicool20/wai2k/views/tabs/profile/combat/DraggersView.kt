@@ -53,7 +53,7 @@ class DraggersView : View(), Binder {
         context.currentProfileProperty.listen { createBindings() }
     }
 
-    fun setValues() {
+    private fun setValues() {
         doll1LevelSpinner.valueFactory = IntegerSpinnerValueFactory(1, 100)
         doll2LevelSpinner.valueFactory = IntegerSpinnerValueFactory(1, 100)
         doll1TypeComboBox.items.setAll(DollType.values().toList())

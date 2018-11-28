@@ -22,6 +22,7 @@ package com.waicool20.wai2k.views.tabs.profile.logistics
 import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.config.Wai2KProfile.Logistics.ReceivalMode
 import com.waicool20.wai2k.util.Binder
+import com.waicool20.waicoolutils.javafx.listen
 import javafx.scene.control.CheckBox
 import javafx.scene.control.ComboBox
 import javafx.scene.layout.VBox
@@ -36,7 +37,12 @@ class LogisticsView : View(), Binder {
 
     override fun onDock() {
         super.onDock()
+        setValues()
         createBindings()
+        context.currentProfileProperty.listen { createBindings() }
+    }
+
+    private fun setValues() {
         receivalModeComboBox.items.setAll(ReceivalMode.values().toList())
     }
 

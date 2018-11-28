@@ -46,7 +46,7 @@ class AssignmentsView : View(), Binder {
         context.currentProfileProperty.listen { createBindings() }
     }
 
-    fun setValues() {
+    private fun setValues() {
         val converter = object : StringConverter<Int>() {
             override fun toString(i: Int) = LogisticsSupport.list[i - 1].formattedString
             override fun fromString(s: String): Int? = null
