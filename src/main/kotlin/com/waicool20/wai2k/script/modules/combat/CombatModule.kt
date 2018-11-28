@@ -127,7 +127,7 @@ class CombatModule(
         val filterButtonRegion = region.subRegion(1765, 348, 257, 161)
         filterButtonRegion.clickRandomly(); yield()
         // Filter popup region
-        val prefix = "combat/formation/filters"
+        val prefix = "doll-list/filters"
         region.subRegion(900, 159, 834, 910).run {
             logger.info("Resetting filters")
             find("$prefix/reset.png").clickRandomly(); yield()
@@ -162,7 +162,7 @@ class CombatModule(
             // Take a screenshot after each retry, just in case it was a bad one in case its not OCRs fault
             // Optimize by taking a single screenshot and working on that
             val image = region.takeScreenshot()
-            region.findAllOrEmpty("combat/formation/lock.png")
+            region.findAllOrEmpty("doll-list/lock.png")
                     .also { logger.info("Found ${it.size} dolls on screen") }
                     // Transform the lock region into 3 distinct regions used for ocr and clicking by offset
                     .map {
