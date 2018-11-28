@@ -24,6 +24,7 @@ import com.waicool20.wai2k.game.DollType
 import com.waicool20.wai2k.util.Binder
 import com.waicool20.waicoolutils.javafx.addListener
 import com.waicool20.waicoolutils.javafx.listen
+import javafx.scene.control.Button
 import javafx.scene.control.ComboBox
 import javafx.scene.control.Spinner
 import javafx.scene.control.SpinnerValueFactory.IntegerSpinnerValueFactory
@@ -44,6 +45,8 @@ class DraggersView : View(), Binder {
     private val doll2LevelSpinner: Spinner<Int> by fxid()
     private val doll2TypeComboBox: ComboBox<DollType> by fxid()
 
+    private val swapButton: Button by fxid()
+
     private val context: Wai2KContext by inject()
 
     override fun onDock() {
@@ -51,6 +54,7 @@ class DraggersView : View(), Binder {
         setValues()
         createBindings()
         context.currentProfileProperty.listen { createBindings() }
+        swapButton.setOnAction { swapDolls() }
     }
 
     private fun setValues() {
@@ -58,7 +62,9 @@ class DraggersView : View(), Binder {
         doll2LevelSpinner.valueFactory = IntegerSpinnerValueFactory(1, 100)
         doll1TypeComboBox.items.setAll(DollType.values().toList())
         doll2TypeComboBox.items.setAll(DollType.values().toList())
+    }
 
+    override fun createBindings() {
         with(context.currentProfile.combat) {
             val doll1 = draggers[1]!!
             val doll2 = draggers[2]!!
@@ -72,9 +78,6 @@ class DraggersView : View(), Binder {
             doll2StarsRating.rating = doll2.stars.toDouble()
             doll2TypeComboBox.value = doll2.type
         }
-    }
-
-    override fun createBindings() {
         with(context.currentProfile.combat) {
             doll1NameTextField.textProperty().addListener("Doll1NameTextFieldListener") { newVal ->
                 draggers[1]?.name = newVal
@@ -102,5 +105,12 @@ class DraggersView : View(), Binder {
                 draggers[2]?.type = newVal
             }
         }
+    }
+
+    private fun swapDolls() {
+        context.currentProfile.combat.apply {
+            draggers[2] = draggers[1].also { draggers[1] = draggers[2] }
+        }
+        createBindings()
     }
 }
