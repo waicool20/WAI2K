@@ -231,7 +231,7 @@ class CombatModule(
                     .sortedBy { it.x }
                     .map {
                         // Name to HP pair
-                        image.getSubimage(it.x - 118, it.y - 181, 183, 48) to
+                        image.getSubimage(it.x - 157, it.y - 188, 257, 52) to
                                 image.getSubimage(it.x - 75, it.y - 97, 159, 33)
                     }.map { (nameImage, hpImage) ->
                         async {
