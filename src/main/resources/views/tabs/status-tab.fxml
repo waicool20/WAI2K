@@ -90,6 +90,12 @@
                                     <Label fx:id="dollsUsedForEnhancementLabel" />
                                  </children>
                               </HBox>
+                              <HBox spacing="5.0">
+                                 <children>
+                                    <Label text="Repairs:" />
+                                    <Label fx:id="repairsLabel" />
+                                 </children>
+                              </HBox>
                                     </children>
                                 </VBox>
                             </content>

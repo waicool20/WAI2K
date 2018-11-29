@@ -315,13 +315,13 @@ class CombatModule(
                 logger.info("Selecting dolls that need repairing")
                 repairRegions.take(repairSlots.size).forEach {
                     it.clickRandomly(); yield()
+                    scriptStats.repairs++
                 }
 
                 // Click ok
                 region.subRegion(1768, 749, 250, 159).clickRandomly(); delay(100)
                 // Use quick repair
                 region.subRegion(536, 702, 118, 118).clickUntilGone("combat/quick-repair.png")
-
                 // Click ok
                 region.subRegion(1381, 710, 250, 96).clickRandomly(); delay(500)
                 // Click close
