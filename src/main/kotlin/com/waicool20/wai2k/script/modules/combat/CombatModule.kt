@@ -29,9 +29,11 @@ import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.script.modules.ScriptModule
 import com.waicool20.wai2k.util.CombatChapter
 import com.waicool20.wai2k.util.Ocr
+import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.waicoolutils.*
 import com.waicool20.waicoolutils.logging.loggerFor
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.yield
@@ -108,7 +110,8 @@ class CombatModule(
         applyFilters(echelon1Doll)
         scanValidDolls(echelon1Doll).shuffled().first().clickRandomly()
 
-        delay(250)
+        delay(100)
+        updateEchelonRepairStatus(1)
 
         // Select echelon 2
         region.subRegion(120, 296, 184, 109).clickRandomly(); yield()
@@ -119,6 +122,9 @@ class CombatModule(
         val echelon2Doll = ((scriptStats.sortiesDone + 1) and 1) + 1
         applyFilters(echelon2Doll)
         scanValidDolls(echelon2Doll).shuffled().first().clickRandomly()
+
+        delay(100)
+        updateEchelonRepairStatus(2)
     }
 
     /**
@@ -190,7 +196,8 @@ class CombatModule(
                     // Filter by level
                     .filterAsync(this) {
                         it.levelRegionImage.binarizeImage().scale(2.0).pad(20, 10, Color.WHITE).let { bi ->
-                            abs(Ocr.forConfig(config, digitsOnly = true).doOCRAndTrim(bi).toIntOrNull() ?: 1) >= level
+                            abs(Ocr.forConfig(config, digitsOnly = true).doOCRAndTrim(bi).toIntOrNull()
+                                    ?: 1) >= level
                         }
                     }
                     // Return click regions
@@ -205,6 +212,46 @@ class CombatModule(
                     }
         }
         error("Failed to find dragging doll $doll that matches criteria after $retries attempts")
+    }
+
+    //</editor-fold>
+
+    //<editor-fold desc="Repair">
+
+    private suspend fun updateEchelonRepairStatus(echelon: Int) {
+        logger.info("Updating repair status")
+
+        val image = region.takeScreenshot()
+        region.findAllOrEmpty("formation/stats.png")
+                .also { logger.info("Found ${it.size} dolls on screen") }
+                .sortedBy { it.x }
+                .map {
+                    // Name to HP pair
+                    image.getSubimage(it.x - 118, it.y - 181, 183, 48) to
+                            image.getSubimage(it.x - 75, it.y - 97, 159, 33)
+                }.map { (nameImage, hpImage) ->
+                    async {
+                        Ocr.forConfig(config).doOCRAndTrim(nameImage)
+                    } to async {
+                        Ocr.forConfig(config).doOCRAndTrim(hpImage)
+                    }
+                }.map { (dName, dHp) ->
+                    dName.await() to dHp.await()
+                }.forEachIndexed { member, (name, hp) ->
+                    gameState.echelons[echelon].members[member].also {
+                        it.name = name
+                        it.needsRepair = try {
+                            hp.split(Regex("\\D")).let { l ->
+                                l[0].toDouble() / l[1].toDouble() < 0.3
+                            }
+                        } catch (e: Exception) {
+                            false
+                        }
+                    }
+                }
+        gameState.echelons[echelon].members.forEachIndexed { i, member ->
+            logger.info("[Echelon $echelon member ${i + 1}] Name: ${member.name} | Needs repairs: ${member.needsRepair}")
+        }
     }
 
     //</editor-fold>
@@ -271,7 +318,7 @@ class CombatModule(
                 .clickUntilGone("combat/battle/normal.png", 10, 0.96)
         delay(200)
 
-        region.subRegion(1185, 696, 278,95).findOrNull("combat/enhancement.png")?.apply {
+        region.subRegion(1185, 696, 278, 95).findOrNull("combat/enhancement.png")?.apply {
             logger.info("T-doll limit reached, cancelling sortie")
             clickRandomly()
             gameState.dollOverflow = true

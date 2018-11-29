@@ -27,7 +27,13 @@ class GameState {
     val echelons: List<Echelon> = List(10) { Echelon(it + 1) }
 
     fun reset() {
-        echelons.forEach { it.logisticsSupportEnabled = true }
+        requiresUpdate = true
+        dollOverflow = false
+        currentGameLocation = GameLocation(LocationId.UNKNOWN)
+        echelons.forEach {
+            it.members.forEach { it.needsRepair = false }
+            it.logisticsSupportEnabled = true
+        }
     }
 
     fun resetAll() {

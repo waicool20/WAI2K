@@ -27,6 +27,8 @@ data class Echelon(val number: Int) {
     val members: List<Member> = List(5) { Member(it + 1) }
 
     data class Member(val number: Int) {
+        var name: String = "Unknown"
+        var needsRepair: Boolean = false
         var repairEta: Instant? = null
     }
 
