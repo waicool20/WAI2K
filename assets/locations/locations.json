@@ -53,6 +53,16 @@
           "width": 317,
           "height": 124
         }
+      },
+      {
+        "dest": "repair",
+        "asset": {
+          "imageName": "",
+          "x": 1346,
+          "y": 312,
+          "width": 317,
+          "height": 124
+        }
       }
     ]
   },
@@ -107,6 +117,16 @@
           "imageName": "",
           "x": 1694,
           "y": 491,
+          "width": 317,
+          "height": 124
+        }
+      },
+      {
+        "dest": "repair",
+        "asset": {
+          "imageName": "",
+          "x": 1346,
+          "y": 312,
           "width": 317,
           "height": 124
         }
@@ -690,6 +710,33 @@
           "y": 0,
           "width": 0,
           "height": 0
+        }
+      }
+    ]
+  },
+  {
+    "id": "repair",
+    "isIntermediate": false,
+    "landmarks": [
+      {
+        "asset": {
+          "imageName": "repair",
+          "x": 389,
+          "y": 62,
+          "width": 60,
+          "height": 60
+        }
+      }
+    ],
+    "links": [
+      {
+        "dest": "home",
+        "asset": {
+          "imageName": "",
+          "x": 120,
+          "y": 0,
+          "width": 205,
+          "height": 144
         }
       }
     ]
