@@ -30,6 +30,7 @@ import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.*
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.random.Random
 
 class FactoryModule(
         scriptRunner: ScriptRunner,
@@ -89,13 +90,30 @@ class FactoryModule(
 
             logger.info("Selecting highest level T-doll for enhancement")
             // Randomly select a doll on the screen for enhancement
-            region.findAllOrEmpty("doll-list/lock.png")
-                    .also { logger.info("Found ${it.size} dolls on screen available for enhancement") }
-                    // Map lock region to doll region
-                    .map { region.subRegion(it.x - 7, it.y, 244, 164) }
-                    // Prioritize higher level dolls
-                    .sortedBy { it.y * 10 + it.x }
-                    .firstOrNull()?.clickRandomly() ?: return
+            while (isActive) {
+                val doll = region.findAllOrEmpty("doll-list/lock.png")
+                        .also { logger.info("Found ${it.size} dolls on screen available for enhancement") }
+                        // Map lock region to doll region
+                        .map { region.subRegion(it.x - 7, it.y, 244, 164) }
+                        // Prioritize higher level dolls
+                        .sortedBy { it.y * 10 + it.x }
+                        .firstOrNull()
+                if (doll == null) {
+                    if (region.findAllOrEmpty("doll-list/logistics.png").size >= 12) {
+                        logger.info("All dolls are unavailable, checking down the list")
+                        // Swipe down because all the dolls presented were in logistics
+                        region.subRegion(140, 620, 1590, 455).randomLocation().let {
+                            region.swipeRandomly(it, it.offset(0, Random.nextInt(-490, -480)), 1000)
+                        }
+                    } else {
+                        logger.info("No suitable doll that can be enhanced found")
+                        return
+                    }
+                } else {
+                    doll.clickRandomly()
+                    break
+                }
+            }
 
             // Click "Select t-doll" button
             logger.info("Selecting T-dolls that will be used for enhancement")
