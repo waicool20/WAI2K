@@ -45,7 +45,7 @@ class Wai2K : App(Wai2KWorkspace::class) {
             // Try and set the locale for to C for tesseract 4.0 +
             try {
                 CLib.Locale.setLocale(CLib.Locale.LC_ALL, "C")
-            } catch (e: Exception) {
+            } catch (t: Throwable) {
                 logger.warn("Could not set locale to C, application may crash if using tesseract 4.0+")
             }
         }
