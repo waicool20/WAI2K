@@ -349,9 +349,12 @@ open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region
         click(randomLocation())
     }
 
-    override suspend fun clickUntil(timeout: Long, similarity: Double, condition: () -> Boolean) {
+    override suspend fun clickUntil(timeout: Long, similarity: Double, ms: Long, condition: () -> Boolean) {
         withTimeoutOrNull(timeout * 1000) {
-            while (isActive && !condition()) clickRandomly()
+            while (isActive && !condition()) {
+                clickRandomly()
+                delay(ms)
+            }
         }
     }
 
