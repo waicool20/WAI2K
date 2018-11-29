@@ -425,7 +425,7 @@ class CombatModule(
     private suspend fun zoomMap(map: String) {
         val asset = "combat/maps/${map.toUpperCase()}/zoom-anchor.png"
         if (Files.notExists(config.assetsDirectory.resolve(asset))) return
-        while (region.doesntHave(asset)) {
+        while (region.doesntHave(asset, 0.98)) {
             logger.info("Zoom anchor not found, attempting to zoom out")
             region.pinch(
                     region.center,
