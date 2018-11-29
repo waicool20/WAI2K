@@ -19,21 +19,24 @@
 
 package com.waicool20.wai2k.views.tabs.profile
 
-import javafx.scene.control.CheckBox
-import javafx.scene.layout.VBox
+import com.waicool20.wai2k.config.Wai2KContext
+import com.waicool20.wai2k.util.Binder
+import com.waicool20.waicoolutils.javafx.listen
 import tornadofx.*
+import java.util.concurrent.atomic.AtomicBoolean
 
-class FactoryView : AbstractProfileView() {
-    override val root: VBox by fxml("/views/tabs/profile/factory.fxml")
-    private val enableEnhancementCheckBox: CheckBox by fxid()
-    private val enableDisassemblyCheckBox: CheckBox by fxid()
+abstract class AbstractProfileView: View(), Binder {
+    protected val context: Wai2KContext by inject()
+    private val initialized = AtomicBoolean(false)
 
-    override fun setValues() = Unit
-
-    override fun createBindings() {
-        context.currentProfile.factory.apply {
-            enableEnhancementCheckBox.bind(enhancement.enabledProperty)
-            enableDisassemblyCheckBox.bind(disassembly.enabledProperty)
+    override fun onDock() {
+        super.onDock()
+        if (initialized.compareAndSet(false, true)) {
+            setValues()
+            createBindings()
+            context.currentProfileProperty.listen { createBindings() }
         }
     }
+
+    abstract fun setValues()
 }

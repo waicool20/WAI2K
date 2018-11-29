@@ -19,34 +19,22 @@
 
 package com.waicool20.wai2k.views.tabs.profile.logistics
 
-import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.game.LogisticsSupport
-import com.waicool20.wai2k.util.Binder
+import com.waicool20.wai2k.views.tabs.profile.AbstractProfileView
 import com.waicool20.waicoolutils.controlsfx.bind
-import com.waicool20.waicoolutils.javafx.listen
 import javafx.beans.property.SimpleListProperty
 import javafx.scene.layout.VBox
 import javafx.util.StringConverter
 import org.controlsfx.control.CheckComboBox
-import tornadofx.*
 
 @Suppress("UNCHECKED_CAST")
-class AssignmentsView : View(), Binder {
+class AssignmentsView : AbstractProfileView() {
     override val root: VBox by fxml("/views/tabs/profile/logistics/assignments.fxml")
     private val comboBoxes = (1..10).mapNotNull {
         fxmlLoader.namespace["echelon${it}CCBox"] as? CheckComboBox<Int>
     }
 
-    private val context: Wai2KContext by inject()
-
-    override fun onDock() {
-        super.onDock()
-        setValues()
-        createBindings()
-        context.currentProfileProperty.listen { createBindings() }
-    }
-
-    private fun setValues() {
+    override fun setValues() {
         val converter = object : StringConverter<Int>() {
             override fun toString(i: Int) = LogisticsSupport.list[i - 1].formattedString
             override fun fromString(s: String): Int? = null

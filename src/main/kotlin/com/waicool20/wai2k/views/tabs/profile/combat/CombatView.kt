@@ -19,12 +19,10 @@
 
 package com.waicool20.wai2k.views.tabs.profile.combat
 
-import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.script.modules.combat.MapRunner
-import com.waicool20.wai2k.util.Binder
+import com.waicool20.wai2k.views.tabs.profile.AbstractProfileView
 import com.waicool20.waicoolutils.javafx.bind
 import com.waicool20.waicoolutils.javafx.cellfactories.NoneSelectableCellFactory
-import com.waicool20.waicoolutils.javafx.listen
 import javafx.scene.control.CheckBox
 import javafx.scene.control.ComboBox
 import javafx.scene.control.Spinner
@@ -32,22 +30,13 @@ import javafx.scene.control.SpinnerValueFactory
 import javafx.scene.layout.VBox
 import tornadofx.*
 
-class CombatView : View(), Binder {
+class CombatView : AbstractProfileView() {
     override val root: VBox by fxml("/views/tabs/profile/combat/combat.fxml")
     private val enabledCheckBox: CheckBox by fxid()
     private val mapComboBox: ComboBox<String> by fxid()
     private val repairThresholdSpinner: Spinner<Int> by fxid()
 
-    private val context: Wai2KContext by inject()
-
-    override fun onDock() {
-        super.onDock()
-        setValues()
-        createBindings()
-        context.currentProfileProperty.listen { createBindings() }
-    }
-
-    private fun setValues() {
+    override fun setValues() {
         mapComboBox.cellFactory = NoneSelectableCellFactory(Regex("--.+?--"))
         if (mapComboBox.items.isEmpty()) {
             mapComboBox.items.apply {

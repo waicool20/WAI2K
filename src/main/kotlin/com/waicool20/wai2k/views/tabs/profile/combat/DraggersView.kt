@@ -19,11 +19,9 @@
 
 package com.waicool20.wai2k.views.tabs.profile.combat
 
-import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.game.DollType
-import com.waicool20.wai2k.util.Binder
+import com.waicool20.wai2k.views.tabs.profile.AbstractProfileView
 import com.waicool20.waicoolutils.javafx.addListener
-import com.waicool20.waicoolutils.javafx.listen
 import javafx.scene.control.Button
 import javafx.scene.control.ComboBox
 import javafx.scene.control.Spinner
@@ -31,9 +29,9 @@ import javafx.scene.control.SpinnerValueFactory.IntegerSpinnerValueFactory
 import javafx.scene.control.TextField
 import javafx.scene.layout.VBox
 import org.controlsfx.control.Rating
-import tornadofx.*
+import kotlin.collections.set
 
-class DraggersView : View(), Binder {
+class DraggersView : AbstractProfileView() {
     override val root: VBox by fxml("/views/tabs/profile/combat/draggers.fxml")
     private val doll1NameTextField: TextField by fxid()
     private val doll1StarsRating: Rating by fxid()
@@ -47,17 +45,12 @@ class DraggersView : View(), Binder {
 
     private val swapButton: Button by fxid()
 
-    private val context: Wai2KContext by inject()
-
     override fun onDock() {
         super.onDock()
-        setValues()
-        createBindings()
-        context.currentProfileProperty.listen { createBindings() }
         swapButton.setOnAction { swapDolls() }
     }
 
-    private fun setValues() {
+    override fun setValues() {
         doll1LevelSpinner.valueFactory = IntegerSpinnerValueFactory(1, 100)
         doll2LevelSpinner.valueFactory = IntegerSpinnerValueFactory(1, 100)
         doll1TypeComboBox.items.setAll(DollType.values().toList())
