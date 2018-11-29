@@ -137,17 +137,17 @@ class CombatModule(
         val criteria = profile.combat.draggers[doll] ?: error("Invalid doll: $doll")
         val stars = criteria.stars
         val type = criteria.type
+        val prefix = "doll-list/filters"
 
         delay(100)
         // Filter By button
         val filterButtonRegion = region.subRegion(1765, 348, 257, 161)
-        filterButtonRegion.clickRandomly(); delay(100)
         // Filter popup region
-        val prefix = "doll-list/filters"
         region.subRegion(900, 159, 834, 910).run {
+            filterButtonRegion.clickUntil(10) { has("$prefix/reset.png") }
             logger.info("Resetting filters")
             find("$prefix/reset.png").clickRandomly(); yield()
-            filterButtonRegion.clickRandomly(); delay(100)
+            filterButtonRegion.clickUntil(10) { has("$prefix/reset.png") }
             logger.info("Applying filter $stars star")
             find("$prefix/${stars}star.png").clickRandomly(); yield()
             logger.info("Applying filter $type")
@@ -156,7 +156,7 @@ class CombatModule(
             find("$prefix/confirm.png").clickRandomly(); yield()
         }
         // Wait for menu to settle
-        delay(150)
+        delay(250)
     }
 
     /**
@@ -284,7 +284,7 @@ class CombatModule(
 
             navigator.navigateTo(LocationId.REPAIR)
 
-            while(isActive) {
+            while (isActive) {
                 val repairSlots = region.findAllOrEmpty("combat/empty-repair.png")
                 repairSlots.firstOrNull()?.clickRandomly()
                         ?: run {
