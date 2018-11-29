@@ -93,7 +93,9 @@ class FactoryModule(
                     .also { logger.info("Found ${it.size} dolls on screen available for enhancement") }
                     // Map lock region to doll region
                     .map { region.subRegion(it.x - 7, it.y, 244, 164) }
-                    .shuffled().firstOrNull()?.clickRandomly() ?: return
+                    // Prioritize higher level dolls
+                    .sortedBy { it.y * 10 + it.x }
+                    .firstOrNull()?.clickRandomly() ?: return
 
             // Click "Select t-doll" button
             logger.info("Selecting T-dolls that will be used for enhancement")
