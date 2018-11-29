@@ -33,5 +33,6 @@ data class Echelon(val number: Int) {
     }
 
     fun hasRepairs() = !members.all { it.repairEta == null }
+    fun needsRepairs() = members.any { it.needsRepair }
 }
 
