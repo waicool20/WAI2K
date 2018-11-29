@@ -22,10 +22,13 @@ package com.waicool20.wai2k.views.tabs.profile.combat
 import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.script.modules.combat.MapRunner
 import com.waicool20.wai2k.util.Binder
+import com.waicool20.waicoolutils.javafx.bind
 import com.waicool20.waicoolutils.javafx.cellfactories.NoneSelectableCellFactory
 import com.waicool20.waicoolutils.javafx.listen
 import javafx.scene.control.CheckBox
 import javafx.scene.control.ComboBox
+import javafx.scene.control.Spinner
+import javafx.scene.control.SpinnerValueFactory
 import javafx.scene.layout.VBox
 import tornadofx.*
 
@@ -33,6 +36,7 @@ class CombatView : View(), Binder {
     override val root: VBox by fxml("/views/tabs/profile/combat/combat.fxml")
     private val enabledCheckBox: CheckBox by fxid()
     private val mapComboBox: ComboBox<String> by fxid()
+    private val repairThresholdSpinner: Spinner<Int> by fxid()
 
     private val context: Wai2KContext by inject()
 
@@ -55,12 +59,14 @@ class CombatView : View(), Binder {
                 addAll(MapRunner.list.keys.filter { it.endsWith("n", true) })
             }
         }
+        repairThresholdSpinner.valueFactory = SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100)
     }
 
     override fun createBindings() {
         context.currentProfile.combat.apply {
             enabledCheckBox.bind(enabledProperty)
             mapComboBox.bind(mapProperty)
+            repairThresholdSpinner.bind(repairThresholdProperty)
         }
     }
 }

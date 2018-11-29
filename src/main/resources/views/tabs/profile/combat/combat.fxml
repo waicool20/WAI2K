@@ -23,6 +23,7 @@
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Spinner?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
@@ -32,7 +33,13 @@
       <HBox alignment="CENTER_LEFT" spacing="10.0">
          <children>
             <Label text="Map:" />
-            <ComboBox fx:id="mapComboBox" prefWidth="150.0" />
+            <ComboBox fx:id="mapComboBox" prefWidth="180.0" />
+         </children>
+      </HBox>
+      <HBox alignment="CENTER_LEFT" spacing="10.0">
+         <children>
+            <Label text="Repair threshold (%):" />
+            <Spinner fx:id="repairThresholdSpinner" prefWidth="75.0" />
          </children>
       </HBox>
     </children>

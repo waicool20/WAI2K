@@ -258,7 +258,7 @@ class CombatModule(
                     it.name = name
                     it.needsRepair = try {
                         hp.split(Regex("\\D")).let { l ->
-                            l[0].toDouble() / l[1].toDouble() < 0.3
+                            (l[0].toDouble() / l[1].toDouble()) * 100 < profile.combat.repairThreshold
                         }
                     } catch (e: Exception) {
                         false
