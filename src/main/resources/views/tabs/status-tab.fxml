@@ -78,6 +78,18 @@
                                     <Label fx:id="sphLabel" />
                                  </children>
                               </HBox>
+                              <HBox spacing="5.0">
+                                 <children>
+                                    <Label text="Enhancements done:" />
+                                    <Label fx:id="enhancementsDoneLabel" />
+                                 </children>
+                              </HBox>
+                              <HBox spacing="5.0">
+                                 <children>
+                                    <Label text="Dolls used for enhancement:" />
+                                    <Label fx:id="dollsUsedForEnhancementLabel" />
+                                 </children>
+                              </HBox>
                                     </children>
                                 </VBox>
                             </content>
