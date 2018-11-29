@@ -144,10 +144,17 @@ class CombatModule(
         val filterButtonRegion = region.subRegion(1765, 348, 257, 161)
         // Filter popup region
         region.subRegion(900, 159, 834, 910).run {
-            filterButtonRegion.clickUntil(10) { has("$prefix/reset.png") }
+            if (doesntHave("$prefix/reset.png")) {
+                logger.info("Opening filter menu")
+                filterButtonRegion.clickRandomly(); delay(200)
+            }
             logger.info("Resetting filters")
-            find("$prefix/reset.png").clickRandomly(); yield()
-            filterButtonRegion.clickUntil(10) { has("$prefix/reset.png") }
+            find("$prefix/reset.png").clickRandomly(); delay(200)
+
+            if (doesntHave("$prefix/reset.png")) {
+                logger.info("Opening filter menu")
+                filterButtonRegion.clickRandomly(); delay(200)
+            }
             logger.info("Applying filter $stars star")
             find("$prefix/${stars}star.png").clickRandomly(); yield()
             logger.info("Applying filter $type")
