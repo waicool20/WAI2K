@@ -87,7 +87,7 @@ class FactoryModule(
                         }
             }
 
-            logger.info("Selecting random T-doll for enhancement")
+            logger.info("Selecting highest level T-doll for enhancement")
             // Randomly select a doll on the screen for enhancement
             region.findAllOrEmpty("doll-list/lock.png")
                     .also { logger.info("Found ${it.size} dolls on screen available for enhancement") }
@@ -129,7 +129,7 @@ class FactoryModule(
         // Update stats after all the update jobs are complete
         launch {
             statUpdateJobs.forEach { it.join() }
-            scriptStats.dollsUsedForEnhancement = dollsUsedForEnhancement.get()
+            scriptStats.dollsUsedForEnhancement += dollsUsedForEnhancement.get()
             if (!gameState.dollOverflow) logger.info("The base now has space for new dolls")
 
         }
