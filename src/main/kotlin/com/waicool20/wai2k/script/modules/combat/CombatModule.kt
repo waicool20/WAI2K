@@ -211,44 +211,61 @@ class CombatModule(
                         }
                     }
         }
-        error("Failed to find dragging doll $doll that matches criteria after $retries attempts")
+        logger.warn("Failed to find dragging doll $doll that matches criteria after $retries attempts")
+        coroutineContext.cancelAndYield()
     }
 
     //</editor-fold>
 
     //<editor-fold desc="Repair">
 
-    private suspend fun updateEchelonRepairStatus(echelon: Int) {
+    private suspend fun updateEchelonRepairStatus(echelon: Int, retries: Int = 3) {
         logger.info("Updating repair status")
 
-        val image = region.takeScreenshot()
-        region.findAllOrEmpty("formation/stats.png")
-                .also { logger.info("Found ${it.size} dolls on screen") }
-                .sortedBy { it.x }
-                .map {
-                    // Name to HP pair
-                    image.getSubimage(it.x - 118, it.y - 181, 183, 48) to
-                            image.getSubimage(it.x - 75, it.y - 97, 159, 33)
-                }.map { (nameImage, hpImage) ->
-                    async {
-                        Ocr.forConfig(config).doOCRAndTrim(nameImage)
-                    } to async {
-                        Ocr.forConfig(config).doOCRAndTrim(hpImage)
-                    }
-                }.map { (dName, dHp) ->
-                    dName.await() to dHp.await()
-                }.forEachIndexed { member, (name, hp) ->
-                    gameState.echelons[echelon].members[member].also {
-                        it.name = name
-                        it.needsRepair = try {
-                            hp.split(Regex("\\D")).let { l ->
-                                l[0].toDouble() / l[1].toDouble() < 0.3
-                            }
-                        } catch (e: Exception) {
-                            false
+        for (i in 1..retries) {
+            val image = region.takeScreenshot()
+            val members = region.findAllOrEmpty("formation/stats.png")
+                    .also { logger.info("Found ${it.size} dolls on screen") }
+                    .sortedBy { it.x }
+                    .map {
+                        // Name to HP pair
+                        image.getSubimage(it.x - 118, it.y - 181, 183, 48) to
+                                image.getSubimage(it.x - 75, it.y - 97, 159, 33)
+                    }.map { (nameImage, hpImage) ->
+                        async {
+                            Ocr.forConfig(config).doOCRAndTrim(nameImage)
+                        } to async {
+                            Ocr.forConfig(config).doOCRAndTrim(hpImage)
                         }
+                    }.map { (dName, dHp) ->
+                        dName.await() to dHp.await()
+                    }
+            // Checking if the ocr results were gibberish
+            if (members.none { it.first.distanceTo(profile.combat.draggers[1]!!.name) < OCR_THRESHOLD } &&
+                    members.none { it.first.distanceTo(profile.combat.draggers[2]!!.name) < OCR_THRESHOLD }) {
+                logger.info("Update repair status ocr failed after $i attempts, retries remaining: ${retries - i}")
+                if (i == retries) {
+                    logger.warn("Could not update repair status after $retries attempts")
+                    coroutineContext.cancelAndYield()
+                }
+                continue
+            }
+
+            members.forEachIndexed { member, (name, hp) ->
+                gameState.echelons[echelon].members[member].also {
+                    it.name = name
+                    it.needsRepair = try {
+                        hp.split(Regex("\\D")).let { l ->
+                            l[0].toDouble() / l[1].toDouble() < 0.3
+                        }
+                    } catch (e: Exception) {
+                        false
                     }
                 }
+            }
+            break
+        }
+        logger.info("Updating repair status complete")
         gameState.echelons[echelon].members.forEachIndexed { i, member ->
             logger.info("[Echelon $echelon member ${i + 1}] Name: ${member.name} | Needs repairs: ${member.needsRepair}")
         }
