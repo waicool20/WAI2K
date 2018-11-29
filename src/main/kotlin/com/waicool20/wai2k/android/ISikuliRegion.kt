@@ -788,7 +788,7 @@ interface ISikuliRegion {
      * @param condition Lambda that yields a boolean result, clicking stops when it yields true
      */
     suspend fun clickUntil(
-            timeout: Long = Settings.AutoWaitTimeout.roundToLong(),
+            timeout: Long = Settings.AutoWaitTimeout.roundToLong() * 10,
             similarity: Double = Settings.MinSimilarity,
             ms: Long = 1500,
             condition: () -> Boolean
@@ -804,7 +804,7 @@ interface ISikuliRegion {
      */
     suspend fun <PSI : Any> clickUntilGone(
             psi: PSI,
-            timeout: Long = Settings.AutoWaitTimeout.roundToLong(),
+            timeout: Long = Settings.AutoWaitTimeout.roundToLong() * 10,
             similarity: Double = Settings.MinSimilarity,
             ms: Long = 1500
     )
@@ -818,7 +818,7 @@ interface ISikuliRegion {
      */
     suspend fun <PSI : Any> waitSuspending(
             target: PSI,
-            timeout: Long = Settings.AutoWaitTimeout.roundToLong(),
+            timeout: Long = Settings.AutoWaitTimeout.roundToLong() * 10,
             similarity: Double = Settings.MinSimilarity
     ): AndroidMatch?
 
