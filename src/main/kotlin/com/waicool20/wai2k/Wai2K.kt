@@ -22,6 +22,7 @@ package com.waicool20.wai2k
 import com.waicool20.wai2k.views.LoaderView
 import com.waicool20.wai2k.views.Wai2KWorkspace
 import com.waicool20.waicoolutils.CLib
+import com.waicool20.waicoolutils.logging.loggerFor
 import javafx.stage.Stage
 import javafx.stage.StageStyle
 import tornadofx.*
@@ -33,6 +34,7 @@ class Wai2K : App(Wai2KWorkspace::class) {
     companion object {
         const val CONFIG_DIR_NAME = "wai2k"
         const val CONFIG_SUFFIX = ".json"
+        private val logger = loggerFor<Companion>()
         private var _configDirectory: Path = Paths.get("").toAbsolutePath().resolve(CONFIG_DIR_NAME)
         val CONFIG_DIR get() = _configDirectory
 
@@ -40,7 +42,12 @@ class Wai2K : App(Wai2KWorkspace::class) {
             val jarPath = Paths.get(Wai2K::class.java.protectionDomain.codeSource.location.toURI())
             if (isRunningJar()) _configDirectory = jarPath.resolveSibling(CONFIG_DIR_NAME)
             Files.createDirectories(_configDirectory)
-            CLib.Locale.setLocale(CLib.Locale.LC_ALL, "C")
+            // Try and set the locale for to C for tesseract 4.0 +
+            try {
+                CLib.Locale.setLocale(CLib.Locale.LC_ALL, "C")
+            } catch (e: Exception) {
+                logger.warn("Could not set locale to C, application may crash if using tesseract 4.0+")
+            }
         }
 
         private fun isRunningJar(): Boolean {
