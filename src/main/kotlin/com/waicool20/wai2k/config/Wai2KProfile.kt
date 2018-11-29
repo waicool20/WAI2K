@@ -73,7 +73,7 @@ data class Wai2KProfile(
     class Combat(
             enabled: Boolean = false,
             map: String = "4-3E",
-            repairThreshold: Int = 30,
+            repairThreshold: Int = 40,
             draggers: MutableMap<Int, DollCriteria> = mutableMapOf(
                     1 to DollCriteria("WA2000", 100, 5, DollType.RF),
                     2 to DollCriteria("FAL", 100, 5, DollType.AR)
