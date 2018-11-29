@@ -780,6 +780,19 @@ interface ISikuliRegion {
     fun clickRandomly()
 
     /**
+     * Clicks the region until condition is met
+     *
+     * @param timeout Maximum amount of time to be clicking in seconds
+     * @param similarity Similarity threshold
+     * @param condition Lambda that yields a boolean result, clicking stops when it yields true
+     */
+    suspend fun clickUntil(
+            timeout: Long = Settings.AutoWaitTimeout.roundToLong(),
+            similarity: Double = Settings.MinSimilarity,
+            condition: () -> Boolean
+    )
+
+    /**
      * Clicks something until it disappears
      *
      * @param PSI [Pattern], [String], [Image]
