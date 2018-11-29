@@ -33,10 +33,7 @@ import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.waicoolutils.*
 import com.waicool20.waicoolutils.logging.loggerFor
-import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withTimeoutOrNull
-import kotlinx.coroutines.yield
+import kotlinx.coroutines.*
 import org.sikuli.basics.Settings
 import java.awt.Color
 import java.awt.image.BufferedImage
@@ -73,6 +70,11 @@ class CombatModule(
     private suspend fun runCombatCycle() {
         // Don't need to switch dolls if previous run was cancelled
         if (!wasCancelled) switchDolls()
+        checkRepairs()
+        // Cancel further execution if any of the dolls needed to repair but were not able to
+        wasCancelled = gameState.echelons.any { it.needsRepairs() }
+        if (wasCancelled) return
+
         val map = profile.combat.map
         navigator.navigateTo(LocationId.COMBAT)
         clickCombatChapter(map.take(1).toInt())
@@ -268,6 +270,63 @@ class CombatModule(
         logger.info("Updating repair status complete")
         gameState.echelons[echelon].members.forEachIndexed { i, member ->
             logger.info("[Echelon $echelon member ${i + 1}] Name: ${member.name} | Needs repairs: ${member.needsRepair}")
+        }
+    }
+
+    private suspend fun checkRepairs() {
+        navigator.navigateTo(LocationId.HOME)
+        if (
+                gameState.echelons.any { it.needsRepairs() } ||
+                region.subRegion(1337, 290, 345, 155).has("alert.png")
+        ) {
+            logger.info("Repairs required")
+            val members = gameState.echelons.flatMap { it.members }.filter { it.needsRepair }
+
+            navigator.navigateTo(LocationId.REPAIR)
+
+            while(isActive) {
+                val repairSlots = region.findAllOrEmpty("combat/empty-repair.png")
+                repairSlots.firstOrNull()?.clickRandomly()
+                        ?: run {
+                            logger.info("No available repair slots, cancelling sortie")
+                            return
+                        }
+                delay(250)
+
+                val screenshot = region.takeScreenshot()
+                val repairRegions = region.findAllOrEmpty("doll-list/lock.png")
+                        .also { logger.info("Found ${it.size} dolls on screen") }
+                        .filterAsync {
+                            region.subRegion(it.x - 7, it.y - 268, 243, 431).has("combat/critical-dmg.png") ||
+                                    Ocr.forConfig(config).doOCRAndTrim(screenshot.getSubimage(it.x + 67, it.y + 72, 161, 52)).let { oName ->
+                                        members.any { it.name.distanceTo(oName) < OCR_THRESHOLD }
+                                    }
+                        }.map { region.subRegion(it.x - 7, it.y - 268, 243, 431) }
+                        .also { logger.info("${it.size} dolls need repair") }
+                if (repairRegions.isEmpty()) {
+                    logger.info("No more dolls need repairing!")
+                    gameState.echelons.flatMap { it.members }.forEach { it.needsRepair = false }
+                    // Click close popup
+                    region.findOrNull("close.png")?.clickRandomly()
+                    return
+                }
+
+                // Select all T-Dolls
+                logger.info("Selecting dolls that need repairing")
+                repairRegions.take(repairSlots.size).forEach {
+                    it.clickRandomly(); yield()
+                }
+
+                // Click ok
+                region.subRegion(1768, 749, 250, 159).clickRandomly(); delay(100)
+                // Use quick repair
+                region.subRegion(536, 702, 118, 118).clickUntilGone("combat/quick-repair.png")
+
+                // Click ok
+                region.subRegion(1381, 710, 250, 96).clickRandomly(); delay(500)
+                // Click close
+                region.waitSuspending("close.png", 15)?.clickRandomly(); delay(500)
+            }
         }
     }
 
