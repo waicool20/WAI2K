@@ -249,7 +249,7 @@ class CombatModule(
                         async {
                             Ocr.forConfig(config).doOCRAndTrim(nameImage)
                         } to async {
-                            Ocr.forConfig(config).doOCRAndTrim(hpImage)
+                            Ocr.forConfig(config).doOCRAndTrim(hpImage.binarizeImage(0.35).scale(4.0))
                         }
                     }.map { (dName, dHp) ->
                         dName.await() to dHp.await()
@@ -270,7 +270,9 @@ class CombatModule(
                     it.name = name
                     it.needsRepair = try {
                         hp.split(Regex("\\D")).let { l ->
-                            (l[0].toDouble() / l[1].toDouble()) * 100 < profile.combat.repairThreshold
+                            val percent = (l[0].toDouble() / l[1].toDouble()) * 100
+                            logger.info("[Repair OCR] Name: $name | HP: $hp | HP (%): $percent")
+                            percent < profile.combat.repairThreshold
                         }
                     } catch (e: Exception) {
                         false
