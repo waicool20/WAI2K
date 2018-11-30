@@ -30,6 +30,9 @@ import javafx.scene.control.Label
 import javafx.scene.layout.VBox
 import javafx.stage.FileChooser
 import javafx.util.StringConverter
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.controlsfx.glyphfont.FontAwesome
 import org.controlsfx.glyphfont.Glyph
 import tornadofx.*
@@ -105,7 +108,7 @@ class DeviceTabView : View(), Binder {
                     title = "Save screenshot to?"
                     extensionFilters.add(FileChooser.ExtensionFilter("PNG files (*.png)", "*.png"))
                     showSaveDialog(null)?.let { file ->
-                        ImageIO.write(device.takeScreenshot(), "PNG", file)
+                        GlobalScope.launch(Dispatchers.IO) { ImageIO.write(device.takeScreenshot(), "PNG", file) }
                     }
                 }
             }
