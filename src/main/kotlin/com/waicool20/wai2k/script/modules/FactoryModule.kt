@@ -56,7 +56,6 @@ class FactoryModule(
      */
     private suspend fun enhanceDolls() {
         logger.info("Doll limit reached, will try to enhance")
-        val prefix = "factory/enhancement"
         navigator.navigateTo(LocationId.TDOLL_ENHANCEMENT)
 
         var oldDollCount: List<String>? = null
@@ -117,7 +116,7 @@ class FactoryModule(
 
             // Click "Select t-doll" button
             logger.info("Selecting T-dolls that will be used for enhancement")
-            region.subRegion(760, 200, 1250, 550).find("$prefix/select.png").clickRandomly()
+            region.subRegion(760, 200, 1250, 550).find("factory/select.png").clickRandomly()
             yield()
 
             // Click smart select button
@@ -125,7 +124,7 @@ class FactoryModule(
             region.subRegion(1770, 859, 247, 158).clickRandomly(); yield()
 
             // Confirm doll selection
-            val okButton = region.subRegion(1768, 859, 250, 158).findOrNull("$prefix/ok.png")
+            val okButton = region.subRegion(1768, 859, 250, 158).findOrNull("factory/ok.png")
             if (okButton == null) {
                 // Click cancel if no t dolls could be used for enhancement
                 region.subRegion(120, 0, 205, 144).clickRandomly()
