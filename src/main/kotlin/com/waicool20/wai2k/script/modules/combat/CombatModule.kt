@@ -139,9 +139,14 @@ class CombatModule(
         val type = criteria.type
         val prefix = "doll-list/filters"
 
+        suspend fun fail() {
+            logger.warn("Could not apply filters")
+            coroutineContext.cancelAndYield()
+        }
+
         delay(100)
         // Filter By button
-        val filterButtonRegion = region.subRegion(1765, 348, 257, 161)
+        val filterButtonRegion = region.subRegion(1797, 368, 193, 121)
         // Filter popup region
         region.subRegion(900, 159, 834, 910).run {
             if (doesntHave("$prefix/reset.png")) {
@@ -149,18 +154,18 @@ class CombatModule(
                 filterButtonRegion.clickRandomly(); delay(200)
             }
             logger.info("Resetting filters")
-            find("$prefix/reset.png").clickRandomly(); delay(200)
-
+            waitSuspending("$prefix/reset.png")?.clickRandomly() ?: fail()
+            delay(500)
             if (doesntHave("$prefix/reset.png")) {
                 logger.info("Opening filter menu")
                 filterButtonRegion.clickRandomly(); delay(200)
             }
             logger.info("Applying filter $stars star")
-            find("$prefix/${stars}star.png").clickRandomly(); yield()
+            waitSuspending("$prefix/${stars}star.png", 10)?.clickRandomly() ?: fail()
             logger.info("Applying filter $type")
-            find("$prefix/$type.png").clickRandomly(); yield()
+            waitSuspending("$prefix/$type.png", 10)?.clickRandomly() ?: fail()
             logger.info("Confirming filters")
-            find("$prefix/confirm.png").clickRandomly(); yield()
+            waitSuspending("$prefix/confirm.png", 10)?.clickRandomly() ?: fail()
         }
         // Wait for menu to settle
         delay(250)
