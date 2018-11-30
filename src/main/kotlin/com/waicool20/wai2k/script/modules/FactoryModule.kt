@@ -29,6 +29,7 @@ import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.*
+import java.awt.image.BufferedImage
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
 
@@ -68,23 +69,13 @@ class FactoryModule(
             selectCharacterButton.clickRandomly(); delay(500)
 
             // Find the old doll count
-            val screenshot = region.subRegion(1750, 810, 290, 70).takeScreenshot()
-            statUpdateJobs += launch {
-                Ocr.forConfig(config).doOCRAndTrim(screenshot)
-                        .also { logger.info("Detected doll count: $it") }
-                        .split(Regex("\\D"))
-                        .let { currentDollCount ->
-                            gameState.dollOverflow = try {
-                                val c = currentDollCount[0].toInt()
-                                oldDollCount?.get(0)?.toIntOrNull()?.let {
-                                    dollsUsedForEnhancement.getAndAdd(it - c)
-                                }
-                                oldDollCount = currentDollCount
-                                c >= currentDollCount[1].toInt()
-                            } catch (e: Exception) {
-                                false
-                            }
-                        }
+            statUpdateJobs += updateJob(region.subRegion(1750, 810, 290, 70).takeScreenshot()) { count ->
+                val c = count[0].toInt()
+                oldDollCount?.get(0)?.toIntOrNull()?.let {
+                    dollsUsedForEnhancement.getAndAdd(it - c)
+                }
+                oldDollCount = count
+                c >= count[1].toInt()
             }
 
             logger.info("Selecting highest level T-doll for enhancement")
@@ -159,5 +150,20 @@ class FactoryModule(
         logger.info("Work In Progress - Disassembly not available")
         return
         navigator.navigateTo(LocationId.TDOLL_DISASSEMBLY)
+    }
+
+    private fun updateJob(screenshot: BufferedImage, action: (List<String>) -> Boolean): Job {
+        return launch {
+            Ocr.forConfig(config).doOCRAndTrim(screenshot)
+                    .also { logger.info("Detected doll count: $it") }
+                    .split(Regex("\\D"))
+                    .let { currentDollCount ->
+                        gameState.dollOverflow = try {
+                            action(currentDollCount)
+                        } catch (e: Exception) {
+                            false
+                        }
+                    }
+        }
     }
 }
