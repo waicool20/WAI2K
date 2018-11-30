@@ -48,9 +48,13 @@ class StatusTabView : CoroutineScopeView() {
     private val logisticsReceivedLabel: Label by fxid()
     private val sortiesDoneLabel: Label by fxid()
     private val sphLabel: Label by fxid()
+    private val repairsLabel: Label by fxid()
+    private val rpsLabel: Label by fxid()
+
     private val enhancementsDoneLabel: Label by fxid()
     private val dollsUsedForEnhancementLabel: Label by fxid()
-    private val repairsLabel: Label by fxid()
+    private val disassemblesDoneLabel: Label by fxid()
+    private val dollsUsedForDisassemblyLabel: Label by fxid()
 
     private val timersLabel: Label by fxid()
 
@@ -85,9 +89,13 @@ class StatusTabView : CoroutineScopeView() {
             logisticsReceivedLabel.text = "$logisticsSupportReceived"
             sortiesDoneLabel.text = "$sortiesDone"
             sphLabel.text = formatDecimal(sortiesDone / hoursSince(scriptRunner.lastStartTime))
+            repairsLabel.text = "$repairs"
+            rpsLabel.text = formatDecimal(sortiesDone / repairs.toDouble())
+
             enhancementsDoneLabel.text = "$enhancementsDone"
             dollsUsedForEnhancementLabel.text = "$dollsUsedForEnhancement"
-            repairsLabel.text = "$repairs"
+            disassemblesDoneLabel.text = "$disassemblesDone"
+            dollsUsedForDisassemblyLabel.text = "$dollsUsedForDisassembly"
         }
     }
 

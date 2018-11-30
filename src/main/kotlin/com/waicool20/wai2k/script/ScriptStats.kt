@@ -26,7 +26,7 @@ data class ScriptStats(
         var enhancementsDone: Int = 0,
         var dollsUsedForEnhancement: Int = 0,
         var disassemblesDone: Int = 0,
-        var dollsDisassembled: Int = 0,
+        var dollsUsedForDisassembly: Int = 0,
         var repairs: Int = 0
 ) {
     fun reset() {
@@ -36,7 +36,7 @@ data class ScriptStats(
         enhancementsDone = 0
         dollsUsedForEnhancement = 0
         disassemblesDone = 0
-        dollsDisassembled = 0
+        dollsUsedForDisassembly = 0
         repairs = 0
     }
 }

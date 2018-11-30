@@ -22,6 +22,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
@@ -52,52 +53,85 @@
                     <children>
                         <TitledPane text="Script">
                             <content>
-                                <VBox spacing="10.0">
-                                    <children>
-                                        <HBox spacing="5.0">
-                                            <children>
-                                                <Label text="Logistics sent:" />
-                                                <Label fx:id="logisticsSentLabel" />
-                                            </children>
-                                        </HBox>
-                                        <HBox spacing="5.0">
-                                            <children>
-                                                <Label text="Logistics received:" />
-                                                <Label fx:id="logisticsReceivedLabel" />
-                                            </children>
-                                        </HBox>
-                              <HBox spacing="5.0">
+                        <HBox>
+                           <children>
+                                      <VBox spacing="10.0" HBox.hgrow="ALWAYS">
+                                          <children>
+                                              <HBox spacing="5.0">
+                                                  <children>
+                                                      <Label text="Logistics sent:" />
+                                                      <Label fx:id="logisticsSentLabel" />
+                                                  </children>
+                                              </HBox>
+                                              <HBox spacing="5.0">
+                                                  <children>
+                                                      <Label text="Logistics received:" />
+                                                      <Label fx:id="logisticsReceivedLabel" />
+                                                  </children>
+                                              </HBox>
+                                    <HBox spacing="5.0">
+                                       <children>
+                                          <Label text="Sorties done:" />
+                                          <Label fx:id="sortiesDoneLabel" />
+                                       </children>
+                                    </HBox>
+                                    <HBox spacing="5.0">
+                                       <children>
+                                          <Label text="Sorties per hour (SPH):" />
+                                          <Label fx:id="sphLabel" />
+                                       </children>
+                                    </HBox>
+                                    <HBox spacing="5.0">
+                                       <children>
+                                          <Label text="Repairs:" />
+                                          <Label fx:id="repairsLabel" />
+                                       </children>
+                                    </HBox>
+                                    <HBox spacing="5.0">
+                                       <children>
+                                          <Label text="Repairs per sortie (RPS):" />
+                                          <Label fx:id="rpsLabel" />
+                                       </children>
+                                    </HBox>
+                                          </children>
+                                 <HBox.margin>
+                                    <Insets right="10.0" />
+                                 </HBox.margin>
+                                      </VBox>
+                              <Separator orientation="VERTICAL" prefHeight="200.0" />
+                              <VBox spacing="10.0" HBox.hgrow="ALWAYS">
                                  <children>
-                                    <Label text="Sorties done:" />
-                                    <Label fx:id="sortiesDoneLabel" />
+                                    <HBox spacing="5.0">
+                                       <children>
+                                          <Label text="Enhancements done:" />
+                                          <Label fx:id="enhancementsDoneLabel" />
+                                       </children>
+                                    </HBox>
+                                    <HBox spacing="5.0">
+                                       <children>
+                                          <Label text="Dolls used for enhancement:" />
+                                          <Label fx:id="dollsUsedForEnhancementLabel" />
+                                       </children>
+                                    </HBox>
+                                    <HBox spacing="5.0">
+                                       <children>
+                                          <Label text="Disassembles done:" />
+                                          <Label fx:id="disassemblesDoneLabel" />
+                                       </children>
+                                    </HBox>
+                                    <HBox spacing="5.0">
+                                       <children>
+                                          <Label text="Dolls used for disassembly:" />
+                                          <Label fx:id="dollsUsedForDisassemblyLabel" />
+                                       </children>
+                                    </HBox>
                                  </children>
-                              </HBox>
-                              <HBox spacing="5.0">
-                                 <children>
-                                    <Label text="Sorties per hour (SPH):" />
-                                    <Label fx:id="sphLabel" />
-                                 </children>
-                              </HBox>
-                              <HBox spacing="5.0">
-                                 <children>
-                                    <Label text="Enhancements done:" />
-                                    <Label fx:id="enhancementsDoneLabel" />
-                                 </children>
-                              </HBox>
-                              <HBox spacing="5.0">
-                                 <children>
-                                    <Label text="Dolls used for enhancement:" />
-                                    <Label fx:id="dollsUsedForEnhancementLabel" />
-                                 </children>
-                              </HBox>
-                              <HBox spacing="5.0">
-                                 <children>
-                                    <Label text="Repairs:" />
-                                    <Label fx:id="repairsLabel" />
-                                 </children>
-                              </HBox>
-                                    </children>
-                                </VBox>
+                                 <HBox.margin>
+                                    <Insets left="10.0" />
+                                 </HBox.margin>
+                              </VBox>
+                           </children>
+                        </HBox>
                             </content>
                         </TitledPane>
                         <TitledPane prefWidth="560.0" text="Timers">
