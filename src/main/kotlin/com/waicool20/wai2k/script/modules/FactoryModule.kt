@@ -26,6 +26,7 @@ import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.Ocr
+import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.*
@@ -139,7 +140,6 @@ class FactoryModule(
             statUpdateJobs.forEach { it.join() }
             scriptStats.dollsUsedForEnhancement += dollsUsedForEnhancement.get()
             if (!gameState.dollOverflow) logger.info("The base now has space for new dolls")
-
         }
         // If disassembly is enabled then it will need to know the gamestate after enhancement
         // so we will need to wait for the update job to complete
@@ -154,11 +154,12 @@ class FactoryModule(
         val dollsDisassembled = AtomicInteger(0)
         val statUpdateJobs = mutableListOf<Job>()
 
+        logger.info("Disassembling 2 star T-dolls")
         while (isActive) {
             region.subRegion(483, 200, 1557, 565).find("factory/select.png").clickRandomly()
             delay(750)
 
-            statUpdateJobs += updateJob(region.subRegion(1750, 810, 290, 70).takeScreenshot()) {count ->
+            statUpdateJobs += updateJob(region.subRegion(1750, 810, 290, 70).takeScreenshot()) { count ->
                 val c = count[0].toInt()
                 oldDollCount?.get(0)?.toIntOrNull()?.let {
                     dollsDisassembled.getAndAdd(it - c)
@@ -178,15 +179,84 @@ class FactoryModule(
                 region.subRegion(120, 0, 205, 144).clickRandomly()
                 logger.info("No more 2 star T-dolls to disassemble!")
                 break
-            } else {
-                okButton.clickRandomly()
-                scriptStats.disassemblesDone += 1
             }
-
+            // Click ok
+            okButton.clickRandomly()
             // Click disassemble button
             region.subRegion(1749, 885, 247, 95).clickRandomly()
-
+            // Update stats
+            scriptStats.disassemblesDone += 1
+            // Wait for menu to settle
             region.subRegion(483, 200, 1557, 565).waitSuspending("factory/select.png")
+        }
+
+        var filtersApplied = false
+        val prefix = "doll-list/filters"
+
+        suspend fun fail() {
+            logger.warn("Could not apply filters")
+            coroutineContext.cancelAndYield()
+        }
+
+        logger.info("Disassembling 3 star T-dolls")
+        while (isActive) {
+            region.subRegion(483, 200, 1557, 565).find("factory/select.png").clickRandomly()
+            delay(750)
+
+            statUpdateJobs += updateJob(region.subRegion(1750, 810, 290, 70).takeScreenshot()) { count ->
+                val c = count[0].toInt()
+                oldDollCount?.get(0)?.toIntOrNull()?.let {
+                    dollsDisassembled.getAndAdd(it - c)
+                }
+                oldDollCount = count
+                c >= count[1].toInt()
+            }
+
+            if (!filtersApplied) {
+                logger.info("Applying filters")
+                filtersApplied = true
+                // Filter By button
+                val filterButtonRegion = region.subRegion(1797, 368, 193, 121)
+                // Filter popup region
+                region.subRegion(900, 159, 834, 910).run {
+                    if (doesntHave("$prefix/reset.png")) {
+                        logger.info("Opening filter menu")
+                        filterButtonRegion.clickRandomly(); delay(200)
+                    }
+                    logger.info("Applying filter 3 star")
+                    waitSuspending("$prefix/3star.png", 10)?.clickRandomly() ?: fail()
+                    logger.info("Confirming filters")
+                    waitSuspending("$prefix/confirm.png", 10)?.clickRandomly() ?: fail()
+                }
+            }
+            delay(100)
+            val dolls = region.findAllOrEmpty("doll-list/3star.png")
+                    .also { logger.info("Found ${it.size} that can be disassembled") }
+                    .map { region.subRegion(it.x - 102, it.y, 239, 427) }
+            if (dolls.isEmpty()) {
+                // Click cancel if no t dolls could be used for enhancement
+                region.subRegion(120, 0, 205, 144).clickRandomly()
+                logger.info("No more 3 star T-dolls to disassemble!")
+                break
+            }
+            // Select all the dolls
+            dolls.forEach { it.clickRandomly() }
+            // Click ok
+            region.subRegion(1768, 889, 250, 158).find("factory/ok.png").clickRandomly(); yield()
+            // Click disassemble button
+            region.subRegion(1749, 885, 247, 95).clickRandomly(); delay(200)
+            // Click confirm
+            region.subRegion(1100, 688, 324, 161).find("confirm.png").clickRandomly(); yield()
+            // Update stats
+            scriptStats.disassemblesDone += 1
+            // Wait for menu to settle
+            region.subRegion(483, 200, 1557, 565).waitSuspending("factory/select.png")
+        }
+        // Update stats after all the update jobs are complete
+        launch {
+            statUpdateJobs.forEach { it.join() }
+            scriptStats.dollsUsedForDisassembly += dollsDisassembled.get()
+            if (!gameState.dollOverflow) logger.info("The base now has space for new dolls")
         }
     }
 
