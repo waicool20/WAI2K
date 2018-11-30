@@ -28,10 +28,12 @@ import javafx.scene.control.Button
 import javafx.scene.control.ComboBox
 import javafx.scene.control.Label
 import javafx.scene.layout.VBox
+import javafx.stage.FileChooser
 import javafx.util.StringConverter
 import org.controlsfx.glyphfont.FontAwesome
 import org.controlsfx.glyphfont.Glyph
 import tornadofx.*
+import javax.imageio.ImageIO
 import kotlin.concurrent.thread
 
 class DeviceTabView : View(), Binder {
@@ -45,6 +47,7 @@ class DeviceTabView : View(), Binder {
     private val deviceComboBox: ComboBox<AndroidDevice> by fxid()
     private val reloadDevicesButton: Button by fxid()
     private val pointerButton: Button by fxid()
+    private val takeScreenshotButton: Button by fxid()
 
     private val context: Wai2KContext by inject()
 
@@ -95,6 +98,17 @@ class DeviceTabView : View(), Binder {
         }
         pointerButton.action {
             deviceComboBox.selectedItem?.togglePointerInfo()
+        }
+        takeScreenshotButton.action {
+            deviceComboBox.selectedItem?.let { device ->
+                FileChooser().apply {
+                    title = "Save screenshot to?"
+                    extensionFilters.add(FileChooser.ExtensionFilter("PNG files (*.png)", "*.png"))
+                    showSaveDialog(null)?.let { file ->
+                        ImageIO.write(device.takeScreenshot(), "PNG", file)
+                    }
+                }
+            }
         }
     }
 
