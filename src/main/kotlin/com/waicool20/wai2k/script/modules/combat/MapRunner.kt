@@ -23,6 +23,7 @@ import com.waicool20.wai2k.android.AndroidRegion
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.script.ScriptRunner
+import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -60,10 +61,15 @@ abstract class MapRunner(
     protected suspend fun waitForBattleEnd() {
         logger.info("Waiting for battle to end")
         // Use a higher similarity threshold to prevent prematurely exiting the wait
-        region.waitSuspending("$PREFIX/complete-condition.png", 600, 0.95)
+        region.waitSuspending("$PREFIX/complete-condition.png", 1200, 0.95)
+                ?: run {
+                    logger.warn("Battle did not complete after timeout")
+                    coroutineContext.cancelAndYield()
+                }
         logger.info("Battle ended")
 
-        region.clickUntilGone("combat/battle/end.png", 15, 0.75)
+        // Lower similarity in case the end button glows ( No more points left )
+        region.clickUntilGone("combat/battle/end.png", 15, 0.70)
     }
 
     protected suspend fun handleBattleResults() {
