@@ -348,6 +348,7 @@ class CombatModule(
         logger.info("Choosing combat chapter $chapter")
         CombatChapter.clickChapter(chapter, region)
         logger.info("At combat chapter $chapter")
+        navigator.checkLogistics()
     }
 
     /**
@@ -371,7 +372,7 @@ class CombatModule(
                 // region.subRegion(1558, 265, 84, 25).clickRandomly()
             }
         }
-        yield()
+        navigator.checkLogistics()
 
         // TODO: Implement scrolling for other maps
         // Narrow vertical region containing the map names, 1-1, 1-2 etc.
@@ -380,7 +381,7 @@ class CombatModule(
         withTimeoutOrNull(10000) {
             val asset = "combat/maps/${map.replace(Regex("[enEN]"), "")}.png"
             while (findRegion.has(asset)) {
-                yield()
+                navigator.checkLogistics()
                 findRegion.findOrNull(asset)
                         // Map to whole length of map entry, can't do height as it might not be
                         // on screen
@@ -394,12 +395,16 @@ class CombatModule(
      * Enters the map and waits for the start button to appear
      */
     private suspend fun enterBattle(map: String) {
+        navigator.checkLogistics()
         // Enter battle, use higher similarity threshold to exclude possibly disabled
         // button which will be slightly transparent
-        logger.info("Entering normal battle at $map")
-        region.subRegion(790, 800, 580, 140)
-                .clickUntilGone("combat/battle/normal.png", 10, 0.96)
-        delay(200)
+        while (isActive) {
+            navigator.checkLogistics()
+            logger.info("Entering normal battle at $map")
+            region.subRegion(790, 800, 580, 140)
+                    .findOrNull("combat/battle/normal.png")?.clickRandomly() ?: break
+            delay(1000)
+        }
 
         region.subRegion(1185, 696, 278, 95).findOrNull("combat/enhancement.png")?.apply {
             logger.info("T-doll limit reached, cancelling sortie")
