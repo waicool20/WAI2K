@@ -86,7 +86,7 @@ class FactoryModule(
                 val doll = region.findAllOrEmpty("doll-list/lock.png")
                         .also { logger.info("Found ${it.size} dolls on screen available for enhancement") }
                         // Map lock region to doll region
-                        .map { region.subRegion(it.x - 7, it.y, 244, 164) }
+                        .map { region.subRegion(it.x - 7, it.y, 244, it.h) }
                         // Prioritize higher level dolls
                         .sortedBy { it.y * 10 + it.x }
                         .firstOrNull()
