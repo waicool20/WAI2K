@@ -153,9 +153,12 @@ class Navigator(
 
             // Mark game state dirty, needs updating
             gameState.requiresUpdate = true
-            // Wait a bit in case another echelon arrives
-            logger.info("Waiting a bit to see if anymore echelons arrive")
-            delay(5000)
+            if (gameState.currentGameLocation.id == LocationId.HOME ||
+                    gameState.currentGameLocation.id == LocationId.HOME_STATUS) {
+                // Wait a bit in case another echelon arrives
+                logger.info("Waiting a bit to see if anymore echelons arrive")
+                delay(5000)
+            }
         }
     }
 }
