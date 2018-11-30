@@ -147,9 +147,47 @@ class FactoryModule(
     }
 
     private suspend fun disassembleDolls() {
-        logger.info("Work In Progress - Disassembly not available")
-        return
+        logger.info("Doll limit reached, will try to disassemble")
         navigator.navigateTo(LocationId.TDOLL_DISASSEMBLY)
+
+        var oldDollCount: List<String>? = null
+        val dollsDisassembled = AtomicInteger(0)
+        val statUpdateJobs = mutableListOf<Job>()
+
+        while (isActive) {
+            region.subRegion(483, 200, 1557, 565).find("factory/select.png").clickRandomly()
+            delay(750)
+
+            statUpdateJobs += updateJob(region.subRegion(1750, 810, 290, 70).takeScreenshot()) {count ->
+                val c = count[0].toInt()
+                oldDollCount?.get(0)?.toIntOrNull()?.let {
+                    dollsDisassembled.getAndAdd(it - c)
+                }
+                oldDollCount = count
+                c >= count[1].toInt()
+            }
+
+            // Click smart select button
+            logger.info("Using smart select")
+            region.subRegion(1770, 859, 247, 158).clickRandomly(); yield()
+
+            // Confirm doll selection
+            val okButton = region.subRegion(1768, 889, 250, 158).findOrNull("factory/ok.png")
+            if (okButton == null) {
+                // Click cancel if no t dolls could be used for enhancement
+                region.subRegion(120, 0, 205, 144).clickRandomly()
+                logger.info("No more 2 star T-dolls to disassemble!")
+                break
+            } else {
+                okButton.clickRandomly()
+                scriptStats.disassemblesDone += 1
+            }
+
+            // Click disassemble button
+            region.subRegion(1749, 885, 247, 95).clickRandomly()
+
+            region.subRegion(483, 200, 1557, 565).waitSuspending("factory/select.png")
+        }
     }
 
     private fun updateJob(screenshot: BufferedImage, action: (List<String>) -> Boolean): Job {
