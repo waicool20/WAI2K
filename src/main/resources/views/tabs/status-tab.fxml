@@ -89,8 +89,8 @@
                                     </HBox>
                                     <HBox spacing="5.0">
                                        <children>
-                                          <Label text="Repairs per sortie (RPS):" />
-                                          <Label fx:id="rpsLabel" />
+                                          <Label text="Sorties per repair (SPR):" />
+                                          <Label fx:id="sprLabel" />
                                        </children>
                                     </HBox>
                                           </children>
