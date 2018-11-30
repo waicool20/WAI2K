@@ -106,10 +106,11 @@ class FactoryModule(
                 }
             }
 
+            delay(200)
             // Click "Select t-doll" button
             logger.info("Selecting T-dolls that will be used for enhancement")
             region.subRegion(760, 200, 1250, 550).find("factory/select.png").clickRandomly()
-            yield()
+            delay(200)
 
             // Click smart select button
             logger.info("Using smart select")
