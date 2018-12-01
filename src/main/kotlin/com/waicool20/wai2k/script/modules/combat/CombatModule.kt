@@ -382,8 +382,9 @@ class CombatModule(
         }
         navigator.checkLogistics()
 
+        // Swipe up if map is > 4
         if (map.drop(2).take(1).toInt() > 4) {
-            region.subRegion(747, 987, 1271, 83).randomLocation().let {
+            region.subRegion(1020, 880, 675, 140).randomLocation().let {
                 region.swipeRandomly(it, it.offset(0, -650))
             }
         }
