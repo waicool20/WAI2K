@@ -69,7 +69,8 @@ class CombatModule(
      */
     private suspend fun runCombatCycle() {
         // Don't need to switch dolls if previous run was cancelled
-        if (!wasCancelled) switchDolls()
+        // or the map is not meant for corpse dragging
+        if (mapRunner.isCorpseDraggingMap && !wasCancelled) switchDolls()
         checkRepairs()
         // Cancel further execution if any of the dolls needed to repair but were not able to
         wasCancelled = gameState.echelons.any { it.needsRepairs() }

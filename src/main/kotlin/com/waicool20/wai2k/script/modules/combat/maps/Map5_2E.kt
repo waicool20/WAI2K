@@ -35,6 +35,7 @@ class Map5_2E(
         profile: Wai2KProfile
 ) : MapRunner(scriptRunner, region, config, profile) {
     private val logger = loggerFor<Map5_2E>()
+    override val isCorpseDraggingMap = true
 
     override suspend fun execute() {
         deployEchelons()

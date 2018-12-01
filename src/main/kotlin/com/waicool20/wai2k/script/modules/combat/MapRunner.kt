@@ -56,6 +56,8 @@ abstract class MapRunner(
 
     val PREFIX = "combat/maps/${javaClass.simpleName.replace("_", "-").drop(3)}"
 
+    abstract val isCorpseDraggingMap: Boolean
+
     abstract suspend fun execute()
 
     protected suspend fun waitForBattleEnd() {
