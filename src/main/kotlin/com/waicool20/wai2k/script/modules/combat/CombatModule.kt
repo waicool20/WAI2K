@@ -381,7 +381,11 @@ class CombatModule(
         }
         navigator.checkLogistics()
 
-        // TODO: Implement scrolling for other maps
+        if (map.takeLast(1).toInt() > 4) {
+            region.subRegion(747, 987, 1271, 83).randomLocation().let {
+                region.swipeRandomly(it, it.offset(0, -650))
+            }
+        }
         // Narrow vertical region containing the map names, 1-1, 1-2 etc.
         val findRegion = region.subRegion(1060, 336, 150, 744)
         // Click until map asset is gone
