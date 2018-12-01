@@ -196,7 +196,7 @@ class LogisticsSupportModule(
             delay(100)
             val echelons = (1..7).mapAsync(this) {
                 it to eRegion.findOrNull("echelons/echelon$it.png")
-            }.filter { it.second == null }.map { it.first to it.second!! }
+            }.filter { it.second != null }.map { it.first to it.second!! }
             logger.debug("Visible echelons: ${echelons.map { it.first }}")
             val lEchelon = echelons.minBy { it.first } ?: echelons.first()
             val hEchelon = echelons.maxBy { it.first } ?: echelons.last()
