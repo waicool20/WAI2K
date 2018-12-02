@@ -31,8 +31,6 @@ import java.awt.image.BufferedImage
 import java.io.InputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.util.*
-import kotlin.concurrent.fixedRateTimer
 import kotlin.concurrent.thread
 
 /**
@@ -218,7 +216,7 @@ class AndroidDevice(
     private var screenshotRenderBuffer = ByteBuffer.allocateDirect(screenshotBufferSize)
     private var screenshotReadBuffer = ByteArray(screenshotBufferSize)
 
-    private var screenshotThread: Thread? = null
+    private var screenRecordProcess: Process? = null
     private var lastScreenshot: BufferedImage? = null
     private var lastScreenshotTime = System.currentTimeMillis()
 
@@ -244,18 +242,20 @@ class AndroidDevice(
             return image
         }
 
-        if (screenshotThread == null) {
-            screenshotThread = thread {
-                val inputStream = ProcessBuilder("adb", "shell", "screenrecord", "--output-format=raw-frames", "-").start()
-                        .inputStream
-                var offset = 0
-                while (true) {
-                    while (offset < screenshotReadBuffer.size) {
-                        offset += inputStream.read(screenshotReadBuffer, offset, screenshotReadBuffer.size - offset)
+        if (screenRecordProcess == null || screenRecordProcess?.isAlive == false) {
+            thread {
+                screenRecordProcess?.destroy()
+                screenRecordProcess = ProcessBuilder("adb", "shell", "screenrecord", "--output-format=raw-frames", "-").start()
+                screenRecordProcess?.inputStream?.let { inputStream ->
+                    var offset = 0
+                    while (screenRecordProcess?.isAlive == true) {
+                        while (offset < screenshotReadBuffer.size) {
+                            offset += inputStream.read(screenshotReadBuffer, offset, screenshotReadBuffer.size - offset)
+                        }
+                        screenshotRenderBuffer.clear()
+                        screenshotRenderBuffer.put(screenshotReadBuffer)
+                        offset = 0
                     }
-                    screenshotRenderBuffer.clear()
-                    screenshotRenderBuffer.put(screenshotReadBuffer)
-                    offset = 0
                 }
             }
         }
