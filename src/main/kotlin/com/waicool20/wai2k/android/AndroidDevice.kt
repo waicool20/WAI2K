@@ -31,6 +31,9 @@ import java.awt.image.BufferedImage
 import java.io.InputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import java.util.*
+import kotlin.concurrent.fixedRateTimer
+import kotlin.concurrent.thread
 
 /**
  * Represents an android device
@@ -209,5 +212,54 @@ class AndroidDevice(
             }
         }
         throw exception ?: error("Could not take screenshot due to unknown error")
+    }
+
+    private var screenshotBufferSize = properties.displayWidth * properties.displayHeight * 3
+    private var screenshotRenderBuffer = ByteBuffer.allocateDirect(screenshotBufferSize)
+    private var screenshotReadBuffer = ByteArray(screenshotBufferSize)
+
+    private var screenshotThread: Thread? = null
+    private var lastScreenshot: BufferedImage? = null
+    private var lastScreenshotTime = System.currentTimeMillis()
+
+    /**
+     * Takes a screenshot of the screen of the device using screenrecord technique which sends
+     * continuous video data. The image is rendered on demand and should be faster since
+     * the data is already in program memory.
+     */
+    fun takeFastScreenshot(): BufferedImage {
+        fun renderScreenshot(): BufferedImage {
+            val shallowBuffer = screenshotRenderBuffer.duplicate().apply { clear() }
+            val width = properties.displayWidth
+            val height = properties.displayHeight
+            val image = BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
+            for (y in 0 until height) {
+                for (x in 0 until width) {
+                    val r = ((shallowBuffer.get() and 0xFF) shl 16)
+                    val g = ((shallowBuffer.get() and 0xFF) shl 8)
+                    val b = (shallowBuffer.get() and 0xFF)
+                    image.setRGB(x, y, r or g or b)
+                }
+            }
+            return image
+        }
+
+        if (screenshotThread == null) {
+            screenshotThread = thread {
+                val inputStream = ProcessBuilder("adb", "shell", "screenrecord", "--output-format=raw-frames", "-").start()
+                        .inputStream
+                var offset = 0
+                while (true) {
+                    while (offset < screenshotReadBuffer.size) {
+                        offset += inputStream.read(screenshotReadBuffer, offset, screenshotReadBuffer.size - offset)
+                    }
+                    screenshotRenderBuffer.clear()
+                    screenshotRenderBuffer.put(screenshotReadBuffer)
+                    offset = 0
+                }
+            }
+        }
+        lastScreenshot?.takeIf { System.currentTimeMillis() - lastScreenshotTime < 100 }?.let { return it }
+        return renderScreenshot().also { lastScreenshot = it }
     }
 }

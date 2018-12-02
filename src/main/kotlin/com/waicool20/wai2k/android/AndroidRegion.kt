@@ -311,7 +311,7 @@ open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region
     //</editor-fold>
 
     override fun takeScreenshot(): BufferedImage {
-        return androidScreen.device.takeScreenshot().getSubimage(x, y, w, h)
+        return androidScreen.device.takeFastScreenshot().getSubimage(x, y, w, h)
     }
 
     override fun <PSI : Any> findOrNull(psi: PSI, similarity: Double, timeout: Double): AndroidMatch? = when (psi) {
