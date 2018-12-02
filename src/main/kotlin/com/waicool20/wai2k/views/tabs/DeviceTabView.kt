@@ -24,15 +24,16 @@ import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.util.Binder
 import com.waicool20.waicoolutils.javafx.addListener
 import com.waicool20.waicoolutils.logging.loggerFor
+import javafx.embed.swing.SwingFXUtils
 import javafx.scene.control.Button
 import javafx.scene.control.ComboBox
 import javafx.scene.control.Label
+import javafx.scene.image.ImageView
 import javafx.scene.layout.VBox
 import javafx.stage.FileChooser
 import javafx.util.StringConverter
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import kotlinx.coroutines.javafx.JavaFx
 import org.controlsfx.glyphfont.FontAwesome
 import org.controlsfx.glyphfont.Glyph
 import tornadofx.*
@@ -51,6 +52,9 @@ class DeviceTabView : View(), Binder {
     private val reloadDevicesButton: Button by fxid()
     private val pointerButton: Button by fxid()
     private val takeScreenshotButton: Button by fxid()
+
+    private val deviceView: ImageView by fxid()
+    private var renderJob: Job? = null
 
     private val context: Wai2KContext by inject()
 
@@ -97,6 +101,9 @@ class DeviceTabView : View(), Binder {
                 logger.debug("Selected device: ${newVal.properties.name}")
                 context.wai2KConfig.lastDeviceSerial = newVal.adbSerial
                 context.wai2KConfig.save()
+                // Cancel the current job before starting a new one
+                renderJob?.cancel()
+                renderJob = createNewRenderJob(newVal)
             }
         }
         pointerButton.action {
@@ -108,7 +115,7 @@ class DeviceTabView : View(), Binder {
                     title = "Save screenshot to?"
                     extensionFilters.add(FileChooser.ExtensionFilter("PNG files (*.png)", "*.png"))
                     showSaveDialog(null)?.let { file ->
-                        GlobalScope.launch(Dispatchers.IO) { ImageIO.write(device.takeScreenshot(), "PNG", file) }
+                        GlobalScope.launch(Dispatchers.IO) { ImageIO.write(device.takeFastScreenshot(), "PNG", file) }
                     }
                 }
             }
@@ -138,6 +145,16 @@ class DeviceTabView : View(), Binder {
                 } ?: deviceComboBox.selectionModel.clearSelection()
             }
             action(list)
+        }
+    }
+
+    private fun createNewRenderJob(device: AndroidDevice) = GlobalScope.launch {
+        while (isActive) {
+            if (owningTab?.isSelected == true) {
+                withContext(Dispatchers.JavaFx) {
+                    deviceView.image = SwingFXUtils.toFXImage(device.takeFastScreenshot(), null)
+                }
+            }
         }
     }
 }
