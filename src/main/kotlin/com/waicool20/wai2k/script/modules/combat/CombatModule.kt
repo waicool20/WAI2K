@@ -196,7 +196,7 @@ class CombatModule(
                     .map {
                         DollRegions(
                                 image.getSubimage(it.x + 67, it.y + 79, 165, 40),
-                                image.getSubimage(it.x + 183, it.y + 124, 45, 32),
+                                image.getSubimage(it.x + 184, it.y + 129, 39, 27),
                                 region.subRegion(it.x - 7, it.y, 244, 164)
                         )
                     }
@@ -211,9 +211,10 @@ class CombatModule(
                     // Filter by level
                     .also { logger.debug("Filtering by level ---------------------") }
                     .filterAsync(this) {
-                        it.levelRegionImage.binarizeImage().scale(2.0).pad(20, 10, Color.WHITE).let { bi ->
-                            abs(Ocr.forConfig(config, digitsOnly = true).doOCRAndTrim(bi).toIntOrNull()
-                                    ?: 1) >= level
+                        it.levelRegionImage.binarizeImage().pad(20, 10, Color.WHITE).let { bi ->
+                            val ocrLevel = Ocr.forConfig(config, digitsOnly = true).doOCRAndTrim(bi)
+                            logger.debug("Level ocr result: $ocrLevel")
+                            ocrLevel.toIntOrNull() ?: 1 >= level
                         }
                     }
                     // Return click regions
