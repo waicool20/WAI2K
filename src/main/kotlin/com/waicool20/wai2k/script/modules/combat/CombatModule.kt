@@ -38,7 +38,6 @@ import org.sikuli.basics.Settings
 import java.awt.Color
 import java.awt.image.BufferedImage
 import java.nio.file.Files
-import kotlin.math.abs
 import kotlin.random.Random
 import kotlin.reflect.full.primaryConstructor
 
@@ -202,7 +201,7 @@ class CombatModule(
                         )
                     }
                     // Filter by name
-                    .also { logger.info("Filtering by name  ---------------------") }
+                    .also { logger.debug("Filtering by name  ---------------------") }
                     .filterAsync(this) {
                         val ocrName = Ocr.forConfig(config).doOCRAndTrim(it.nameRegionImage)
                         val distance = ocrName.distanceTo(name, Ocr.OCR_DISTANCE_MAP)
@@ -210,7 +209,7 @@ class CombatModule(
                         distance < OCR_THRESHOLD
                     }
                     // Filter by level
-                    .also { logger.info("Filtering by level ---------------------") }
+                    .also { logger.debug("Filtering by level ---------------------") }
                     .filterAsync(this) {
                         it.levelRegionImage.binarizeImage().scale(2.0).pad(20, 10, Color.WHITE).let { bi ->
                             abs(Ocr.forConfig(config, digitsOnly = true).doOCRAndTrim(bi).toIntOrNull()
