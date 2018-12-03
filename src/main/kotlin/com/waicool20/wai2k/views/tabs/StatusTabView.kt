@@ -39,7 +39,9 @@ class StatusTabView : CoroutineScopeView() {
     override val root: VBox by fxml("/views/tabs/status-tab.fxml")
 
     private val context: Wai2KContext by inject()
-    private val scriptRunner = find<ScriptContext>().scriptRunner
+    private val scriptRunner by lazy {
+        find<ScriptContext>().scriptRunner
+    }
 
     private val startTimeLabel: Label by fxid()
     private val elapsedTimeLabel: Label by fxid()

@@ -22,5 +22,5 @@ package com.waicool20.wai2k.script
 import tornadofx.*
 
 data class ScriptContext(
-        val scriptRunner: ScriptRunner = ScriptRunner()
+        val scriptRunner: ScriptRunner
 ) : Component(), ScopedInstance

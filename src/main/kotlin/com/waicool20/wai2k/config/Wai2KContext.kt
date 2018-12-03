@@ -21,13 +21,14 @@ package com.waicool20.wai2k.config
 
 import com.waicool20.wai2k.android.AdbServer
 import javafx.beans.property.ObjectProperty
+import javafx.beans.property.SimpleObjectProperty
 import tornadofx.*
 
 data class Wai2KContext(
         val wai2KConfigProperty: ObjectProperty<Wai2KConfig> = Wai2KConfig().toProperty(),
         val versionInfoProperty: ObjectProperty<VersionInfo> = VersionInfo().toProperty(),
         val currentProfileProperty: ObjectProperty<Wai2KProfile> = Wai2KProfile().toProperty(),
-        val adbServerProperty: ObjectProperty<AdbServer> = AdbServer().toProperty()
+        val adbServerProperty: ObjectProperty<AdbServer> = SimpleObjectProperty(null)
 ) : Component(), ScopedInstance {
     var wai2KConfig by wai2KConfigProperty
     var versionInfo by versionInfoProperty
