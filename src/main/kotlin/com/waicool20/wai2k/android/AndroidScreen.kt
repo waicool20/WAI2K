@@ -118,7 +118,7 @@ class AndroidScreen(val device: AndroidDevice) : AndroidRegion(
      * @param rect Sub-region to capture.
      * @return the captured image.
      */
-    override fun capture(rect: Rectangle): ScreenImage = device.takeFastScreenshot().let {
+    override fun capture(rect: Rectangle): ScreenImage = device.takeScreenshot().let {
         setW(it.width)
         setH(it.height)
         ScreenImage(Rectangle(0, 0, it.width, it.height), it).getSub(rect)

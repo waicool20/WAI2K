@@ -31,6 +31,7 @@ import java.awt.image.BufferedImage
 import java.io.InputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
 /**
@@ -75,6 +76,22 @@ class AndroidDevice(
      * Gets the [IScreen] of this android device
      */
     val screen by lazy { AndroidScreen(this) }
+
+    /**
+     * Backing value of the [fastScreenshotMode] property
+     */
+    private val _fastScreenshotMode = AtomicBoolean(false)
+
+    /**
+     * Enables fast screenshot mode
+     */
+    var fastScreenshotMode: Boolean
+        get() = _fastScreenshotMode.get()
+        set(value) {
+            // Starts the process if trying to enable it
+            if (value) takeFastScreenshot()
+            _fastScreenshotMode.set(value)
+        }
 
     init {
         val props = device.executeAndReadLines("getprop").mapNotNull {
@@ -178,12 +195,15 @@ class AndroidDevice(
                 .takeLast(1).toIntOrNull() ?: 0
     }
 
+    //<editor-fold desc="Screenshot">
+
     /**
      * Takes a screenshot of the screen of the device
      *
      * @return [BufferedImage] containing the data of the screenshot
      */
     fun takeScreenshot(): BufferedImage {
+        if (fastScreenshotMode) return takeFastScreenshot()
         var exception: Exception? = null
         for (i in 0 until 3) {
             try {
@@ -226,7 +246,7 @@ class AndroidDevice(
      * continuous video data. The image is rendered on demand and should be faster since
      * the data is already in program memory.
      */
-    fun takeFastScreenshot(): BufferedImage {
+    private fun takeFastScreenshot(): BufferedImage {
         fun renderScreenshot(): BufferedImage {
             screenshotIsRendering = true
             val shallowBuffer = screenshotRenderBuffer.duplicate().apply { clear() }
@@ -251,7 +271,7 @@ class AndroidDevice(
                 screenRecordProcess = ProcessBuilder("adb", "shell", "screenrecord", "--output-format=raw-frames", "-").start()
                 screenRecordProcess?.inputStream?.let { inputStream ->
                     var offset = 0
-                    while (screenRecordProcess?.isAlive == true) {
+                    while (screenRecordProcess?.isAlive == true && fastScreenshotMode) {
                         while (offset < screenshotReadBuffer.size) {
                             offset += inputStream.read(screenshotReadBuffer, offset, screenshotReadBuffer.size - offset)
                         }
@@ -261,6 +281,7 @@ class AndroidDevice(
                         }
                         offset = 0
                     }
+                    screenRecordProcess?.destroy()
                 }
             }
         }
@@ -269,4 +290,6 @@ class AndroidDevice(
         }?.let { return it }
         return renderScreenshot().also { lastScreenshot = it }
     }
+
+    //</editor-fold>
 }

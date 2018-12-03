@@ -115,7 +115,7 @@ class DeviceTabView : View(), Binder {
                     title = "Save screenshot to?"
                     extensionFilters.add(FileChooser.ExtensionFilter("PNG files (*.png)", "*.png"))
                     showSaveDialog(null)?.let { file ->
-                        GlobalScope.launch(Dispatchers.IO) { ImageIO.write(device.takeFastScreenshot(), "PNG", file) }
+                        GlobalScope.launch(Dispatchers.IO) { ImageIO.write(device.takeScreenshot(), "PNG", file) }
                     }
                 }
             }
@@ -152,7 +152,7 @@ class DeviceTabView : View(), Binder {
         while (isActive) {
             if (owningTab?.isSelected == true) {
                 withContext(Dispatchers.JavaFx) {
-                    deviceView.image = SwingFXUtils.toFXImage(device.takeFastScreenshot(), null)
+                    deviceView.image = SwingFXUtils.toFXImage(device.takeScreenshot(), null)
                 }
             }
         }
