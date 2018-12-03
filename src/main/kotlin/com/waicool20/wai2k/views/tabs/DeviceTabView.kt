@@ -26,6 +26,7 @@ import com.waicool20.waicoolutils.javafx.addListener
 import com.waicool20.waicoolutils.logging.loggerFor
 import javafx.embed.swing.SwingFXUtils
 import javafx.scene.control.Button
+import javafx.scene.control.CheckBox
 import javafx.scene.control.ComboBox
 import javafx.scene.control.Label
 import javafx.scene.image.ImageView
@@ -53,6 +54,7 @@ class DeviceTabView : View(), Binder {
     private val pointerButton: Button by fxid()
     private val takeScreenshotButton: Button by fxid()
 
+    private val realtimePreviewCheckbox: CheckBox by fxid()
     private val deviceView: ImageView by fxid()
     private var renderJob: Job? = null
 
@@ -60,7 +62,8 @@ class DeviceTabView : View(), Binder {
 
     private val logger = loggerFor<DeviceTabView>()
 
-    init {
+    override fun onDock() {
+        super.onDock()
         title = "Device"
 
         reloadDevicesButton.graphic = Glyph("FontAwesome", FontAwesome.Glyph.REFRESH)
@@ -71,7 +74,14 @@ class DeviceTabView : View(), Binder {
             override fun toString(device: AndroidDevice) = device.properties.name
             override fun fromString(string: String) = null
         }
+
+        refreshDeviceLists { list ->
+            list.find { it.adbSerial == context.wai2KConfig.lastDeviceSerial }?.let {
+                runLater { deviceComboBox.selectionModel.select(it) }
+            }
+        }
         createBindings()
+        context.wai2KConfigProperty.addListener("DeviceTabViewConfigListener") { _ -> createBindings() }
     }
 
     override fun createBindings() {
@@ -96,16 +106,7 @@ class DeviceTabView : View(), Binder {
                     it?.properties?.run { "${displayWidth}x$displayHeight" } ?: ""
                 }
         )
-        itemProp.addListener("AndroidDeviceSelection") { newVal ->
-            if (newVal != null) {
-                logger.debug("Selected device: ${newVal.properties.name}")
-                context.wai2KConfig.lastDeviceSerial = newVal.adbSerial
-                context.wai2KConfig.save()
-                // Cancel the current job before starting a new one
-                renderJob?.cancel()
-                renderJob = createNewRenderJob(newVal)
-            }
-        }
+        itemProp.addListener("AndroidDeviceSelection", ::setNewDevice)
         pointerButton.action {
             deviceComboBox.selectedItem?.togglePointerInfo()
         }
@@ -120,14 +121,8 @@ class DeviceTabView : View(), Binder {
                 }
             }
         }
-    }
-
-    override fun onDock() {
-        super.onDock()
-        refreshDeviceLists { list ->
-            list.find { it.adbSerial == context.wai2KConfig.lastDeviceSerial }?.let {
-                runLater { deviceComboBox.selectionModel.select(it) }
-            }
+        context.wai2KConfig.scriptConfig.fastScreenshotModeProperty.addListener("DeviceTabViewFSMListener") { newVal ->
+            deviceComboBox.selectedItem?.fastScreenshotMode = newVal
         }
     }
 
@@ -148,11 +143,28 @@ class DeviceTabView : View(), Binder {
         }
     }
 
+    private fun setNewDevice(device: AndroidDevice?) {
+        if (device != null) {
+            logger.debug("Selected device: ${device.properties.name}")
+            context.wai2KConfig.lastDeviceSerial = device.adbSerial
+            context.wai2KConfig.save()
+            device.fastScreenshotMode = context.wai2KConfig.scriptConfig.fastScreenshotMode
+            // Cancel the current job before starting a new one
+            renderJob?.cancel()
+            renderJob = createNewRenderJob(device)
+        }
+    }
+
     private fun createNewRenderJob(device: AndroidDevice) = GlobalScope.launch {
         while (isActive) {
             if (owningTab?.isSelected == true) {
                 withContext(Dispatchers.JavaFx) {
-                    deviceView.image = SwingFXUtils.toFXImage(device.takeScreenshot(), null)
+                    val image = if (realtimePreviewCheckbox.isSelected && device.fastScreenshotMode) {
+                        device.takeScreenshot()
+                    } else {
+                        device.screen.lastScreenImageFromScreen?.image ?: return@withContext
+                    }
+                    deviceView.image = SwingFXUtils.toFXImage(image, null)
                 }
             }
         }

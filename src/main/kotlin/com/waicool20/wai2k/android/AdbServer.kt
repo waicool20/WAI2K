@@ -39,10 +39,6 @@ class AdbServer(path: String = resolveEnvAdb()) {
 
     private val adbPath = findAdb() ?: path
 
-    init {
-        println("Constructed new adb server instance $path")
-    }
-
     companion object {
         /**
          * Tries to find the adb executable using the given path or by resolving through

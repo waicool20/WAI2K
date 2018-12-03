@@ -27,15 +27,18 @@ class ScriptConfig(
         loopDelay: Int = 15,
         sikulixScanRate: Int = 20,
         defaultSimilarityThreshold: Double = 0.9,
-        mapRunnerSimilarityThreshold: Double = 0.85
+        mapRunnerSimilarityThreshold: Double = 0.85,
+        fastScreenshotMode: Boolean = false
 ) {
     val loopDelayProperty = loopDelay.toProperty()
     val sikulixScanRateProperty = sikulixScanRate.toProperty()
     val defaultSimilarityThresholdProperty = defaultSimilarityThreshold.toProperty()
     val mapRunnerSimilarityThresholdProperty = mapRunnerSimilarityThreshold.toProperty()
+    val fastScreenshotModeProperty = fastScreenshotMode.toProperty()
 
     var loopDelay by loopDelayProperty
     var sikulixScanRate by sikulixScanRateProperty
     var defaultSimilarityThreshold by defaultSimilarityThresholdProperty
     var mapRunnerSimilarityThreshold by mapRunnerSimilarityThresholdProperty
+    var fastScreenshotMode by fastScreenshotModeProperty
 }
