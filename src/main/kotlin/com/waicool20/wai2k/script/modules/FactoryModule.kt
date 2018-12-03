@@ -200,7 +200,7 @@ class FactoryModule(
             // Update stats
             scriptStats.disassemblesDone += 1
             // Wait for menu to settle
-            region.subRegion(483, 200, 1557, 565).waitSuspending("factory/select.png")
+            region.subRegion(483, 200, 1557, 565).waitSuspending("factory/select.png", 20)
         }
 
         var filtersApplied = false
@@ -263,7 +263,7 @@ class FactoryModule(
             // Update stats
             scriptStats.disassemblesDone += 1
             // Wait for menu to settle
-            region.subRegion(483, 200, 1557, 565).waitSuspending("factory/select.png")
+            region.subRegion(483, 200, 1557, 565).waitSuspending("factory/select.png", 20)
         }
         // Update stats after all the update jobs are complete
         launch {
