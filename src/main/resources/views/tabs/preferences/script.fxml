@@ -65,7 +65,7 @@
                   <CheckBox fx:id="fastScreenshotModeCheckBox" mnemonicParsing="false" />
                </children>
             </HBox>
-            <Label prefWidth="400.0" text="WARNING: Speed increase depends on your system and may actually be detrimental, higher CPU usage is to be expected&#10;" wrapText="true" />
+            <Label prefWidth="400.0" text="WARNING: Highly experimental, speed increase depends on your system and may actually be detrimental, higher CPU usage is to be expected&#10;" wrapText="true" />
          </children>
       </VBox>
       <Separator prefWidth="200.0" />

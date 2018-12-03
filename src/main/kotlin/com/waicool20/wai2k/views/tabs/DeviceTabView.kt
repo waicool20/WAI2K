@@ -156,13 +156,19 @@ class DeviceTabView : View(), Binder {
     }
 
     private fun createNewRenderJob(device: AndroidDevice) = GlobalScope.launch {
+        var lastCaptureTime = System.currentTimeMillis()
         while (isActive) {
             if (owningTab?.isSelected == true) {
                 withContext(Dispatchers.JavaFx) {
                     val image = if (realtimePreviewCheckbox.isSelected && device.fastScreenshotMode) {
                         device.takeScreenshot()
                     } else {
-                        device.screen.lastScreenImageFromScreen?.image ?: return@withContext
+                        device.screen.lastScreenImage?.image?.takeIf {
+                            System.currentTimeMillis() - lastCaptureTime < 3000
+                        } ?: run {
+                            lastCaptureTime = System.currentTimeMillis()
+                            device.screen.capture().image
+                        }
                     }
                     deviceView.image = SwingFXUtils.toFXImage(image, null)
                 }
