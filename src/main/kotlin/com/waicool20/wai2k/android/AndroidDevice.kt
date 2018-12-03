@@ -240,6 +240,7 @@ class AndroidDevice(
     private var screenRecordProcess: Process? = null
     private var lastScreenshot: BufferedImage? = null
     private var lastScreenshotTime = System.currentTimeMillis()
+    private val screenshotExpiryTime = 15
 
     /**
      * Takes a screenshot of the screen of the device using screenrecord technique which sends
@@ -260,6 +261,8 @@ class AndroidDevice(
                 val b = (shallowBuffer.get() and 0xFF)
                 imageBuffer[pixel] = r or g or b
             }
+            lastScreenshot = image
+            lastScreenshotTime = System.currentTimeMillis()
             screenshotIsRendering = false
             return image
         }
@@ -285,9 +288,9 @@ class AndroidDevice(
             }
         }
         lastScreenshot?.takeIf {
-            System.currentTimeMillis() - lastScreenshotTime < 15
+            System.currentTimeMillis() - lastScreenshotTime < screenshotExpiryTime
         }?.let { return it }
-        return renderScreenshot().also { lastScreenshot = it }
+        return renderScreenshot()
     }
 
     //</editor-fold>
