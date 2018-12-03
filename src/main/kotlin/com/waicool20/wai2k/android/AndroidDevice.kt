@@ -242,6 +242,12 @@ class AndroidDevice(
     private var lastScreenshotTime = System.currentTimeMillis()
     private val screenshotExpiryTime = 15
 
+    init {
+        Runtime.getRuntime().addShutdownHook(Thread {
+            screenRecordProcess?.destroy()
+        })
+    }
+
     /**
      * Takes a screenshot of the screen of the device using screenrecord technique which sends
      * continuous video data. The image is rendered on demand and should be faster since
