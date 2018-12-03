@@ -264,7 +264,9 @@ class AndroidDevice(
                 }
             }
         }
-        lastScreenshot?.takeIf { System.currentTimeMillis() - lastScreenshotTime < 100 }?.let { return it }
+        lastScreenshot?.takeIf {
+            System.currentTimeMillis() - lastScreenshotTime < 15
+        }?.let { return it }
         return renderScreenshot().also { lastScreenshot = it }
     }
 }
