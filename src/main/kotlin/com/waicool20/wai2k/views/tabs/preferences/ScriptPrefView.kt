@@ -21,6 +21,7 @@ package com.waicool20.wai2k.views.tabs.preferences
 
 import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.waicoolutils.javafx.bind
+import javafx.scene.control.CheckBox
 import javafx.scene.control.Spinner
 import javafx.scene.control.SpinnerValueFactory.DoubleSpinnerValueFactory
 import javafx.scene.control.SpinnerValueFactory.IntegerSpinnerValueFactory
@@ -33,6 +34,7 @@ class ScriptPrefView : View() {
     private val scanRateSpinner: Spinner<Int> by fxid()
     private val defaultSimThresholdSpinner: Spinner<Double> by fxid()
     private val mapRunnerSimThresholdSpinner: Spinner<Double> by fxid()
+    private val fastScreenshotModeCheckBox: CheckBox by fxid()
 
     private val context: Wai2KContext by inject()
 
@@ -47,6 +49,7 @@ class ScriptPrefView : View() {
             scanRateSpinner.bind(sikulixScanRateProperty)
             defaultSimThresholdSpinner.bind(defaultSimilarityThresholdProperty)
             mapRunnerSimThresholdSpinner.bind(mapRunnerSimilarityThresholdProperty)
+            fastScreenshotModeCheckBox.bind(fastScreenshotModeProperty)
         }
     }
 }
