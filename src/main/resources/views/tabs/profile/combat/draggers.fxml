@@ -49,7 +49,7 @@
             <HBox alignment="CENTER_LEFT" spacing="5.0">
                <children>
                   <Label text="Level:" />
-                  <Spinner fx:id="doll1LevelSpinner" prefWidth="75.0" />
+                  <Spinner fx:id="doll1LevelSpinner" editable="true" prefWidth="75.0" />
                   <Label text="Type:">
                      <HBox.margin>
                         <Insets left="15.0" />
@@ -84,7 +84,7 @@
             <HBox alignment="CENTER_LEFT" spacing="5.0">
                <children>
                   <Label text="Level:" />
-                  <Spinner fx:id="doll2LevelSpinner" prefWidth="75.0" />
+                  <Spinner fx:id="doll2LevelSpinner" editable="true" prefWidth="75.0" />
                   <Label text="Type:">
                      <HBox.margin>
                         <Insets left="15.0" />

@@ -30,7 +30,7 @@
       <HBox alignment="CENTER_LEFT" spacing="10.0">
          <children>
             <Label prefWidth="220.0" text="Loop delay:" />
-            <Spinner fx:id="loopDelaySpinner" />
+            <Spinner fx:id="loopDelaySpinner" editable="true" />
          </children>
          <VBox.margin>
             <Insets />
@@ -39,19 +39,19 @@
       <HBox alignment="CENTER_LEFT" spacing="10.0">
          <children>
             <Label prefWidth="220.0" text="SikuliX scan rate:" />
-            <Spinner fx:id="scanRateSpinner" />
+            <Spinner fx:id="scanRateSpinner" editable="true" />
          </children>
       </HBox>
       <HBox alignment="CENTER_LEFT" spacing="10.0">
          <children>
             <Label prefWidth="220.0" text="Default similarity threshold:" />
-            <Spinner fx:id="defaultSimThresholdSpinner" />
+            <Spinner fx:id="defaultSimThresholdSpinner" editable="true" />
          </children>
       </HBox>
       <HBox alignment="CENTER_LEFT" spacing="10.0">
          <children>
             <Label prefWidth="220.0" text="Map runner similarity threshold:" />
-            <Spinner fx:id="mapRunnerSimThresholdSpinner" />
+            <Spinner fx:id="mapRunnerSimThresholdSpinner" editable="true" />
          </children>
       </HBox>
    </children>

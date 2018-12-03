@@ -39,7 +39,7 @@
       <HBox alignment="CENTER_LEFT" spacing="10.0">
          <children>
             <Label text="Repair threshold (%):" />
-            <Spinner fx:id="repairThresholdSpinner" prefWidth="75.0" />
+            <Spinner fx:id="repairThresholdSpinner" editable="true" prefWidth="75.0" />
          </children>
       </HBox>
     </children>
