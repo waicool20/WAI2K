@@ -24,15 +24,17 @@ import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.util.Binder
 import com.waicool20.waicoolutils.javafx.addListener
 import com.waicool20.waicoolutils.logging.loggerFor
+import javafx.embed.swing.SwingFXUtils
 import javafx.scene.control.Button
+import javafx.scene.control.CheckBox
 import javafx.scene.control.ComboBox
 import javafx.scene.control.Label
+import javafx.scene.image.ImageView
 import javafx.scene.layout.VBox
 import javafx.stage.FileChooser
 import javafx.util.StringConverter
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import kotlinx.coroutines.javafx.JavaFx
 import org.controlsfx.glyphfont.FontAwesome
 import org.controlsfx.glyphfont.Glyph
 import tornadofx.*
@@ -52,11 +54,16 @@ class DeviceTabView : View(), Binder {
     private val pointerButton: Button by fxid()
     private val takeScreenshotButton: Button by fxid()
 
+    private val realtimePreviewCheckbox: CheckBox by fxid()
+    private val deviceView: ImageView by fxid()
+    private var renderJob: Job? = null
+
     private val context: Wai2KContext by inject()
 
     private val logger = loggerFor<DeviceTabView>()
 
-    init {
+    override fun onDock() {
+        super.onDock()
         title = "Device"
 
         reloadDevicesButton.graphic = Glyph("FontAwesome", FontAwesome.Glyph.REFRESH)
@@ -67,7 +74,14 @@ class DeviceTabView : View(), Binder {
             override fun toString(device: AndroidDevice) = device.properties.name
             override fun fromString(string: String) = null
         }
+
+        refreshDeviceLists { list ->
+            list.find { it.adbSerial == context.wai2KConfig.lastDeviceSerial }?.let {
+                runLater { deviceComboBox.selectionModel.select(it) }
+            }
+        }
         createBindings()
+        context.wai2KConfigProperty.addListener("DeviceTabViewConfigListener") { _ -> createBindings() }
     }
 
     override fun createBindings() {
@@ -92,13 +106,7 @@ class DeviceTabView : View(), Binder {
                     it?.properties?.run { "${displayWidth}x$displayHeight" } ?: ""
                 }
         )
-        itemProp.addListener("AndroidDeviceSelection") { newVal ->
-            if (newVal != null) {
-                logger.debug("Selected device: ${newVal.properties.name}")
-                context.wai2KConfig.lastDeviceSerial = newVal.adbSerial
-                context.wai2KConfig.save()
-            }
-        }
+        itemProp.addListener("AndroidDeviceSelection", ::setNewDevice)
         pointerButton.action {
             deviceComboBox.selectedItem?.togglePointerInfo()
         }
@@ -113,14 +121,8 @@ class DeviceTabView : View(), Binder {
                 }
             }
         }
-    }
-
-    override fun onDock() {
-        super.onDock()
-        refreshDeviceLists { list ->
-            list.find { it.adbSerial == context.wai2KConfig.lastDeviceSerial }?.let {
-                runLater { deviceComboBox.selectionModel.select(it) }
-            }
+        context.wai2KConfig.scriptConfig.fastScreenshotModeProperty.addListener("DeviceTabViewFSMListener") { newVal ->
+            deviceComboBox.selectedItem?.fastScreenshotMode = newVal
         }
     }
 
@@ -138,6 +140,39 @@ class DeviceTabView : View(), Binder {
                 } ?: deviceComboBox.selectionModel.clearSelection()
             }
             action(list)
+        }
+    }
+
+    private fun setNewDevice(device: AndroidDevice?) {
+        if (device != null) {
+            logger.debug("Selected device: ${device.properties.name}")
+            context.wai2KConfig.lastDeviceSerial = device.adbSerial
+            context.wai2KConfig.save()
+            device.fastScreenshotMode = context.wai2KConfig.scriptConfig.fastScreenshotMode
+            // Cancel the current job before starting a new one
+            renderJob?.cancel()
+            renderJob = createNewRenderJob(device)
+        }
+    }
+
+    private fun createNewRenderJob(device: AndroidDevice) = GlobalScope.launch {
+        var lastCaptureTime = System.currentTimeMillis()
+        while (isActive) {
+            if (owningTab?.isSelected == true) {
+                withContext(Dispatchers.JavaFx) {
+                    val image = if (realtimePreviewCheckbox.isSelected && device.fastScreenshotMode) {
+                        device.takeScreenshot()
+                    } else {
+                        device.screen.lastScreenImage?.image?.takeIf {
+                            System.currentTimeMillis() - lastCaptureTime < 3000
+                        } ?: run {
+                            lastCaptureTime = System.currentTimeMillis()
+                            device.screen.capture().image
+                        }
+                    }
+                    deviceView.image = SwingFXUtils.toFXImage(image, null)
+                }
+            }
         }
     }
 }

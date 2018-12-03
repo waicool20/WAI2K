@@ -28,9 +28,12 @@ import com.waicool20.waicoolutils.logging.loggerFor
 import org.sikuli.script.IScreen
 import se.vidstige.jadb.JadbDevice
 import java.awt.image.BufferedImage
+import java.awt.image.DataBufferInt
 import java.io.InputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.concurrent.thread
 
 /**
  * Represents an android device
@@ -74,6 +77,22 @@ class AndroidDevice(
      * Gets the [IScreen] of this android device
      */
     val screen by lazy { AndroidScreen(this) }
+
+    /**
+     * Backing value of the [fastScreenshotMode] property
+     */
+    private val _fastScreenshotMode = AtomicBoolean(false)
+
+    /**
+     * Enables fast screenshot mode
+     */
+    var fastScreenshotMode: Boolean
+        get() = _fastScreenshotMode.get()
+        set(value) {
+            // Starts the process if trying to enable it
+            if (value) takeFastScreenshot()
+            _fastScreenshotMode.set(value)
+        }
 
     init {
         val props = device.executeAndReadLines("getprop").mapNotNull {
@@ -177,12 +196,15 @@ class AndroidDevice(
                 .takeLast(1).toIntOrNull() ?: 0
     }
 
+    //<editor-fold desc="Screenshot">
+
     /**
      * Takes a screenshot of the screen of the device
      *
      * @return [BufferedImage] containing the data of the screenshot
      */
     fun takeScreenshot(): BufferedImage {
+        if (fastScreenshotMode) return takeFastScreenshot()
         var exception: Exception? = null
         for (i in 0 until 3) {
             try {
@@ -194,14 +216,13 @@ class AndroidDevice(
                 val image = BufferedImage(width, height, buffer.int)
                 buffer.int // Ignore the 4th int
 
-                for (y in 0 until height) {
-                    for (x in 0 until width) {
-                        val r = ((buffer.get() and 0xFF) shl 16)
-                        val g = ((buffer.get() and 0xFF) shl 8)
-                        val b = (buffer.get() and 0xFF)
-                        buffer.get() // Ignore alpha channel
-                        image.setRGB(x, y, r or g or b)
-                    }
+                val imageBuffer = (image.raster.dataBuffer as DataBufferInt).data
+                for (pixel in 0 until imageBuffer.size) {
+                    val r = ((buffer.get() and 0xFF) shl 16)
+                    val g = ((buffer.get() and 0xFF) shl 8)
+                    val b = (buffer.get() and 0xFF)
+                    buffer.get()
+                    imageBuffer[pixel] = r or g or b
                 }
                 return image
             } catch (e: Exception) {
@@ -210,4 +231,73 @@ class AndroidDevice(
         }
         throw exception ?: error("Could not take screenshot due to unknown error")
     }
+
+    private val screenshotBufferSize = properties.displayWidth * properties.displayHeight * 3
+    private val screenshotRenderBuffer = ByteBuffer.allocateDirect(screenshotBufferSize)
+    private val screenshotReadBuffer = ByteArray(screenshotBufferSize)
+    private var screenshotIsRendering = false
+
+    private var screenRecordProcess: Process? = null
+    private var lastScreenshot: BufferedImage? = null
+    private var lastScreenshotTime = System.currentTimeMillis()
+    private val screenshotExpiryTime = 15
+
+    init {
+        Runtime.getRuntime().addShutdownHook(Thread {
+            screenRecordProcess?.destroy()
+        })
+    }
+
+    /**
+     * Takes a screenshot of the screen of the device using screenrecord technique which sends
+     * continuous video data. The image is rendered on demand and should be faster since
+     * the data is already in program memory.
+     */
+    private fun takeFastScreenshot(): BufferedImage {
+        fun renderScreenshot(): BufferedImage {
+            screenshotIsRendering = true
+            val shallowBuffer = screenshotRenderBuffer.duplicate().apply { clear() }
+            val width = properties.displayWidth
+            val height = properties.displayHeight
+            val image = BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
+            val imageBuffer = (image.raster.dataBuffer as DataBufferInt).data
+            for (pixel in 0 until imageBuffer.size) {
+                val r = ((shallowBuffer.get() and 0xFF) shl 16)
+                val g = ((shallowBuffer.get() and 0xFF) shl 8)
+                val b = (shallowBuffer.get() and 0xFF)
+                imageBuffer[pixel] = r or g or b
+            }
+            lastScreenshot = image
+            lastScreenshotTime = System.currentTimeMillis()
+            screenshotIsRendering = false
+            return image
+        }
+
+        if (screenRecordProcess == null || screenRecordProcess?.isAlive == false) {
+            thread {
+                screenRecordProcess?.destroy()
+                screenRecordProcess = ProcessBuilder("adb", "shell", "screenrecord", "--output-format=raw-frames", "-").start()
+                screenRecordProcess?.inputStream?.let { inputStream ->
+                    var offset = 0
+                    while (screenRecordProcess?.isAlive == true && fastScreenshotMode) {
+                        while (offset < screenshotReadBuffer.size) {
+                            offset += inputStream.read(screenshotReadBuffer, offset, screenshotReadBuffer.size - offset)
+                        }
+                        if (!screenshotIsRendering) {
+                            screenshotRenderBuffer.clear()
+                            screenshotRenderBuffer.put(screenshotReadBuffer)
+                        }
+                        offset = 0
+                    }
+                    screenRecordProcess?.destroy()
+                }
+            }
+        }
+        lastScreenshot?.takeIf {
+            System.currentTimeMillis() - lastScreenshotTime < screenshotExpiryTime
+        }?.let { return it }
+        return renderScreenshot()
+    }
+
+    //</editor-fold>
 }

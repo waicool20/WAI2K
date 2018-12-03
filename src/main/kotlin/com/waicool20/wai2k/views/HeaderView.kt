@@ -55,7 +55,9 @@ class HeaderView : CoroutineScopeView() {
     private val stopButton: Button by fxid()
 
     private val wai2KContext: Wai2KContext by inject()
-    private val scriptRunner = find<ScriptContext>().scriptRunner
+    private val scriptRunner by lazy {
+        find<ScriptContext>().scriptRunner
+    }
 
     val buttons: HBox by fxid()
 

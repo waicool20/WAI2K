@@ -40,7 +40,7 @@ import kotlin.reflect.full.primaryConstructor
 class ScriptRunner(
         wai2KConfig: Wai2KConfig = Wai2KConfig(),
         wai2KProfile: Wai2KProfile = Wai2KProfile(),
-        private var adbServer: AdbServer = AdbServer(wai2KConfig.adbPath)
+        private var adbServer: AdbServer
 ) : CoroutineScope {
     private var scriptJob: Job? = null
     override val coroutineContext: CoroutineContext
@@ -90,7 +90,6 @@ class ScriptRunner(
             if (currentConfig != it) {
                 currentConfig = it
                 reloadModules = true
-                adbServer = AdbServer(currentConfig.adbPath)
             }
         }
         profile?.let {
