@@ -140,9 +140,10 @@ class AdbServer(path: String = resolveEnvAdb()) {
      */
     fun listDevices(refresh: Boolean = true): List<AndroidDevice> {
         return if (refresh) {
-            adb.devices.mapNotNull {
+            adb.devices.mapNotNull { newDevice ->
                 try {
-                    AndroidDevice(this, it)
+                    deviceCache.find { it.adbSerial == newDevice.serial }
+                            ?: AndroidDevice(this, newDevice)
                 } catch (e: JadbException) {
                     logger.warn("Failed to read one device: ${e.localizedMessage}")
                     null
