@@ -28,6 +28,7 @@ import com.waicool20.waicoolutils.logging.loggerFor
 import org.sikuli.script.IScreen
 import se.vidstige.jadb.JadbDevice
 import java.awt.image.BufferedImage
+import java.awt.image.DataBufferInt
 import java.io.InputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -215,14 +216,13 @@ class AndroidDevice(
                 val image = BufferedImage(width, height, buffer.int)
                 buffer.int // Ignore the 4th int
 
-                for (y in 0 until height) {
-                    for (x in 0 until width) {
-                        val r = ((buffer.get() and 0xFF) shl 16)
-                        val g = ((buffer.get() and 0xFF) shl 8)
-                        val b = (buffer.get() and 0xFF)
-                        buffer.get() // Ignore alpha channel
-                        image.setRGB(x, y, r or g or b)
-                    }
+                val imageBuffer = (image.raster.dataBuffer as DataBufferInt).data
+                for (pixel in 0 until imageBuffer.size) {
+                    val r = ((buffer.get() and 0xFF) shl 16)
+                    val g = ((buffer.get() and 0xFF) shl 8)
+                    val b = (buffer.get() and 0xFF)
+                    buffer.get()
+                    imageBuffer[pixel] = r or g or b
                 }
                 return image
             } catch (e: Exception) {
@@ -253,13 +253,12 @@ class AndroidDevice(
             val width = properties.displayWidth
             val height = properties.displayHeight
             val image = BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
-            for (y in 0 until height) {
-                for (x in 0 until width) {
-                    val r = ((shallowBuffer.get() and 0xFF) shl 16)
-                    val g = ((shallowBuffer.get() and 0xFF) shl 8)
-                    val b = (shallowBuffer.get() and 0xFF)
-                    image.setRGB(x, y, r or g or b)
-                }
+            val imageBuffer = (image.raster.dataBuffer as DataBufferInt).data
+            for (pixel in 0 until imageBuffer.size) {
+                val r = ((shallowBuffer.get() and 0xFF) shl 16)
+                val g = ((shallowBuffer.get() and 0xFF) shl 8)
+                val b = (shallowBuffer.get() and 0xFF)
+                imageBuffer[pixel] = r or g or b
             }
             screenshotIsRendering = false
             return image
