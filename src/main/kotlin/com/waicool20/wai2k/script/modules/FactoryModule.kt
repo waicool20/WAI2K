@@ -30,6 +30,7 @@ import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.*
+import org.sikuli.script.Image
 import java.awt.image.BufferedImage
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
@@ -93,14 +94,24 @@ class FactoryModule(
                 if (doll == null) {
                     if (region.findAllOrEmpty("doll-list/logistics.png").size >= 12) {
                         logger.info("All dolls are unavailable, checking down the list")
+
+                        // Check if we actually scrolled down by comparing this subregion
+                        val compareRegion = region.subRegion(120, 970, 265, 110)
+                        val screenshot = compareRegion.takeScreenshot()
+
                         // Swipe down because all the dolls presented were in logistics
                         region.subRegion(140, 620, 1590, 455).randomLocation().let {
                             region.swipeRandomly(it, it.offset(0, Random.nextInt(-490, -480)), 1000)
                         }
-                    } else {
-                        logger.info("No suitable doll that can be enhanced found")
-                        return
+                        delay(100)
+                        // If it actually scrolled down then the region will have different contents
+                        // from before
+                        if (compareRegion.doesntHave(Image(screenshot, "SwipeCompare"))) continue
                     }
+                    logger.info("No suitable doll that can be enhanced found")
+                    // Click cancel
+                    region.subRegion(120, 0, 205, 144).clickRandomly()
+                    return
                 } else {
                     doll.clickRandomly()
                     break
