@@ -212,9 +212,10 @@ class AndroidDevice(
         throw exception ?: error("Could not take screenshot due to unknown error")
     }
 
-    private var screenshotBufferSize = properties.displayWidth * properties.displayHeight * 3
-    private var screenshotRenderBuffer = ByteBuffer.allocateDirect(screenshotBufferSize)
-    private var screenshotReadBuffer = ByteArray(screenshotBufferSize)
+    private val screenshotBufferSize = properties.displayWidth * properties.displayHeight * 3
+    private val screenshotRenderBuffer = ByteBuffer.allocateDirect(screenshotBufferSize)
+    private val screenshotReadBuffer = ByteArray(screenshotBufferSize)
+    private var screenshotIsRendering = false
 
     private var screenRecordProcess: Process? = null
     private var lastScreenshot: BufferedImage? = null
@@ -227,6 +228,7 @@ class AndroidDevice(
      */
     fun takeFastScreenshot(): BufferedImage {
         fun renderScreenshot(): BufferedImage {
+            screenshotIsRendering = true
             val shallowBuffer = screenshotRenderBuffer.duplicate().apply { clear() }
             val width = properties.displayWidth
             val height = properties.displayHeight
@@ -239,6 +241,7 @@ class AndroidDevice(
                     image.setRGB(x, y, r or g or b)
                 }
             }
+            screenshotIsRendering = false
             return image
         }
 
@@ -252,8 +255,10 @@ class AndroidDevice(
                         while (offset < screenshotReadBuffer.size) {
                             offset += inputStream.read(screenshotReadBuffer, offset, screenshotReadBuffer.size - offset)
                         }
-                        screenshotRenderBuffer.clear()
-                        screenshotRenderBuffer.put(screenshotReadBuffer)
+                        if (!screenshotIsRendering) {
+                            screenshotRenderBuffer.clear()
+                            screenshotRenderBuffer.put(screenshotReadBuffer)
+                        }
                         offset = 0
                     }
                 }
