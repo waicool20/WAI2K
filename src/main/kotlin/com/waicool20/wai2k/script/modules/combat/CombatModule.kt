@@ -196,12 +196,13 @@ class CombatModule(
                     // Transform the lock region into 3 distinct regions used for ocr and clicking by offset
                     .map {
                         DollRegions(
-                                image.getSubimage(it.x + 67, it.y + 72, 161, 52),
+                                image.getSubimage(it.x + 67, it.y + 79, 165, 40),
                                 image.getSubimage(it.x + 183, it.y + 124, 45, 32),
                                 region.subRegion(it.x - 7, it.y, 244, 164)
                         )
                     }
                     // Filter by name
+                    .also { logger.info("Filtering by name  ---------------------") }
                     .filterAsync(this) {
                         val ocrName = Ocr.forConfig(config).doOCRAndTrim(it.nameRegionImage)
                         val distance = ocrName.distanceTo(name, Ocr.OCR_DISTANCE_MAP)
@@ -209,6 +210,7 @@ class CombatModule(
                         distance < OCR_THRESHOLD
                     }
                     // Filter by level
+                    .also { logger.info("Filtering by level ---------------------") }
                     .filterAsync(this) {
                         it.levelRegionImage.binarizeImage().scale(2.0).pad(20, 10, Color.WHITE).let { bi ->
                             abs(Ocr.forConfig(config, digitsOnly = true).doOCRAndTrim(bi).toIntOrNull()
