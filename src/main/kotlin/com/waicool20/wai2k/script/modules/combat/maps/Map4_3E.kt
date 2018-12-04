@@ -49,13 +49,13 @@ class Map4_3E(
     private suspend fun deployEchelons() {
         logger.info("Deploying echelon 1 to heliport")
         region.clickUntilGone("$PREFIX/heliport.png", 10)
-        region.find("ok.png").clickRandomly()
+        region.waitSuspending("ok.png", 10)?.clickRandomly()
 
         delay(200)
 
         logger.info("Deploying echelon 2 to command post")
         region.clickUntilGone("$PREFIX/commandpost.png", 10)
-        region.find("ok.png").clickRandomly()
+        region.waitSuspending("ok.png", 10)?.clickRandomly()
 
         delay(200)
 
