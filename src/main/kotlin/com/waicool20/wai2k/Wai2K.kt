@@ -41,7 +41,7 @@ class Wai2K : App(Wai2KWorkspace::class) {
         init {
             val jarPath = Paths.get(Wai2K::class.java.protectionDomain.codeSource.location.toURI())
             if (isRunningJar()) _configDirectory = jarPath.resolveSibling(CONFIG_DIR_NAME)
-            Files.createDirectories(_configDirectory)
+            if (Files.notExists(_configDirectory)) Files.createDirectories(_configDirectory)
             // Try and set the locale for to C for tesseract 4.0 +
             try {
                 CLib.Locale.setLocale(CLib.Locale.LC_ALL, "C")
