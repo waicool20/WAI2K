@@ -77,16 +77,14 @@ abstract class MapRunner(
     protected suspend fun handleBattleResults() {
         logger.info("Waiting for battle results")
         region.waitSuspending("combat/battle/results.png", 30, 0.9)
-        delay(3000)
         region.clickRandomly()
         region.waitSuspending("combat/battle/drop.png", 10)?.let {
             logger.info("There was a drop")
-            region.clickRandomly()
-            delay(1000)
+            // Shrink the region to prevent possible random clicks on the share button
+            region.grow(-100).clickRandomly()
             logger.info("Waiting for battle results")
             region.waitSuspending("combat/battle/results.png", 30, 0.9)
             region.clickRandomly()
-            delay(1000)
         }
         scriptStats.sortiesDone += 1
     }
