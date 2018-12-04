@@ -142,8 +142,12 @@ class ScriptRunner(
         reload()
         if (modules.isEmpty()) coroutineContext.cancelAndYield()
         modules.forEach { it.execute() }
-        do {
+        if (isPaused) {
+            logger.info("Script is now paused")
+            while (isPaused) delay(currentConfig.scriptConfig.loopDelay * 1000L)
+            logger.info("Script will now resume")
+        } else {
             delay(currentConfig.scriptConfig.loopDelay * 1000L)
-        } while (isPaused)
+        }
     }
 }

@@ -29,6 +29,7 @@ import com.waicool20.waicoolutils.javafx.addListener
 import com.waicool20.waicoolutils.javafx.tooltips.TooltipSide
 import com.waicool20.waicoolutils.javafx.tooltips.fadeAfter
 import com.waicool20.waicoolutils.javafx.tooltips.showAt
+import com.waicool20.waicoolutils.logging.loggerFor
 import javafx.scene.control.Button
 import javafx.scene.control.ComboBox
 import javafx.scene.control.SplitMenuButton
@@ -49,6 +50,7 @@ class HeaderView : CoroutineScopeView() {
 
     private val PLAY_GLYPH = Glyph("FontAwesome", FontAwesome.Glyph.PLAY)
     private val PAUSE_GLYPH = Glyph("FontAwesome", FontAwesome.Glyph.PAUSE)
+    private val logger = loggerFor<HeaderView>()
 
     private val profileComboBox: ComboBox<String> by fxid()
     private val startPauseButton: SplitMenuButton by fxid()
@@ -160,6 +162,7 @@ class HeaderView : CoroutineScopeView() {
             } else {
                 scriptRunner.isPaused = true
                 startPauseButton.text = "Cont."
+                logger.info("Script will pause when the current cycle ends")
             }
         } else {
             scriptRunner.apply {
