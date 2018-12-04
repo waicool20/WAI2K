@@ -77,6 +77,7 @@ abstract class MapRunner(
     protected suspend fun handleBattleResults() {
         logger.info("Waiting for battle results")
         region.waitSuspending("combat/battle/results.png", 30, 0.9)
+        delay(1000)
         region.clickRandomly()
         region.waitSuspending("combat/battle/drop.png", 10)?.let {
             logger.info("There was a drop")
