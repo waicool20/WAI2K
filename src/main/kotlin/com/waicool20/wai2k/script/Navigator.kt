@@ -123,9 +123,16 @@ class Navigator(
      * Checks if there are logistics, if there were then try and receive them
      */
     suspend fun checkLogistics() {
-        while (region.has("navigator/logistics_arrived.png")) {
-            logger.info("An echelon has arrived from logistics")
-            region.clickRandomly(); delay(500)
+        while (true) {
+            if (region.has("navigator/logistics_arrived.png")) {
+                logger.info("An echelon has arrived from logistics")
+                region.clickRandomly()
+                delay(500)
+            }
+
+            // Even if the logistics arrived didnt show up, its possible
+            // that it was clicked through by some other function
+            if (region.doesntHave("navigator/logistics_dialog.png")) break
 
             // Continue based on receival mode
             val cont = when (profile.logistics.receiveMode) {
