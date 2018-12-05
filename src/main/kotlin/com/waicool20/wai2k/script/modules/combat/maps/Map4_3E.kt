@@ -53,24 +53,24 @@ class Map4_3E(
         region.subRegion(1770, 930, 180, 60)
                 .clickRandomly(); yield()
         logger.info("Deploying echelon 2 to command post")
-        region.subRegion(291, 456, 161, 166).waitSuspending("$PREFIX/commandpost.png", 5)
+        region.subRegion(291, 456, 161, 166).waitSuspending("$PREFIX/commandpost.png", 10)
                 ?.clickUntil { region.has("ok.png") }; yield()
         region.subRegion(1770, 930, 180, 60)
                 .clickRandomly(); yield()
-
+        region.waitSuspending("$PREFIX/node1.png", 10)
         logger.info("Deployment complete")
     }
 
     private suspend fun resupplyEchelons() {
         logger.info("Finding the G&K splash")
 
-        region.waitSuspending("$PREFIX/splash.png", 20).apply {
+        region.waitSuspending("$PREFIX/splash.png", 10)?.apply {
             logger.info("Found the splash!")
         } ?: logger.info("Cant find the splash!")
 
         logger.info("Resupplying echelon at command post")
         logger.info("Selecting echelon")
-        region.subRegion(291, 456, 161, 166).waitSuspending("$PREFIX/commandpost-deployed.png", 5)
+        region.subRegion(291, 456, 161, 166).waitSuspending("$PREFIX/commandpost-deployed.png", 10)
                 ?.clickUntil { region.has("combat/battle/resupply.png") }; yield()
 
         logger.info("Found the resupply button")
@@ -80,6 +80,7 @@ class Map4_3E(
         logger.info("Checking for errors......")
         region.findOrNull("close.png")
                 ?.clickRandomly(); yield()
+        region.waitSuspending("$PREFIX/node1.png", 10)
         logger.info("Resupply complete")
     }
 
