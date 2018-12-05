@@ -39,7 +39,7 @@ class Map4_3E(
 
     override suspend fun execute() {
         deployEchelons()
-        region.find("combat/battle/start.png").clickRandomly()
+        region.subRegion(1745, 914, 240, 100).clickRandomly(); yield()
         resupplyEchelons()
         planPath()
         waitForBattleEnd()
@@ -48,59 +48,65 @@ class Map4_3E(
 
     private suspend fun deployEchelons() {
         logger.info("Deploying echelon 1 to heliport")
-        region.clickUntilGone("$PREFIX/heliport.png", 10)
-        region.waitSuspending("ok.png", 10)?.clickRandomly()
-
-        delay(200)
-
+        region.subRegion(1762, 702, 119, 108)
+                .clickRandomly(); yield()
+        region.subRegion(1770, 930, 180, 60)
+                .clickRandomly(); yield()
         logger.info("Deploying echelon 2 to command post")
-        region.clickUntilGone("$PREFIX/commandpost.png", 10)
-        region.waitSuspending("ok.png", 10)?.clickRandomly()
-
-        delay(200)
+        region.subRegion(291, 456, 161, 166).waitSuspending("$PREFIX/commandpost.png", 5)
+                ?.clickUntil { region.has("ok.png") }; yield()
+        region.subRegion(1770, 930, 180, 60)
+                .clickRandomly(); yield()
 
         logger.info("Deployment complete")
     }
 
     private suspend fun resupplyEchelons() {
+        logger.info("Finding the G&K splash")
+
+        region.waitSuspending("$PREFIX/splash.png", 20).apply {
+            logger.info("Found the splash!")
+        } ?: logger.info("Cant find the splash!")
+
         logger.info("Resupplying echelon at command post")
-        delay(3000)
-        region.waitSuspending("$PREFIX/commandpost-deployed.png", 15)?.grow(0, 135, 0, 135)?.apply {
-            clickRandomly(); yield()
-            clickRandomly(); yield()
-        } ?: error("Could not find command post")
+        logger.info("Selecting echelon")
+        region.subRegion(291, 456, 161, 166).waitSuspending("$PREFIX/commandpost-deployed.png", 5)
+                ?.clickUntil { region.has("combat/battle/resupply.png") }; yield()
 
-        delay(200)
-        region.clickUntilGone("combat/battle/resupply.png")
-
-        region.findOrNull("close.png")?.clickRandomly()
+        logger.info("Found the resupply button")
+        logger.info("Resupplying........")
+        region.subRegion(1753, 804, 260, 70)
+                .clickRandomly();yield()
+        logger.info("Checking for errors......")
+        region.findOrNull("close.png")
+                ?.clickRandomly(); yield()
         logger.info("Resupply complete")
     }
 
     private suspend fun planPath() {
         logger.info("Entering planning mode")
-        region.clickUntilGone("combat/battle/plan.png")
+        region.subRegion(5, 860, 200, 50)
+                .clickRandomly(); yield()
         logger.info("Selecting echelon at heliport")
-        region.find("$PREFIX/heliport-deployed.png").grow(100, 0, 100, 0)
+        region.subRegion(1762, 702, 119, 108)
                 .clickRandomly(); yield()
         logger.info("Selecting node 1")
-        region.find("$PREFIX/node1.png").grow(90, 0, 0, 0)
+        region.subRegion(1752, 453, 98, 91)
                 .clickRandomly(); yield()
         logger.info("Selecting node 2")
-        region.find("$PREFIX/node2.png").grow(0, 75, 0, 0)
+        region.subRegion(1829, 162, 136, 138)
                 .clickRandomly(); yield()
 
         // Pan up
         region.subRegion(1033, 225, 240, 100).let {
-            it.swipeToRandomly(it.offset(0, 700), 1500); yield()
+            it.swipeToRandomly(it.offset(0, 850), 1500); yield()
         }
 
         logger.info("Selecting node 3")
-        region.find("$PREFIX/node3.png").grow(0, 80, 0, 0)
+        region.subRegion(1688, 705, 100, 96)
                 .clickRandomly(); yield()
-
         logger.info("Selecting node 4")
-        region.find("$PREFIX/node4.png").grow(0, 110, 0, 0)
+        region.subRegion(1683, 309, 158, 162)
                 .clickRandomly(); yield()
 
         logger.info("Executing plan")
