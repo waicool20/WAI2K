@@ -25,7 +25,6 @@ import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.script.modules.combat.MapRunner
 import com.waicool20.waicoolutils.logging.loggerFor
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
 
 class Map5_4(
@@ -39,7 +38,7 @@ class Map5_4(
 
     override suspend fun execute() {
         deployEchelons()
-        region.find("combat/battle/start.png").clickRandomly()
+        region.subRegion(1745, 914, 240, 100).clickRandomly(); yield()
         resupplyEchelons()
         planPath()
         waitForBattleEnd()
@@ -48,58 +47,67 @@ class Map5_4(
 
     private suspend fun deployEchelons() {
         logger.info("Deploying echelon 1 to heliport")
-        region.clickUntilGone("$PREFIX/heliport.png", 10)
-        region.find("ok.png").clickRandomly()
-
-        delay(200)
-
+        region.subRegion(280, 309, 108, 110)
+                .clickRandomly(); yield()
+        region.subRegion(1770, 930, 180, 60)
+                .clickRandomly(); yield()
         logger.info("Deploying echelon 2 to command post")
-        region.clickUntilGone("$PREFIX/commandpost.png", 10)
-        region.find("ok.png").clickRandomly()
-
-        delay(200)
-
+        region.subRegion(1690, 215, 150, 150).waitSuspending("$PREFIX/commandpost.png", 10)
+                ?.clickUntil { region.has("ok.png") }; yield()
+        region.subRegion(1770, 930, 180, 60)
+                .clickRandomly(); yield()
+        region.waitSuspending("$PREFIX/node5.png", 10)
         logger.info("Deployment complete")
     }
 
     private suspend fun resupplyEchelons() {
+        logger.info("Finding the G&K splash")
+
+        region.waitSuspending("$PREFIX/splash.png", 10)?.apply {
+            logger.info("Found the splash!")
+        } ?: logger.info("Cant find the splash!")
+
         logger.info("Resupplying echelon at command post")
-        delay(3000)
-        region.waitSuspending("$PREFIX/commandpost-deployed.png", 15)?.grow(50, 10, 80, 0)?.apply {
-            clickRandomly(); yield()
-            clickRandomly(); yield()
-        } ?: error("Could not find command post")
+        logger.info("Selecting echelon")
+        region.subRegion(1690, 215, 150, 150).waitSuspending("$PREFIX/commandpost-deployed.png", 10)
+                ?.clickUntil { region.has("combat/battle/resupply.png") }; yield()
 
-        delay(200)
-        region.clickUntilGone("combat/battle/resupply.png")
-
-        region.findOrNull("close.png")?.clickRandomly()
+        logger.info("Found the resupply button")
+        logger.info("Resupplying........")
+        region.subRegion(1753, 804, 260, 70)
+                .clickRandomly();yield()
+        logger.info("Checking for errors......")
+        region.findOrNull("close.png")
+                ?.clickRandomly(); yield()
+        region.waitSuspending("$PREFIX/node5.png", 10)
         logger.info("Resupply complete")
     }
 
     private suspend fun planPath() {
         logger.info("Entering planning mode")
-        region.clickUntilGone("combat/battle/plan.png")
+        region.subRegion(5, 860, 200, 50)
+                .clickRandomly(); yield()
         logger.info("Selecting echelon at heliport")
-        region.find("$PREFIX/heliport-deployed.png").grow(0, 0, 80, 0)
+        region.subRegion(280, 309, 108, 110)
                 .clickRandomly(); yield()
         logger.info("Selecting node 1")
-        region.find("$PREFIX/node1.png").grow(0, 0, 60, 0)
+        region.subRegion(540, 235, 60, 60)
                 .clickRandomly(); yield()
         logger.info("Selecting node 2")
-        region.find("$PREFIX/node2.png").grow(80, 0, 10, 10)
+        region.subRegion(780, 235, 60, 60)
                 .clickRandomly(); yield()
         logger.info("Selecting node 3")
-        region.find("$PREFIX/node3.png").grow(10, 10, 70, 0)
+        region.subRegion(1045, 235, 100, 100)
                 .clickRandomly(); yield()
         logger.info("Selecting node 4")
-        region.find("$PREFIX/node4.png").grow(0, 0, 80, 0)
+        region.subRegion(1070, 470, 60, 60)
                 .clickRandomly(); yield()
         logger.info("Selecting node 5")
-        region.find("$PREFIX/node5.png").grow(10, 0, 70, 0)
+        region.subRegion(1045, 625, 100, 110)
                 .clickRandomly(); yield()
 
         logger.info("Executing plan")
-        region.clickUntilGone("combat/battle/plan-execute.png")
+        region.subRegion(1905, 925, 200, 100)
+                .clickRandomly(); yield()
     }
 }
