@@ -272,7 +272,8 @@ class CombatModule(
                 gameState.echelons[echelon].members[member].also {
                     it.name = name
                     it.needsRepair = try {
-                        hp.split(Regex("\\D")).let { l ->
+                        hp.replace(Regex("[^\\d/]"), "")
+                                .split("/").let { l ->
                             val percent = (l[0].toDouble() / l[1].toDouble()) * 100
                             logger.info("[Repair OCR] Name: $name | HP: $hp | HP (%): $percent")
                             percent < profile.combat.repairThreshold
