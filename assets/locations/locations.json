@@ -63,6 +63,26 @@
           "width": 317,
           "height": 124
         }
+      },
+      {
+        "dest": "research_menu",
+        "asset": {
+          "imageName": "",
+          "x": 1346,
+          "y": 452,
+          "width": 317,
+          "height": 124
+        }
+      },
+      {
+        "dest": "dormitories",
+        "asset": {
+          "imageName": "",
+          "x": 1694,
+          "y": 348,
+          "width": 317,
+          "height": 124
+        }
       }
     ]
   },
@@ -127,6 +147,26 @@
           "imageName": "",
           "x": 1346,
           "y": 312,
+          "width": 317,
+          "height": 124
+        }
+      },
+      {
+        "dest": "research_menu",
+        "asset": {
+          "imageName": "",
+          "x": 1346,
+          "y": 452,
+          "width": 317,
+          "height": 124
+        }
+      },
+      {
+        "dest": "dormitories",
+        "asset": {
+          "imageName": "",
+          "x": 1694,
+          "y": 348,
           "width": 317,
           "height": 124
         }
@@ -737,6 +777,60 @@
           "y": 0,
           "width": 205,
           "height": 144
+        }
+      }
+    ]
+  },
+  {
+    "id": "research_menu",
+    "isIntermediate": true,
+    "landmarks": [
+      {
+        "asset": {
+          "imageName": "research_menu",
+          "x": 410,
+          "y": 30,
+          "width": 60,
+          "height": 60
+        }
+      }
+    ],
+    "links": [
+      {
+        "dest": "home",
+        "asset": {
+          "imageName": "",
+          "x": 120,
+          "y": 0,
+          "width": 205,
+          "height": 144
+        }
+      }
+    ]
+  },
+  {
+    "id": "dormitories",
+    "isIntermediate": false,
+    "landmarks": [
+      {
+        "asset": {
+          "imageName": "dormitories",
+          "x": 225,
+          "y": 40,
+          "width": 60,
+          "height": 60
+        }
+      }
+    ],
+    "links": [
+      {
+        "dest": "home",
+        "asset": {
+          "imageName": "",
+          "x": 14,
+          "y": 14,
+          "width": 191,
+          "height": 114
         }
       }
     ]

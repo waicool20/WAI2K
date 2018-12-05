@@ -33,6 +33,8 @@ enum class LocationId {
     COMBAT,
     LOGISTICS_SUPPORT,
     REPAIR,
+    RESEARCH_MENU,
+    DORMITORIES,
     BATTLE,
     UNKNOWN
 }
