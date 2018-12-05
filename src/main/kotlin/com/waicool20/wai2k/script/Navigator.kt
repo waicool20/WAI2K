@@ -26,10 +26,8 @@ import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.waicoolutils.logging.loggerFor
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.roundToInt
@@ -119,15 +117,20 @@ class Navigator(
                 } while (srcLoc.isInRegion(region))
 
                 logger.info("Waiting for transition to ${dest.id}")
-                i = 0
-                // Re navigate if destination doesnt come up in 15s
-                while (!destLoc.isInRegion(region)) {
-                    delay(1000)
-                    checkLogistics()
-                    if (i++ > 15) {
-                        logger.info("Destination not on screen after 15s, will try to re-navigate")
-                        continue@retry
+                // Re navigate if destination doesnt come up after timeout, make this a setting?
+                val timeout = 20
+                val atDestination = withTimeoutOrNull(timeout * 1000L) {
+                    while (isActive) {
+                        checkLogistics()
+                        if (destLoc.isInRegion(region)) return@withTimeoutOrNull true
+                        delay(1000)
                     }
+                    false
+                }
+
+                if (atDestination != true) {
+                    logger.info("Destination not on screen after ${timeout}s, will try to re-navigate")
+                    continue@retry
                 }
 
                 gameState.currentGameLocation = destLoc
