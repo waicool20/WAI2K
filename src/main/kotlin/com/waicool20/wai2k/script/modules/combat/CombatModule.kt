@@ -417,22 +417,24 @@ class CombatModule(
             navigator.checkLogistics()
             logger.info("Entering normal battle at $map")
             region.subRegion(790, 800, 580, 140)
-                    .findOrNull("combat/battle/normal.png")?.clickRandomly() ?: break
-            delay(1000)
-        }
+                    .findOrNull("combat/battle/normal.png")?.clickRandomly() ?: continue
+            delay(200)
 
-        region.subRegion(1185, 696, 278, 95).findOrNull("combat/enhancement.png")?.apply {
-            logger.info("T-doll limit reached, cancelling sortie")
-            clickRandomly()
-            gameState.dollOverflow = true
-            gameState.currentGameLocation = GameLocation.mappings(config)[LocationId.TDOLL_ENHANCEMENT] ?: error("Bad locations.json file")
-            return
-        }
+            region.subRegion(1185, 696, 278, 95).findOrNull("combat/enhancement.png")?.apply {
+                logger.info("T-doll limit reached, cancelling sortie")
+                clickRandomly()
+                gameState.dollOverflow = true
+                gameState.currentGameLocation = GameLocation.mappings(config)[LocationId.TDOLL_ENHANCEMENT] ?: error("Bad locations.json file")
+                return
+            }
 
-        // Wait for start operation button to appear first before handing off control to
-        // map specific files
-        region.waitSuspending("combat/battle/start.png", 15)
-        logger.info("Entered map $map")
+            // Wait for start operation button to appear first before handing off control to
+            // map specific files
+            if (region.waitSuspending("combat/battle/start.png", 15) != null) {
+                logger.info("Entered map $map")
+                break
+            }
+        }
 
         // Set location to battle
         gameState.currentGameLocation = GameLocation(LocationId.BATTLE)
