@@ -32,6 +32,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.coroutines.CoroutineContext
+import kotlin.math.roundToInt
 
 class Navigator(
         private val scriptRunner: ScriptRunner,
@@ -95,18 +96,23 @@ class Navigator(
             return
         }
         logger.debug("Found solution: CURRENT->${path.joinToString("->") { "${it.dest.id}" }}")
-        for ((_, destLoc, link) in path) {
+        for ((srcLoc, destLoc, link) in path) {
             if (gameState.currentGameLocation.isIntermediate && destLoc.isInRegion(region)) {
                 logger.info("At ${destLoc.id}")
                 continue
             }
             logger.info("Going to ${destLoc.id}")
-            // Click the link every 1.5 seconds, check the region every 300 ms in case the first clicks didn't get it
+            // Click the link every 1.5 seconds, check the region every 100 ms in case the first clicks didn't get it
             var i = 0
             do {
                 checkLogistics()
-                if (i++ % 5 == 0) link.asset.getSubRegionFor(region).clickRandomly()
-                delay(300)
+                if (i++ % 15 == 0 && srcLoc.isInRegion(region)) {
+                    link.asset.getSubRegionFor(region).let {
+                        // Shrink region slightly to 90% of defined size
+                        it.grow((it.w * -0.1).roundToInt(), (it.h * -0.1).roundToInt())
+                    }.clickRandomly()
+                }
+                delay(100)
             } while (!destLoc.isInRegion(region))
             logger.info("At ${destLoc.id}")
             gameState.currentGameLocation = destLoc
