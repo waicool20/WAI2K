@@ -81,41 +81,63 @@ class Navigator(
      *
      * @param destination Name of destination
      */
-    suspend fun navigateTo(destination: LocationId) {
-        val dest = locations[destination] ?: error("Invalid destination: $destination")
-        logger.info("Navigating to ${dest.id}")
-        val cLocation = gameState.currentGameLocation.takeIf { it.isInRegion(region) }
-                ?: identifyCurrentLocation()
-        val path = cLocation.shortestPathTo(dest)
-        if (path == null) {
-            logger.warn("No known solution from $cLocation to $dest")
-            coroutineContext.cancelAndYield()
-        }
-        if (path.isEmpty()) {
-            logger.info("Already at ${dest.id}")
-            return
-        }
-        logger.debug("Found solution: CURRENT->${path.joinToString("->") { "${it.dest.id}" }}")
-        for ((srcLoc, destLoc, link) in path) {
-            if (gameState.currentGameLocation.isIntermediate && destLoc.isInRegion(region)) {
-                logger.info("At ${destLoc.id}")
-                continue
+    suspend fun navigateTo(destination: LocationId, retries: Int = 3) {
+        retry@ for(r in 0 until retries) {
+            val dest = locations[destination] ?: error("Invalid destination: $destination")
+            logger.info("Navigating to ${dest.id}")
+            val cLocation = gameState.currentGameLocation.takeIf { it.isInRegion(region) }
+                    ?: identifyCurrentLocation()
+            val path = cLocation.shortestPathTo(dest)
+            if (path == null) {
+                logger.warn("No known solution from $cLocation to $dest")
+                coroutineContext.cancelAndYield()
             }
-            logger.info("Going to ${destLoc.id}")
-            // Click the link every 1.5 seconds, check the region every 100 ms in case the first clicks didn't get it
-            var i = 0
-            do {
-                checkLogistics()
-                if (i++ % 15 == 0 && srcLoc.isInRegion(region)) {
-                    link.asset.getSubRegionFor(region).let {
-                        // Shrink region slightly to 90% of defined size
-                        it.grow((it.w * -0.1).roundToInt(), (it.h * -0.1).roundToInt())
-                    }.clickRandomly()
+            if (path.isEmpty()) {
+                logger.info("Already at ${dest.id}")
+                return
+            }
+            logger.debug("Found solution: CURRENT->${path.joinToString("->") { "${it.dest.id}" }}")
+            for ((srcLoc, destLoc, link) in path) {
+                if (gameState.currentGameLocation.isIntermediate && destLoc.isInRegion(region)) {
+                    logger.info("At ${destLoc.id}")
+                    continue
                 }
-                delay(100)
-            } while (!destLoc.isInRegion(region))
-            logger.info("At ${destLoc.id}")
-            gameState.currentGameLocation = destLoc
+                logger.info("Going to ${destLoc.id}")
+                // Click the link every 1.5 seconds, check the region every 100 ms in case the first clicks didn't get it
+                var i = 0
+                do {
+                    checkLogistics()
+                    if (i++ % 5 == 0) {
+                        link.asset.getSubRegionFor(region).let {
+                            // Shrink region slightly to 90% of defined size
+                            it.grow((it.w * -0.1).roundToInt(), (it.h * -0.1).roundToInt())
+                        }.clickRandomly()
+                    }
+                    delay(300)
+                    // Source will always be on screen if it is an intermediate menu
+                    if (srcLoc.isIntermediate && destLoc.isInRegion(region)) break
+                } while (srcLoc.isInRegion(region))
+
+                logger.info("Waiting for transition to ${dest.id}")
+                i = 0
+                // Re navigate if destination doesnt come up in 15s
+                while (!destLoc.isInRegion(region)) {
+                    delay(1000)
+                    checkLogistics()
+                    if (i++ > 15) {
+                        logger.info("Destination not on screen after 15s, will try to re-navigate")
+                        continue@retry
+                    }
+                }
+
+                gameState.currentGameLocation = destLoc
+                if (destLoc.id == destination) {
+                    logger.info("At destination $destination")
+                    return
+                } else {
+                    logger.info("At ${destLoc.id}")
+                }
+            }
         }
     }
 
