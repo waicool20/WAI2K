@@ -169,7 +169,8 @@ class FactoryModule(
 
         logger.info("Disassembling 2 star T-dolls")
         while (isActive) {
-            region.subRegion(483, 200, 1557, 565).find("factory/select.png").clickRandomly()
+            region.subRegion(483, 200, 1557, 565)
+                    .waitSuspending("factory/select.png", 10)?.clickRandomly()
             delay(750)
 
             statUpdateJobs += updateJob(region.subRegion(1750, 810, 290, 70).takeScreenshot()) { count ->
@@ -199,8 +200,6 @@ class FactoryModule(
             region.subRegion(1749, 885, 247, 95).clickRandomly()
             // Update stats
             scriptStats.disassemblesDone += 1
-            // Wait for menu to settle
-            region.subRegion(483, 200, 1557, 565).waitSuspending("factory/select.png", 20)
         }
 
         var filtersApplied = false
@@ -213,7 +212,8 @@ class FactoryModule(
 
         logger.info("Disassembling 3 star T-dolls")
         while (isActive) {
-            region.subRegion(483, 200, 1557, 565).find("factory/select.png").clickRandomly()
+            region.subRegion(483, 200, 1557, 565)
+                    .waitSuspending("factory/select.png", 10)?.clickRandomly()
             delay(750)
 
             statUpdateJobs += updateJob(region.subRegion(1750, 810, 290, 70).takeScreenshot()) { count ->
