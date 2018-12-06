@@ -48,12 +48,12 @@ profile: Wai2KProfile
 
     private suspend fun deployEchelons() {
         logger.info("Deploying echelon 1 to heliport")
-        region.subRegion(280, 309, 108, 110)
+        region.subRegion(279, 299, 122, 123)
                 .clickRandomly(); yield()
         region.subRegion(1770, 930, 180, 60)
                 .clickRandomly(); yield()
         logger.info("Deploying echelon 2 to command post")
-        region.subRegion(1690, 215, 150, 150)
+        region.subRegion(1700, 213, 136, 139)
                 .clickRandomly(); yield()
         region.subRegion(1770, 930, 180, 60)
                 .clickRandomly(); yield()
@@ -71,7 +71,7 @@ profile: Wai2KProfile
 
         logger.info("Resupplying echelon at command post")
         logger.info("Selecting echelon")
-        region.subRegion(1690, 215, 150, 150).apply {
+        region.subRegion(1700, 213, 136, 139).apply {
                 clickRandomly(); yield()
                 clickRandomly(); yield()
         }
@@ -90,26 +90,26 @@ profile: Wai2KProfile
         region.subRegion(5, 860, 200, 50)
                 .clickRandomly(); yield()
         logger.info("Selecting echelon at heliport")
-        region.subRegion(280, 309, 108, 110)
+        region.subRegion(279, 299, 122, 123)
                 .clickRandomly(); yield()
         logger.info("Selecting node 1")
-        region.subRegion(540, 235, 60, 60)
+        region.subRegion(530, 223, 92, 89)
                 .clickRandomly(); yield()
         logger.info("Selecting node 2")
-        region.subRegion(780, 235, 60, 60)
+        region.subRegion(774, 222, 92, 89)
                 .clickRandomly(); yield()
         logger.info("Selecting node 3")
-        region.subRegion(1045, 235, 100, 100)
+        region.subRegion(1040, 225, 124, 119)
                 .clickRandomly(); yield()
         logger.info("Selecting node 4")
-        region.subRegion(1070, 470, 60, 60)
+        region.subRegion(1069, 456, 97, 93)
                 .clickRandomly(); yield()
         logger.info("Selecting node 5")
-        region.subRegion(1045, 625, 100, 110)
+        region.subRegion(1038, 618, 132, 136)
                 .clickRandomly(); yield()
 
         logger.info("Executing plan")
-        region.subRegion(1905, 925, 200, 100)
+        region.subRegion(1895, 922, 227, 128)
                 .clickRandomly(); yield()
     }
 }
