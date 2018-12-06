@@ -154,6 +154,10 @@ class AdbServer(path: String = resolveEnvAdb()) {
         }
     }
 
+    fun execute(androidDevice: AndroidDevice, vararg args: String): ProcessBuilder {
+        return ProcessBuilder(adbPath, "-s", androidDevice.adbSerial, "shell", *args)
+    }
+
     private fun newConnection(): JadbConnection {
         if (!isRunning()) start()
         waitForInitialized()

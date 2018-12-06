@@ -283,7 +283,7 @@ class AndroidDevice(
         if (screenRecordProcess == null || screenRecordProcess?.isAlive == false) {
             thread {
                 screenRecordProcess?.destroy()
-                screenRecordProcess = ProcessBuilder("adb", "shell", "screenrecord", "--output-format=raw-frames", "-").start()
+                screenRecordProcess = adbServer.execute(this, "screenrecord", "--output-format=raw-frames", "-").start()
                 screenRecordProcess?.inputStream?.let { inputStream ->
                     var offset = 0
                     while (screenRecordProcess?.isAlive == true && fastScreenshotMode) {
