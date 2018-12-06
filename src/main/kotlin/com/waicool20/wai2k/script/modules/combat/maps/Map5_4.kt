@@ -25,13 +25,14 @@ import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.script.modules.combat.MapRunner
 import com.waicool20.waicoolutils.logging.loggerFor
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
 
 class Map5_4(
-        scriptRunner: ScriptRunner,
-        region: AndroidRegion,
-        config: Wai2KConfig,
-        profile: Wai2KProfile
+scriptRunner: ScriptRunner,
+region: AndroidRegion,
+config: Wai2KConfig,
+profile: Wai2KProfile
 ) : MapRunner(scriptRunner, region, config, profile) {
     private val logger = loggerFor<Map5_4>()
     override val isCorpseDraggingMap = true
@@ -52,26 +53,28 @@ class Map5_4(
         region.subRegion(1770, 930, 180, 60)
                 .clickRandomly(); yield()
         logger.info("Deploying echelon 2 to command post")
-        region.subRegion(1690, 215, 150, 150).waitSuspending("$PREFIX/commandpost.png", 10)
-                ?.clickUntil { region.has("ok.png") }; yield()
+        region.subRegion(1690, 215, 150, 150)
+                .clickRandomly(); yield()
         region.subRegion(1770, 930, 180, 60)
                 .clickRandomly(); yield()
-        region.waitSuspending("$PREFIX/node5.png", 10)
         logger.info("Deployment complete")
     }
 
     private suspend fun resupplyEchelons() {
         logger.info("Finding the G&K splash")
 
-        region.waitSuspending("$PREFIX/splash.png", 10)?.apply {
+        region.waitSuspending("$PREFIX/splash.png", 10).apply {
             logger.info("Found the splash!")
         } ?: logger.info("Cant find the splash!")
 
+        delay(1500)
+
         logger.info("Resupplying echelon at command post")
         logger.info("Selecting echelon")
-        region.subRegion(1690, 215, 150, 150).waitSuspending("$PREFIX/commandpost-deployed.png", 10)
-                ?.clickUntil { region.has("combat/battle/resupply.png") }; yield()
-
+        region.subRegion(1690, 215, 150, 150).apply {
+                clickRandomly(); yield()
+                clickRandomly(); yield()
+        }
         logger.info("Found the resupply button")
         logger.info("Resupplying........")
         region.subRegion(1753, 804, 260, 70)
@@ -79,7 +82,6 @@ class Map5_4(
         logger.info("Checking for errors......")
         region.findOrNull("close.png")
                 ?.clickRandomly(); yield()
-        region.waitSuspending("$PREFIX/node5.png", 10)
         logger.info("Resupply complete")
     }
 
