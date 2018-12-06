@@ -396,13 +396,14 @@ class CombatModule(
         // Click until map asset is gone
         withTimeoutOrNull(10000) {
             val asset = "combat/maps/${map.replace(Regex("[enEN]"), "")}.png"
-            while (findRegion.has(asset)) {
+            while (isActive) {
                 navigator.checkLogistics()
-                findRegion.findOrNull(asset)
-                        // Map to whole length of map entry, can't do height as it might not be
-                        // on screen
+                val mapRegion = findRegion.findOrNull(asset)
                         ?.let { region.subRegion(it.x - 342, it.y, 1274, 50) }
-                        ?.clickRandomly()
+                if (mapRegion != null) {
+                    mapRegion.clickRandomly()
+                    break
+                }
             }
         }
     }
