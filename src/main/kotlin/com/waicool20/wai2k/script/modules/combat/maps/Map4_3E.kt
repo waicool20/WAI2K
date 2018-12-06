@@ -53,11 +53,10 @@ class Map4_3E(
         region.subRegion(1770, 930, 180, 60)
                 .clickRandomly(); yield()
         logger.info("Deploying echelon 2 to command post")
-        region.subRegion(291, 456, 161, 166).waitSuspending("$PREFIX/commandpost.png", 10)
-                ?.clickUntil { region.has("ok.png") }; yield()
+        region.subRegion(291, 456, 161, 166)
+                .clickRandomly(); yield()
         region.subRegion(1770, 930, 180, 60)
                 .clickRandomly(); yield()
-        region.waitSuspending("$PREFIX/node1.png", 10)
         logger.info("Deployment complete")
     }
 
@@ -68,10 +67,14 @@ class Map4_3E(
             logger.info("Found the splash!")
         } ?: logger.info("Cant find the splash!")
 
+        delay(1500)
+
         logger.info("Resupplying echelon at command post")
         logger.info("Selecting echelon")
-        region.subRegion(291, 456, 161, 166).waitSuspending("$PREFIX/commandpost-deployed.png", 10)
-                ?.clickUntil { region.has("combat/battle/resupply.png") }; yield()
+        region.subRegion(291, 456, 161, 166).apply {
+            clickRandomly(); yield()
+            clickRandomly(); yield()
+        }
 
         logger.info("Found the resupply button")
         logger.info("Resupplying........")
@@ -111,6 +114,7 @@ class Map4_3E(
                 .clickRandomly(); yield()
 
         logger.info("Executing plan")
-        region.clickUntilGone("combat/battle/plan-execute.png")
+        region.subRegion(1895, 921, 231, 131)
+                .clickRandomly(); yield()
     }
 }
