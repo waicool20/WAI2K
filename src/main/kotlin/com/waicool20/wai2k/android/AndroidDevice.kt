@@ -198,6 +198,23 @@ class AndroidDevice(
 
     //<editor-fold desc="Screenshot">
 
+    private val fastScreenshotBufferSize = properties.displayWidth * properties.displayHeight * 3
+    private val screenshotBufferSize = properties.displayWidth * properties.displayHeight * 4 + 16
+    private val screenshotRenderBuffer = ByteBuffer.allocateDirect(screenshotBufferSize)
+    private val screenshotReadBuffer = ByteArray(screenshotBufferSize)
+    private var screenshotIsRendering = false
+
+    private var screenRecordProcess: Process? = null
+    private var lastScreenshot: BufferedImage? = null
+    private var lastScreenshotTime = System.currentTimeMillis()
+    private val screenshotExpiryTime = 15
+
+    init {
+        Runtime.getRuntime().addShutdownHook(Thread {
+            screenRecordProcess?.destroy()
+        })
+    }
+
     /**
      * Takes a screenshot of the screen of the device
      *
@@ -208,7 +225,13 @@ class AndroidDevice(
         var exception: Exception? = null
         for (i in 0 until 3) {
             try {
-                val buffer = ByteBuffer.wrap(device.executeOrShell("screencap").readBytes())
+                var offset = 0
+                val inputStream = execute("screencap")
+                while (offset < screenshotBufferSize) {
+                    offset += inputStream.read(screenshotReadBuffer, offset, screenshotBufferSize - offset)
+                }
+
+                val buffer = ByteBuffer.wrap(screenshotReadBuffer)
                         .order(ByteOrder.LITTLE_ENDIAN)
 
                 val width = buffer.int
@@ -230,22 +253,6 @@ class AndroidDevice(
             }
         }
         throw exception ?: error("Could not take screenshot due to unknown error")
-    }
-
-    private val screenshotBufferSize = properties.displayWidth * properties.displayHeight * 3
-    private val screenshotRenderBuffer = ByteBuffer.allocateDirect(screenshotBufferSize)
-    private val screenshotReadBuffer = ByteArray(screenshotBufferSize)
-    private var screenshotIsRendering = false
-
-    private var screenRecordProcess: Process? = null
-    private var lastScreenshot: BufferedImage? = null
-    private var lastScreenshotTime = System.currentTimeMillis()
-    private val screenshotExpiryTime = 15
-
-    init {
-        Runtime.getRuntime().addShutdownHook(Thread {
-            screenRecordProcess?.destroy()
-        })
     }
 
     /**
@@ -280,8 +287,8 @@ class AndroidDevice(
                 screenRecordProcess?.inputStream?.let { inputStream ->
                     var offset = 0
                     while (screenRecordProcess?.isAlive == true && fastScreenshotMode) {
-                        while (offset < screenshotReadBuffer.size) {
-                            offset += inputStream.read(screenshotReadBuffer, offset, screenshotReadBuffer.size - offset)
+                        while (offset < fastScreenshotBufferSize) {
+                            offset += inputStream.read(screenshotReadBuffer, offset, fastScreenshotBufferSize - offset)
                         }
                         if (!screenshotIsRendering) {
                             screenshotRenderBuffer.clear()
