@@ -159,17 +159,17 @@ class DeviceTabView : View(), Binder {
         var lastCaptureTime = System.currentTimeMillis()
         while (isActive) {
             if (owningTab?.isSelected == true) {
-                withContext(Dispatchers.JavaFx) {
-                    val image = if (realtimePreviewCheckbox.isSelected && device.fastScreenshotMode) {
-                        device.takeScreenshot()
-                    } else {
-                        device.screen.lastScreenImage?.image?.takeIf {
-                            System.currentTimeMillis() - lastCaptureTime < 3000
-                        } ?: run {
-                            lastCaptureTime = System.currentTimeMillis()
-                            device.screen.capture().image
-                        }
+                val image = if (realtimePreviewCheckbox.isSelected && device.fastScreenshotMode) {
+                    device.takeScreenshot()
+                } else {
+                    device.screen.lastScreenImage?.image?.takeIf {
+                        System.currentTimeMillis() - lastCaptureTime < 3000
+                    } ?: run {
+                        lastCaptureTime = System.currentTimeMillis()
+                        device.screen.capture().image
                     }
+                }
+                withContext(Dispatchers.JavaFx) {
                     deviceView.image = SwingFXUtils.toFXImage(image, null)
                 }
             }
