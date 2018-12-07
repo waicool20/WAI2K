@@ -88,10 +88,10 @@
         "dest": "profile",
         "asset": {
           "imageName": "",
-          "x": 121,
-          "y": 5,
-          "width": 704,
-          "height": 102
+          "x": 1846,
+          "y": 57,
+          "width": 60,
+          "height": 60
         }
       }
     ]
@@ -852,8 +852,8 @@
       {
         "asset": {
           "imageName": "profile",
-          "x": 925,
-          "y": 442,
+          "x": 1846,
+          "y": 57,
           "width": 60,
           "height": 60
         }
