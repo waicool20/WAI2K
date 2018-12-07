@@ -418,6 +418,8 @@ class CombatModule(
         while (isActive) {
             navigator.checkLogistics()
             logger.info("Entering normal battle at $map")
+            // Needed in case of continue
+            yield()
             region.subRegion(790, 800, 580, 140)
                     .findOrNull("combat/battle/normal.png")?.clickRandomly() ?: continue
             delay(200)
