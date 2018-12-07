@@ -67,7 +67,7 @@ class Map4_3E(
             logger.info("Found the splash!")
         } ?: logger.info("Cant find the splash!")
 
-        delay(1500)
+        delay(2000)
 
         logger.info("Resupplying echelon at command post")
         logger.info("Selecting echelon")
