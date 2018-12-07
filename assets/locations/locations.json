@@ -83,6 +83,16 @@
           "width": 317,
           "height": 124
         }
+      },
+      {
+        "dest": "profile",
+        "asset": {
+          "imageName": "",
+          "x": 121,
+          "y": 5,
+          "width": 704,
+          "height": 102
+        }
       }
     ]
   },
@@ -831,6 +841,33 @@
           "y": 14,
           "width": 191,
           "height": 114
+        }
+      }
+    ]
+  },
+  {
+    "id": "profile",
+    "isIntermediate": false,
+    "landmarks": [
+      {
+        "asset": {
+          "imageName": "profile",
+          "x": 925,
+          "y": 442,
+          "width": 60,
+          "height": 60
+        }
+      }
+    ],
+    "links": [
+      {
+        "dest": "home",
+        "asset": {
+          "imageName": "",
+          "x": 133,
+          "y": 120,
+          "width": 715,
+          "height": 927
         }
       }
     ]

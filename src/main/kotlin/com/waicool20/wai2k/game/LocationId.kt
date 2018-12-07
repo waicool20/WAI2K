@@ -36,5 +36,6 @@ enum class LocationId {
     RESEARCH_MENU,
     DORMITORIES,
     BATTLE,
+    PROFILE,
     UNKNOWN
 }
