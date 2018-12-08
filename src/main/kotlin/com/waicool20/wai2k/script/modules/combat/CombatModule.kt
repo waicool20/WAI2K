@@ -121,7 +121,11 @@ class CombatModule(
 
         // If sorties done is even use doll 2 else doll 1
         val echelon2Doll = ((scriptStats.sortiesDone + 1) and 1) + 1
-        applyFilters(echelon2Doll, true)
+        // Apply new filters only if they are different from the other doll
+        val draggers = profile.combat.draggers
+        if (draggers[1]?.stars != draggers[2]?.stars || draggers[1]?.type != draggers[2]?.type) {
+            applyFilters(echelon2Doll, true)
+        }
         scanValidDolls(echelon2Doll).shuffled().first().clickRandomly()
 
         delay(100)
