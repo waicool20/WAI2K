@@ -339,6 +339,10 @@ open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region
         return androidScreen.newRegion(xCoord, yCoord, newWidth, newHeight)
     }
 
+    override fun subRegion(rect: Rectangle): AndroidRegion {
+        return subRegion(rect.x, rect.y, rect.width, rect.height)
+    }
+
     override fun <PSI : Any> has(psi: PSI, similarity: Double) =
             findOrNull(psi, similarity, 0.6) != null
 

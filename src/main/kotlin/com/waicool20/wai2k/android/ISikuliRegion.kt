@@ -775,6 +775,13 @@ interface ISikuliRegion {
     fun subRegion(x: Int, y: Int, width: Int, height: Int): AndroidRegion
 
     /**
+     * Gets a sub-region of this region
+     *
+     * @param rect Rectangle of the sub region
+     */
+    fun subRegion(rect: Rectangle): AndroidRegion
+
+    /**
      * Clicks a spot randomly on this region
      */
     fun clickRandomly()
