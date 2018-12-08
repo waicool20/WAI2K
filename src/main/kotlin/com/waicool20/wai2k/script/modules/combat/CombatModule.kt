@@ -109,7 +109,7 @@ class CombatModule(
 
         // If sorties done is even use doll 1 else doll 2
         val echelon1Doll = (scriptStats.sortiesDone and 1) + 1
-        applyFilters(echelon1Doll)
+        applyFilters(echelon1Doll, false)
         scanValidDolls(echelon1Doll).shuffled().first().clickRandomly()
 
         delay(100)
@@ -122,7 +122,7 @@ class CombatModule(
 
         // If sorties done is even use doll 2 else doll 1
         val echelon2Doll = ((scriptStats.sortiesDone + 1) and 1) + 1
-        applyFilters(echelon2Doll)
+        applyFilters(echelon2Doll, true)
         scanValidDolls(echelon2Doll).shuffled().first().clickRandomly()
 
         delay(100)
@@ -132,41 +132,12 @@ class CombatModule(
     /**
      * Applies the filters ( stars and types ) in formation doll list
      */
-    private suspend fun applyFilters(doll: Int) {
+    private suspend fun applyFilters(doll: Int, reset: Boolean) {
         logger.info("Applying doll filters for dragging doll $doll")
         val criteria = profile.combat.draggers[doll] ?: error("Invalid doll: $doll")
         val stars = criteria.stars
         val type = criteria.type
-        val prefix = "doll-list/filters"
-
-        suspend fun fail() {
-            logger.warn("Could not apply filters")
-            coroutineContext.cancelAndYield()
-        }
-
-        delay(100)
-        // Filter By button
-        val filterButtonRegion = region.subRegion(1797, 368, 193, 121)
-        // Filter popup region
-        region.subRegion(900, 159, 834, 910).run {
-            while (doesntHave("$prefix/reset.png")) {
-                logger.info("Opening filter menu")
-                filterButtonRegion.clickRandomly(); delay(500)
-            }
-            logger.info("Resetting filters")
-            waitSuspending("$prefix/reset.png")?.clickRandomly() ?: fail()
-            delay(500)
-            while (doesntHave("$prefix/reset.png")) {
-                logger.info("Opening filter menu")
-                filterButtonRegion.clickRandomly(); delay(500)
-            }
-            logger.info("Applying filter $stars star")
-            waitSuspending("$prefix/${stars}star.png", 10)?.clickRandomly() ?: fail()
-            logger.info("Applying filter $type")
-            waitSuspending("$prefix/$type.png", 10)?.clickRandomly() ?: fail()
-            logger.info("Confirming filters")
-            waitSuspending("$prefix/confirm.png", 10)?.clickRandomly() ?: fail()
-        }
+        applyDollFilters(stars, type, reset)
         // Wait for menu to settle
         delay(250)
     }

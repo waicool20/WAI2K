@@ -22,9 +22,14 @@ package com.waicool20.wai2k.script.modules
 import com.waicool20.wai2k.android.AndroidRegion
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
+import com.waicool20.wai2k.game.DollFilterRegions
+import com.waicool20.wai2k.game.DollType
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
+import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.yield
 import kotlin.coroutines.CoroutineContext
 
 abstract class ScriptModule(
@@ -37,8 +42,44 @@ abstract class ScriptModule(
     override val coroutineContext: CoroutineContext
         get() = scriptRunner.coroutineContext
 
+    private val logger = loggerFor<ScriptModule>()
+
     val gameState get() = scriptRunner.gameState
     val scriptStats get() = scriptRunner.scriptStats
 
     abstract suspend fun execute()
+
+    protected val dollFilterRegions by lazy { DollFilterRegions(region) }
+
+    /**
+     * Applies the given corresponding doll filters, only works when the filter button
+     * is on screen. ( eg. Formation/Enhancement/Disassemble screens )
+     *
+     * @param stars No. of stars, null if you don't care (Default)
+     * @param type Doll type, null if you don't care (Default)
+     * @param reset Resets filters first before applying the filters
+     */
+    protected suspend fun applyDollFilters(stars: Int? = null, type: DollType? = null, reset: Boolean = false) {
+        if (stars == null && type == null && !reset) return
+        dollFilterRegions.filter.clickRandomly()
+        delay(200)
+
+        if (reset) {
+            logger.info("Resetting filters")
+            dollFilterRegions.reset.clickRandomly(); yield()
+            dollFilterRegions.filter.clickRandomly()
+            delay(200)
+        }
+        if (stars != null) {
+            logger.info("Applying $stars stars filter")
+            dollFilterRegions.starRegions[stars]?.clickRandomly(); yield()
+        }
+        if (type != null) {
+            logger.info("Applying $type doll type filter")
+            dollFilterRegions.typeRegions[type]?.clickRandomly(); yield()
+        }
+
+        logger.info("Confirming filters")
+        dollFilterRegions.confirm.clickRandomly(); yield()
+    }
 }

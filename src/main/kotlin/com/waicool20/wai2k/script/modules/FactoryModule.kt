@@ -203,12 +203,6 @@ class FactoryModule(
         }
 
         var filtersApplied = false
-        val prefix = "doll-list/filters"
-
-        suspend fun fail() {
-            logger.warn("Could not apply filters")
-            coroutineContext.cancelAndYield()
-        }
 
         logger.info("Disassembling 3 star T-dolls")
         while (isActive) {
@@ -228,19 +222,7 @@ class FactoryModule(
             if (!filtersApplied) {
                 logger.info("Applying filters")
                 filtersApplied = true
-                // Filter By button
-                val filterButtonRegion = region.subRegion(1797, 368, 193, 121)
-                // Filter popup region
-                region.subRegion(900, 159, 834, 910).run {
-                    if (doesntHave("$prefix/reset.png")) {
-                        logger.info("Opening filter menu")
-                        filterButtonRegion.clickRandomly(); delay(200)
-                    }
-                    logger.info("Applying filter 3 star")
-                    waitSuspending("$prefix/3star.png", 10)?.clickRandomly() ?: fail()
-                    logger.info("Confirming filters")
-                    waitSuspending("$prefix/confirm.png", 10)?.clickRandomly() ?: fail()
-                }
+                applyDollFilters(3)
             }
             delay(100)
             val dolls = region.findAllOrEmpty("doll-list/3star.png")
