@@ -40,7 +40,7 @@ class ScriptPrefView : View() {
 
     override fun onDock() {
         super.onDock()
-        loopDelaySpinner.valueFactory = IntegerSpinnerValueFactory(1, Int.MAX_VALUE)
+        loopDelaySpinner.valueFactory = IntegerSpinnerValueFactory(0, Int.MAX_VALUE)
         scanRateSpinner.valueFactory = IntegerSpinnerValueFactory(1, Int.MAX_VALUE)
         defaultSimThresholdSpinner.valueFactory = DoubleSpinnerValueFactory(0.0, 1.0, 0.8, 0.05)
         mapRunnerSimThresholdSpinner.valueFactory = DoubleSpinnerValueFactory(0.0, 1.0, 0.8, 0.05)
