@@ -22,11 +22,14 @@ package com.waicool20.wai2k.script.modules.combat
 import com.waicool20.wai2k.android.AndroidRegion
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
+import com.waicool20.wai2k.game.GameLocation
+import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import org.reflections.Reflections
 import kotlin.coroutines.CoroutineContext
 
@@ -75,18 +78,17 @@ abstract class MapRunner(
     }
 
     protected suspend fun handleBattleResults() {
-        logger.info("Waiting for battle results")
-        region.waitSuspending("combat/battle/results.png", 30, 0.9)
-        delay(2000)
-        region.clickRandomly()
-        region.waitSuspending("combat/battle/drop.png", 10)?.let {
-            logger.info("There was a drop")
-            // Shrink the region to prevent possible random clicks on the share button
-            region.grow(-100).clickRandomly()
-            logger.info("Waiting for battle results")
-            region.waitSuspending("combat/battle/results.png", 30, 0.9)
-            region.clickRandomly()
+        logger.info("Clicking through battle results")
+        val combatMenu = GameLocation.mappings(config)[LocationId.COMBAT_MENU]!!
+        val clickRegion = region.subRegion(992, 24, 1168, 121)
+        val clickJob = launch {
+            while (isActive) clickRegion.clickRandomly()
         }
+        while (isActive) {
+            if (combatMenu.isInRegion(region)) break
+        }
+        clickJob.cancel()
+        logger.info("Back at combat menu")
         scriptStats.sortiesDone += 1
     }
 }
