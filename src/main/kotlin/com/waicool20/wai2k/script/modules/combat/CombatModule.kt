@@ -391,11 +391,12 @@ class CombatModule(
                 region.swipeRandomly(it, it.offset(0, -650))
             }
         }
+        delay(200)
         // Narrow vertical region containing the map names, 1-1, 1-2 etc.
         val findRegion = region.subRegion(1060, 336, 150, 744)
+        val asset = "combat/maps/${map.replace(Regex("[enEN]"), "")}.png"
         // Click until map asset is gone
         withTimeoutOrNull(10000) {
-            val asset = "combat/maps/${map.replace(Regex("[enEN]"), "")}.png"
             while (isActive) {
                 navigator.checkLogistics()
                 val mapRegion = findRegion.findOrNull(asset)
@@ -404,6 +405,7 @@ class CombatModule(
                     mapRegion.clickRandomly()
                     break
                 }
+                delay(200)
             }
         }
     }
@@ -412,7 +414,6 @@ class CombatModule(
      * Enters the map and waits for the start button to appear
      */
     private suspend fun enterBattle(map: String) {
-        navigator.checkLogistics()
         // Enter battle, use higher similarity threshold to exclude possibly disabled
         // button which will be slightly transparent
         while (isActive) {
