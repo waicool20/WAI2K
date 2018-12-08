@@ -70,8 +70,8 @@ abstract class MapRunner(
                 }
         logger.info("Battle ended")
 
-        // Lower similarity in case the end button glows ( No more points left )
-        region.clickUntilGone("combat/battle/end.png", 15, 0.70)
+        // Click end button
+        region.subRegion(1884, 929, 242, 123).clickRandomly()
     }
 
     protected suspend fun handleBattleResults() {
