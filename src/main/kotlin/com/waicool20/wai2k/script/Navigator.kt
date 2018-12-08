@@ -113,6 +113,9 @@ class Navigator(
                             // Shrink region slightly to 90% of defined size
                             it.grow((it.w * -0.1).roundToInt(), (it.h * -0.1).roundToInt())
                         }.clickRandomly()
+                        // Wait around 1.5s if not an intermediate location since it cant
+                        // transition immediately
+                        if (!srcLoc.isIntermediate) delay(1500)
                     }
                     if (!srcLoc.isInRegion(region)) break
                     // Source will always be on screen if it is an intermediate menu
