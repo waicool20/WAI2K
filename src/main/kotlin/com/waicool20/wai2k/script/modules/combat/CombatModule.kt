@@ -453,6 +453,16 @@ class CombatModule(
         if (Files.notExists(config.assetsDirectory.resolve(asset))) return
         while (region.doesntHave(asset, 0.98)) {
             logger.info("Zoom anchor not found, attempting to zoom out")
+            // Zoom in slightly randomly in case to jumble things up,
+            // helps keeps thing from getting stuck
+            region.pinch(
+                    region.center,
+                    Random.nextInt(20, 50),
+                    Random.nextInt(50, 70),
+                    Random.nextDouble(-10.0, 10.0),
+                    2500
+            )
+            // Then zoom out
             region.pinch(
                     region.center,
                     Random.nextInt(500, 700),
