@@ -28,6 +28,8 @@ import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
+import java.time.Duration
+import java.time.Instant
 import java.util.*
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.roundToInt
@@ -80,7 +82,7 @@ class Navigator(
      * @param destination Name of destination
      */
     suspend fun navigateTo(destination: LocationId, retries: Int = 3) {
-        retry@ for(r in 0 until retries) {
+        retry@ for (r in 0 until retries) {
             val dest = locations[destination] ?: error("Invalid destination: $destination")
             logger.info("Navigating to ${dest.id}")
             val cLocation = gameState.currentGameLocation.takeIf { it.isInRegion(region) }
@@ -155,6 +157,12 @@ class Navigator(
      * Checks if there are logistics, if there were then try and receive them
      */
     suspend fun checkLogistics() {
+        // If gamestate is up to date then we can rely on timers or not
+        // to see if logistics might arrive anytime soon
+        // We skip further execution if no logistics is due in 15s
+        if (!gameState.requiresUpdate &&
+                gameState.echelons.mapNotNull { it.logisticsSupportAssignment }
+                        .none { Duration.between(Instant.now(), it.eta).seconds <= 15 }) return
         while (true) {
             if (region.has("navigator/logistics_arrived.png")) {
                 logger.info("An echelon has arrived from logistics")
