@@ -35,6 +35,7 @@ import com.waicool20.waicoolutils.logging.loggerFor
 import com.waicool20.waicoolutils.mapAsync
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import java.awt.Rectangle
 import java.awt.image.BufferedImage
 import java.time.Duration
 import java.time.Instant
@@ -57,10 +58,8 @@ class InitModule(
         navigator.navigateTo(LocationId.HOME_STATUS)
         logger.info("Updating gamestate")
         measureTimeMillis {
-            val repairJob = launch { updateRepairs() }
-            val logisticJob = launch { updateLogistics() }
-            repairJob.join()
-            logisticJob.join()
+            launch { updateRepairs() }
+            updateLogistics()
         }.let { logger.info("Finished updating game state in $it ms") }
         gameState.requiresUpdate = false
     }
@@ -115,11 +114,18 @@ class InitModule(
         // Optimize by taking a single screenshot and working on that
         val image = region.takeScreenshot()
 
-        val firstEntryRegion = region.subRegion(450, 0, 159, region.h)
+        val firstEntryRegion = Rectangle(450, 0, 159, region.h)
+        val repairRegions = async {
+            region.subRegion(firstEntryRegion).findAllOrEmpty("init/repairing.png")
+        }
+        val standbyRegions = async {
+            region.subRegion(firstEntryRegion).findAllOrEmpty("init/standby.png")
+        }
+        val trainingRegions = async {
+            region.subRegion(firstEntryRegion).findAllOrEmpty("init/in-training.png")
+        }
         // Find all the echelons that have a girl in repair
-        val entries = firstEntryRegion.findAllOrEmpty("init/repairing.png") +
-                firstEntryRegion.findAllOrEmpty("init/standby.png") +
-                firstEntryRegion.findAllOrEmpty("init/in-training.png")
+        val entries = repairRegions.await() + standbyRegions.await() + trainingRegions.await()
 
         // Map each region to whole logistic support entry
         val mappedEntries = entries
