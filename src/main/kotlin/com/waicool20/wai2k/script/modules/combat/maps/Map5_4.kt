@@ -48,7 +48,7 @@ profile: Wai2KProfile
 
     private suspend fun deployEchelons() {
         logger.info("Deploying echelon 1 to heliport")
-        region.subRegion(279, 299, 122, 123)
+        region.subRegion(295, 320, 87, 83)
                 .clickRandomly(); yield()
         region.subRegion(1770, 930, 180, 60)
                 .clickRandomly(); yield()
@@ -90,7 +90,7 @@ profile: Wai2KProfile
         region.subRegion(5, 860, 200, 50)
                 .clickRandomly(); yield()
         logger.info("Selecting echelon at heliport")
-        region.subRegion(279, 299, 122, 123)
+        region.subRegion(295, 320, 87, 83)
                 .clickRandomly(); yield()
         logger.info("Selecting node 1")
         region.subRegion(530, 223, 92, 89)
