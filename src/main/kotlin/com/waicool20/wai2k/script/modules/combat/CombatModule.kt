@@ -435,7 +435,7 @@ class CombatModule(
                     Random.nextInt(20, 50),
                     Random.nextInt(50, 70),
                     Random.nextDouble(-10.0, 10.0),
-                    2500
+                    300
             )
             // Then zoom out
             region.pinch(
