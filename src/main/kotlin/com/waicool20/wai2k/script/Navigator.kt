@@ -101,39 +101,46 @@ class Navigator(
                     continue
                 }
                 logger.info("Going to ${destLoc.id}")
-                // Click the link every 1.5 seconds, check the region every 100 ms in case the first clicks didn't get it
+                // Flag for skipping the final destination check or not
+                var skipDestinationCheck = false
+                // Click the link every 5 ticks, check the region every tick in case the first clicks didn't get it
                 var i = 0
-                do {
-                    checkLogistics()
+                while (isActive) {
                     if (i++ % 5 == 0) {
                         link.asset.getSubRegionFor(region).let {
                             // Shrink region slightly to 90% of defined size
                             it.grow((it.w * -0.1).roundToInt(), (it.h * -0.1).roundToInt())
                         }.clickRandomly()
                     }
-                    delay(300)
+                    if (!srcLoc.isInRegion(region)) break
                     // Source will always be on screen if it is an intermediate menu
-                    if (srcLoc.isIntermediate && destLoc.isInRegion(region)) break
-                } while (srcLoc.isInRegion(region))
-
-                logger.info("Waiting for transition to ${dest.id}")
-                // Re navigate if destination doesnt come up after timeout, make this a setting?
-                val timeout = 20
-                val atDestination = withTimeoutOrNull(timeout * 1000L) {
-                    while (isActive) {
-                        checkLogistics()
-                        if (destLoc.isInRegion(region)) return@withTimeoutOrNull true
-                        delay(1000)
+                    if (srcLoc.isIntermediate && destLoc.isInRegion(region)) {
+                        skipDestinationCheck = true
+                        break
                     }
-                    false
+                    checkLogistics()
                 }
 
-                if (atDestination != true) {
-                    logger.info("Destination not on screen after ${timeout}s, will try to re-navigate")
-                    continue@retry
+                logger.info("Waiting for transition to ${dest.id}")
+                if (!skipDestinationCheck) {
+                    // Re navigate if destination doesnt come up after timeout, make this a setting?
+                    val timeout = 20
+                    val atDestination = withTimeoutOrNull(timeout * 1000L) {
+                        while (isActive) {
+                            if (destLoc.isInRegion(region)) return@withTimeoutOrNull true
+                            checkLogistics()
+                        }
+                        false
+                    }
+
+                    if (atDestination != true) {
+                        logger.info("Destination not on screen after ${timeout}s, will try to re-navigate")
+                        continue@retry
+                    }
                 }
 
                 gameState.currentGameLocation = destLoc
+                checkLogistics()
                 if (destLoc.id == destination) {
                     logger.info("At destination $destination")
                     return
