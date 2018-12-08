@@ -27,7 +27,6 @@ import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.script.modules.ScriptModule
-import com.waicool20.wai2k.util.CombatChapter
 import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.wai2k.util.doOCRAndTrim
@@ -245,10 +244,10 @@ class CombatModule(
                     it.needsRepair = try {
                         hp.replace(Regex("[^\\d/]"), "")
                                 .split("/").let { l ->
-                            val percent = (l[0].toDouble() / l[1].toDouble()) * 100
-                            logger.info("[Repair OCR] Name: $name | HP: $hp | HP (%): $percent")
-                            percent < profile.combat.repairThreshold
-                        }
+                                    val percent = (l[0].toDouble() / l[1].toDouble()) * 100
+                                    logger.info("[Repair OCR] Name: $name | HP: $hp | HP (%): $percent")
+                                    percent < profile.combat.repairThreshold
+                                }
                     } catch (e: Exception) {
                         false
                     }
@@ -328,7 +327,7 @@ class CombatModule(
      */
     private suspend fun clickCombatChapter(chapter: Int) {
         logger.info("Choosing combat chapter $chapter")
-        CombatChapter.clickChapter(chapter, region)
+        clickChapter(chapter)
         logger.info("At combat chapter $chapter")
         navigator.checkLogistics()
     }

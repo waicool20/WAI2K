@@ -26,6 +26,7 @@ import com.waicool20.wai2k.game.DollFilterRegions
 import com.waicool20.wai2k.game.DollType
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
+import com.waicool20.waicoolutils.filterAsync
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -81,5 +82,38 @@ abstract class ScriptModule(
 
         logger.info("Confirming filters")
         dollFilterRegions.confirm.clickRandomly(); yield()
+    }
+
+    /**
+     * Clicks given chapter, only works if already on Combat or Logistic Support screen
+     *
+     * @param chapter Chapter number
+     */
+    protected suspend fun clickChapter(chapter: Int) {
+        val CHAPTER_SIMILARITY = 0.9
+        // Region containing all chapters
+        val cRegion = region.subRegion(407, 146, 283, 934)
+        // Top 1/4 part of lsRegion
+        val upperSwipeRegion = cRegion.subRegion(cRegion.w / 2 - 15, 0, 30, cRegion.h / 4)
+        // Lower 1/4 part of lsRegion
+        val lowerSwipeRegion = cRegion.subRegion(cRegion.w / 2 - 15, cRegion.h / 4 + cRegion.h / 2, 30, cRegion.h / 4)
+        while (cRegion.doesntHave("chapters/$chapter.png", CHAPTER_SIMILARITY)) {
+            delay(100)
+            val chapters = (0..7).filterAsync { cRegion.has("chapters/$it.png", CHAPTER_SIMILARITY) }
+            logger.debug("Visible chapters: $chapters")
+            when {
+                chapter <= chapters.min() ?: 3 -> {
+                    logger.debug("Swiping down the chapters")
+                    upperSwipeRegion.swipeToRandomly(lowerSwipeRegion)
+                }
+                chapter >= chapters.max() ?: 4 -> {
+                    logger.debug("Swiping up the chapters")
+                    lowerSwipeRegion.swipeToRandomly(upperSwipeRegion)
+                }
+            }
+            delay(300)
+        }
+        cRegion.subRegion(0, 0, 195, cRegion.h)
+                .clickUntilGone("chapters/clickable/$chapter.png", 20, 0.96)
     }
 }

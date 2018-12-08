@@ -27,7 +27,6 @@ import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.game.LogisticsSupport
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
-import com.waicool20.wai2k.util.CombatChapter
 import com.waicool20.wai2k.util.formatted
 import com.waicool20.waicoolutils.logging.loggerFor
 import com.waicool20.waicoolutils.mapAsync
@@ -155,7 +154,7 @@ class LogisticsSupportModule(
      */
     private suspend fun clickLogisticSupportChapter(ls: LogisticsSupport) {
         logger.info("Choosing logistics support chapter ${ls.chapter}")
-        CombatChapter.clickChapter(ls.chapter, region)
+        clickChapter(ls.chapter)
         logger.info("At logistics support chapter ${ls.chapter}")
     }
 
