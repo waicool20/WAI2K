@@ -37,6 +37,7 @@ import org.sikuli.basics.Settings
 import java.awt.Color
 import java.awt.image.BufferedImage
 import java.nio.file.Files
+import kotlin.math.min
 import kotlin.random.Random
 import kotlin.reflect.full.primaryConstructor
 
@@ -141,16 +142,21 @@ class CombatModule(
         val stars = criteria.stars
         val type = criteria.type
         applyDollFilters(stars, type, reset)
-        // Wait for menu to settle
-        delay(250)
     }
 
+    private var scanRetries = 0
+    
     /**
      * Scans for valid dolls in the formation doll list
      *
      * @return List of regions that can be clicked to select the valid doll
      */
     private suspend fun scanValidDolls(doll: Int, retries: Int = 3): List<AndroidRegion> {
+        // Wait for menu to settle starting around 300 ms
+        // The amount of time waited is increased each time the doll scanning fails
+        // up to a maximum of 600 ms
+        delay(min(600L, 300L + scanRetries * 100))
+
         logger.info("Scanning for valid dolls in filtered list for dragging doll $doll")
         val criteria = profile.combat.draggers[doll] ?: error("Invalid doll: $doll")
         val name = criteria.name
@@ -197,6 +203,7 @@ class CombatModule(
                         if (it.isEmpty()) {
                             logger.info("Failed to find dragging doll $doll with given criteria after ${i + 1} attempts, retries remaining: ${retries - i - 1}")
                         } else {
+                            scanRetries++
                             logger.info("Found ${it.size} dolls that match the criteria for doll $doll")
                             return it
                         }
