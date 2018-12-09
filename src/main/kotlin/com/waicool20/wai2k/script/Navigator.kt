@@ -33,6 +33,7 @@ import java.time.Instant
 import java.util.*
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.roundToInt
+import kotlin.math.roundToLong
 
 class Navigator(
         private val scriptRunner: ScriptRunner,
@@ -76,6 +77,8 @@ class Navigator(
         coroutineContext.cancelAndYield()
     }
 
+    private val transitionDelays = mutableListOf<Long>()
+
     /**
      * Attempts to navigate to the destination
      *
@@ -109,6 +112,8 @@ class Navigator(
                 var i = 0
                 // Record starting transition time
                 val startTransitionTime = System.currentTimeMillis()
+                val averageTransitionTime = transitionDelays.average().roundToLong()
+                        .takeIf { it != 0L } ?: 1500
                 while (isActive) {
                     if (i++ % 5 == 0) {
                         link.asset.getSubRegionFor(region).let {
@@ -117,7 +122,9 @@ class Navigator(
                         }.clickRandomly()
                         // Wait around 1.5s if not an intermediate location since it cant
                         // transition immediately
-                        if (!srcLoc.isIntermediate) delay(1500)
+                        if (!srcLoc.isIntermediate) {
+                            delay(averageTransitionTime)
+                        }
                     }
                     if (!srcLoc.isInRegion(region)) break
                     // Source will always be on screen if it is an intermediate menu
@@ -147,7 +154,8 @@ class Navigator(
                 }
 
                 val transitionTime = System.currentTimeMillis() - startTransitionTime
-                logger.info("Transition took $transitionTime ms")
+                logger.info("Transition took $transitionTime ms | Delay $averageTransitionTime ms")
+                transitionDelays.add(transitionTime - (averageTransitionTime * 0.9).roundToLong())
                 gameState.currentGameLocation = destLoc
                 checkLogistics()
                 if (destLoc.id == destination) {
