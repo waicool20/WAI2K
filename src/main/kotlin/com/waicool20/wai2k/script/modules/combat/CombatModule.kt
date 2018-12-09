@@ -303,11 +303,9 @@ class CombatModule(
                         }.map { region.subRegion(it.x - 7, it.y - 268, 243, 431) }
                         .also { logger.info("${it.size} dolls need repair") }
                 if (repairRegions.isEmpty()) {
-                    logger.info("No more dolls need repairing!")
-                    gameState.echelons.flatMap { it.members }.forEach { it.needsRepair = false }
                     // Click close popup
                     region.findOrNull("close.png")?.clickRandomly()
-                    return
+                    break
                 }
 
                 // Select all T-Dolls
@@ -325,7 +323,13 @@ class CombatModule(
                 region.subRegion(1381, 710, 250, 96).clickRandomly(); delay(500)
                 // Click close
                 region.waitSuspending("close.png", 15)?.clickRandomly(); delay(500)
+                // If dolls that needed repair is equal or less than the repair slot count then
+                // no more dolls need repairs and we can exit
+                if (repairRegions.size <= repairSlots.size) break
             }
+
+            logger.info("No more dolls need repairing!")
+            gameState.echelons.flatMap { it.members }.forEach { it.needsRepair = false }
         }
     }
 
