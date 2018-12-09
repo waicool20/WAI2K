@@ -98,7 +98,7 @@ abstract class ScriptModule(
         // Lower 1/4 part of lsRegion
         val lowerSwipeRegion = cRegion.subRegion(cRegion.w / 2 - 15, cRegion.h / 4 + cRegion.h / 2, 30, cRegion.h / 4)
         while (cRegion.doesntHave("chapters/$chapter.png", CHAPTER_SIMILARITY)) {
-            delay(100)
+            navigator.checkLogistics()
             val chapters = (0..7).filterAsync { cRegion.has("chapters/$it.png", CHAPTER_SIMILARITY) }
             logger.debug("Visible chapters: $chapters")
             when {
@@ -113,6 +113,7 @@ abstract class ScriptModule(
             }
             delay(300)
         }
+        navigator.checkLogistics()
         cRegion.subRegion(0, 0, 195, cRegion.h)
                 .clickUntilGone("chapters/clickable/$chapter.png", 20, 0.96)
     }

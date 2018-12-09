@@ -290,7 +290,7 @@ class CombatModule(
                             logger.info("No available repair slots, cancelling sortie")
                             return
                         }
-                delay(250)
+                delay(750)
 
                 val screenshot = region.takeScreenshot()
                 val repairRegions = region.findAllOrEmpty("doll-list/lock.png")
@@ -354,6 +354,7 @@ class CombatModule(
      */
     private suspend fun clickCombatMap(map: String) {
         logger.info("Choosing combat map $map")
+        navigator.checkLogistics()
         when {
             map.endsWith("e", true) -> {
                 logger.info("Selecting emergency map")
