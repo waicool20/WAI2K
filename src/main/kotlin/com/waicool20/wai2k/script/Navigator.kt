@@ -107,6 +107,8 @@ class Navigator(
                 var skipDestinationCheck = false
                 // Click the link every 5 ticks, check the region every tick in case the first clicks didn't get it
                 var i = 0
+                // Record starting transition time
+                val startTransitionTime = System.currentTimeMillis()
                 while (isActive) {
                     if (i++ % 5 == 0) {
                         link.asset.getSubRegionFor(region).let {
@@ -144,6 +146,8 @@ class Navigator(
                     }
                 }
 
+                val transitionTime = System.currentTimeMillis() - startTransitionTime
+                logger.info("Transition took $transitionTime ms")
                 gameState.currentGameLocation = destLoc
                 checkLogistics()
                 if (destLoc.id == destination) {
