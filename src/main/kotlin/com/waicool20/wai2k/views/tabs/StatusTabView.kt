@@ -76,7 +76,7 @@ class StatusTabView : CoroutineScopeView() {
 
     private fun updateView() {
         updateTimes()
-        updateScriptStats()
+        if (scriptRunner.isRunning) updateScriptStats()
         updateEchelonStats()
     }
 
