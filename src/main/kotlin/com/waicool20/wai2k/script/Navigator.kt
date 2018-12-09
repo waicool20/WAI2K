@@ -77,7 +77,7 @@ class Navigator(
         coroutineContext.cancelAndYield()
     }
 
-    private val transitionDelays = mutableListOf<Long>()
+    private val transitionDelays = LinkedList<Long>()
 
     /**
      * Attempts to navigate to the destination
@@ -156,6 +156,7 @@ class Navigator(
                 val transitionTime = System.currentTimeMillis() - startTransitionTime
                 logger.info("Transition took $transitionTime ms | Delay $averageTransitionTime ms")
                 transitionDelays.add(transitionTime - (averageTransitionTime * 0.9).roundToLong())
+                if (transitionDelays.size >= 20) transitionDelays.removeFirst()
                 gameState.currentGameLocation = destLoc
                 checkLogistics()
                 if (destLoc.id == destination) {
