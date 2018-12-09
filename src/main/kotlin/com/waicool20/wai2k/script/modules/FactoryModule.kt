@@ -224,7 +224,7 @@ class FactoryModule(
                 filtersApplied = true
                 applyDollFilters(3)
             }
-            delay(100)
+            delay(400)
             val dolls = region.findAllOrEmpty("doll-list/3star.png")
                     .also { logger.info("Found ${it.size} that can be disassembled") }
                     .map { region.subRegion(it.x - 102, it.y, 239, 427) }
@@ -246,6 +246,8 @@ class FactoryModule(
             scriptStats.disassemblesDone += 1
             // Wait for menu to settle
             region.subRegion(483, 200, 1557, 565).waitSuspending("factory/select.png", 20)
+            // Can break if disassembled count is less than 12
+            if (dolls.size < 12) break
         }
         // Update stats after all the update jobs are complete
         launch {
