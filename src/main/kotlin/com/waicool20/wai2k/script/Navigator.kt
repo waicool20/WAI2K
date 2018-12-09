@@ -112,8 +112,8 @@ class Navigator(
                 var i = 0
                 // Record starting transition time
                 val startTransitionTime = System.currentTimeMillis()
-                val averageTransitionTime = transitionDelays.average().roundToLong()
-                        .takeIf { it != 0L } ?: 1500
+                val averageTransitionTime = transitionDelays.takeIf { it.isNotEmpty() }
+                        ?.average()?.roundToLong() ?: 1500
                 while (isActive) {
                     if (i++ % 5 == 0) {
                         link.asset.getSubRegionFor(region).let {
