@@ -33,6 +33,11 @@ class MapRunnerRegions(region: AndroidRegion) {
     val planningMode = region.subRegion(0, 857, 214, 60)
 
     /**
+     * Button that executes planned path
+     */
+    val executePlan = region.subRegion(1894, 921, 250, 131)
+
+    /**
      * Resupply button when deploying echelons
      */
     val resupply = region.subRegion(1742, 793, 297, 96)
