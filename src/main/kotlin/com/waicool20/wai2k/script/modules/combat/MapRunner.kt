@@ -24,6 +24,7 @@ import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.LocationId
+import com.waicool20.wai2k.game.MapRunnerRegions
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.waicoolutils.logging.loggerFor
@@ -58,6 +59,7 @@ abstract class MapRunner(
     val scriptStats get() = scriptRunner.scriptStats
 
     val PREFIX = "combat/maps/${javaClass.simpleName.replace("_", "-").drop(3)}"
+    val mapRunnerRegions = MapRunnerRegions(region)
 
     abstract val isCorpseDraggingMap: Boolean
 
@@ -74,7 +76,7 @@ abstract class MapRunner(
         logger.info("Battle ended")
 
         // Click end button
-        region.subRegion(1884, 929, 242, 123).clickRandomly()
+        mapRunnerRegions.endBattle.clickRandomly()
     }
 
     protected suspend fun handleBattleResults() {
