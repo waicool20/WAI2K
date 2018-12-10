@@ -388,6 +388,7 @@ class CombatModule(
                 val mapRegion = findRegion.findOrNull(asset)
                         ?.let { region.subRegion(it.x - 342, it.y, 1274, 50) }
                 if (mapRegion != null) {
+                    navigator.checkLogistics()
                     mapRegion.clickRandomly()
                     break
                 }
@@ -402,11 +403,15 @@ class CombatModule(
     private suspend fun enterBattle(map: String) {
         // Enter battle, use higher similarity threshold to exclude possibly disabled
         // button which will be slightly transparent
+        var loops = 0
         while (isActive) {
             navigator.checkLogistics()
             logger.info("Entering normal battle at $map")
             // Needed in case of continue
             yield()
+            // If still can't enter normal battle after 5 loops then just cancel the sortie
+            // and try again
+            if (loops++ == 5) return
             region.subRegion(790, 800, 580, 140)
                     .findOrNull("combat/battle/normal.png")?.clickRandomly() ?: continue
             delay(200)
