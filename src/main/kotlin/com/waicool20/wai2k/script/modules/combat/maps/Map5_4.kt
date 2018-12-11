@@ -48,21 +48,25 @@ profile: Wai2KProfile
 
     private suspend fun deployEchelons() {
         logger.info("Deploying echelon 1 to heliport")
+        logger.info("Pressing the heliport")
         region.subRegion(295, 320, 87, 83)
                 .clickRandomly(); yield()
-        region.subRegion(1770, 930, 180, 60)
+        logger.info("Pressing the ok button")
+        mapRunnerRegions.deploy
                 .clickRandomly(); yield()
         logger.info("Deploying echelon 2 to command post")
-        region.subRegion(1700, 213, 136, 139)
+        logger.info("Pressing the command post")
+        region.subRegion(1715, 233, 103, 113)
                 .clickRandomly(); yield()
-        region.subRegion(1770, 930, 180, 60)
+        logger.info("Pressing the ok button")
+        mapRunnerRegions.deploy
                 .clickRandomly(); yield()
         logger.info("Deployment complete")
     }
 
     private suspend fun resupplyEchelons() {
         logger.info("Finding the G&K splash")
-
+        // Wait for the G&K splash to appear within 10 seconds
         region.waitSuspending("$PREFIX/splash.png", 10).apply {
             logger.info("Found the splash!")
         } ?: logger.info("Cant find the splash!")
@@ -70,16 +74,17 @@ profile: Wai2KProfile
         delay(2000)
 
         logger.info("Resupplying echelon at command post")
+        //Clicking twice, first to highlight the echelon, the second time to enter the deployment menu
         logger.info("Selecting echelon")
-        region.subRegion(1700, 213, 136, 139).apply {
+        region.subRegion(1715, 233, 103, 113).apply {
                 clickRandomly(); yield()
                 clickRandomly(); yield()
         }
         logger.info("Found the resupply button")
-        logger.info("Resupplying........")
-        region.subRegion(1753, 804, 260, 70)
-                .clickRandomly();yield()
-        logger.info("Checking for errors......")
+        logger.info("Pressing the resupply button")
+        mapRunnerRegions.resupply
+                .clickRandomly(); yield()
+        // Close dialog in case echelon doesn't need resupply
         region.findOrNull("close.png")
                 ?.clickRandomly(); yield()
         logger.info("Resupply complete")
@@ -87,29 +92,28 @@ profile: Wai2KProfile
 
     private suspend fun planPath() {
         logger.info("Entering planning mode")
-        region.subRegion(5, 860, 200, 50)
+        mapRunnerRegions.planningMode
                 .clickRandomly(); yield()
         logger.info("Selecting echelon at heliport")
         region.subRegion(295, 320, 87, 83)
                 .clickRandomly(); yield()
         logger.info("Selecting node 1")
-        region.subRegion(530, 223, 92, 89)
+        region.subRegion(545, 239, 61, 54)
                 .clickRandomly(); yield()
         logger.info("Selecting node 2")
-        region.subRegion(774, 222, 92, 89)
+        region.subRegion(788, 242, 66, 56)
                 .clickRandomly(); yield()
         logger.info("Selecting node 3")
-        region.subRegion(1040, 225, 124, 119)
+        region.subRegion(1056, 248, 92, 75)
                 .clickRandomly(); yield()
         logger.info("Selecting node 4")
-        region.subRegion(1069, 456, 97, 93)
+        region.subRegion(1088, 476, 61, 55)
                 .clickRandomly(); yield()
         logger.info("Selecting node 5")
-        region.subRegion(1038, 618, 132, 136)
+        region.subRegion(1055, 641, 102, 102)
                 .clickRandomly(); yield()
-
         logger.info("Executing plan")
-        region.subRegion(1895, 922, 227, 128)
+        mapRunnerRegions.executePlan
                 .clickRandomly(); yield()
     }
 }

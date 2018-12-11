@@ -41,4 +41,9 @@ class MapRunnerRegions(region: AndroidRegion) {
      * Resupply button when deploying echelons
      */
     val resupply = region.subRegion(1742, 793, 297, 96)
+
+    /**
+     * OK button that deploys the echelon
+     */
+    val deploy = region.subRegion(1772,929, 224, 83)
 }
