@@ -46,6 +46,12 @@
       </HBox>
       <HBox alignment="CENTER_LEFT" spacing="10.0">
          <children>
+            <Label prefWidth="220.0" text="Mouse delay:" />
+            <Spinner fx:id="mouseDelaySpinner" editable="true" />
+         </children>
+      </HBox>
+      <HBox alignment="CENTER_LEFT" spacing="10.0">
+         <children>
             <Label prefWidth="220.0" text="Default similarity threshold:" />
             <Spinner fx:id="defaultSimThresholdSpinner" editable="true" />
          </children>
