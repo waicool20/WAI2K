@@ -82,9 +82,9 @@ abstract class MapRunner(
     protected suspend fun handleBattleResults() {
         logger.info("Clicking through battle results")
         val combatMenu = GameLocation.mappings(config)[LocationId.COMBAT_MENU]!!
-        val clickRegion = region.subRegion(992, 24, 1168, 121)
+        val clickLocation = region.subRegion(992, 24, 1168, 121).randomLocation()
         val clickJob = launch {
-            while (isActive) clickRegion.clickRandomly()
+            while (isActive) region.click(clickLocation)
         }
         while (isActive) {
             if (combatMenu.isInRegion(region)) break
