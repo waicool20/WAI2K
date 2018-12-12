@@ -858,4 +858,11 @@ interface ISikuliRegion {
      * @returns Location object with randomize coordinates
      */
     fun <PSIMRL : Any> getRandomLocationFromTarget(target: PSIMRL): Location
+
+    /**
+     * Temporarily sets the mouse delay and executes the given lambda, not thread safe
+     *
+     * @param delay Mouse delay time in seconds
+     */
+    suspend fun mouseDelay(delay: Double, action: suspend AndroidRegion.() -> Unit)
 }

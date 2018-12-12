@@ -24,6 +24,7 @@ import com.waicool20.waicoolutils.nextSign
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withTimeoutOrNull
+import org.sikuli.basics.Settings
 import org.sikuli.script.*
 import java.awt.Image
 import java.awt.Rectangle
@@ -405,5 +406,12 @@ open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region
         is Location -> target
         else -> throw FindFailed("Not able to get location from $target")
     }.setOtherScreen(screen)
+
+    override suspend fun mouseDelay(delay: Double, action: suspend AndroidRegion.() -> Unit) {
+        val currentDelay = Settings.MoveMouseDelay
+        Settings.MoveMouseDelay = delay.toFloat()
+        action()
+        Settings.MoveMouseDelay = currentDelay
+    }
 }
 
