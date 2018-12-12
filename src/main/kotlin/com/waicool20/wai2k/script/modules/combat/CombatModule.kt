@@ -474,7 +474,7 @@ class CombatModule(
     private suspend fun executeMapRunner() {
         // Set similarity to slightly lower threshold for discrepancies because of zoom level
         Settings.MinSimilarity = config.scriptConfig.mapRunnerSimilarityThreshold
-        mapRunner.execute()
+        region.mouseDelay(0.0) { mapRunner.execute() }
         // Restore script threshold
         Settings.MinSimilarity = config.scriptConfig.defaultSimilarityThreshold
     }

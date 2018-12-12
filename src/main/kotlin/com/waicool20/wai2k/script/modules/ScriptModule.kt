@@ -64,7 +64,7 @@ abstract class ScriptModule(
         if (stars == null && type == null && !reset) return
         region.mouseDelay(0.0) {
             dollFilterRegions.filter.clickRandomly()
-            delay(200)
+            delay(300)
 
             if (reset) {
                 logger.info("Resetting filters")
