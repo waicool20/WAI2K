@@ -235,7 +235,9 @@ class FactoryModule(
                 break
             }
             // Select all the dolls
-            dolls.forEach { it.clickRandomly() }
+            region.mouseDelay(0.0) {
+                dolls.forEach { it.clickRandomly() }
+            }
             // Click ok
             region.subRegion(1768, 889, 250, 158).find("factory/ok.png").clickRandomly(); yield()
             // Click disassemble button

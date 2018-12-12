@@ -310,9 +310,11 @@ class CombatModule(
 
                 // Select all T-Dolls
                 logger.info("Selecting dolls that need repairing")
-                repairRegions.take(repairSlots.size).forEach {
-                    it.clickRandomly(); yield()
-                    scriptStats.repairs++
+                region.mouseDelay(0.0) {
+                    repairRegions.take(repairSlots.size).forEach {
+                        it.clickRandomly(); yield()
+                        scriptStats.repairs++
+                    }
                 }
 
                 // Click ok
