@@ -62,26 +62,28 @@ abstract class ScriptModule(
      */
     protected suspend fun applyDollFilters(stars: Int? = null, type: DollType? = null, reset: Boolean = false) {
         if (stars == null && type == null && !reset) return
-        dollFilterRegions.filter.clickRandomly()
-        delay(200)
-
-        if (reset) {
-            logger.info("Resetting filters")
-            dollFilterRegions.reset.clickRandomly(); yield()
+        region.mouseDelay(0.0) {
             dollFilterRegions.filter.clickRandomly()
             delay(200)
-        }
-        if (stars != null) {
-            logger.info("Applying $stars stars filter")
-            dollFilterRegions.starRegions[stars]?.clickRandomly(); yield()
-        }
-        if (type != null) {
-            logger.info("Applying $type doll type filter")
-            dollFilterRegions.typeRegions[type]?.clickRandomly(); yield()
-        }
 
-        logger.info("Confirming filters")
-        dollFilterRegions.confirm.clickRandomly(); yield()
+            if (reset) {
+                logger.info("Resetting filters")
+                dollFilterRegions.reset.clickRandomly(); yield()
+                dollFilterRegions.filter.clickRandomly()
+                delay(200)
+            }
+            if (stars != null) {
+                logger.info("Applying $stars stars filter")
+                dollFilterRegions.starRegions[stars]?.clickRandomly(); yield()
+            }
+            if (type != null) {
+                logger.info("Applying $type doll type filter")
+                dollFilterRegions.typeRegions[type]?.clickRandomly(); yield()
+            }
+
+            logger.info("Confirming filters")
+            dollFilterRegions.confirm.clickRandomly(); yield()
+        }
     }
 
     /**
