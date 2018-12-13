@@ -41,6 +41,7 @@ class Map4_3E(
         deployEchelons()
         region.subRegion(1745, 914, 240, 100).clickRandomly(); yield()
         resupplyEchelons()
+        delay(200)
         planPath()
         waitForBattleEnd()
         handleBattleResults()
@@ -53,14 +54,17 @@ class Map4_3E(
                 .clickRandomly(); yield()
         logger.info("Pressing the ok button")
         mapRunnerRegions.deploy
-                .clickRandomly(); yield()
+                .clickRandomly()
+        delay(200)
         logger.info("Deploying echelon 2 to command post")
         logger.info("Pressing the heliport")
         region.subRegion(308, 489, 132, 113)
                 .clickRandomly(); yield()
+        delay(30)
         logger.info("Pressing the ok button")
         mapRunnerRegions.deploy
-                .clickRandomly(); yield()
+                .clickRandomly()
+        delay(200)
         logger.info("Deployment complete")
     }
 
@@ -80,11 +84,11 @@ class Map4_3E(
             clickRandomly(); yield()
             clickRandomly(); yield()
         }
-
         logger.info("Found the resupply button")
         logger.info("Pressing the resupply button")
         mapRunnerRegions.resupply
-                .clickRandomly();yield()
+                .clickRandomly()
+        delay(200)
         // Close dialog in case echelon doesn't need resupply
         region.findOrNull("close.png")
                 ?.clickRandomly(); yield()
@@ -107,11 +111,12 @@ class Map4_3E(
 
         // Pan up
         region.subRegion(1033, 225, 240, 100).let {
-            it.swipeToRandomly(it.offset(0, 850), 1500); yield()
+            it.swipeToRandomly(it.offset(0, 1200), 1500); yield()
         }
 
+        delay(200)
         logger.info("Selecting node 3")
-        region.subRegion(1702, 726, 73, 74)
+        region.subRegion(1703, 726, 66, 66)
                 .clickRandomly(); yield()
         logger.info("Selecting node 4")
         region.subRegion(1697, 330, 125, 125)

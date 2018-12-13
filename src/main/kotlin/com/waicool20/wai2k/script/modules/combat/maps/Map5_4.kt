@@ -53,14 +53,16 @@ profile: Wai2KProfile
                 .clickRandomly(); yield()
         logger.info("Pressing the ok button")
         mapRunnerRegions.deploy
-                .clickRandomly(); yield()
+                .clickRandomly()
+        delay(200)
         logger.info("Deploying echelon 2 to command post")
         logger.info("Pressing the command post")
         region.subRegion(1715, 233, 103, 113)
                 .clickRandomly(); yield()
         logger.info("Pressing the ok button")
         mapRunnerRegions.deploy
-                .clickRandomly(); yield()
+                .clickRandomly()
+        delay(200)
         logger.info("Deployment complete")
     }
 
@@ -83,10 +85,11 @@ profile: Wai2KProfile
         logger.info("Found the resupply button")
         logger.info("Pressing the resupply button")
         mapRunnerRegions.resupply
-                .clickRandomly(); yield()
+                .clickRandomly()
         // Close dialog in case echelon doesn't need resupply
         region.findOrNull("close.png")
-                ?.clickRandomly(); yield()
+                ?.clickRandomly()
+        delay(200)
         logger.info("Resupply complete")
     }
 
@@ -96,9 +99,9 @@ profile: Wai2KProfile
                 .clickRandomly(); yield()
         logger.info("Selecting echelon at heliport")
         region.subRegion(295, 320, 87, 83)
-                .clickRandomly(); yield()
+                .clickRandomly()
         logger.info("Selecting node 1")
-        region.subRegion(545, 239, 61, 54)
+        region.subRegion(536, 260, 82  , 46)
                 .clickRandomly(); yield()
         logger.info("Selecting node 2")
         region.subRegion(788, 242, 66, 56)
