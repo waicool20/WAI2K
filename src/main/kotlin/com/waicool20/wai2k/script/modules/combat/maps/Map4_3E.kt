@@ -39,7 +39,7 @@ class Map4_3E(
 
     override suspend fun execute() {
         deployEchelons()
-        region.subRegion(1745, 914, 240, 100).clickRandomly(); yield()
+        mapRunnerRegions.startOperation.clickRandomly(); yield()
         resupplyEchelons()
         delay(200)
         planPath()

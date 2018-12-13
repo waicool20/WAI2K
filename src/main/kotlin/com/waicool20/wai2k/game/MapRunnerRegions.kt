@@ -46,4 +46,9 @@ class MapRunnerRegions(region: AndroidRegion) {
      * OK button that deploys the echelon
      */
     val deploy = region.subRegion(1772,929, 224, 83)
+
+    /**
+     * Start operation button that starts the battle in the beginning
+     */
+    val startOperation = region.subRegion(1737, 905, 407, 158)
 }

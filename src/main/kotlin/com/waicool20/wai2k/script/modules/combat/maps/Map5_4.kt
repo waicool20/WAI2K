@@ -39,7 +39,7 @@ profile: Wai2KProfile
 
     override suspend fun execute() {
         deployEchelons()
-        region.subRegion(1745, 914, 240, 100).clickRandomly(); yield()
+        mapRunnerRegions.startOperation.clickRandomly(); yield()
         resupplyEchelons()
         planPath()
         waitForBattleEnd()
