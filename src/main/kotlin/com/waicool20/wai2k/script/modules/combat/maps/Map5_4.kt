@@ -29,10 +29,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
 
 class Map5_4(
-scriptRunner: ScriptRunner,
-region: AndroidRegion,
-config: Wai2KConfig,
-profile: Wai2KProfile
+        scriptRunner: ScriptRunner,
+        region: AndroidRegion,
+        config: Wai2KConfig,
+        profile: Wai2KProfile
 ) : MapRunner(scriptRunner, region, config, profile) {
     private val logger = loggerFor<Map5_4>()
     override val isCorpseDraggingMap = true
@@ -52,71 +52,64 @@ profile: Wai2KProfile
         region.subRegion(295, 320, 87, 83)
                 .clickRandomly(); yield()
         logger.info("Pressing the ok button")
-        mapRunnerRegions.deploy
-                .clickRandomly()
+        mapRunnerRegions.deploy.clickRandomly()
         delay(200)
         logger.info("Deploying echelon 2 to command post")
         logger.info("Pressing the command post")
         region.subRegion(1715, 233, 103, 113)
                 .clickRandomly(); yield()
         logger.info("Pressing the ok button")
-        mapRunnerRegions.deploy
-                .clickRandomly()
+        mapRunnerRegions.deploy.clickRandomly()
         delay(200)
         logger.info("Deployment complete")
     }
 
     private suspend fun resupplyEchelons() {
-        logger.info("Finding the G&K splash")
+        logger.info("Waiting for G&K splash screen")
         // Wait for the G&K splash to appear within 10 seconds
         region.waitSuspending("$PREFIX/splash.png", 10).apply {
-            logger.info("Found the splash!")
-        } ?: logger.info("Cant find the splash!")
-
-        delay(2000)
+            logger.info("G&K splash screen appeared")
+            delay(2000)
+        } ?: logger.info("G&K splash screen did not appear")
 
         logger.info("Resupplying echelon at command post")
         //Clicking twice, first to highlight the echelon, the second time to enter the deployment menu
         logger.info("Selecting echelon")
         region.subRegion(1715, 233, 103, 113).apply {
-                clickRandomly(); yield()
-                clickRandomly(); yield()
+            clickRandomly(); yield()
+            clickRandomly(); yield()
         }
-        logger.info("Found the resupply button")
-        logger.info("Pressing the resupply button")
-        mapRunnerRegions.resupply
-                .clickRandomly()
+        logger.info("Resupplying")
+        mapRunnerRegions.resupply.clickRandomly()
         // Close dialog in case echelon doesn't need resupply
-        region.findOrNull("close.png")
-                ?.clickRandomly()
+        region.findOrNull("close.png")?.clickRandomly()
         delay(200)
         logger.info("Resupply complete")
     }
 
     private suspend fun planPath() {
         logger.info("Entering planning mode")
-        mapRunnerRegions.planningMode
-                .clickRandomly(); yield()
+        mapRunnerRegions.planningMode.clickRandomly(); yield()
         logger.info("Selecting echelon at heliport")
-        region.subRegion(295, 320, 87, 83)
-                .clickRandomly()
+        region.subRegion(312, 334, 60, 60)
+                .clickRandomly(); yield()
         logger.info("Selecting node 1")
-        region.subRegion(536, 260, 82  , 46)
+        // Use a shorter region because of entering turn 1 dialog possibly blocking clicks
+        region.subRegion(547, 257, 60, 35)
                 .clickRandomly(); yield()
         logger.info("Selecting node 2")
-        region.subRegion(788, 242, 66, 56)
+        region.subRegion(790, 237, 60, 60)
                 .clickRandomly(); yield()
         logger.info("Selecting node 3")
-        region.subRegion(1056, 248, 92, 75)
+        region.subRegion(1073, 254, 60, 60)
                 .clickRandomly(); yield()
         logger.info("Selecting node 4")
-        region.subRegion(1088, 476, 61, 55)
+        region.subRegion(1087, 475, 60, 60)
                 .clickRandomly(); yield()
         logger.info("Selecting node 5")
-        region.subRegion(1055, 641, 102, 102)
+        region.subRegion(1072, 658, 60, 60)
                 .clickRandomly(); yield()
         logger.info("Executing plan")
-        mapRunnerRegions.executePlan
-                .clickRandomly(); yield()
+        mapRunnerRegions.executePlan.clickRandomly(); yield()
     }
 }
