@@ -69,7 +69,14 @@ class CombatModule(
     private suspend fun runCombatCycle() {
         // Don't need to switch dolls if previous run was cancelled
         // or the map is not meant for corpse dragging
-        if (mapRunner.isCorpseDraggingMap && !wasCancelled) switchDolls()
+        if (mapRunner.isCorpseDraggingMap && !wasCancelled) {
+            switchDolls()
+            // Check if there was a bad switch
+            if (wasCancelled) {
+                logger.info("Bad switch, maybe the doll positions got shifted, cancelling this run")
+                return
+            }
+        }
         checkRepairs()
         // Cancel further execution if any of the dolls needed to repair but were not able to
         wasCancelled = gameState.echelons.any { it.needsRepairs() }
@@ -96,6 +103,8 @@ class CombatModule(
 
     //<editor-fold desc="Doll Switching">
 
+    private val dollSwitchingCache = mutableMapOf<Int, AndroidRegion>()
+
     /**
      * Switches the dolls in the echelons who will be dragging, which doll goes into which
      * echelon depends on the sortie cycle. On even sortie cycles (ie. 0, 2, 4...)
@@ -110,7 +119,9 @@ class CombatModule(
         // If sorties done is even use doll 1 else doll 2
         val echelon1Doll = (scriptStats.sortiesDone and 1) + 1
         applyFilters(echelon1Doll, false)
-        scanValidDolls(echelon1Doll).shuffled().first().clickRandomly()
+        dollSwitchingCache.getOrPut(echelon1Doll) {
+            scanValidDolls(echelon1Doll).first()
+        }.clickRandomly()
 
         delay(100)
         updateEchelonRepairStatus(1)
@@ -127,10 +138,19 @@ class CombatModule(
         if (draggers[1]?.stars != draggers[2]?.stars || draggers[1]?.type != draggers[2]?.type) {
             applyFilters(echelon2Doll, true)
         }
-        scanValidDolls(echelon2Doll).shuffled().first().clickRandomly()
+        dollSwitchingCache.getOrPut(echelon2Doll) {
+            scanValidDolls(echelon2Doll).first()
+        }.clickRandomly()
 
         delay(100)
         updateEchelonRepairStatus(2)
+
+        // Check if dolls were switched correctly, might not be the case if one of them leveled
+        // up and the positions got switched
+        wasCancelled = gameState.echelons[0].members[1].name
+                .distanceTo(profile.combat.draggers[echelon1Doll]!!.name) >= OCR_THRESHOLD ||
+                gameState.echelons[1].members[0].name
+                        .distanceTo(profile.combat.draggers[echelon2Doll]!!.name) >= OCR_THRESHOLD
     }
 
     /**
@@ -145,7 +165,7 @@ class CombatModule(
     }
 
     private var scanRetries = 0
-    
+
     /**
      * Scans for valid dolls in the formation doll list
      *
@@ -154,8 +174,8 @@ class CombatModule(
     private suspend fun scanValidDolls(doll: Int, retries: Int = 3): List<AndroidRegion> {
         // Wait for menu to settle starting around 300 ms
         // The amount of time waited is increased each time the doll scanning fails
-        // up to a maximum of 600 ms
-        delay(min(600L, 300L + scanRetries * 100))
+        // up to a maximum of 1000 ms
+        delay(min(1000L, 300L + scanRetries * 100))
 
         logger.info("Scanning for valid dolls in filtered list for dragging doll $doll")
         val criteria = profile.combat.draggers[doll] ?: error("Invalid doll: $doll")
@@ -250,7 +270,7 @@ class CombatModule(
             }
 
             members.forEachIndexed { member, (name, hp) ->
-                gameState.echelons[echelon].members[member].also {
+                gameState.echelons[echelon - 1].members[member].also {
                     it.name = name
                     it.needsRepair = try {
                         hp.replace(Regex("[^\\d/]"), "")
@@ -267,7 +287,7 @@ class CombatModule(
             break
         }
         logger.info("Updating repair status complete")
-        gameState.echelons[echelon].members.forEachIndexed { i, member ->
+        gameState.echelons[echelon - 1].members.forEachIndexed { i, member ->
             logger.info("[Echelon $echelon member ${i + 1}] Name: ${member.name} | Needs repairs: ${member.needsRepair}")
         }
     }
