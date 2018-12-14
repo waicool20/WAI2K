@@ -78,6 +78,7 @@ class CombatModule(
             // Check if there was a bad switch
             if (wasCancelled) {
                 logger.info("Bad switch, maybe the doll positions got shifted, cancelling this run")
+                dollSwitchingCache.clear()
                 return
             }
         }
