@@ -50,17 +50,17 @@ class Map5_4(
         logger.info("Deploying echelon 1 to heliport")
         logger.info("Pressing the heliport")
         region.subRegion(295, 320, 87, 83)
-                .clickRandomly(); yield()
+                .clickRandomly(); delay(300)
         logger.info("Pressing the ok button")
         mapRunnerRegions.deploy.clickRandomly()
-        delay(200)
+        delay(300)
         logger.info("Deploying echelon 2 to command post")
         logger.info("Pressing the command post")
         region.subRegion(1715, 233, 103, 113)
-                .clickRandomly(); yield()
+                .clickRandomly(); delay(300)
         logger.info("Pressing the ok button")
         mapRunnerRegions.deploy.clickRandomly()
-        delay(200)
+        delay(300)
         logger.info("Deployment complete")
     }
 
@@ -69,15 +69,15 @@ class Map5_4(
         // Wait for the G&K splash to appear within 10 seconds
         region.waitSuspending("$PREFIX/splash.png", 10).apply {
             logger.info("G&K splash screen appeared")
-            delay(2000)
+            delay(1500)
         } ?: logger.info("G&K splash screen did not appear")
 
         logger.info("Resupplying echelon at command post")
-        //Clicking twice, first to highlight the echelon, the second time to enter the deployment menu
+        // Clicking twice, first to highlight the echelon, the second time to enter the deployment menu
         logger.info("Selecting echelon")
         region.subRegion(1715, 233, 103, 113).apply {
             clickRandomly(); yield()
-            clickRandomly(); yield()
+            clickRandomly(); delay(300)
         }
         logger.info("Resupplying")
         mapRunnerRegions.resupply.clickRandomly()
