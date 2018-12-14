@@ -116,7 +116,7 @@ class CombatModule(
         updateEchelonRepairStatus(1)
 
         // Select echelon 2
-        region.subRegion(120, 296, 184, 109).clickRandomly(); yield()
+        region.subRegion(120, 296, 184, 109).clickRandomly(); delay(200)
         // Doll 1 region ( excludes stuff below name/type )
         region.subRegion(335, 167, 263, 667).clickRandomly(); yield()
 
@@ -320,7 +320,7 @@ class CombatModule(
                 // Click ok
                 region.subRegion(1768, 749, 250, 159).clickRandomly(); delay(100)
                 // Use quick repair
-                region.subRegion(536, 702, 118, 118).clickUntilGone("combat/quick-repair.png")
+                region.subRegion(545, 713, 99, 96).clickRandomly(); yield()
                 // Click ok
                 region.subRegion(1381, 710, 250, 96).clickRandomly(); delay(500)
                 // Click close
