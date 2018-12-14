@@ -37,6 +37,7 @@ import org.sikuli.basics.Settings
 import java.awt.Color
 import java.awt.image.BufferedImage
 import java.nio.file.Files
+import java.text.DecimalFormat
 import kotlin.math.min
 import kotlin.random.Random
 import kotlin.reflect.full.primaryConstructor
@@ -274,17 +275,19 @@ class CombatModule(
 
             members.forEachIndexed { member, (name, hp) ->
                 gameState.echelons[echelon - 1].members[member].also {
+                    var sPercent = "N/A"
                     it.name = name
                     it.needsRepair = try {
                         hp.replace(Regex("[^\\d/]"), "")
                                 .split("/").let { l ->
                                     val percent = (l[0].toDouble() / l[1].toDouble()) * 100
-                                    logger.info("[Repair OCR] Name: $name | HP: $hp | HP (%): $percent")
+                                    sPercent = DecimalFormat("##.#").format(percent)
                                     percent < profile.combat.repairThreshold
                                 }
                     } catch (e: Exception) {
                         false
                     }
+                    logger.info("[Repair OCR] Name: $name | HP: $hp | HP (%): $sPercent")
                 }
             }
             break
