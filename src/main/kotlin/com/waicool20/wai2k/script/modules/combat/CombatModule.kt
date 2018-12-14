@@ -40,6 +40,7 @@ import java.nio.file.Files
 import kotlin.math.min
 import kotlin.random.Random
 import kotlin.reflect.full.primaryConstructor
+import kotlin.system.measureTimeMillis
 
 private const val OCR_THRESHOLD = 2
 
@@ -70,7 +71,9 @@ class CombatModule(
         // Don't need to switch dolls if previous run was cancelled
         // or the map is not meant for corpse dragging
         if (mapRunner.isCorpseDraggingMap && !wasCancelled) {
-            switchDolls()
+            measureTimeMillis {
+                switchDolls()
+            }.also { logger.info("Switching dolls took $it ms") }
             // Check if there was a bad switch
             if (wasCancelled) {
                 logger.info("Bad switch, maybe the doll positions got shifted, cancelling this run")
