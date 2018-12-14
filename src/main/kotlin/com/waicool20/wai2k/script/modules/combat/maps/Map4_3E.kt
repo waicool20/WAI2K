@@ -50,14 +50,14 @@ class Map4_3E(
     private suspend fun deployEchelons() {
         logger.info("Deploying echelon 1 to heliport")
         logger.info("Pressing the heliport")
-        region.subRegion(1762, 702, 108, 100)
+        region.subRegion(1788, 723, 60, 60)
                 .clickRandomly(); delay(300)
         logger.info("Pressing the ok button")
         mapRunnerRegions.deploy.clickRandomly()
         delay(300)
         logger.info("Deploying echelon 2 to command post")
         logger.info("Pressing the command post")
-        region.subRegion(308, 489, 132, 113)
+        region.subRegion(320, 489, 103, 113)
                 .clickRandomly(); delay(300)
         logger.info("Pressing the ok button")
         mapRunnerRegions.deploy.clickRandomly()
@@ -76,7 +76,7 @@ class Map4_3E(
         logger.info("Resupplying echelon at command post")
         //Clicking twice, first to highlight the echelon, the second time to enter the deployment menu
         logger.info("Selecting echelon")
-        region.subRegion(308, 489, 132, 113).apply {
+        region.subRegion(320, 489, 103, 113).apply {
             clickRandomly(); yield()
             clickRandomly(); delay(300)
         }
@@ -91,28 +91,27 @@ class Map4_3E(
         logger.info("Entering planning mode")
         mapRunnerRegions.planningMode.clickRandomly(); yield()
         logger.info("Selecting echelon at heliport")
-        region.subRegion(1762, 702, 108, 100)
+        region.subRegion(1788, 723, 60, 60)
                 .clickRandomly(); yield()
         logger.info("Selecting node 1")
-        region.subRegion(1760, 462, 77, 71)
+        region.subRegion(1766, 464, 60, 60)
                 .clickRandomly(); yield()
         logger.info("Selecting node 2")
-        region.subRegion(1842, 179, 101, 99)
+        region.subRegion(1863, 197, 60, 60)
                 .clickRandomly(); yield()
 
         // Pan up
-        region.subRegion(1033, 225, 240, 100).randomLocation().let {
-            region.swipeRandomly(it, it.offset(0, 800), 1500)
+        region.subRegion(1033, 150, 240, 50).randomLocation().let {
+            region.swipeRandomly(it, it.offset(0, 850), 800)
             delay(300)
         }
 
         logger.info("Selecting node 3")
-        region.subRegion(1703, 726, 66, 66)
+        region.subRegion(1708, 726, 60, 60)
                 .clickRandomly(); yield()
         logger.info("Selecting node 4")
-        region.subRegion(1697, 330, 125, 125)
+        region.subRegion(1731, 368, 60, 60)
                 .clickRandomly(); yield()
-
         logger.info("Executing plan")
         mapRunnerRegions.executePlan.clickRandomly(); yield()
     }
