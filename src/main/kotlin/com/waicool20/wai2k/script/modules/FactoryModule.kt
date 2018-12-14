@@ -185,13 +185,12 @@ class FactoryModule(
 
             // Click smart select button
             logger.info("Using smart select")
-            region.subRegion(1770, 859, 247, 158).clickRandomly(); yield()
+            region.subRegion(1770, 859, 247, 158).clickRandomly()
+            delay(200)
 
             // Confirm doll selection
             val okButton = region.subRegion(1768, 889, 250, 158).findOrNull("factory/ok.png")
             if (okButton == null) {
-                // Click cancel if no t dolls could be used for enhancement
-                region.subRegion(120, 0, 205, 144).clickRandomly()
                 logger.info("No more 2 star T-dolls to disassemble!")
                 break
             }
@@ -203,14 +202,12 @@ class FactoryModule(
             scriptStats.disassemblesDone += 1
         }
 
-        var filtersApplied = false
-
         logger.info("Disassembling 3 star T-dolls")
-        while (isActive) {
-            region.subRegion(483, 200, 1557, 565)
-                    .waitSuspending("factory/select.png", 10)?.clickRandomly()
-            delay(750)
+        logger.info("Applying filters")
+        applyDollFilters(3)
+        delay(750)
 
+        while (isActive) {
             statUpdateJobs += updateJob(region.subRegion(1750, 810, 290, 70).takeScreenshot()) { count ->
                 val c = count[0].toInt()
                 oldDollCount?.get(0)?.toIntOrNull()?.let {
@@ -220,38 +217,38 @@ class FactoryModule(
                 c >= count[1].toInt()
             }
 
-            if (!filtersApplied) {
-                logger.info("Applying filters")
-                filtersApplied = true
-                applyDollFilters(3)
-            }
-            delay(400)
             val dolls = region.findAllOrEmpty("doll-list/3star.png")
                     .also { logger.info("Found ${it.size} that can be disassembled") }
                     .map { region.subRegion(it.x - 102, it.y, 239, 427) }
             if (dolls.isEmpty()) {
                 // Click cancel if no t dolls could be used for enhancement
                 region.subRegion(120, 0, 205, 144).clickRandomly()
-                logger.info("No more 3 star T-dolls to disassemble!")
                 break
             }
             // Select all the dolls
             region.mouseDelay(0.0) {
-                dolls.forEach { it.clickRandomly() }
+                dolls.sortedBy { it.y * 10 + it.x }.forEach { it.clickRandomly() }
             }
             // Click ok
             region.subRegion(1768, 889, 250, 158).find("factory/ok.png").clickRandomly(); yield()
             // Click disassemble button
             region.subRegion(1749, 885, 247, 95).clickRandomly(); delay(200)
             // Click confirm
-            region.subRegion(1100, 688, 324, 161).find("confirm.png").clickRandomly(); yield()
+            region.subRegion(1100, 688, 324, 161).find("confirm.png").clickRandomly(); delay(200)
             // Update stats
             scriptStats.disassemblesDone += 1
-            // Wait for menu to settle
-            region.subRegion(483, 200, 1557, 565).waitSuspending("factory/select.png", 20)
             // Can break if disassembled count is less than 12
             if (dolls.size < 12) break
+            // Wait for menu to settle
+            region.subRegion(483, 200, 1557, 565)
+                    .waitSuspending("factory/select.png", 10)?.let {
+                        it.clickRandomly()
+                        delay(750)
+                    }
         }
+
+        logger.info("No more 3 star T-dolls to disassemble!")
+
         // Update stats after all the update jobs are complete
         launch {
             statUpdateJobs.forEach { it.join() }
