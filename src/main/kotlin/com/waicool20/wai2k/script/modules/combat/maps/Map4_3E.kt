@@ -40,6 +40,7 @@ class Map4_3E(
     override suspend fun execute() {
         deployEchelons()
         mapRunnerRegions.startOperation.clickRandomly(); yield()
+        waitForGNKSplash()
         resupplyEchelons()
         delay(200)
         planPath()
@@ -66,13 +67,6 @@ class Map4_3E(
     }
 
     private suspend fun resupplyEchelons() {
-        logger.info("Waiting for G&K splash screen")
-        // Wait for the G&K splash to appear within 10 seconds
-        region.waitSuspending("$PREFIX/splash.png", 10).apply {
-            logger.info("G&K splash screen appeared")
-            delay(1500)
-        } ?: logger.info("G&K splash screen did not appear")
-
         logger.info("Resupplying echelon at command post")
         //Clicking twice, first to highlight the echelon, the second time to enter the deployment menu
         logger.info("Selecting echelon")

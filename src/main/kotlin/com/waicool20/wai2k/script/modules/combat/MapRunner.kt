@@ -29,6 +29,7 @@ import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.reflections.Reflections
@@ -64,6 +65,15 @@ abstract class MapRunner(
     abstract val isCorpseDraggingMap: Boolean
 
     abstract suspend fun execute()
+
+    protected suspend fun waitForGNKSplash() {
+        logger.info("Waiting for G&K splash screen")
+        // Wait for the G&K splash to appear within 10 seconds
+        region.waitSuspending("$PREFIX/splash.png", 10).apply {
+            logger.info("G&K splash screen appeared")
+            delay(1500)
+        } ?: logger.info("G&K splash screen did not appear")
+    }
 
     protected suspend fun waitForBattleEnd() {
         logger.info("Waiting for battle to end")
