@@ -311,7 +311,7 @@ class CombatModule(
                 // Select all T-Dolls
                 logger.info("Selecting dolls that need repairing")
                 region.mouseDelay(0.0) {
-                    repairRegions.take(repairSlots.size).forEach {
+                    repairRegions.take(repairSlots.size).sortedBy { it.y * 10 + it.x }.forEach {
                         it.clickRandomly(); yield()
                         scriptStats.repairs++
                     }
@@ -322,12 +322,13 @@ class CombatModule(
                 // Use quick repair
                 region.subRegion(545, 713, 99, 96).clickRandomly(); yield()
                 // Click ok
-                region.subRegion(1381, 710, 250, 96).clickRandomly(); delay(500)
+                region.subRegion(1381, 710, 250, 96).clickRandomly(); yield()
                 // Click close
-                region.waitSuspending("close.png", 15)?.clickRandomly(); delay(500)
+                region.waitSuspending("close.png", 15)?.clickRandomly()
                 // If dolls that needed repair is equal or less than the repair slot count then
                 // no more dolls need repairs and we can exit
                 if (repairRegions.size <= repairSlots.size) break
+                delay(500)
             }
 
             logger.info("No more dolls need repairing!")
