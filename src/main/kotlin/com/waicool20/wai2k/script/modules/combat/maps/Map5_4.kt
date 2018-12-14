@@ -83,7 +83,6 @@ class Map5_4(
         mapRunnerRegions.resupply.clickRandomly()
         // Close dialog in case echelon doesn't need resupply
         region.findOrNull("close.png")?.clickRandomly()
-        delay(200)
         logger.info("Resupply complete")
     }
 
