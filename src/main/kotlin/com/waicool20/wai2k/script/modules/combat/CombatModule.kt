@@ -122,6 +122,7 @@ class CombatModule(
         logger.info("Switching doll 2 of echelon 1")
         // Doll 2 region ( excludes stuff below name/type )
         region.subRegion(612, 167, 263, 667).clickRandomly(); yield()
+        region.waitSuspending("doll-list/lock.png", 5)
 
         // If sorties done is even use doll 1 else doll 2
         val echelon1Doll = (scriptStats.sortiesDone and 1) + 1
@@ -130,13 +131,14 @@ class CombatModule(
             scanValidDolls(echelon1Doll).first()
         }.clickRandomly()
 
-        delay(100)
+        delay(400)
         updateEchelonRepairStatus(1)
 
         // Select echelon 2
         region.subRegion(120, 296, 184, 109).clickRandomly(); delay(200)
         // Doll 1 region ( excludes stuff below name/type )
         region.subRegion(335, 167, 263, 667).clickRandomly(); yield()
+        region.waitSuspending("doll-list/lock.png", 5)
 
         // If sorties done is even use doll 2 else doll 1
         val echelon2Doll = ((scriptStats.sortiesDone + 1) and 1) + 1
@@ -149,7 +151,7 @@ class CombatModule(
             scanValidDolls(echelon2Doll).first()
         }.clickRandomly()
 
-        delay(100)
+        delay(400)
         updateEchelonRepairStatus(2)
 
         // Check if dolls were switched correctly, might not be the case if one of them leveled
@@ -170,6 +172,8 @@ class CombatModule(
         val stars = criteria.stars
         val type = criteria.type
         applyDollFilters(stars, type, reset)
+        delay(500)
+        region.waitSuspending("doll-list/lock.png", 5)
     }
 
     private var scanRetries = 0
@@ -320,7 +324,7 @@ class CombatModule(
                             logger.info("No available repair slots, cancelling sortie")
                             return
                         }
-                delay(750)
+                delay(1000)
 
                 val screenshot = region.takeScreenshot()
                 val repairRegions = region.findAllOrEmpty("doll-list/lock.png")

@@ -70,7 +70,7 @@ abstract class ScriptModule(
                 logger.info("Resetting filters")
                 dollFilterRegions.reset.clickRandomly(); yield()
                 dollFilterRegions.filter.clickRandomly()
-                delay(200)
+                delay(400)
             }
             if (stars != null) {
                 logger.info("Applying $stars stars filter")
