@@ -77,9 +77,7 @@ class CombatModule(
         // Don't need to switch dolls if previous run was cancelled
         // or the map is not meant for corpse dragging
         if (mapRunner.isCorpseDraggingMap && !wasCancelled) {
-            measureTimeMillis {
-                switchDolls()
-            }.also { logger.info("Switching dolls took $it ms") }
+            switchDolls()
             // Check if there was a bad switch
             if (wasCancelled) {
                 logger.info("Bad switch, maybe the doll positions got shifted, cancelling this run")
@@ -120,6 +118,7 @@ class CombatModule(
      */
     private suspend fun switchDolls() {
         navigator.navigateTo(LocationId.FORMATION)
+        val startTime = System.currentTimeMillis()
         logger.info("Switching doll 2 of echelon 1")
         // Doll 2 region ( excludes stuff below name/type )
         region.subRegion(612, 167, 263, 667).clickRandomly(); yield()
@@ -159,6 +158,7 @@ class CombatModule(
                 .distanceTo(profile.combat.draggers[echelon1Doll]!!.name) >= OCR_THRESHOLD ||
                 gameState.echelons[1].members[0].name
                         .distanceTo(profile.combat.draggers[echelon2Doll]!!.name) >= OCR_THRESHOLD
+        logger.info("Switching dolls took ${System.currentTimeMillis() - startTime} ms")
     }
 
     /**
