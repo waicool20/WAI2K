@@ -22,6 +22,7 @@ package com.waicool20.wai2k.script.modules.combat
 import com.waicool20.wai2k.android.AndroidRegion
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
+import com.waicool20.wai2k.config.Wai2KProfile.DollCriteria
 import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.Navigator
@@ -57,6 +58,10 @@ class CombatModule(
             ?.call(scriptRunner, region, config, profile) ?: error("Unsupported map")
 
     private var wasCancelled = false
+
+    companion object {
+        private val dollSwitchingCache = mutableMapOf<DollCriteria, AndroidRegion>()
+    }
 
     override suspend fun execute() {
         if (!profile.combat.enabled) return
@@ -108,8 +113,6 @@ class CombatModule(
 
     //<editor-fold desc="Doll Switching">
 
-    private val dollSwitchingCache = mutableMapOf<Int, AndroidRegion>()
-
     /**
      * Switches the dolls in the echelons who will be dragging, which doll goes into which
      * echelon depends on the sortie cycle. On even sortie cycles (ie. 0, 2, 4...)
@@ -124,7 +127,7 @@ class CombatModule(
         // If sorties done is even use doll 1 else doll 2
         val echelon1Doll = (scriptStats.sortiesDone and 1) + 1
         applyFilters(echelon1Doll, false)
-        dollSwitchingCache.getOrPut(echelon1Doll) {
+        dollSwitchingCache.getOrPut(profile.combat.draggers[echelon1Doll]!!) {
             scanValidDolls(echelon1Doll).first()
         }.clickRandomly()
 
@@ -143,7 +146,7 @@ class CombatModule(
         if (draggers[1]?.stars != draggers[2]?.stars || draggers[1]?.type != draggers[2]?.type) {
             applyFilters(echelon2Doll, true)
         }
-        dollSwitchingCache.getOrPut(echelon2Doll) {
+        dollSwitchingCache.getOrPut(profile.combat.draggers[echelon2Doll]!!) {
             scanValidDolls(echelon2Doll).first()
         }.clickRandomly()
 
