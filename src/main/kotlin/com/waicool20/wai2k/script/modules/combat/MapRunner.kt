@@ -28,10 +28,7 @@ import com.waicool20.wai2k.game.MapRunnerRegions
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.waicoolutils.logging.loggerFor
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import org.reflections.Reflections
 import kotlin.coroutines.CoroutineContext
 
@@ -77,6 +74,20 @@ abstract class MapRunner(
 
     protected suspend fun waitForBattleEnd() {
         logger.info("Waiting for battle to end")
+        val clickRegion = region.subRegion(1960, 90, 200, 200)
+        var node = 1
+        val battleResultClickJob = launch {
+            while (isActive) {
+                if (clickRegion.has("combat/battle/autoskill.png")) {
+                    logger.info("Entered node $node")
+                    // Wait until it disappears
+                    while (clickRegion.has("combat/battle/autoskill.png")) yield()
+                    logger.info("Node ${node++} battle complete, clicking through battle results")
+                    val l = clickRegion.randomLocation()
+                    repeat(6) { region.click(l); yield() }
+                }
+            }
+        }
         // Use a higher similarity threshold to prevent prematurely exiting the wait
         region.waitSuspending("$PREFIX/complete-condition.png", 1200, 0.95)
                 ?: run {
@@ -84,7 +95,7 @@ abstract class MapRunner(
                     coroutineContext.cancelAndYield()
                 }
         logger.info("Battle ended")
-
+        battleResultClickJob.cancel()
         // Click end button
         mapRunnerRegions.endBattle.clickRandomly()
     }
