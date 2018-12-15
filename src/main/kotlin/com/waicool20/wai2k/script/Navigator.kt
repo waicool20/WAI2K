@@ -169,6 +169,8 @@ class Navigator(
         }
     }
 
+    private val logisticWaitList = listOf(LocationId.HOME, LocationId.HOME_STATUS, LocationId.UNKNOWN)
+
     /**
      * Checks if there are logistics, if there were then try and receive them
      */
@@ -222,9 +224,7 @@ class Navigator(
 
             // Mark game state dirty, needs updating
             gameState.requiresUpdate = true
-            if (gameState.currentGameLocation.id == LocationId.HOME ||
-                    gameState.currentGameLocation.id == LocationId.HOME_STATUS ||
-                    gameState.currentGameLocation.id == LocationId.UNKNOWN) {
+            if (logisticWaitList.any { gameState.currentGameLocation.id == it }) {
                 // Wait a bit in case another echelon arrives
                 logger.info("Waiting a bit to see if anymore echelons arrive")
                 delay(5000)
