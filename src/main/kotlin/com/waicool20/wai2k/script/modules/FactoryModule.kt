@@ -195,7 +195,7 @@ class FactoryModule(
                 break
             }
             // Click ok
-            okButton.clickRandomly()
+            okButton.clickRandomly(); delay(500)
             // Click disassemble button
             region.subRegion(1749, 885, 247, 95).clickRandomly()
             // Update stats
