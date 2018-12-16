@@ -42,7 +42,6 @@ import java.text.DecimalFormat
 import kotlin.math.min
 import kotlin.random.Random
 import kotlin.reflect.full.primaryConstructor
-import kotlin.system.measureTimeMillis
 
 private const val OCR_THRESHOLD = 2
 
@@ -195,9 +194,18 @@ class CombatModule(
         val level = criteria.level
 
         // Temporary convenience class for storing doll regions
-        class DollRegions(val nameRegionImage: BufferedImage, val levelRegionImage: BufferedImage, val clickRegion: AndroidRegion)
+        class DollRegions(nameRegionImage: BufferedImage, levelRegionImage: BufferedImage, val clickRegion: AndroidRegion) {
+            val name = async {
+                Ocr.forConfig(config).doOCRAndTrim(nameRegionImage)
+            }
+            val level = async {
+                val i = levelRegionImage.pad(30, 30, Color.WHITE).binarizeImage().scale()
+                Ocr.forConfig(config, digitsOnly = true, useLSTM = true).doOCRAndTrim(i).toIntOrNull()
+                        ?: Ocr.forConfig(config, digitsOnly = true).doOCRAndTrim(i).toIntOrNull()
+            }
+        }
 
-        logger.info("Attempting to find dragging doll $doll with given criteria name = $name, level >= $level")
+        logger.info("Attempting to find dragging doll $doll with given criteria name = $name, distance < $OCR_THRESHOLD, level >= $level")
         repeat(retries) { i ->
             // Take a screenshot after each retry, just in case it was a bad one in case its not OCRs fault
             // Optimize by taking a single screenshot and working on that
@@ -211,23 +219,12 @@ class CombatModule(
                                 image.getSubimage(it.x + 184, it.y + 129, 39, 27),
                                 region.subRegion(it.x - 7, it.y, 244, 164)
                         )
-                    }
-                    // Filter by name
-                    .also { logger.debug("Filtering by name  ---------------------") }
-                    .filterAsync(this) {
-                        val ocrName = Ocr.forConfig(config).doOCRAndTrim(it.nameRegionImage)
+                    }.filter {
+                        val ocrName = it.name.await()
+                        val ocrLevel = it.level.await()
                         val distance = ocrName.distanceTo(name, Ocr.OCR_DISTANCE_MAP)
-                        logger.debug("Doll name ocr result: $ocrName | Distance: $distance | Threshold: $OCR_THRESHOLD")
-                        distance < OCR_THRESHOLD
-                    }
-                    // Filter by level
-                    .also { logger.debug("Filtering by level ---------------------") }
-                    .filterAsync(this) {
-                        it.levelRegionImage.binarizeImage().pad(20, 10, Color.WHITE).let { bi ->
-                            val ocrLevel = Ocr.forConfig(config, digitsOnly = true).doOCRAndTrim(bi)
-                            logger.debug("Level ocr result: $ocrLevel")
-                            ocrLevel.toIntOrNull() ?: 1 >= level
-                        }
+                        logger.debug("[Scan OCR] Name: $ocrName | Distance: $distance | Level: $ocrLevel")
+                        distance < OCR_THRESHOLD && ocrLevel ?: 1 >= level
                     }
                     // Return click regions
                     .map { it.clickRegion }
