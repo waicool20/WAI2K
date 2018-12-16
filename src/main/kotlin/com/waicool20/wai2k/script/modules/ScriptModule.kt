@@ -64,13 +64,13 @@ abstract class ScriptModule(
         if (stars == null && type == null && !reset) return
         region.mouseDelay(0.0) {
             dollFilterRegions.filter.clickRandomly()
-            delay(400)
+            delay(500)
 
             if (reset) {
                 logger.info("Resetting filters")
                 dollFilterRegions.reset.clickRandomly(); yield()
                 dollFilterRegions.filter.clickRandomly()
-                delay(400)
+                delay(500)
             }
             if (stars != null) {
                 logger.info("Applying $stars stars filter")
