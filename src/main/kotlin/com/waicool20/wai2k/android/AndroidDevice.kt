@@ -178,14 +178,14 @@ class AndroidDevice(
      * @param display Displays pointer info if True
      */
     fun displayPointerInfo(display: Boolean) {
-        device.execute("settings put system pointer_location ${if (display) "1" else "0"}")
+        device.executeOrShell("settings put system pointer_location ${if (display) "1" else "0"}")
     }
 
     /**
      * Toggles pointer info
      */
     fun togglePointerInfo() {
-        device.execute("settings put system pointer_location ${if (isShowingPointerInfo()) "0" else "1"}")
+        device.executeOrShell("settings put system pointer_location ${if (isShowingPointerInfo()) "0" else "1"}")
     }
 
     /**
