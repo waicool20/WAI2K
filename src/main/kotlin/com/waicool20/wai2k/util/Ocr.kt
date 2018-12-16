@@ -53,9 +53,13 @@ object Ocr {
         return text
     }
 
-    fun forConfig(config: Wai2KConfig, digitsOnly: Boolean = false) = Tesseract().apply {
+    fun forConfig(config: Wai2KConfig, digitsOnly: Boolean = false, useLSTM: Boolean = false) = Tesseract().apply {
         setDatapath(config.ocrDirectory.toString())
-        setOcrEngineMode(ITessAPI.TessOcrEngineMode.OEM_TESSERACT_ONLY)
+        if (useLSTM) {
+            setOcrEngineMode(ITessAPI.TessOcrEngineMode.OEM_TESSERACT_LSTM_COMBINED)
+        } else {
+            setOcrEngineMode(ITessAPI.TessOcrEngineMode.OEM_TESSERACT_ONLY)
+        }
         setPageSegMode(ITessAPI.TessPageSegMode.PSM_SINGLE_BLOCK)
         if (digitsOnly) setTessVariable("tessedit_char_whitelist", "0123456789")
     }
