@@ -38,6 +38,7 @@ import kotlinx.coroutines.*
 import org.sikuli.basics.Settings
 import java.awt.Color
 import java.awt.image.BufferedImage
+import java.lang.Exception
 import java.nio.file.Files
 import java.text.DecimalFormat
 import kotlin.math.min
@@ -269,7 +270,7 @@ class CombatModule(
                 return try {
                     string.replace(Regex("[^\\d/]"), "").split("/")
                             .let { (it[0].toDouble() / it[1].toDouble()) * 100 }
-                } catch (e: NumberFormatException) {
+                } catch (e: Exception) {
                     null
                 }
             }
