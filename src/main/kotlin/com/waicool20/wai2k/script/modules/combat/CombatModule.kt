@@ -31,6 +31,7 @@ import com.waicool20.wai2k.script.modules.ScriptModule
 import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.wai2k.util.doOCRAndTrim
+import com.waicool20.wai2k.util.useCharFilter
 import com.waicool20.waicoolutils.*
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.*
@@ -249,51 +250,60 @@ class CombatModule(
     private suspend fun updateEchelonRepairStatus(echelon: Int, retries: Int = 3) {
         logger.info("Updating repair status")
 
+        // Temporary convenience class for storing doll regions
+        class DollRegions(nameImage: BufferedImage, hpImage: BufferedImage) {
+            private val _name = async {
+                Ocr.forConfig(config).doOCRAndTrim(nameImage)
+            }
+            private val _percent = async {
+                val img = hpImage.pad(30, 30, Color.BLACK).binarizeImage(0.3).scale()
+                val hpLSTM by lazy { Ocr.forConfig(config, useLSTM = true).useCharFilter(Ocr.DIGITS + "/").doOCRAndTrim(img) }
+                val hpLegacy by lazy { Ocr.forConfig(config).useCharFilter(Ocr.DIGITS + "/").doOCRAndTrim(img) }
+                readPercentage(hpLSTM.also { hp = it }) ?: readPercentage(hpLegacy.also { hp = it })
+            }
+            var hp: String? = null
+            val name by lazy { runBlocking { _name.await() } }
+            val percent by lazy { runBlocking { _percent.await() } }
+
+            private fun readPercentage(string: String): Double? {
+                return try {
+                    string.replace(Regex("[^\\d/]"), "").split("/")
+                            .let { (it[0].toDouble() / it[1].toDouble()) * 100 }
+                } catch (e: NumberFormatException) {
+                    null
+                }
+            }
+        }
+
         for (i in 1..retries) {
             val image = region.takeScreenshot()
             val members = region.findAllOrEmpty("formation/stats.png")
                     .also { logger.info("Found ${it.size} dolls on screen") }
                     .sortedBy { it.x }
                     .map {
-                        // Name to HP pair
-                        image.getSubimage(it.x - 157, it.y - 188, 257, 52) to
+                        DollRegions(
+                                image.getSubimage(it.x - 157, it.y - 188, 257, 52),
                                 image.getSubimage(it.x - 75, it.y - 97, 159, 33)
-                    }.map { (nameImage, hpImage) ->
-                        async {
-                            Ocr.forConfig(config).doOCRAndTrim(nameImage)
-                        } to async {
-                            Ocr.forConfig(config).doOCRAndTrim(hpImage.binarizeImage(0.35).scale(4.0))
-                        }
-                    }.map { (dName, dHp) ->
-                        dName.await() to dHp.await()
+                        )
                     }
             // Checking if the ocr results were gibberish
-            if (members.none { it.first.distanceTo(profile.combat.draggers[1]!!.name) < OCR_THRESHOLD } &&
-                    members.none { it.first.distanceTo(profile.combat.draggers[2]!!.name) < OCR_THRESHOLD }) {
+            if (members.none { it.name.distanceTo(profile.combat.draggers[1]!!.name) < OCR_THRESHOLD } &&
+                    members.none { it.name.distanceTo(profile.combat.draggers[2]!!.name) < OCR_THRESHOLD }) {
                 logger.info("Update repair status ocr failed after $i attempts, retries remaining: ${retries - i}")
                 if (i == retries) {
-                    logger.warn("Could not update repair status after $retries attempts")
-                    coroutineContext.cancelAndYield()
+                    logger.warn("Could not update repair status after $retries attempts, continue anyways")
+                    break
                 }
                 continue
             }
 
-            members.forEachIndexed { member, (name, hp) ->
-                gameState.echelons[echelon - 1].members[member].also {
-                    var sPercent = "N/A"
-                    it.name = name
-                    it.needsRepair = try {
-                        hp.replace(Regex("[^\\d/]"), "")
-                                .split("/").let { l ->
-                                    val percent = (l[0].toDouble() / l[1].toDouble()) * 100
-                                    sPercent = DecimalFormat("##.#").format(percent)
-                                    percent < profile.combat.repairThreshold
-                                }
-                    } catch (e: Exception) {
-                        false
-                    }
-                    logger.info("[Repair OCR] Name: $name | HP: $hp | HP (%): $sPercent")
-                }
+            val formatter = DecimalFormat("##.#")
+            gameState.echelons[echelon - 1].members.forEachIndexed { j, member ->
+                val dMember = members.getOrNull(j)
+                member.name = dMember?.name ?: "Unknown"
+                member.needsRepair = (dMember?.percent ?: 100.0) < profile.combat.repairThreshold
+                val sPercent = dMember?.percent?.let { formatter.format(it) } ?: "N/A"
+                logger.info("[Repair OCR] Name: ${member.name} | HP: ${dMember?.hp} | HP (%): $sPercent")
             }
             break
         }
