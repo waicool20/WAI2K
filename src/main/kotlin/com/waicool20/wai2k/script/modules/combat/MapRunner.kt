@@ -68,7 +68,7 @@ abstract class MapRunner(
         // Wait for the G&K splash to appear within 10 seconds
         region.waitSuspending("$PREFIX/splash.png", 10).apply {
             logger.info("G&K splash screen appeared")
-            delay(1500)
+            delay(2000)
         } ?: logger.info("G&K splash screen did not appear")
     }
 
