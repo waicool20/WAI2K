@@ -45,6 +45,10 @@ object Ocr {
             "8B:" to 0.2
     )
 
+    const val DIGITS = "0123456789"
+    const val ALPHA = "abcdefghijklmnoprstuvwxyz"
+    val ALPHA_CAP = ALPHA.toUpperCase()
+
     fun cleanNumericString(string: String): String {
         var text = string
         numberReplacements.forEach { r, num ->
@@ -61,10 +65,13 @@ object Ocr {
             setOcrEngineMode(ITessAPI.TessOcrEngineMode.OEM_TESSERACT_ONLY)
         }
         setPageSegMode(ITessAPI.TessPageSegMode.PSM_SINGLE_BLOCK)
-        if (digitsOnly) setTessVariable("tessedit_char_whitelist", "0123456789")
+        if (digitsOnly) useCharFilter(DIGITS)
     }
 }
 
 fun ITesseract.doOCRAndTrim(region: AndroidRegion) = doOCRAndTrim(region.takeScreenshot())
 fun ITesseract.doOCRAndTrim(image: BufferedImage) = doOCR(image).trim()
 
+fun ITesseract.useCharFilter(chars: String) = apply {
+    setTessVariable("tessedit_char_whitelist", chars)
+}
