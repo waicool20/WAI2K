@@ -108,14 +108,14 @@ class Navigator(
                 logger.info("Going to ${destLoc.id}")
                 // Flag for skipping the final destination check or not
                 var skipDestinationCheck = false
-                // Click the link every 5 ticks, check the region every tick in case the first clicks didn't get it
+                // Click the link every 2 ticks, check the region every tick in case the first clicks didn't get it
                 var i = 0
                 // Record starting transition time
                 val startTransitionTime = System.currentTimeMillis()
                 val averageTransitionTime = transitionDelays.takeIf { it.isNotEmpty() }
                         ?.average()?.roundToLong() ?: 1500
                 while (isActive) {
-                    if (i++ % 5 == 0) {
+                    if (i++ % 2 == 0) {
                         link.asset.getSubRegionFor(region).let {
                             // Shrink region slightly to 90% of defined size
                             it.grow((it.w * -0.1).roundToInt(), (it.h * -0.1).roundToInt())
