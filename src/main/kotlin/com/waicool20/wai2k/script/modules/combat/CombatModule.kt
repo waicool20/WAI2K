@@ -150,7 +150,7 @@ class CombatModule(
             applyFilters(echelon2Doll, true)
         }
         dollSwitchingCache.getOrPut(dragger2) {
-            if (!sameDragger) scanResults = scanValidDolls(echelon2Doll)
+            if (!sameDragger || scanResults.isEmpty()) scanResults = scanValidDolls(echelon2Doll)
             scanResults[dragger2.index]
         }.clickRandomly()
         delay(400)
