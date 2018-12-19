@@ -30,7 +30,7 @@ object Ocr {
     private val numberReplacements = mapOf(
             "cCDGoOQ@" to "0", "iIl\\[\\]|!" to "1",
             "zZ" to "2", "E" to "3",
-            "A" to "4", "sS" to "5",
+            "Ah" to "4", "sS" to "5",
             "b" to "6", "B:" to "8",
             "- —" to ""
     )
@@ -41,7 +41,7 @@ object Ocr {
             "1iIl\\[\\]|!" to 0.3,
             "2Zz" to 0.1,
             "3E" to 0.2,
-            "4A" to 0.1,
+            "4Ah" to 0.1,
             "5sS" to 0.1,
             "6b" to 0.1,
             "8B:" to 0.2
