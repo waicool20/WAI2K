@@ -38,6 +38,7 @@
                <children>
                   <Label text="Name:" />
                   <TextField fx:id="doll1NameTextField" />
+                  <Spinner fx:id="doll1IndexSpinner" editable="true" prefWidth="75.0" />
                </children>
             </HBox>
             <HBox alignment="CENTER_LEFT" spacing="5.0">
@@ -73,6 +74,7 @@
                <children>
                   <Label text="Name:" />
                   <TextField fx:id="doll2NameTextField" />
+                  <Spinner fx:id="doll2IndexSpinner" editable="true" prefWidth="75.0" />
                </children>
             </HBox>
             <HBox alignment="CENTER_LEFT" spacing="5.0">

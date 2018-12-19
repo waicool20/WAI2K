@@ -37,11 +37,13 @@ class DraggersView : AbstractProfileView() {
     private val doll1StarsRating: Rating by fxid()
     private val doll1LevelSpinner: Spinner<Int> by fxid()
     private val doll1TypeComboBox: ComboBox<DollType> by fxid()
+    private val doll1IndexSpinner: Spinner<Int> by fxid()
 
     private val doll2NameTextField: TextField by fxid()
     private val doll2StarsRating: Rating by fxid()
     private val doll2LevelSpinner: Spinner<Int> by fxid()
     private val doll2TypeComboBox: ComboBox<DollType> by fxid()
+    private val doll2IndexSpinner: Spinner<Int> by fxid()
 
     private val swapButton: Button by fxid()
 
@@ -53,6 +55,8 @@ class DraggersView : AbstractProfileView() {
     override fun setValues() {
         doll1LevelSpinner.valueFactory = IntegerSpinnerValueFactory(1, 100)
         doll2LevelSpinner.valueFactory = IntegerSpinnerValueFactory(1, 100)
+        doll1IndexSpinner.valueFactory = IntegerSpinnerValueFactory(0, 11)
+        doll2IndexSpinner.valueFactory = IntegerSpinnerValueFactory(0, 11)
         doll1TypeComboBox.items.setAll(DollType.values().toList())
         doll2TypeComboBox.items.setAll(DollType.values().toList())
     }
@@ -65,11 +69,13 @@ class DraggersView : AbstractProfileView() {
             doll1LevelSpinner.valueFactory.value = doll1.level
             doll1StarsRating.rating = doll1.stars.toDouble()
             doll1TypeComboBox.value = doll1.type
+            doll1IndexSpinner.valueFactory.value = doll1.index
 
             doll2NameTextField.text = doll2.name
             doll2LevelSpinner.valueFactory.value = doll2.level
             doll2StarsRating.rating = doll2.stars.toDouble()
             doll2TypeComboBox.value = doll2.type
+            doll2IndexSpinner.valueFactory.value = doll2.index
         }
         with(context.currentProfile.combat) {
             doll1NameTextField.textProperty().addListener("Doll1NameTextFieldListener") { newVal ->
@@ -84,6 +90,9 @@ class DraggersView : AbstractProfileView() {
             doll1TypeComboBox.valueProperty().addListener("Doll1TypeComboBoxListener") { newVal ->
                 draggers[1]?.type = newVal
             }
+            doll1IndexSpinner.valueProperty().addListener("Doll1IndexSpinnerListener") { newVal ->
+                draggers[1]?.index = newVal
+            }
 
             doll2NameTextField.textProperty().addListener("Doll2NameTextFieldListener") { newVal ->
                 draggers[2]?.name = newVal
@@ -96,6 +105,9 @@ class DraggersView : AbstractProfileView() {
             }
             doll2TypeComboBox.valueProperty().addListener("Doll2TypeComboBoxListener") { newVal ->
                 draggers[2]?.type = newVal
+            }
+            doll2IndexSpinner.valueProperty().addListener("Doll2IndexSpinnerListener") { newVal ->
+                draggers[2]?.index = newVal
             }
         }
     }
