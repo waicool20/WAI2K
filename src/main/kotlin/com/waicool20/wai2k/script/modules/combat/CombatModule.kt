@@ -259,24 +259,13 @@ class CombatModule(
                 Ocr.forConfig(config).doOCRAndTrim(nameImage)
             }
             private val _percent = async {
-                val img = hpImage.pad(20, 0, Color.BLACK).binarizeImage()
-                val ocr = Ocr.forConfig(config, useLSTM = true).useCharFilter(Ocr.DIGITS + "/")
-                val hpLSTM by lazy { ocr.doOCRAndTrim(img) }
-                val hpLegacy by lazy { ocr.useLegacyEngine().doOCRAndTrim(img) }
-                readPercentage(hpLSTM.also { hp = it }) ?: readPercentage(hpLegacy.also { hp = it })
+                val image = hpImage.binarizeImage()
+                var whites = 0.0
+                repeat(image.width) { i -> if (image.getRGB(i, 0) == Color.WHITE.rgb) whites++ }
+                whites / image.width * 100
             }
-            var hp: String? = null
             val name by lazy { runBlocking { _name.await() } }
             val percent by lazy { runBlocking { _percent.await() } }
-
-            private fun readPercentage(string: String): Double? {
-                return try {
-                    Ocr.cleanNumericString(string).replace(Regex("[^\\d/]"), "")
-                            .split("/").let { (it[0].toDouble() / it[1].toDouble()) * 100 }
-                } catch (e: Exception) {
-                    null
-                }
-            }
         }
 
         for (i in 1..retries) {
@@ -287,7 +276,7 @@ class CombatModule(
                     .map {
                         DollRegions(
                                 image.getSubimage(it.x - 157, it.y - 188, 257, 52),
-                                image.getSubimage(it.x - 75, it.y - 97, 159, 33)
+                                image.getSubimage(it.x - 139, it.y - 55, 221, 1)
                         )
                     }
             // Checking if the ocr results were gibberish
@@ -307,7 +296,7 @@ class CombatModule(
                 member.name = dMember?.name ?: "Unknown"
                 member.needsRepair = (dMember?.percent ?: 100.0) < profile.combat.repairThreshold
                 val sPercent = dMember?.percent?.let { formatter.format(it) } ?: "N/A"
-                logger.info("[Repair OCR] Name: ${member.name} | HP: ${dMember?.hp} | HP (%): $sPercent")
+                logger.info("[Repair OCR] Name: ${member.name} | HP (%): $sPercent")
             }
             break
         }
