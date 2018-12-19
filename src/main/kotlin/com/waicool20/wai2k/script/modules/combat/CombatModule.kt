@@ -28,17 +28,13 @@ import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.script.modules.ScriptModule
-import com.waicool20.wai2k.util.Ocr
-import com.waicool20.wai2k.util.cancelAndYield
-import com.waicool20.wai2k.util.doOCRAndTrim
-import com.waicool20.wai2k.util.useCharFilter
+import com.waicool20.wai2k.util.*
 import com.waicool20.waicoolutils.*
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.*
 import org.sikuli.basics.Settings
 import java.awt.Color
 import java.awt.image.BufferedImage
-import java.lang.Exception
 import java.nio.file.Files
 import java.text.DecimalFormat
 import kotlin.math.min
@@ -202,8 +198,8 @@ class CombatModule(
             }
             val level = async {
                 val i = levelRegionImage.pad(30, 30, Color.WHITE).binarizeImage().scale()
-                Ocr.forConfig(config, digitsOnly = true, useLSTM = true).doOCRAndTrim(i).toIntOrNull()
-                        ?: Ocr.forConfig(config, digitsOnly = true).doOCRAndTrim(i).toIntOrNull()
+                val ocr = Ocr.forConfig(config, digitsOnly = true, useLSTM = true)
+                ocr.doOCRAndTrim(i).toIntOrNull() ?: ocr.useLegacyEngine().doOCRAndTrim(i).toIntOrNull()
             }
         }
 
@@ -257,9 +253,10 @@ class CombatModule(
                 Ocr.forConfig(config).doOCRAndTrim(nameImage)
             }
             private val _percent = async {
-                val img = hpImage.pad(30, 30, Color.BLACK).binarizeImage(0.3).scale()
-                val hpLSTM by lazy { Ocr.forConfig(config, useLSTM = true).useCharFilter(Ocr.DIGITS + "/").doOCRAndTrim(img) }
-                val hpLegacy by lazy { Ocr.forConfig(config).useCharFilter(Ocr.DIGITS + "/").doOCRAndTrim(img) }
+                val img = hpImage.pad(20, 0, Color.BLACK).binarizeImage()
+                val ocr = Ocr.forConfig(config, useLSTM = true).useCharFilter(Ocr.DIGITS + "/")
+                val hpLSTM by lazy { ocr.doOCRAndTrim(img) }
+                val hpLegacy by lazy { ocr.useLegacyEngine().doOCRAndTrim(img) }
                 readPercentage(hpLSTM.also { hp = it }) ?: readPercentage(hpLegacy.also { hp = it })
             }
             var hp: String? = null
@@ -268,8 +265,8 @@ class CombatModule(
 
             private fun readPercentage(string: String): Double? {
                 return try {
-                    string.replace(Regex("[^\\d/]"), "").split("/")
-                            .let { (it[0].toDouble() / it[1].toDouble()) * 100 }
+                    Ocr.cleanNumericString(string).replace(Regex("[^\\d/]"), "")
+                            .split("/").let { (it[0].toDouble() / it[1].toDouble()) * 100 }
                 } catch (e: Exception) {
                     null
                 }
