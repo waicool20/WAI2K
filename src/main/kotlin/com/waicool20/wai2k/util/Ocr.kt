@@ -31,7 +31,8 @@ object Ocr {
             "cCDGoOQ@" to "0", "iIl\\[\\]|!" to "1",
             "zZ" to "2", "E" to "3",
             "A" to "4", "sS" to "5",
-            "B:" to "8", "- —" to ""
+            "b" to "6", "B:" to "8",
+            "- —" to ""
     )
 
     val OCR_DISTANCE_MAP = mapOf(
@@ -42,6 +43,7 @@ object Ocr {
             "3E" to 0.2,
             "4A" to 0.1,
             "5sS" to 0.1,
+            "6b" to 0.1,
             "8B:" to 0.2
     )
 
@@ -57,12 +59,22 @@ object Ocr {
         return text
     }
 
-    fun forConfig(config: Wai2KConfig, digitsOnly: Boolean = false, useLSTM: Boolean = false) = Tesseract().apply {
+    /**
+     * Returns an instance of [Tesseract] which can be used to do ocr.
+     *
+     * @param digitsOnly Applies the digit character filter to the engine if true
+     * @param useLSTM Uses the new LSTM engine instead of legacy if true
+     */
+    fun forConfig(
+            config: Wai2KConfig,
+            digitsOnly: Boolean = false,
+            useLSTM: Boolean = false
+    ) = Tesseract().apply {
         setDatapath(config.ocrDirectory.toString())
         if (useLSTM) {
-            setOcrEngineMode(ITessAPI.TessOcrEngineMode.OEM_TESSERACT_LSTM_COMBINED)
+            useLSTMEngine()
         } else {
-            setOcrEngineMode(ITessAPI.TessOcrEngineMode.OEM_TESSERACT_ONLY)
+            useLegacyEngine()
         }
         setPageSegMode(ITessAPI.TessPageSegMode.PSM_SINGLE_BLOCK)
         if (digitsOnly) useCharFilter(DIGITS)
@@ -74,4 +86,12 @@ fun ITesseract.doOCRAndTrim(image: BufferedImage) = doOCR(image).trim()
 
 fun ITesseract.useCharFilter(chars: String) = apply {
     setTessVariable("tessedit_char_whitelist", chars)
+}
+
+fun ITesseract.useLSTMEngine() = apply {
+    setOcrEngineMode(ITessAPI.TessOcrEngineMode.OEM_TESSERACT_LSTM_COMBINED)
+}
+
+fun ITesseract.useLegacyEngine() = apply {
+    setOcrEngineMode(ITessAPI.TessOcrEngineMode.OEM_TESSERACT_ONLY)
 }
