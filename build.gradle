@@ -83,7 +83,7 @@ dependencies {
     compile group: 'org.reflections', name: 'reflections', version: '0.9.11'
     compile 'com.github.vidstige:jadb:v1.1.0'
 
-    compile(group: 'net.sourceforge.tess4j', name: 'tess4j', version: '4.0.2') {
+    compile(group: 'net.sourceforge.tess4j', name: 'tess4j', version: '4.3.0') {
         exclude group: "org.ghost4j"
         exclude group: "org.apache.pdfbox"
         exclude group: "org.jboss"
