@@ -23,12 +23,11 @@ import com.waicool20.wai2k.android.input.AndroidInput
 import com.waicool20.wai2k.util.executeAndReadLines
 import com.waicool20.wai2k.util.executeAndReadText
 import com.waicool20.wai2k.util.executeOrShell
-import com.waicool20.waicoolutils.and
 import com.waicool20.waicoolutils.logging.loggerFor
 import org.sikuli.script.IScreen
 import se.vidstige.jadb.JadbDevice
 import java.awt.image.BufferedImage
-import java.awt.image.DataBufferInt
+import java.awt.image.DataBufferByte
 import java.io.InputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -236,18 +235,17 @@ class AndroidDevice(
 
                 val width = buffer.int
                 val height = buffer.int
-                val image = BufferedImage(width, height, buffer.int)
-                buffer.int // Ignore the 4th int
-
-                val imageBuffer = (image.raster.dataBuffer as DataBufferInt).data
-                for (pixel in 0 until imageBuffer.size) {
-                    val r = ((buffer.get() and 0xFF) shl 16)
-                    val g = ((buffer.get() and 0xFF) shl 8)
-                    val b = (buffer.get() and 0xFF)
-                    buffer.get()
-                    imageBuffer[pixel] = r or g or b
+                return BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR).apply {
+                    buffer.position(buffer.position() + 8) // Skip 2 ints
+                    val imageBuffer = (raster.dataBuffer as DataBufferByte).data
+                    for (pixel in 0 until imageBuffer.size step 3) {
+                        // Data in buffer is RGBX, therefore the reversed order
+                        imageBuffer[pixel + 2] = buffer.get()
+                        imageBuffer[pixel + 1] = buffer.get()
+                        imageBuffer[pixel] = buffer.get()
+                        buffer.get()
+                    }
                 }
-                return image
             } catch (e: Exception) {
                 exception = e
             }
@@ -266,14 +264,16 @@ class AndroidDevice(
             val shallowBuffer = screenshotRenderBuffer.duplicate().apply { clear() }
             val width = properties.displayWidth
             val height = properties.displayHeight
-            val image = BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
-            val imageBuffer = (image.raster.dataBuffer as DataBufferInt).data
-            for (pixel in 0 until imageBuffer.size) {
-                val r = ((shallowBuffer.get() and 0xFF) shl 16)
-                val g = ((shallowBuffer.get() and 0xFF) shl 8)
-                val b = (shallowBuffer.get() and 0xFF)
-                imageBuffer[pixel] = r or g or b
+            val image = BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR).apply {
+                val imageBuffer = (raster.dataBuffer as DataBufferByte).data
+                for (pixel in 0 until imageBuffer.size step 3) {
+                    // Data in buffer is RGB, therefore the reversed order
+                    imageBuffer[pixel + 2] = shallowBuffer.get()
+                    imageBuffer[pixel + 1] = shallowBuffer.get()
+                    imageBuffer[pixel] = shallowBuffer.get()
+                }
             }
+
             lastScreenshot = image
             lastScreenshotTime = System.currentTimeMillis()
             screenshotIsRendering = false
