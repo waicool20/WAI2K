@@ -49,7 +49,7 @@ data class Wai2KProfile(
         this.name = name
     }
 
-    data class DollCriteria(var name: String, var level: Int, var stars: Int, var type: DollType)
+    data class DollCriteria(var name: String, var level: Int, var stars: Int, var type: DollType, var index: Int)
 
     class Logistics(
             enabled: Boolean = false,
@@ -75,8 +75,8 @@ data class Wai2KProfile(
             map: String = "4-3E",
             repairThreshold: Int = 40,
             draggers: MutableMap<Int, DollCriteria> = mutableMapOf(
-                    1 to DollCriteria("WA2000", 100, 5, DollType.RF),
-                    2 to DollCriteria("FAL", 100, 5, DollType.AR)
+                    1 to DollCriteria("WA2000", 100, 5, DollType.RF, 0),
+                    2 to DollCriteria("FAL", 100, 5, DollType.AR, 0)
             )
     ) {
         val enabledProperty = enabled.toProperty()

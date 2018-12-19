@@ -121,13 +121,21 @@ class CombatModule(
         region.subRegion(612, 167, 263, 667).clickRandomly(); yield()
         region.waitSuspending("doll-list/lock.png", 5)
 
+        val draggers = profile.combat.draggers
         // If sorties done is even use doll 1 else doll 2
         val echelon1Doll = (scriptStats.sortiesDone and 1) + 1
-        applyFilters(echelon1Doll, false)
-        dollSwitchingCache.getOrPut(profile.combat.draggers[echelon1Doll]!!) {
-            scanValidDolls(echelon1Doll).first()
-        }.clickRandomly()
+        // If sorties done is odd use doll 2 else doll 1
+        val echelon2Doll = ((scriptStats.sortiesDone + 1) and 1) + 1
+        val dragger1 = draggers[echelon1Doll]!!
+        val dragger2 = draggers[echelon2Doll]!!
+        val sameDragger = dragger1.name == dragger2.name
+        var scanResults = emptyList<AndroidRegion>()
 
+        applyFilters(echelon1Doll, false)
+        dollSwitchingCache.getOrPut(dragger1) {
+            scanResults = scanValidDolls(echelon1Doll)
+            scanResults[dragger1.index]
+        }.clickRandomly()
         delay(400)
         updateEchelonRepairStatus(1)
 
@@ -137,17 +145,14 @@ class CombatModule(
         region.subRegion(335, 167, 263, 667).clickRandomly(); yield()
         region.waitSuspending("doll-list/lock.png", 5)
 
-        // If sorties done is even use doll 2 else doll 1
-        val echelon2Doll = ((scriptStats.sortiesDone + 1) and 1) + 1
         // Apply new filters only if they are different from the other doll
-        val draggers = profile.combat.draggers
-        if (draggers[1]?.stars != draggers[2]?.stars || draggers[1]?.type != draggers[2]?.type) {
+        if (dragger1.stars != dragger2.stars || dragger1.type != dragger2.type) {
             applyFilters(echelon2Doll, true)
         }
-        dollSwitchingCache.getOrPut(profile.combat.draggers[echelon2Doll]!!) {
-            scanValidDolls(echelon2Doll).first()
+        dollSwitchingCache.getOrPut(dragger2) {
+            if (!sameDragger) scanResults = scanValidDolls(echelon2Doll)
+            scanResults[dragger2.index]
         }.clickRandomly()
-
         delay(400)
         updateEchelonRepairStatus(2)
 
@@ -199,7 +204,8 @@ class CombatModule(
             val level = async {
                 val i = levelRegionImage.pad(30, 30, Color.WHITE).binarizeImage().scale()
                 val ocr = Ocr.forConfig(config, digitsOnly = true, useLSTM = true)
-                ocr.doOCRAndTrim(i).toIntOrNull() ?: ocr.useLegacyEngine().doOCRAndTrim(i).toIntOrNull()
+                ocr.doOCRAndTrim(i).toIntOrNull()
+                        ?: ocr.useLegacyEngine().doOCRAndTrim(i).toIntOrNull()
             }
         }
 
@@ -232,7 +238,7 @@ class CombatModule(
                         } else {
                             scanRetries++
                             logger.info("Found ${it.size} dolls that match the criteria for doll $doll")
-                            return it
+                            return it.sortedBy { it.y * 10 + it.x }
                         }
                     }
         }
