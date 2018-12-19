@@ -47,6 +47,11 @@ class Navigator(
     private val gameState get() = scriptRunner.gameState
     private val scriptStats get() = scriptRunner.scriptStats
     private val locations by lazy { GameLocation.mappings(config, true) }
+
+    companion object {
+        private val transitionDelays = LinkedList<Long>()
+    }
+
     /**
      * Finds the current location
      *
@@ -77,8 +82,6 @@ class Navigator(
         coroutineContext.cancelAndYield()
     }
 
-    private val transitionDelays = LinkedList<Long>()
-
     /**
      * Attempts to navigate to the destination
      *
@@ -108,22 +111,24 @@ class Navigator(
                 logger.info("Going to ${destLoc.id}")
                 // Flag for skipping the final destination check or not
                 var skipDestinationCheck = false
+                // Flag for ignoring transition delay because of logistics
+                var skipTransitionDelay = false
                 // Click the link every 2 ticks, check the region every tick in case the first clicks didn't get it
-                var i = 0
+                var ticks = 0
                 // Record starting transition time
                 val startTransitionTime = System.currentTimeMillis()
-                val averageTransitionTime = transitionDelays.takeIf { it.isNotEmpty() }
-                        ?.average()?.roundToLong() ?: 1500
+                val avgTransitionDelay = transitionDelays.takeIf { it.isNotEmpty() }
+                        ?.average()?.roundToLong() ?: 1800
                 while (isActive) {
-                    if (i++ % 2 == 0) {
+                    if (ticks++ % 2 == 0) {
                         link.asset.getSubRegionFor(region).let {
                             // Shrink region slightly to 90% of defined size
                             it.grow((it.w * -0.1).roundToInt(), (it.h * -0.1).roundToInt())
                         }.clickRandomly()
-                        // Wait around 1.5s if not an intermediate location since it cant
-                        // transition immediately
+                        // Wait around average transition delay if not an intermediate location
+                        // since it cant transition immediately
                         if (!srcLoc.isIntermediate) {
-                            delay(averageTransitionTime)
+                            delay(avgTransitionDelay)
                         }
                     }
                     if (!srcLoc.isInRegion(region)) break
@@ -132,7 +137,7 @@ class Navigator(
                         skipDestinationCheck = true
                         break
                     }
-                    checkLogistics()
+                    if (checkLogistics()) skipTransitionDelay = true
                 }
 
                 logger.info("Waiting for transition to ${dest.id}")
@@ -142,7 +147,7 @@ class Navigator(
                     val atDestination = withTimeoutOrNull(timeout * 1000L) {
                         while (isActive) {
                             if (destLoc.isInRegion(region)) return@withTimeoutOrNull true
-                            checkLogistics()
+                            if (checkLogistics()) skipTransitionDelay = true
                         }
                         false
                     }
@@ -154,9 +159,11 @@ class Navigator(
                 }
 
                 val transitionTime = System.currentTimeMillis() - startTransitionTime
-                logger.info("Transition took $transitionTime ms | Delay $averageTransitionTime ms")
-                transitionDelays.add(transitionTime - (averageTransitionTime * 0.9).roundToLong())
-                if (transitionDelays.size >= 20) transitionDelays.removeFirst()
+                logger.info("Transition took $transitionTime ms | Delay $avgTransitionDelay ms | Ticks: $ticks")
+                if (!skipTransitionDelay) {
+                    transitionDelays.add(transitionTime - (avgTransitionDelay * ticks * 0.75).roundToLong())
+                    if (transitionDelays.size >= 20) transitionDelays.removeFirst()
+                }
                 gameState.currentGameLocation = destLoc
                 checkLogistics()
                 if (destLoc.id == destination) {
