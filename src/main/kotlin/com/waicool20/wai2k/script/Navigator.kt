@@ -173,14 +173,17 @@ class Navigator(
 
     /**
      * Checks if there are logistics, if there were then try and receive them
+     *
+     * @return true if any logistics arrived
      */
-    suspend fun checkLogistics() {
+    suspend fun checkLogistics(): Boolean {
         // If gamestate is up to date then we can rely on timers or not
         // to see if logistics might arrive anytime soon
         // We skip further execution if no logistics is due in 15s
         if (!gameState.requiresUpdate &&
                 gameState.echelons.mapNotNull { it.logisticsSupportAssignment }
-                        .none { Duration.between(Instant.now(), it.eta).seconds <= 15 }) return
+                        .none { Duration.between(Instant.now(), it.eta).seconds <= 15 }) return false
+        var logisticsArrived = false
         while (true) {
             if (region.has("navigator/logistics_arrived.png")) {
                 logger.info("An echelon has arrived from logistics")
@@ -191,6 +194,8 @@ class Navigator(
             // Even if the logistics arrived didnt show up, its possible
             // that it was clicked through by some other function
             if (region.doesntHave("navigator/logistics_dialog.png")) break
+
+            logisticsArrived = true
 
             // Continue based on receival mode
             val cont = when (profile.logistics.receiveMode) {
@@ -230,5 +235,6 @@ class Navigator(
                 delay(5000)
             }
         }
+        return logisticsArrived
     }
 }
