@@ -21,15 +21,19 @@ package com.waicool20.wai2k.game
 
 class GameState {
     var requiresUpdate: Boolean = true
+    var requiresRestart: Boolean = false
 
     var dollOverflow: Boolean = false
     var currentGameLocation: GameLocation = GameLocation(LocationId.UNKNOWN)
     val echelons: List<Echelon> = List(10) { Echelon(it + 1) }
+    var delayCoefficient = 1.0
 
     fun reset() {
         requiresUpdate = true
+        requiresRestart = false
         dollOverflow = false
         currentGameLocation = GameLocation(LocationId.UNKNOWN)
+        delayCoefficient = 1.0
         echelons.forEach {
             it.members.forEach { it.needsRepair = false }
             it.logisticsSupportEnabled = true
