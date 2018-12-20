@@ -78,6 +78,11 @@ class AndroidDevice(
     val screen by lazy { AndroidScreen(this) }
 
     /**
+     * Gets the [ProcessManager] for this android device
+     */
+    val processManager by lazy { ProcessManager(this) }
+
+    /**
      * Backing value of the [fastScreenshotMode] property
      */
     private val _fastScreenshotMode = AtomicBoolean(false)
