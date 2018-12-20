@@ -22,12 +22,14 @@ package com.waicool20.wai2k.script
 import com.waicool20.wai2k.android.AndroidRegion
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
+import com.waicool20.wai2k.game.GFL
 import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
+import java.text.DecimalFormat
 import java.time.Duration
 import java.time.Instant
 import java.util.*
@@ -50,6 +52,7 @@ class Navigator(
 
     companion object {
         private val transitionDelays = LinkedList<Long>()
+        private var restartCounter = 0
     }
 
     /**
@@ -116,8 +119,10 @@ class Navigator(
                 var ticks = 0
                 // Record starting transition time
                 val startTransitionTime = System.currentTimeMillis()
+                // Record amount of time that is spent on none transitional delay like image matching
+                var noneTransitionDelay = 0L
                 val avgTransitionDelay = transitionDelays.takeIf { it.isNotEmpty() }
-                        ?.average()?.roundToLong() ?: 1800
+                        ?.average()?.roundToLong() ?: config.gameRestartConfig.averageDelay
                 for (cycle in 0..Integer.MAX_VALUE) {
                     if (cycle % 3 == 0) {
                         link.asset.getSubRegionFor(region).let {
@@ -131,17 +136,20 @@ class Navigator(
                             ticks++
                         }
                     }
+                    val ntdStart = System.currentTimeMillis()
                     if (!srcLoc.isInRegion(region)) break
                     // Source will always be on screen if it is an intermediate menu
                     if (srcLoc.isIntermediate && destLoc.isInRegion(region)) {
                         skipDestinationCheck = true
                         break
                     }
+                    noneTransitionDelay += System.currentTimeMillis() - ntdStart
                     if (checkLogistics()) skipTransitionDelay = true
                 }
 
                 logger.info("Waiting for transition to ${dest.id}")
                 if (!skipDestinationCheck) {
+                    val ntdStart = System.currentTimeMillis()
                     // Re navigate if destination doesnt come up after timeout, make this a setting?
                     val timeout = 20
                     val atDestination = withTimeoutOrNull(timeout * 1000L) {
@@ -156,14 +164,27 @@ class Navigator(
                         logger.info("Destination not on screen after ${timeout}s, will try to re-navigate")
                         continue@retry
                     }
+                    noneTransitionDelay += System.currentTimeMillis() - ntdStart
                 }
 
                 val transitionTime = System.currentTimeMillis() - startTransitionTime
-                logger.info("Transition took $transitionTime ms | Delay $avgTransitionDelay ms | Ticks: $ticks")
                 if (!skipTransitionDelay) {
-                    transitionDelays.add(transitionTime - (avgTransitionDelay * ticks * 0.75).roundToLong())
+                    transitionDelays.add(transitionTime - avgTransitionDelay * ticks - noneTransitionDelay)
                     if (transitionDelays.size >= 20) transitionDelays.removeFirst()
                 }
+                gameState.delayCoefficient = avgTransitionDelay.toDouble() / config.gameRestartConfig.averageDelay
+                if (gameState.delayCoefficient > config.gameRestartConfig.delayCoefficientThreshold) {
+                    restartCounter++
+                } else {
+                    if (restartCounter > 0) restartCounter--
+                }
+                logger.info("Transition: $transitionTime ms | Delay: $avgTransitionDelay ms | Ticks: $ticks | " +
+                        "DC: ${DecimalFormat("#.##").format(gameState.delayCoefficient)} | RC: $restartCounter")
+                if (config.gameRestartConfig.enabled && !gameState.requiresRestart && restartCounter >= 10) {
+                    logger.info("Game needs to restart since the delays are getting too long")
+                    gameState.requiresRestart = true
+                }
+
                 gameState.currentGameLocation = destLoc
                 checkLogistics()
                 if (destLoc.id == destination) {
@@ -243,5 +264,31 @@ class Navigator(
             }
         }
         return logisticsArrived
+    }
+
+    /**
+     * Checks for the gamestate restart flag and restarts the game if required
+     * This assumes that automatic login is enabled and no updates are required
+     */
+    suspend fun checkRequiresRestart() {
+        if (config.gameRestartConfig.enabled && gameState.requiresRestart) {
+            gameState.requiresRestart = false
+            restartCounter = 0
+            transitionDelays.clear()
+            scriptStats.gameRestarts++
+            logger.info("Game will now restart")
+            region.androidScreen.device.processManager.apply {
+                kill(GFL.pkgName)
+                delay(200)
+                start(GFL.pkgName, GFL.mainActivity)
+            }
+            logger.info("Game restarted, waiting for login screen")
+            region.waitSuspending("login.png", 3600)
+            logger.info("Logging in")
+            region.subRegion(630, 400, 900, 300).clickRandomly()
+            while (locations[LocationId.HOME]?.isInRegion(region) == false) delay(100)
+            gameState.currentGameLocation = locations[LocationId.HOME]!!
+            logger.info("Logged in")
+        }
     }
 }

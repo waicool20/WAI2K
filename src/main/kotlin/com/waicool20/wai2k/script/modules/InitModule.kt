@@ -50,6 +50,7 @@ class InitModule(
 ) : ScriptModule(scriptRunner, region, config, profile, navigator) {
     private val logger = loggerFor<InitModule>()
     override suspend fun execute() {
+        navigator.checkRequiresRestart()
         navigator.checkLogistics()
         if (gameState.requiresUpdate) updateGameState()
     }
