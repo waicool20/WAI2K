@@ -34,8 +34,14 @@
       <CheckBox fx:id="enabledCheckBox" mnemonicParsing="false" text="Enabled" />
       <HBox alignment="CENTER_LEFT" spacing="10.0">
          <children>
-            <Label text="Delay threshold:" />
-            <Spinner fx:id="delayThresholdSpinner" prefWidth="100.0" />
+            <Label text="Average delay:" />
+            <Spinner fx:id="averageDelaySpinner" editable="true" prefHeight="26.0" prefWidth="180.0" />
+         </children>
+      </HBox>
+      <HBox alignment="CENTER_LEFT" spacing="10.0">
+         <children>
+            <Label text="Delay coefficient threshold:" />
+            <Spinner fx:id="delayCoefficientThresholdSpinner" editable="true" prefWidth="100.0" />
          </children>
       </HBox>
    </children>
