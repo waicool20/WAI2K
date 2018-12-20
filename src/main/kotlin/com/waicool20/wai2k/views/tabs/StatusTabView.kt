@@ -58,6 +58,8 @@ class StatusTabView : CoroutineScopeView() {
     private val disassemblesDoneLabel: Label by fxid()
     private val dollsUsedForDisassemblyLabel: Label by fxid()
 
+    private val gameRestartsLabel: Label by fxid()
+
     private val timersLabel: Label by fxid()
 
     init {
@@ -98,6 +100,8 @@ class StatusTabView : CoroutineScopeView() {
             dollsUsedForEnhancementLabel.text = "$dollsUsedForEnhancement"
             disassemblesDoneLabel.text = "$disassemblesDone"
             dollsUsedForDisassemblyLabel.text = "$dollsUsedForDisassembly"
+
+            gameRestartsLabel.text = "$gameRestarts"
         }
     }
 
