@@ -50,7 +50,8 @@ class Wai2KConfig(
         showConsoleOnStart: Boolean = true,
         debugModeEnabled: Boolean = true,
         lastDeviceSerial: String = "",
-        scriptConfig: ScriptConfig = ScriptConfig()
+        scriptConfig: ScriptConfig = ScriptConfig(),
+        gameRestartConfig: GameRestartConfig = GameRestartConfig()
 ) {
     private val logger = loggerFor<Wai2K>()
 
@@ -69,6 +70,7 @@ class Wai2KConfig(
     val debugModeEnabledProperty = debugModeEnabled.toProperty()
     val lastDeviceSerialProperty = lastDeviceSerial.toProperty()
     val scriptConfigProperty = scriptConfig.toProperty()
+    val gameRestartConfigProperty = gameRestartConfig.toProperty()
 
     var currentProfile by currentProfileProperty
     var sikulixJarPath by sikulixJarPathProperty
@@ -80,6 +82,7 @@ class Wai2KConfig(
     var debugModeEnabled by debugModeEnabledProperty
     var lastDeviceSerial by lastDeviceSerialProperty
     var scriptConfig by scriptConfigProperty
+    var gameRestartConfig by gameRestartConfigProperty
 
     //</editor-fold>
 
