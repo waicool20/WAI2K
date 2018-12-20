@@ -113,14 +113,13 @@ class Navigator(
                 var skipDestinationCheck = false
                 // Flag for ignoring transition delay because of logistics
                 var skipTransitionDelay = false
-                // Click the link every 2 ticks, check the region every tick in case the first clicks didn't get it
                 var ticks = 0
                 // Record starting transition time
                 val startTransitionTime = System.currentTimeMillis()
                 val avgTransitionDelay = transitionDelays.takeIf { it.isNotEmpty() }
                         ?.average()?.roundToLong() ?: 1800
-                while (isActive) {
-                    if (ticks++ % 2 == 0) {
+                for (cycle in 0..Integer.MAX_VALUE) {
+                    if (cycle % 3 == 0) {
                         link.asset.getSubRegionFor(region).let {
                             // Shrink region slightly to 90% of defined size
                             it.grow((it.w * -0.1).roundToInt(), (it.h * -0.1).roundToInt())
@@ -129,6 +128,7 @@ class Navigator(
                         // since it cant transition immediately
                         if (!srcLoc.isIntermediate) {
                             delay(avgTransitionDelay)
+                            ticks++
                         }
                     }
                     if (!srcLoc.isInRegion(region)) break
