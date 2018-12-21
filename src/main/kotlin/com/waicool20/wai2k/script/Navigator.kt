@@ -167,6 +167,8 @@ class Navigator(
                     noneTransitionDelay += System.currentTimeMillis() - ntdStart
                 }
 
+                // Calculate the transition delays and delay coefficients
+                // Update the restart counter as needed
                 val transitionTime = System.currentTimeMillis() - startTransitionTime
                 if (!skipTransitionDelay) {
                     transitionDelays.add(transitionTime - avgTransitionDelay * ticks - noneTransitionDelay)
@@ -178,12 +180,15 @@ class Navigator(
                 } else {
                     if (restartCounter > 0) restartCounter--
                 }
-                logger.info("Transition: $transitionTime ms | Delay: $avgTransitionDelay ms | Ticks: $ticks | " +
-                        "DC: ${DecimalFormat("#.##").format(gameState.delayCoefficient)} | RC: $restartCounter")
-                if (config.gameRestartConfig.enabled && !gameState.requiresRestart && restartCounter >= 10) {
-                    logger.info("Game needs to restart since the delays are getting too long")
-                    gameState.requiresRestart = true
-                }
+
+                updateAverageDelay(avgTransitionDelay)
+                updateRestartFlag()
+                logger.info("Transition: $transitionTime ms" +
+                        " | Delay: $avgTransitionDelay ms" +
+                        " | Ticks: $ticks" +
+                        " | DC: ${DecimalFormat("#.##").format(gameState.delayCoefficient)}" +
+                        " | RC: $restartCounter"
+                )
 
                 gameState.currentGameLocation = destLoc
                 checkLogistics()
@@ -194,6 +199,37 @@ class Navigator(
                     logger.info("At ${destLoc.id}")
                 }
             }
+        }
+    }
+
+    /**
+     * Automatically adjust the current average delay if we got some significant change
+     * We pass it through a smoothing function so it doesn't change too drastically
+     * in case the new value is actually just an edge case. This function heavily favors
+     * decreasing over increasing the value so that the value doesn't rise quickly enough to
+     * stop a restart
+     */
+    private fun updateAverageDelay(avgTransitionDelay: Long) {
+        val oldDelay = config.gameRestartConfig.averageDelay
+        val newDelay = when {
+            gameState.delayCoefficient <= 0.9 -> oldDelay + (avgTransitionDelay - oldDelay) / 5.0
+            gameState.delayCoefficient >= config.gameRestartConfig.delayCoefficientThreshold -> {
+                oldDelay + (avgTransitionDelay - oldDelay) / 500.0
+            }
+            else -> return
+        }.roundToLong()
+        logger.info("Auto adjusting average delay to $newDelay")
+        config.gameRestartConfig.averageDelay = newDelay
+        config.save()
+    }
+
+    /**
+     * Updates the gamestate restart flag if the restart counter exceeds the threshold (10)
+     */
+    private fun updateRestartFlag() {
+        if (config.gameRestartConfig.enabled && !gameState.requiresRestart && restartCounter >= 10) {
+            logger.info("Game needs to restart since the delays are getting too long")
+            gameState.requiresRestart = true
         }
     }
 
