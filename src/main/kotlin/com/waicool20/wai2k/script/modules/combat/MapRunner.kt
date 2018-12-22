@@ -148,7 +148,7 @@ abstract class MapRunner(
         logger.info("Waiting for battle to end")
         var passedNodes = 0
         val clickRegion = region.subRegion(1960, 90, 200, 200)
-        while (passedNodes < battles) {
+        while (passedNodes < battles && isActive) {
             if (clickRegion.has("combat/battle/autoskill.png")) {
                 logger.info("Entered node $_currentNode")
                 // Wait until it disappears
