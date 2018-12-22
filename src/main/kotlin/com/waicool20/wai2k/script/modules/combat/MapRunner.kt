@@ -38,7 +38,7 @@ abstract class MapRunner(
         protected val profile: Wai2KProfile
 ) : CoroutineScope {
     private val logger = loggerFor<MapRunner>()
-    private var _currentNode = 1
+    private var _battles = 1
 
     companion object {
         const val COMMAND_POST = "command post"
@@ -70,10 +70,9 @@ abstract class MapRunner(
     val mapRunnerRegions = MapRunnerRegions(region)
 
     /**
-     * Returns the current node number where the main echelon is at, or no. of battles that
-     * have passed
+     * No. of battles that have passed
      */
-    val currentNode get() = _currentNode
+    val battles get() = _battles
 
     /**
      * Set to true to signify the map is a map used for corpse dragging, setting it to false
@@ -149,17 +148,17 @@ abstract class MapRunner(
      */
     protected suspend fun waitForTurnEnd(battles: Int) {
         logger.info("Waiting for battle to end")
-        var passedNodes = 0
+        var battlesPassed = 0
         val clickRegion = region.subRegion(1960, 90, 200, 200)
-        while (passedNodes < battles && isActive) {
+        while (battlesPassed < battles && isActive) {
             if (clickRegion.has("combat/battle/autoskill.png", 0.75)) {
-                logger.info("Entered node $_currentNode")
+                logger.info("Entered battle $_battles")
                 // Wait until it disappears
                 while (clickRegion.has("combat/battle/autoskill.png", 0.75)) yield()
-                logger.info("Node ${_currentNode++} battle complete, clicking through battle results")
+                logger.info("Battle ${_battles++} complete, clicking through battle results")
                 val l = clickRegion.randomLocation()
                 repeat(6) { region.click(l); yield() }
-                passedNodes++
+                battlesPassed++
             }
         }
         region.waitSuspending("combat/battle/terminate.png", 1200)
@@ -184,6 +183,6 @@ abstract class MapRunner(
         clickJob.cancel()
         logger.info("Back at combat menu")
         scriptStats.sortiesDone += 1
-        _currentNode = 1
+        _battles = 1
     }
 }
