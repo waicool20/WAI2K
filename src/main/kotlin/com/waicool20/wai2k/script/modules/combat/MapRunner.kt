@@ -95,7 +95,6 @@ abstract class MapRunner(
         echelons.forEachIndexed { i, (label, region) ->
             logger.info("Deploying echelon ${i + 1} to $label")
             region.clickRandomly(); delay(300)
-            logger.info("Pressing the ok button")
             mapRunnerRegions.deploy.clickRandomly()
             delay(300)
         }
@@ -134,7 +133,7 @@ abstract class MapRunner(
     protected suspend fun waitForGNKSplash(timeout: Long = 10) {
         logger.info("Waiting for G&K splash screen")
         // Wait for the G&K splash to appear within 10 seconds
-        region.waitSuspending("combat/battle/splash.png", timeout).apply {
+        region.waitSuspending("combat/battle/splash.png", timeout)?.apply {
             logger.info("G&K splash screen appeared")
             delay(2000)
         } ?: logger.info("G&K splash screen did not appear")
@@ -147,7 +146,7 @@ abstract class MapRunner(
      * @param battles Amount of battles expected in this turn
      */
     protected suspend fun waitForTurnEnd(battles: Int) {
-        logger.info("Waiting for battle to end")
+        logger.info("Waiting for turn to end")
         var battlesPassed = 0
         val clickRegion = region.subRegion(1960, 90, 200, 200)
         while (battlesPassed < battles && isActive) {
