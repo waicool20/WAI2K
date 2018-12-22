@@ -66,7 +66,7 @@ abstract class MapRunner(
     protected suspend fun waitForGNKSplash() {
         logger.info("Waiting for G&K splash screen")
         // Wait for the G&K splash to appear within 10 seconds
-        region.waitSuspending("$PREFIX/splash.png", 10).apply {
+        region.waitSuspending("combat/battle/splash.png", 10).apply {
             logger.info("G&K splash screen appeared")
             delay(2000)
         } ?: logger.info("G&K splash screen did not appear")
