@@ -25,7 +25,6 @@ import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.script.modules.combat.MapRunner
 import com.waicool20.waicoolutils.logging.loggerFor
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
 
 class Map5_4(
@@ -44,25 +43,10 @@ class Map5_4(
         )
         mapRunnerRegions.startOperation.clickRandomly(); yield()
         waitForGNKSplash()
-        resupplyEchelons()
+        resupplyEchelon(COMMAND_POST, region.subRegion(1715, 233, 103, 113))
         planPath()
         waitForTurnEnd(5)
         handleBattleResults()
-    }
-
-    private suspend fun resupplyEchelons() {
-        logger.info("Resupplying echelon at command post")
-        // Clicking twice, first to highlight the echelon, the second time to enter the deployment menu
-        logger.info("Selecting echelon")
-        region.subRegion(1715, 233, 103, 113).apply {
-            clickRandomly(); yield()
-            clickRandomly(); delay(300)
-        }
-        logger.info("Resupplying")
-        mapRunnerRegions.resupply.clickRandomly()
-        // Close dialog in case echelon doesn't need resupply
-        region.findOrNull("close.png")?.clickRandomly()
-        logger.info("Resupply complete")
     }
 
     private suspend fun planPath() {

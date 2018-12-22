@@ -44,26 +44,10 @@ class Map4_3E(
         )
         mapRunnerRegions.startOperation.clickRandomly(); yield()
         waitForGNKSplash()
-        resupplyEchelons()
-        delay(200)
+        resupplyEchelon(COMMAND_POST, region.subRegion(320, 489, 103, 113))
         planPath()
         waitForTurnEnd(4)
         handleBattleResults()
-    }
-
-    private suspend fun resupplyEchelons() {
-        logger.info("Resupplying echelon at command post")
-        //Clicking twice, first to highlight the echelon, the second time to enter the deployment menu
-        logger.info("Selecting echelon")
-        region.subRegion(320, 489, 103, 113).apply {
-            clickRandomly(); yield()
-            clickRandomly(); delay(300)
-        }
-        logger.info("Resupplying")
-        mapRunnerRegions.resupply.clickRandomly()
-        // Close dialog in case echelon doesn't need resupply
-        region.findOrNull("close.png")?.clickRandomly(); yield()
-        logger.info("Resupply complete")
     }
 
     private suspend fun planPath() {

@@ -79,6 +79,21 @@ abstract class MapRunner(
         logger.info("Deployment complete")
     }
 
+    protected suspend fun resupplyEchelon(label: String, region: AndroidRegion) {
+        logger.info("Resupplying echelon at $label")
+        // Clicking twice, first to highlight the echelon, the second time to enter the deployment menu
+        logger.info("Selecting echelon")
+        region.apply {
+            clickRandomly(); yield()
+            clickRandomly(); delay(300)
+        }
+        logger.info("Resupplying")
+        mapRunnerRegions.resupply.clickRandomly()
+        // Close dialog in case echelon doesn't need resupply
+        region.findOrNull("close.png")?.clickRandomly()
+        logger.info("Resupply complete")
+    }
+
     protected suspend fun waitForGNKSplash() {
         logger.info("Waiting for G&K splash screen")
         // Wait for the G&K splash to appear within 10 seconds
