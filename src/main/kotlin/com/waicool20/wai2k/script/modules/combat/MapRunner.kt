@@ -139,16 +139,16 @@ abstract class MapRunner(
     }
 
     /**
-     * Waits for the current turn to end by counting the amount of nodes that have passed
+     * Waits for the current turn to end by counting the amount of battles that have passed
      * then ends the turn. This also clicks through any battle results when node battle ends
      *
-     * @param nodes Amount of nodes expected in this turn
+     * @param battles Amount of battles expected in this turn
      */
-    protected suspend fun waitForTurnEnd(nodes: Int) {
+    protected suspend fun waitForTurnEnd(battles: Int) {
         logger.info("Waiting for battle to end")
         var passedNodes = 0
         val clickRegion = region.subRegion(1960, 90, 200, 200)
-        while (passedNodes < nodes) {
+        while (passedNodes < battles) {
             if (clickRegion.has("combat/battle/autoskill.png")) {
                 logger.info("Entered node $_currentNode")
                 // Wait until it disappears
