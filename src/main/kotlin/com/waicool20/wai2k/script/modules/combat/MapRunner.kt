@@ -39,6 +39,7 @@ abstract class MapRunner(
         protected val profile: Wai2KProfile
 ) : CoroutineScope {
     private val logger = loggerFor<MapRunner>()
+    private var _currentNode = 1
 
     companion object {
         val list = Reflections("com.waicool20.wai2k.script.modules.combat.maps")
@@ -58,6 +59,7 @@ abstract class MapRunner(
 
     val PREFIX = "combat/maps/${javaClass.simpleName.replace("_", "-").drop(3)}"
     val mapRunnerRegions = MapRunnerRegions(region)
+    val currentNode get() = _currentNode
 
     abstract val isCorpseDraggingMap: Boolean
 
@@ -72,36 +74,29 @@ abstract class MapRunner(
         } ?: logger.info("G&K splash screen did not appear")
     }
 
-    protected suspend fun waitForBattleEnd() {
+    protected suspend fun waitForTurnEnd(nodes: Int) {
         logger.info("Waiting for battle to end")
+        var passedNodes = 0
         val clickRegion = region.subRegion(1960, 90, 200, 200)
-        var node = 1
-        val battleResultClickJob = launch {
-            while (isActive) {
-                if (clickRegion.has("combat/battle/autoskill.png")) {
-                    logger.info("Entered node $node")
-                    // Wait until it disappears
-                    while (clickRegion.has("combat/battle/autoskill.png")) yield()
-                    logger.info("Node ${node++} battle complete, clicking through battle results")
-                    val l = clickRegion.randomLocation()
-                    repeat(6) { region.click(l); yield() }
-                }
+        while (passedNodes < nodes) {
+            if (clickRegion.has("combat/battle/autoskill.png")) {
+                logger.info("Entered node $_currentNode")
+                // Wait until it disappears
+                while (clickRegion.has("combat/battle/autoskill.png")) yield()
+                logger.info("Node ${_currentNode++} battle complete, clicking through battle results")
+                val l = clickRegion.randomLocation()
+                repeat(6) { region.click(l); yield() }
+                passedNodes++
             }
         }
-        // Use a higher similarity threshold to prevent prematurely exiting the wait
-        region.waitSuspending("$PREFIX/complete-condition.png", 1200, 0.95)
-                ?: run {
-                    logger.warn("Battle did not complete after timeout")
-                    coroutineContext.cancelAndYield()
-                }
-        logger.info("Battle ended")
-        battleResultClickJob.cancel()
+        region.waitSuspending("combat/battle/terminate.png", 1200)
+        logger.info("Turn ended")
         // Click end button
         mapRunnerRegions.endBattle.clickRandomly()
     }
 
     protected suspend fun handleBattleResults() {
-        logger.info("Clicking through battle results")
+        logger.info("Battle ended, clicking through battle results")
         val combatMenu = GameLocation.mappings(config)[LocationId.COMBAT_MENU]!!
         val clickLocation = region.subRegion(992, 24, 1168, 121).randomLocation()
         val clickJob = launch {
@@ -113,5 +108,6 @@ abstract class MapRunner(
         clickJob.cancel()
         logger.info("Back at combat menu")
         scriptStats.sortiesDone += 1
+        _currentNode = 1
     }
 }

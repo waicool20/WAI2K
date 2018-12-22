@@ -44,7 +44,7 @@ class Map4_3E(
         resupplyEchelons()
         delay(200)
         planPath()
-        waitForBattleEnd()
+        waitForTurnEnd(4)
         handleBattleResults()
     }
 

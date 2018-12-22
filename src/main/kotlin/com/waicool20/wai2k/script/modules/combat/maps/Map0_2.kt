@@ -44,7 +44,7 @@ class Map0_2(
         planPath()
         waitForTurn()
         headToCommandPost()
-        waitForBattleEnd()
+        waitForTurnEnd(2)
         handleBattleResults()
     }
 

@@ -43,7 +43,7 @@ class Map5_4(
         waitForGNKSplash()
         resupplyEchelons()
         planPath()
-        waitForBattleEnd()
+        waitForTurnEnd(5)
         handleBattleResults()
     }
 

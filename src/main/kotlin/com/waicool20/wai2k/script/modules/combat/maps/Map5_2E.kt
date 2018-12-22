@@ -42,7 +42,7 @@ class Map5_2E(
         region.find("combat/battle/start.png").clickRandomly()
         resupplyEchelons()
         planPath()
-        waitForBattleEnd()
+        waitForTurnEnd(5)
         handleBattleResults()
     }
 
