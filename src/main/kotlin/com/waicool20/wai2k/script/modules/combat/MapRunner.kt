@@ -59,14 +59,39 @@ abstract class MapRunner(
     val gameState get() = scriptRunner.gameState
     val scriptStats get() = scriptRunner.scriptStats
 
+    /**
+     * A property that contains the asset prefix of the map
+     */
     val PREFIX = "combat/maps/${javaClass.simpleName.replace("_", "-").drop(3)}"
+
+    /**
+     * Container class that contains commonly used regions
+     */
     val mapRunnerRegions = MapRunnerRegions(region)
+
+    /**
+     * Returns the current node number where the main echelon is at, or no. of battles that
+     * have passed
+     */
     val currentNode get() = _currentNode
 
+    /**
+     * Set to true to signify the map is a map used for corpse dragging, setting it to false
+     * will disable the doll switching
+     */
     abstract val isCorpseDraggingMap: Boolean
 
+    /**
+     * Main execution function that is executed when map is entered
+     */
     abstract suspend fun execute()
 
+    /**
+     * Deploys the given echelons to the given locations using click regions
+     *
+     * @param echelons A variable list of pairs that contain the destination label and
+     * the corresponding click region (Heliport, Command post etc.)
+     */
     protected suspend fun deployEchelons(vararg echelons: Pair<String, AndroidRegion>) {
         echelons.forEachIndexed { i, (label, region) ->
             logger.info("Deploying echelon ${i + 1} to $label")
@@ -79,6 +104,12 @@ abstract class MapRunner(
         logger.info("Deployment complete")
     }
 
+    /**
+     * Resupplies an echelon at the given location using click regions
+     *
+     * @param label Destination label, used for logging
+     * @param region Click region of the destination (Heliport, Command post etc.)
+     */
     protected suspend fun resupplyEchelon(label: String, region: AndroidRegion) {
         logger.info("Resupplying echelon at $label")
         // Clicking twice, first to highlight the echelon, the second time to enter the deployment menu
@@ -94,6 +125,10 @@ abstract class MapRunner(
         logger.info("Resupply complete")
     }
 
+    /**
+     * Waits for the G&K splash animation that appears at the beginning of the turn to appear
+     * and waits for it to disappear
+     */
     protected suspend fun waitForGNKSplash() {
         logger.info("Waiting for G&K splash screen")
         // Wait for the G&K splash to appear within 10 seconds
@@ -103,6 +138,12 @@ abstract class MapRunner(
         } ?: logger.info("G&K splash screen did not appear")
     }
 
+    /**
+     * Waits for the current turn to end by counting the amount of nodes that have passed
+     * then ends the turn. This also clicks through any battle results when node battle ends
+     *
+     * @param nodes Amount of nodes expected in this turn
+     */
     protected suspend fun waitForTurnEnd(nodes: Int) {
         logger.info("Waiting for battle to end")
         var passedNodes = 0
@@ -124,6 +165,9 @@ abstract class MapRunner(
         mapRunnerRegions.endBattle.clickRandomly()
     }
 
+    /**
+     * Clicks through the battle results and waits for the game to return to the combat menu
+     */
     protected suspend fun handleBattleResults() {
         logger.info("Battle ended, clicking through battle results")
         val combatMenu = GameLocation.mappings(config)[LocationId.COMBAT_MENU]!!
