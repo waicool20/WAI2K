@@ -149,10 +149,10 @@ abstract class MapRunner(
         var passedNodes = 0
         val clickRegion = region.subRegion(1960, 90, 200, 200)
         while (passedNodes < battles && isActive) {
-            if (clickRegion.has("combat/battle/autoskill.png")) {
+            if (clickRegion.has("combat/battle/autoskill.png", 0.75)) {
                 logger.info("Entered node $_currentNode")
                 // Wait until it disappears
-                while (clickRegion.has("combat/battle/autoskill.png")) yield()
+                while (clickRegion.has("combat/battle/autoskill.png", 0.75)) yield()
                 logger.info("Node ${_currentNode++} battle complete, clicking through battle results")
                 val l = clickRegion.randomLocation()
                 repeat(6) { region.click(l); yield() }
