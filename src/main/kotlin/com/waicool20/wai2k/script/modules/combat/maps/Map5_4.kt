@@ -38,31 +38,16 @@ class Map5_4(
     override val isCorpseDraggingMap = true
 
     override suspend fun execute() {
-        deployEchelons()
+        deployEchelons(
+                HELIPORT to region.subRegion(295, 320, 87, 83),
+                COMMAND_POST to region.subRegion(1715, 233, 103, 113)
+        )
         mapRunnerRegions.startOperation.clickRandomly(); yield()
         waitForGNKSplash()
         resupplyEchelons()
         planPath()
         waitForTurnEnd(5)
         handleBattleResults()
-    }
-
-    private suspend fun deployEchelons() {
-        logger.info("Deploying echelon 1 to heliport")
-        logger.info("Pressing the heliport")
-        region.subRegion(295, 320, 87, 83)
-                .clickRandomly(); delay(300)
-        logger.info("Pressing the ok button")
-        mapRunnerRegions.deploy.clickRandomly()
-        delay(300)
-        logger.info("Deploying echelon 2 to command post")
-        logger.info("Pressing the command post")
-        region.subRegion(1715, 233, 103, 113)
-                .clickRandomly(); delay(300)
-        logger.info("Pressing the ok button")
-        mapRunnerRegions.deploy.clickRandomly()
-        delay(300)
-        logger.info("Deployment complete")
     }
 
     private suspend fun resupplyEchelons() {

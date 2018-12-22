@@ -26,7 +26,6 @@ import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.game.MapRunnerRegions
 import com.waicool20.wai2k.script.ScriptRunner
-import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.*
 import org.reflections.Reflections
@@ -42,6 +41,9 @@ abstract class MapRunner(
     private var _currentNode = 1
 
     companion object {
+        const val COMMAND_POST = "command post"
+        const val HELIPORT = "heliport"
+
         val list = Reflections("com.waicool20.wai2k.script.modules.combat.maps")
                 .getSubTypesOf(MapRunner::class.java)
                 .mapNotNull { cls ->
@@ -64,6 +66,18 @@ abstract class MapRunner(
     abstract val isCorpseDraggingMap: Boolean
 
     abstract suspend fun execute()
+
+    protected suspend fun deployEchelons(vararg echelons: Pair<String, AndroidRegion>) {
+        echelons.forEachIndexed { i, (label, region) ->
+            logger.info("Deploying echelon ${i + 1} to $label")
+            region.clickRandomly(); delay(300)
+            logger.info("Pressing the ok button")
+            mapRunnerRegions.deploy.clickRandomly()
+            delay(300)
+        }
+
+        logger.info("Deployment complete")
+    }
 
     protected suspend fun waitForGNKSplash() {
         logger.info("Waiting for G&K splash screen")
