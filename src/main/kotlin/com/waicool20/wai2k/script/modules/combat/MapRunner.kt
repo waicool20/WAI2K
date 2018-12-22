@@ -128,11 +128,14 @@ abstract class MapRunner(
     /**
      * Waits for the G&K splash animation that appears at the beginning of the turn to appear
      * and waits for it to disappear
+     *
+     * @param timeout Max amount of time to wait for splash, can be set to longer lengths for
+     * between turns
      */
-    protected suspend fun waitForGNKSplash() {
+    protected suspend fun waitForGNKSplash(timeout: Long = 10) {
         logger.info("Waiting for G&K splash screen")
         // Wait for the G&K splash to appear within 10 seconds
-        region.waitSuspending("combat/battle/splash.png", 10).apply {
+        region.waitSuspending("combat/battle/splash.png", timeout).apply {
             logger.info("G&K splash screen appeared")
             delay(2000)
         } ?: logger.info("G&K splash screen did not appear")
