@@ -38,112 +38,67 @@ class Map0_2(
     override val isCorpseDraggingMap = true
 
     override suspend fun execute() {
-        deployEchelons()
-        region.find("combat/battle/start.png").clickRandomly()
-        resupplyEchelons()
+        deployEchelons(
+                COMMAND_POST to region.subRegion(1054, 487, 110, 110),
+                HELIPORT to region.subRegion(410, 497, 60, 60)
+        )
+        mapRunnerRegions.startOperation.clickRandomly(); yield()
+        waitForGNKSplash()
+        resupplyEchelon(HELIPORT, region.subRegion(410, 497, 60, 60))
         planPath()
-        waitForTurn()
-        headToCommandPost()
+        waitForTurnEnd(3)
+        waitForGNKSplash(20)
+        planPath2()
         waitForTurnEnd(2)
         handleBattleResults()
     }
 
-    private suspend fun deployEchelons() {
-        logger.info("Deploying echelon 1 to command post")
-        region.grow(0, 60, 0, 0).clickUntilGone("$PREFIX/commandpost.png", 10)
-        region.find("ok.png").clickRandomly()
-
-        delay(200)
-
-        logger.info("Deploying echelon 2 to heliport")
-        region.clickUntilGone("$PREFIX/heliport.png", 10)
-        region.find("ok.png").clickRandomly()
-
-        delay(200)
-
-        logger.info("Deployment complete")
-    }
-
-    private suspend fun resupplyEchelons() {
-        logger.info("Resupplying echelon at heliport")
-        delay(3000)
-        region.waitSuspending("$PREFIX/heliport-deployed.png", 15)?.grow(0, 135, 0, 10)?.apply {
-            clickRandomly(); yield()
-            clickRandomly(); yield()
-        } ?: error("Could not find heliport")
-
-        delay(200)
-        region.clickUntilGone("combat/battle/resupply.png")
-
-        region.findOrNull("close.png")?.clickRandomly()
-        logger.info("Resupply complete")
-    }
-
     private suspend fun planPath() {
         logger.info("Entering planning mode")
-        region.clickUntilGone("combat/battle/plan.png")
+        mapRunnerRegions.planningMode.clickRandomly(); yield()
 
         logger.info("Selecting echelon at command post")
-        region.find("$PREFIX/commandpost-deployed.png").grow(20, 0, 100, 0)
+        region.subRegion(1054, 487, 110, 110)
                 .clickRandomly(); yield()
-
         logger.info("Selecting node 1")
-        region.find("$PREFIX/node1.png").grow(0, 0, 40, 0)
+        region.subRegion(811, 350, 60, 60)
                 .clickRandomly(); yield()
 
         // Pan up
-        region.subRegion(1033, 225, 240, 100).let {
-            it.swipeToRandomly(it.offset(0, 1000), 1500); yield()
+        region.subRegion(1020, 110, 240, 10).let {
+            it.swipeToRandomly(it.offset(0, 600), 500); yield()
+            it.swipeToRandomly(it.offset(0, 600), 500); delay(300)
         }
 
         logger.info("Selecting node 2")
-        region.find("$PREFIX/node2.png").grow(0, 40, 40, 0)
+        region.subRegion(873, 920, 60, 60)
                 .clickRandomly(); yield()
-
         logger.info("Selecting node 3")
-        region.find("$PREFIX/node3.png").grow(10, 0, 0, 0)
+        region.subRegion(1100, 572, 60, 60)
                 .clickRandomly(); yield()
-
         logger.info("Selecting node 4")
-        region.find("$PREFIX/node4.png").grow(0, 30, 20, 0)
+        region.subRegion(853, 412, 60, 60)
                 .clickRandomly(); yield()
 
         logger.info("Executing plan")
-        region.clickUntilGone("combat/battle/plan-execute.png")
+        mapRunnerRegions.executePlan.clickRandomly()
     }
 
-    private suspend fun waitForTurn() {
-        logger.info("Waiting for turn to end")
-        // Use a higher similarity threshold to prevent prematurely exiting the wait
-        region.waitSuspending("$PREFIX/turn1CompletionCheck.png", 600, 0.95)
-        logger.info("Out of Turns, Ending Battle")
-
-        region.clickUntilGone("combat/battle/end.png", 15, 0.75)
-    }
-
-    private suspend fun headToCommandPost() {
-        logger.info("Waiting for enemy turn to end")
-        region.waitSuspending("$PREFIX/secondTurnStart.png", 600, 0.60)
-
-        //adding a delay here to make sure the turn transition is complete
-        delay(4000)
-
+    private suspend fun planPath2() {
         logger.info("Entering planning mode")
-        region.clickUntilGone("combat/battle/plan.png")
+        mapRunnerRegions.planningMode.clickRandomly(); yield()
 
         logger.info("Selecting echelon at node 4")
-        region.find("$PREFIX/node4deployed.png").grow(0, 0, 80, 0)
+        region.subRegion(853, 412, 60, 60)
                 .clickRandomly(); yield()
-
         logger.info("Selecting node 5")
-        region.find("$PREFIX/node5.png").grow(0, 0, 40, 0)
+        region.subRegion(1337, 409, 60, 60)
                 .clickRandomly(); yield()
-
         logger.info("Selecting node 6")
-        region.find("$PREFIX/node6.png").grow(10, 10, 70, 10)
+        region.subRegion(1647, 472, 60, 60)
                 .clickRandomly(); yield()
 
         logger.info("Executing plan")
-        region.clickUntilGone("combat/battle/plan-execute.png")
+        mapRunnerRegions.executePlan.clickRandomly()
     }
 }
