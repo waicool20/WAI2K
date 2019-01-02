@@ -150,7 +150,7 @@ class Wai2KConfig(
 
     private fun printDebugInfo() {
         logger.debug("Config path: $path")
-        logger.debug("Config:\n$this")
+        logger.debug("Config: $this")
     }
 
     override fun toString(): String = mapper.writeValueAsString(this)

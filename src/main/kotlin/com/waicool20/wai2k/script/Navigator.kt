@@ -218,7 +218,7 @@ class Navigator(
             }
             else -> return
         }.roundToLong()
-        logger.info("Auto adjusting average delay to $newDelay")
+        logger.info("Auto adjusting average delay from $oldDelay to $newDelay")
         config.gameRestartConfig.averageDelay = newDelay
         config.save()
     }

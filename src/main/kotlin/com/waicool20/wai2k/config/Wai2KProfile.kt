@@ -187,7 +187,7 @@ data class Wai2KProfile(
 
     private fun printDebugInfo() {
         logger.debug("Profile path: $path")
-        logger.debug("Profile:\n$this")
+        logger.debug("Profile: $this")
     }
 
     override fun toString(): String = mapper.writeValueAsString(this)
