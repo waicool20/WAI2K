@@ -30,6 +30,7 @@ import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.*
 import org.reflections.Reflections
 import kotlin.coroutines.CoroutineContext
+import kotlin.random.Random
 
 abstract class MapRunner(
         protected val scriptRunner: ScriptRunner,
@@ -163,7 +164,8 @@ abstract class MapRunner(
         region.waitSuspending("combat/battle/terminate.png", 1200)
         logger.info("Turn ended")
         // Click end button
-        mapRunnerRegions.endBattle.clickRandomly()
+        delay(200)
+        repeat(Random.nextInt(2, 3)) { mapRunnerRegions.endBattle.clickRandomly() }
     }
 
     /**
