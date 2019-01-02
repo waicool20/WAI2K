@@ -124,7 +124,7 @@ class Navigator(
                 val avgTransitionDelay = transitionDelays.takeIf { it.isNotEmpty() }
                         ?.average()?.roundToLong() ?: config.gameRestartConfig.averageDelay
                 for (cycle in 0..Integer.MAX_VALUE) {
-                    if (cycle % 3 == 0) {
+                    if (cycle % 5 == 0) {
                         link.asset.getSubRegionFor(region).let {
                             // Shrink region slightly to 90% of defined size
                             it.grow((it.w * -0.1).roundToInt(), (it.h * -0.1).roundToInt())
