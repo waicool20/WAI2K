@@ -28,66 +28,65 @@ import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
 
-class Map2_6(
+class Map4_6(
         scriptRunner: ScriptRunner,
         region: AndroidRegion,
         config: Wai2KConfig,
         profile: Wai2KProfile
 ) : MapRunner(scriptRunner, region, config, profile) {
-    private val logger = loggerFor<Map2_6>()
+    private val logger = loggerFor<Map4_6>()
     override val isCorpseDraggingMap = false
 
     override suspend fun execute() {
-        deployEchelons(
-                COMMAND_POST to region.subRegion(425, 485, 103, 113)
-        )
+        deployment()
         mapRunnerRegions.startOperation.clickRandomly(); yield()
         waitForGNKSplash()
-        resupplyEchelon(COMMAND_POST, region.subRegion(425, 485, 103, 113))
+        resupplyEchelon(HELIPORT, region.subRegion(1829, 236, 60, 60))
         planPath()
-        waitForTurnEnd(1)
-        waitForEnemyTurnEnd()
-        nextTurn()
-        waitForTurnEnd(1)
+        waitForTurnEnd(4)
         handleBattleResults()
+    }
+
+    private suspend fun deployment() {
+        logger.info("Deploying echelon 1 to command post")
+        region.subRegion(1721, 605, 103, 113)
+                .clickRandomly(); yield()
+        mapRunnerRegions.deploy.clickRandomly()
+        delay(300)
+
+        //Pan up
+        region.subRegion(1017, 498, 240, 100).let {
+            it.swipeToRandomly(it.offset(0, 1002), 1500); yield()
+        }
+
+        logger.info("Deploying echelon 2 to heliport")
+        region.subRegion(1829, 236, 60, 60)
+                .clickRandomly(); yield()
+        mapRunnerRegions.deploy.clickRandomly()
+        delay(300)
+
+        logger.info("Deployment complete")
     }
 
     private suspend fun planPath() {
         logger.info("Entering planning mode")
         mapRunnerRegions.planningMode.clickRandomly(); yield()
-        logger.info("Selecting echelon at command post")
-        region.subRegion(425, 485, 103, 113)
-                .clickRandomly(); yield()
-        // Use a shorter region because of entering turn 1 dialog possibly blocking clicks
-        logger.info("Selecting node 1")
-        region.subRegion(391, 257, 60, 35)
-                .clickRandomly(); yield()
-        logger.info("Selecting node 2")
-        region.subRegion(721, 495, 60, 60)
-                .clickRandomly(); yield()
-        logger.info("Executing plan")
-        mapRunnerRegions.executePlan.clickRandomly(); yield()
-    }
-
-    private suspend fun waitForEnemyTurnEnd() {
-        region.subRegion(1080, 553, 60, 60).clickUntil(10000) { region.has("combat/battle/splash.png") }
-        delay(2000)
-    }
-
-    private suspend fun nextTurn()  {
-        logger.info("Entering planning mode")
-        mapRunnerRegions.planningMode.clickRandomly(); yield()
         logger.info("Selecting echelon at heliport")
-        region.subRegion(724, 513, 60, 60)
+        region.subRegion(1829, 236, 60, 60)
                 .clickRandomly(); yield()
         logger.info("Selecting node 1")
-        region.subRegion(1184, 416, 60, 60)
+        region.subRegion(1424, 239, 60, 60)
                 .clickRandomly(); yield()
         logger.info("Selecting node 2")
-        region.subRegion(1213, 173, 60, 60)
+        region.subRegion(1133, 243, 60, 60)
+                .clickRandomly(); yield()
+        logger.info("Selecting node 3")
+        region.subRegion(762, 270, 60, 60)
+                .clickRandomly(); yield()
+        logger.info("Selecting node 4")
+        region.subRegion(326, 261, 60, 60)
                 .clickRandomly(); yield()
         logger.info("Executing plan")
         mapRunnerRegions.executePlan.clickRandomly(); yield()
     }
-
 }

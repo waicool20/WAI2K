@@ -56,7 +56,7 @@ profile: Wai2KProfile
 
         //Pan up
         region.subRegion(1017, 498, 240, 100).let {
-            it.swipeToRandomly(it.offset(0, 702 ), 1500); yield()
+            it.swipeToRandomly(it.offset(0, 1002 ), 1500); yield()
         }
 
         logger.info("Deploying echelon 2 to heliport")
