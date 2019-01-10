@@ -39,9 +39,11 @@ abstract class MapRunner(
         protected val profile: Wai2KProfile
 ) : CoroutineScope {
     private val logger = loggerFor<MapRunner>()
+    private val autoskillRegion = region.subRegion(1960, 90, 200, 200)
     private var _battles = 1
 
     companion object {
+        private const val AUTOSKILL_SIMILARITY = 0.75
         const val COMMAND_POST = "command post"
         const val HELIPORT = "heliport"
 
@@ -133,11 +135,24 @@ abstract class MapRunner(
      */
     protected suspend fun waitForGNKSplash(timeout: Long = 10) {
         logger.info("Waiting for G&K splash screen")
+        val battleClicker = launch {
+            while (isActive) {
+                if (autoskillRegion.has("combat/battle/autoskill.png", AUTOSKILL_SIMILARITY)) {
+                    logger.info("Entered enemy battle $_battles")
+                    // Wait until it disappears
+                    while (isActive && autoskillRegion.has("combat/battle/autoskill.png", AUTOSKILL_SIMILARITY)) yield()
+                    logger.info("Battle ${_battles++} complete, clicking through battle results")
+                    val l = autoskillRegion.randomLocation()
+                    repeat(6) { region.click(l); yield() }
+                }
+            }
+        }
         // Wait for the G&K splash to appear within 10 seconds
         region.waitSuspending("combat/battle/splash.png", timeout)?.apply {
             logger.info("G&K splash screen appeared")
             delay(2000)
         } ?: logger.info("G&K splash screen did not appear")
+        battleClicker.cancel()
     }
 
     /**
@@ -149,14 +164,13 @@ abstract class MapRunner(
     protected suspend fun waitForTurnEnd(battles: Int) {
         logger.info("Waiting for turn to end")
         var battlesPassed = 0
-        val clickRegion = region.subRegion(1960, 90, 200, 200)
         while (isActive && battlesPassed < battles) {
-            if (clickRegion.has("combat/battle/autoskill.png", 0.75)) {
+            if (autoskillRegion.has("combat/battle/autoskill.png", AUTOSKILL_SIMILARITY)) {
                 logger.info("Entered battle $_battles")
                 // Wait until it disappears
-                while (isActive && clickRegion.has("combat/battle/autoskill.png", 0.75)) yield()
+                while (isActive && autoskillRegion.has("combat/battle/autoskill.png", AUTOSKILL_SIMILARITY)) yield()
                 logger.info("Battle ${_battles++} complete, clicking through battle results")
-                val l = clickRegion.randomLocation()
+                val l = autoskillRegion.randomLocation()
                 repeat(6) { region.click(l); yield() }
                 battlesPassed++
             }
