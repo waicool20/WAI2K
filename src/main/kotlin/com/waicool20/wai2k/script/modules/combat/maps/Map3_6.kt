@@ -46,7 +46,7 @@ class Map3_6(
         waitForGNKSplash()
         resupplyEchelon(HELIPORT, region.subRegion(1187, 557, 60, 60))
         planPath()
-        waitForTurnEnd(1)
+        waitForTurnEnd(2)
         handleBattleResults()
     }
 
