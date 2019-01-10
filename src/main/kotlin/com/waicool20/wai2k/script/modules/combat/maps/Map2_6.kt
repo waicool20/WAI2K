@@ -46,7 +46,7 @@ class Map2_6(
         resupplyEchelon(COMMAND_POST, region.subRegion(425, 485, 103, 113))
         planPath()
         waitForTurnEnd(1)
-        waitForEnemyTurnEnd()
+        waitForGNKSplash(45)
         nextTurn()
         waitForTurnEnd(1)
         handleBattleResults()
@@ -67,11 +67,6 @@ class Map2_6(
                 .clickRandomly(); yield()
         logger.info("Executing plan")
         mapRunnerRegions.executePlan.clickRandomly(); yield()
-    }
-
-    private suspend fun waitForEnemyTurnEnd() {
-        region.subRegion(1080, 553, 60, 60).clickUntil(10000) { region.has("combat/battle/splash.png") }
-        delay(2000)
     }
 
     private suspend fun nextTurn()  {
