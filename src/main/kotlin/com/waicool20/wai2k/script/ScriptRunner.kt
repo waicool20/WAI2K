@@ -102,6 +102,7 @@ class ScriptRunner(
             Settings.MinSimilarity = defaultSimilarityThreshold
             Settings.WaitScanRate = sikulixScanRate.toFloat()
             Settings.MoveMouseDelay = mouseDelay.toFloat()
+            Settings.DelayValue = mouseDelay
             Settings.ObserveScanRate = sikulixScanRate.toFloat()
             Settings.AutoWaitTimeout = 1f
             Settings.RepeatWaitTime = 0
