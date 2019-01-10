@@ -39,11 +39,11 @@ abstract class MapRunner(
         protected val profile: Wai2KProfile
 ) : CoroutineScope {
     private val logger = loggerFor<MapRunner>()
-    private val autoskillRegion = region.subRegion(1960, 90, 200, 200)
+    private val pauseButtonRegion = region.subRegion(1020, 0, 110, 50)
+    private val battleEndClickRegion = region.subRegion(992, 24, 1168, 121)
     private var _battles = 1
 
     companion object {
-        private const val AUTOSKILL_SIMILARITY = 0.75
         const val COMMAND_POST = "command post"
         const val HELIPORT = "heliport"
 
@@ -137,12 +137,12 @@ abstract class MapRunner(
         logger.info("Waiting for G&K splash screen")
         val battleClicker = launch {
             while (isActive) {
-                if (autoskillRegion.has("combat/battle/autoskill.png", AUTOSKILL_SIMILARITY)) {
+                if (isInBattle()) {
                     logger.info("Entered enemy battle $_battles")
                     // Wait until it disappears
-                    while (isActive && autoskillRegion.has("combat/battle/autoskill.png", AUTOSKILL_SIMILARITY)) yield()
+                    while (isActive && isInBattle()) yield()
                     logger.info("Battle ${_battles++} complete, clicking through battle results")
-                    val l = autoskillRegion.randomLocation()
+                    val l = battleEndClickRegion.randomLocation()
                     repeat(6) { region.click(l); yield() }
                 }
             }
@@ -162,15 +162,15 @@ abstract class MapRunner(
      * @param battles Amount of battles expected in this turn
      */
     protected suspend fun waitForTurnEnd(battles: Int) {
-        logger.info("Waiting for turn to end")
+        logger.info("Waiting for turn to end, expected battles: $battles")
         var battlesPassed = 0
         while (isActive && battlesPassed < battles) {
-            if (autoskillRegion.has("combat/battle/autoskill.png", AUTOSKILL_SIMILARITY)) {
+            if (isInBattle()) {
                 logger.info("Entered battle $_battles")
                 // Wait until it disappears
-                while (isActive && autoskillRegion.has("combat/battle/autoskill.png", AUTOSKILL_SIMILARITY)) yield()
+                while (isActive && isInBattle()) yield()
                 logger.info("Battle ${_battles++} complete, clicking through battle results")
-                val l = autoskillRegion.randomLocation()
+                val l = battleEndClickRegion.randomLocation()
                 repeat(6) { region.click(l); yield() }
                 battlesPassed++
             }
@@ -188,7 +188,7 @@ abstract class MapRunner(
     protected suspend fun handleBattleResults() {
         logger.info("Battle ended, clicking through battle results")
         val combatMenu = GameLocation.mappings(config)[LocationId.COMBAT_MENU]!!
-        val clickLocation = region.subRegion(992, 24, 1168, 121).randomLocation()
+        val clickLocation = battleEndClickRegion.randomLocation()
         val clickJob = launch {
             while (isActive) region.click(clickLocation)
         }
@@ -200,4 +200,6 @@ abstract class MapRunner(
         scriptStats.sortiesDone += 1
         _battles = 1
     }
+
+    private fun isInBattle() = pauseButtonRegion.has("combat/battle/pause.png")
 }
