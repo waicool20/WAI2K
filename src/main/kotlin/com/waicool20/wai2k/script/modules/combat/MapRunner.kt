@@ -150,11 +150,11 @@ abstract class MapRunner(
         logger.info("Waiting for turn to end")
         var battlesPassed = 0
         val clickRegion = region.subRegion(1960, 90, 200, 200)
-        while (battlesPassed < battles && isActive) {
+        while (isActive && battlesPassed < battles) {
             if (clickRegion.has("combat/battle/autoskill.png", 0.75)) {
                 logger.info("Entered battle $_battles")
                 // Wait until it disappears
-                while (clickRegion.has("combat/battle/autoskill.png", 0.75)) yield()
+                while (isActive && clickRegion.has("combat/battle/autoskill.png", 0.75)) yield()
                 logger.info("Battle ${_battles++} complete, clicking through battle results")
                 val l = clickRegion.randomLocation()
                 repeat(6) { region.click(l); yield() }
