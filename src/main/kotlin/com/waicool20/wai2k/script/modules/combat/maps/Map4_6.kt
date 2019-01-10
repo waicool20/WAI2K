@@ -55,8 +55,8 @@ class Map4_6(
         delay(300)
 
         //Pan up
-        region.subRegion(1119, 40, 240, 100).let {
-            it.swipeToRandomly(it.offset(0, 930), 1500); yield()
+        region.subRegion(1300, 100, 240, 100).randomLocation().let { l ->
+            repeat(2) { region.swipeRandomly(l, l.offset(0, 700), 400) }
         }
 
         logger.info("Deploying echelon 2 to heliport")
