@@ -307,7 +307,10 @@ class CombatModule(
     }
 
     private suspend fun checkRepairs() {
+        logger.info("Checking for repairs")
         navigator.navigateTo(LocationId.HOME)
+        // Delay needed or it sometimes misses the alert icon because ui delay
+        delay(500)
         if (
                 gameState.echelons.any { it.needsRepairs() } ||
                 region.subRegion(1337, 290, 345, 155).has("alert.png")
