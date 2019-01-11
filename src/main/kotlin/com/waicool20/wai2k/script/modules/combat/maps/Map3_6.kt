@@ -65,8 +65,8 @@ class Map3_6(
                 .clickRandomly(); yield()
 
         //Pan down
-        region.subRegion(784, 845, 240, 100).let {
-            it.swipeToRandomly(it.offset(0, -800 ), 1500); yield()
+        region.subRegion(784, 950, 240, 100).let {
+            it.swipeToRandomly(it.offset(0, -900 ), 1000); yield()
         }
 
         logger.info("Selecting node 3")
