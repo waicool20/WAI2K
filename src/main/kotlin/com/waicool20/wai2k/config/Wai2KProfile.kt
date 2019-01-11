@@ -74,6 +74,7 @@ data class Wai2KProfile(
             enabled: Boolean = false,
             map: String = "4-3E",
             repairThreshold: Int = 40,
+            repairCheckFrequency: Int = 3,
             draggers: MutableMap<Int, DollCriteria> = mutableMapOf(
                     1 to DollCriteria("WA2000", 100, 5, DollType.RF, 0),
                     2 to DollCriteria("FAL", 100, 5, DollType.AR, 0)
@@ -82,11 +83,13 @@ data class Wai2KProfile(
         val enabledProperty = enabled.toProperty()
         val mapProperty = map.toProperty()
         val repairThresholdProperty = repairThreshold.toProperty()
+        val repairCheckFrequencyProperty = repairCheckFrequency.toProperty()
         val draggersProperty = draggers.toProperty()
 
         val enabled by enabledProperty
         val map by mapProperty
         val repairThreshold by repairThresholdProperty
+        val repairCheckFrequency by repairCheckFrequencyProperty
         val draggers by draggersProperty
     }
 

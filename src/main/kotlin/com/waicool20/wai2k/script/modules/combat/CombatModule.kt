@@ -28,7 +28,10 @@ import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.script.modules.ScriptModule
-import com.waicool20.wai2k.util.*
+import com.waicool20.wai2k.util.Ocr
+import com.waicool20.wai2k.util.cancelAndYield
+import com.waicool20.wai2k.util.doOCRAndTrim
+import com.waicool20.wai2k.util.useLegacyEngine
 import com.waicool20.waicoolutils.*
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.*
@@ -308,13 +311,17 @@ class CombatModule(
 
     private suspend fun checkRepairs() {
         logger.info("Checking for repairs")
-        navigator.navigateTo(LocationId.HOME)
-        // Delay needed or it sometimes misses the alert icon because ui delay
-        delay(500)
-        if (
-                gameState.echelons.any { it.needsRepairs() } ||
+        suspend fun checkHome(): Boolean {
+            logger.info("Checking home for repairs, next check at ${scriptStats.sortiesDone + profile.combat.repairCheckFrequency} sorties")
+            return if (scriptStats.sortiesDone % profile.combat.repairCheckFrequency == 1) {
+                navigator.navigateTo(LocationId.HOME)
+                // Delay needed or it sometimes misses the alert icon because ui delay
+                delay(500)
                 region.subRegion(1337, 290, 345, 155).has("alert.png")
-        ) {
+            } else false
+        }
+
+        if (gameState.echelons.any { it.needsRepairs() } || checkHome()) {
             logger.info("Repairs required")
             val members = gameState.echelons.flatMap { it.members }.filter { it.needsRepair }
 
