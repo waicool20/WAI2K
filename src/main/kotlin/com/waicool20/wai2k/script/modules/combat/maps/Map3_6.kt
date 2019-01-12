@@ -46,7 +46,7 @@ class Map3_6(
         waitForGNKSplash()
         resupplyEchelon(HELIPORT, region.subRegion(1187, 557, 60, 60))
         planPath()
-        waitForTurnEnd(2)
+        waitForTurnEnd(3)
         handleBattleResults()
     }
 
@@ -61,7 +61,7 @@ class Map3_6(
         region.subRegion(922, 582, 60, 60)
                 .clickRandomly(); yield()
         logger.info("Selecting node 2")
-        region.subRegion(667, 868, 60, 60)
+        region.subRegion(1060, 833, 60, 60)
                 .clickRandomly(); yield()
 
         //Pan down
@@ -70,7 +70,7 @@ class Map3_6(
         }
 
         logger.info("Selecting node 3")
-        region.subRegion(618, 407, 60, 60)
+        region.subRegion(958, 286, 60, 60)
                 .clickRandomly(); yield()
         logger.info("Selecting node 4")
         region.subRegion(846, 559, 60, 60)
