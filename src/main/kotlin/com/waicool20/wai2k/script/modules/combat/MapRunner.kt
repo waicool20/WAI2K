@@ -144,7 +144,7 @@ abstract class MapRunner(
                     logger.info("Battle ${_battles++} complete, clicking through battle results")
                     val l = battleEndClickRegion.randomLocation()
                     repeat(6) { region.click(l); yield() }
-                }
+                } else yield()
             }
         }
         // Wait for the G&K splash to appear within 10 seconds
@@ -173,12 +173,12 @@ abstract class MapRunner(
                 val l = battleEndClickRegion.randomLocation()
                 repeat(6) { region.click(l); yield() }
                 battlesPassed++
-            }
+            } else yield()
         }
         region.waitSuspending("combat/battle/terminate.png", 1200)
         logger.info("Turn ended")
         // Click end button
-        delay(200)
+        delay(400)
         repeat(Random.nextInt(2, 3)) { mapRunnerRegions.endBattle.clickRandomly() }
     }
 
@@ -201,5 +201,5 @@ abstract class MapRunner(
         _battles = 1
     }
 
-    private fun isInBattle() = pauseButtonRegion.has("combat/battle/pause.png")
+    private fun isInBattle() = pauseButtonRegion.has("combat/battle/pause.png", 0.9)
 }

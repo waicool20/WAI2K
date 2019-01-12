@@ -41,6 +41,7 @@ import java.awt.image.BufferedImage
 import java.nio.file.Files
 import java.text.DecimalFormat
 import kotlin.math.min
+import kotlin.math.roundToLong
 import kotlin.random.Random
 import kotlin.reflect.full.primaryConstructor
 
@@ -316,7 +317,7 @@ class CombatModule(
             return if (scriptStats.sortiesDone % profile.combat.repairCheckFrequency == 1) {
                 navigator.navigateTo(LocationId.HOME)
                 // Delay needed or it sometimes misses the alert icon because ui delay
-                delay(500)
+                delay((750 * gameState.delayCoefficient).roundToLong())
                 region.subRegion(1337, 290, 345, 155).has("alert.png")
             } else false
         }
