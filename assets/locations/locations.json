@@ -622,7 +622,6 @@
       }
     ]
   },
-
   {
     "id": "combat_menu",
     "isIntermediate": true,
@@ -666,6 +665,33 @@
           "y": 306,
           "width": 257,
           "height": 118
+        }
+      }
+    ]
+  },
+  {
+    "id": "combat_settings",
+    "isIntermediate": false,
+    "landmarks": [
+      {
+        "asset": {
+          "imageName": "combat_settings",
+          "x": 608,
+          "y": 132,
+          "width": 60,
+          "height": 60
+        }
+      }
+    ],
+    "links": [
+      {
+        "dest": "combat_menu",
+        "asset": {
+          "imageName": "",
+          "x": 384,
+          "y": 93,
+          "width": 168,
+          "height": 93
         }
       }
     ]
