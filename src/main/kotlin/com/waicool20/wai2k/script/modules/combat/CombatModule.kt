@@ -313,11 +313,10 @@ class CombatModule(
     private suspend fun checkRepairs() {
         logger.info("Checking for repairs")
         suspend fun checkHome(): Boolean {
-            logger.info("Checking home for repairs, next check at ${scriptStats.sortiesDone + profile.combat.repairCheckFrequency} sorties")
-            return if (scriptStats.sortiesDone % profile.combat.repairCheckFrequency == 1) {
+            return if ((scriptStats.sortiesDone - 1) % profile.combat.repairCheckFrequency == 0) {
+                logger.info("Checking home for repairs, next check at ${scriptStats.sortiesDone + profile.combat.repairCheckFrequency} sorties")
                 navigator.navigateTo(LocationId.HOME)
-                // Delay needed or it sometimes misses the alert icon because ui delay
-                delay((750 * gameState.delayCoefficient).roundToLong())
+                region.waitSuspending("locations/repair.png", 10)
                 region.subRegion(1337, 290, 345, 155).has("alert.png")
             } else false
         }
