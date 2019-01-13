@@ -142,9 +142,9 @@ abstract class MapRunner(
                     // Wait until it disappears
                     while (isActive && isInBattle()) yield()
                     logger.info("Battle ${_battles++} complete, clicking through battle results")
-                    delay(300)
+                    delay(400)
                     val l = battleEndClickRegion.randomLocation()
-                    repeat(Random.nextInt(6,8)) { region.click(l); yield() }
+                    repeat(Random.nextInt(7,9)) { region.click(l); yield() }
                 } else yield()
             }
         }
@@ -171,9 +171,9 @@ abstract class MapRunner(
                 // Wait until it disappears
                 while (isActive && isInBattle()) yield()
                 logger.info("Battle ${_battles++} complete, clicking through battle results")
-                delay(250)
+                delay(400)
                 val l = battleEndClickRegion.randomLocation()
-                repeat(Random.nextInt(6,8)) { region.click(l); yield() }
+                repeat(Random.nextInt(7,9)) { region.click(l); yield() }
                 battlesPassed++
             } else yield()
         }
