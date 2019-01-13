@@ -101,6 +101,10 @@ class CombatModule(
         if (wasCancelled) return
 
         zoomMap(map)
+        // Cancel further execution if not in battle, maybe due to bad zoom
+        wasCancelled = gameState.currentGameLocation.id != LocationId.BATTLE
+        if (wasCancelled) return
+
         executeMapRunner()
 
         // Set game location back to combat menu now that battle has ended
@@ -490,6 +494,7 @@ class CombatModule(
     private suspend fun zoomMap(map: String) {
         val asset = "combat/maps/${map.toUpperCase()}/zoom-anchor.png"
         if (Files.notExists(config.assetsDirectory.resolve(asset))) return
+        var zooms = 0
         while (region.doesntHave(asset, 0.98)) {
             logger.info("Zoom anchor not found, attempting to zoom out")
             // Zoom in slightly randomly in case to jumble things up,
@@ -509,6 +514,12 @@ class CombatModule(
                     Random.nextDouble(-10.0, 10.0),
                     2500
             )
+            if (zooms++ >= 5) {
+                // Click select operation to go back to combat menu
+                region.subRegion(11, 14, 191, 110).clickRandomly()
+                gameState.currentGameLocation = GameLocation(LocationId.COMBAT)
+                return
+            }
             delay(1000)
         }
         logger.info("Zoom anchor found, ready to begin map")
