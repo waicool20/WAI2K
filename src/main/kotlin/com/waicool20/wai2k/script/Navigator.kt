@@ -64,7 +64,7 @@ class Navigator(
         logger.info("Identifying current location")
         val channel = Channel<GameLocation?>()
         repeat(retries) { i ->
-            checkLogistics()
+            checkLogistics(true)
             val jobs = locations.entries.sortedBy { it.value.isIntermediate }
                     .map { (_, model) ->
                         launch { channel.send(model.takeIf { model.isInRegion(region) }) }
@@ -240,11 +240,11 @@ class Navigator(
      *
      * @return true if any logistics arrived
      */
-    suspend fun checkLogistics(): Boolean {
+    suspend fun checkLogistics(forceCheck: Boolean = false): Boolean {
         // If gamestate is up to date then we can rely on timers or not
         // to see if logistics might arrive anytime soon
         // We skip further execution if no logistics is due in 15s
-        if (!gameState.requiresUpdate &&
+        if (!forceCheck && !gameState.requiresUpdate &&
                 gameState.echelons.mapNotNull { it.logisticsSupportAssignment }
                         .none { Duration.between(Instant.now(), it.eta).seconds <= 15 }) return false
         var logisticsArrived = false
