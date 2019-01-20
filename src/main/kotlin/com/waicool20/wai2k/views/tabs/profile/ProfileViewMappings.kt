@@ -24,6 +24,8 @@ import com.waicool20.wai2k.views.tabs.profile.combat.CombatView
 import com.waicool20.wai2k.views.tabs.profile.combat.DraggersView
 import com.waicool20.wai2k.views.tabs.profile.logistics.AssignmentsView
 import com.waicool20.wai2k.views.tabs.profile.logistics.LogisticsView
+import com.waicool20.wai2k.views.tabs.profile.stop.StopView
+import com.waicool20.wai2k.views.tabs.profile.stop.TimeStopView
 
 object ProfileViewMappings {
     val list = listOf(
@@ -31,6 +33,8 @@ object ProfileViewMappings {
             ViewNode("Assignments", AssignmentsView::class, LogisticsView::class),
             ViewNode("Combat", CombatView::class),
             ViewNode("Draggers", DraggersView::class, CombatView::class),
-            ViewNode("Factory", FactoryView::class)
+            ViewNode("Factory", FactoryView::class),
+            ViewNode("Stop", StopView::class),
+            ViewNode("Time", TimeStopView::class, StopView::class)
     )
 }
