@@ -19,12 +19,14 @@
 
 package com.waicool20.wai2k.config
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.waicool20.wai2k.Wai2K
 import com.waicool20.wai2k.game.DollType
@@ -36,19 +38,17 @@ import javafx.beans.property.SimpleListProperty
 import tornadofx.*
 import java.nio.file.Files
 import java.nio.file.Path
+import java.time.Duration
+import java.time.LocalTime
 
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy::class)
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Wai2KProfile(
         val logistics: Logistics = Logistics(),
         val combat: Combat = Combat(),
-        val factory: Factory = Factory()
+        val factory: Factory = Factory(),
+        val stop: Stop = Stop()
 ) {
-
-    constructor(name: String, logistics: Logistics) : this(logistics) {
-        this.name = name
-    }
-
     data class DollCriteria(var name: String, var level: Int, var stars: Int, var type: DollType, var index: Int)
 
     class Logistics(
@@ -120,9 +120,45 @@ data class Wai2KProfile(
         val disassembly by disassemblyProperty
     }
 
+    class Stop(
+            enabled: Boolean = false,
+            time: Time = Time()
+    ) {
+        enum class Mode {
+            ELAPSED_TIME, SPECIFIC_TIME, COUNT
+        }
+
+        class Time(
+                enabled: Boolean = true,
+                mode: Mode = Mode.ELAPSED_TIME,
+                @JsonFormat(shape = JsonFormat.Shape.STRING)
+                elapsedTime: Duration = Duration.ofHours(8),
+                @JsonFormat(pattern = "HH:mm")
+                specificTime: LocalTime = LocalTime.of(0, 0)
+        ) {
+            val enabledProperty = enabled.toProperty()
+            val modeProperty = mode.toProperty()
+            val elapsedTimeProperty = elapsedTime.toProperty()
+            val specificTimeProperty = specificTime.toProperty()
+
+            var enabled by enabledProperty
+            var mode by modeProperty
+            var elapsedTime by elapsedTimeProperty
+            var specificTime by specificTimeProperty
+        }
+
+        val enabledProperty = enabled.toProperty()
+        val timeProperty = time.toProperty()
+
+        var enabled by enabledProperty
+        var time by timeProperty
+    }
+
     companion object Loader {
         private val loaderLogger = loggerFor<Loader>()
-        private val mapper = fxJacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        private val mapper = fxJacksonObjectMapper()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .registerModule(JavaTimeModule())
         val PROFILE_DIR: Path = Wai2K.CONFIG_DIR.resolve("profiles")
         const val DEFAULT_NAME = "Default"
 
