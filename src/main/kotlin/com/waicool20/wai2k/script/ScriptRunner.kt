@@ -28,6 +28,7 @@ import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.game.GameState
 import com.waicool20.wai2k.script.modules.InitModule
 import com.waicool20.wai2k.script.modules.ScriptModule
+import com.waicool20.wai2k.script.modules.StopModule
 import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.*
@@ -120,12 +121,13 @@ class ScriptRunner(
             modules.add(InitModule(this, region, currentConfig, currentProfile, nav))
             Reflections("com.waicool20.wai2k.script.modules")
                     .getSubTypesOf(ScriptModule::class.java)
-                    .map { it.kotlin }.filterNot { it.isAbstract }
-                    .filterNot { it == InitModule::class }
+                    .map { it.kotlin }
+                    .filterNot { it.isAbstract || it == InitModule::class || it == StopModule::class }
                     .mapNotNull {
                         it.primaryConstructor?.call(this, region, currentConfig, currentProfile, nav)
                     }
                     .let { modules.addAll(it) }
+            modules.add(StopModule(this, region, currentConfig, currentProfile, nav))
             modules.map { it::class.simpleName }.forEach { logger.info("Loaded new instance of $it") }
         }
     }
