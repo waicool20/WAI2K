@@ -27,6 +27,7 @@ import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.waicoolutils.logging.loggerFor
 import java.time.*
+import kotlin.system.exitProcess
 
 class StopModule(
         scriptRunner: ScriptRunner,
@@ -60,7 +61,11 @@ class StopModule(
             }
             if (stop) {
                 logger.info("Script time stop condition reached for $mode, terminating further execution")
-                coroutineContext.cancelAndYield()
+                if (profile.stop.exitProgram) {
+                    exitProcess(0)
+                } else {
+                    coroutineContext.cancelAndYield()
+                }
             }
         }
     }

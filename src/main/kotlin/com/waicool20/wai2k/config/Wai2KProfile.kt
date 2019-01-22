@@ -122,6 +122,7 @@ data class Wai2KProfile(
 
     class Stop(
             enabled: Boolean = false,
+            exitProgram: Boolean = false,
             time: Time = Time()
     ) {
         enum class Mode {
@@ -148,9 +149,11 @@ data class Wai2KProfile(
         }
 
         val enabledProperty = enabled.toProperty()
+        val exitProgramProperty = exitProgram.toProperty()
         val timeProperty = time.toProperty()
 
         var enabled by enabledProperty
+        var exitProgram by exitProgramProperty
         var time by timeProperty
     }
 
