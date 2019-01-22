@@ -27,11 +27,13 @@ import tornadofx.*
 class StopView : AbstractProfileView() {
     override val root: VBox by fxml("/views/tabs/profile/stop/stop.fxml")
     private val enabledCheckBox: CheckBox by fxid()
+    private val exitProgramCheckBox: CheckBox by fxid()
     override fun setValues() {}
 
     override fun createBindings() {
         context.currentProfile.stop.apply {
             enabledCheckBox.bind(enabledProperty)
+            exitProgramCheckBox.bind(exitProgramProperty)
         }
     }
 }
