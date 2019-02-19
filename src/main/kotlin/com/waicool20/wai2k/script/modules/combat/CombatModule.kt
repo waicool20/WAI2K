@@ -393,6 +393,11 @@ class CombatModule(
      */
     private suspend fun clickCombatChapter(chapter: Int) {
         logger.info("Choosing combat chapter $chapter")
+        if (region.doesntHave("locations/landmarks/combat_menu.png")) {
+            logger.info("Chapter menu not on screen!")
+            // Click back button in case one of the maps was opened accidentally
+            region.subRegion(383, 92, 169, 94).clickRandomly()
+        }
         clickChapter(chapter)
         logger.info("At combat chapter $chapter")
         navigator.checkLogistics()

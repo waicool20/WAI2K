@@ -26,6 +26,7 @@ import com.waicool20.wai2k.game.DollFilterRegions
 import com.waicool20.wai2k.game.DollType
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
+import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.waicoolutils.filterAsync
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.CoroutineScope
@@ -99,6 +100,7 @@ abstract class ScriptModule(
         val upperSwipeRegion = cRegion.subRegion(cRegion.w / 2 - 15, 0, 30, cRegion.h / 4)
         // Lower 1/4 part of lsRegion
         val lowerSwipeRegion = cRegion.subRegion(cRegion.w / 2 - 15, cRegion.h / 4 + cRegion.h / 2, 30, cRegion.h / 4)
+        var retries = 0
         while (cRegion.doesntHave("chapters/$chapter.png", CHAPTER_SIMILARITY)) {
             navigator.checkLogistics()
             val chapters = (0..7).filterAsync { cRegion.has("chapters/$it.png", CHAPTER_SIMILARITY) }
@@ -114,6 +116,10 @@ abstract class ScriptModule(
                 }
             }
             delay(300)
+            if (retries++ >= 3) {
+                logger.error("Failed to find and click chapter")
+                coroutineContext.cancelAndYield()
+            }
         }
         navigator.checkLogistics()
         cRegion.subRegion(0, 0, 195, cRegion.h)
