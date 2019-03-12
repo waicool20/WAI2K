@@ -45,10 +45,30 @@ class MapRunnerRegions(region: AndroidRegion) {
     /**
      * OK button that deploys the echelon
      */
-    val deploy = region.subRegion(1772,929, 224, 83)
+    val deploy = region.subRegion(1772, 929, 224, 83)
 
     /**
      * Start operation button that starts the battle in the beginning
      */
     val startOperation = region.subRegion(1737, 905, 407, 158)
+
+    /**
+     * Terminate mission button that offers a restart or terminate option
+     */
+    val terminate = region.subRegion(411, 12, 110, 110)
+
+    /**
+     *  Terminate button that returns to the home screen when triggered
+     */
+    val terminateToHome = region.subRegion(1206, 699, 200, 80)
+
+    /**
+     * Retreat button to retreat the echelon
+     */
+    val retreat = region.subRegion(1505, 932, 215, 80)
+
+    /**
+     * Button that confirms an action
+     */
+    val confirm = region.subRegion(1131, 723, 240, 90)
 }

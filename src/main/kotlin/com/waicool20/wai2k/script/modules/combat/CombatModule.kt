@@ -413,7 +413,7 @@ class CombatModule(
             }
             map.endsWith("n", true) -> {
                 logger.info("Selecting night map")
-                region.subRegion(1871, 265, 142, 25).clickRandomly()
+                region.subRegion(1900, 265, 100, 25).clickRandomly()
             }
             else -> {
                 // Just in case, shouldn't be needed

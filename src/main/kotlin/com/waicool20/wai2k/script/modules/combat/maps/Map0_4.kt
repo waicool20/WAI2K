@@ -165,13 +165,5 @@ class Map0_4(
 
         delay(200)
     }
-
-    private suspend fun terminateBattle() {
-        logger.info("Terminating Battle")
-        region.find("combat/battle/initialTerminate.png").grow(0, 0, 0, 0)
-                .clickRandomly(); yield()
-
-        region.clickUntilGone("combat/battle/terminateConfirm")
-    }
 }
 
