@@ -897,5 +897,113 @@
         }
       }
     ]
+  },
+  {
+    "id": "important_information",
+    "isIntermediate": false,
+    "landmarks": [
+      {
+        "asset": {
+          "imageName": "important_information",
+          "x": 422,
+          "y": 51,
+          "width": 178,
+          "height": 80
+        }
+      }
+    ],
+    "links": [
+      {
+        "dest": "news",
+        "asset": {
+          "imageName": "",
+          "x": 221,
+          "y": 31,
+          "width": 149,
+          "height": 88
+        }
+      }
+    ]
+  },
+  {
+    "id": "news",
+    "isIntermediate": false,
+    "landmarks": [
+      {
+        "asset": {
+          "imageName": "news",
+          "x": 110,
+          "y": 19,
+          "width": 60,
+          "height": 60
+        }
+      }
+    ],
+    "links": [
+      {
+        "dest": "login_rewards",
+        "asset": {
+          "imageName": "",
+          "x": 11,
+          "y": 20,
+          "width": 63,
+          "height": 63
+        }
+      }
+    ]
+  },
+  {
+    "id": "login_rewards",
+    "isIntermediate": false,
+    "landmarks": [
+      {
+        "asset": {
+          "imageName": "login_rewards",
+          "x": 813,
+          "y": 322,
+          "width": 60,
+          "height": 60
+        }
+      }
+    ],
+    "links": [
+      {
+        "dest": "event_calendar",
+        "asset": {
+          "imageName": "",
+          "x": 940,
+          "y": 757,
+          "width": 280,
+          "height": 106
+        }
+      }
+    ]
+  },
+  {
+    "id": "event_calendar",
+    "isIntermediate": false,
+    "landmarks": [
+      {
+        "asset": {
+          "imageName": "event_calendar",
+          "x": 312,
+          "y": 83,
+          "width": 60,
+          "height": 60
+        }
+      }
+    ],
+    "links": [
+      {
+        "dest": "home",
+        "asset": {
+          "imageName": "",
+          "x": 149,
+          "y": 60,
+          "width": 148,
+          "height": 87
+        }
+      }
+    ]
   }
 ]

@@ -327,4 +327,15 @@ class Navigator(
             logger.info("Logged in")
         }
     }
+
+    /**
+     * Checks for the daily reset banners and try to click out of it to reach the home screen
+     */
+    suspend fun checkDailyReset() {
+        if (locations[LocationId.IMPORTANT_INFORMATION]?.isInRegion(region) == true) {
+            logger.info("Returning back home")
+            gameState.currentGameLocation = locations[LocationId.IMPORTANT_INFORMATION]!!
+            navigateTo(LocationId.HOME, retries = 3)
+        }
+    }
 }

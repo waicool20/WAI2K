@@ -144,7 +144,7 @@ abstract class MapRunner(
                     logger.info("Battle ${_battles++} complete, clicking through battle results")
                     delay(400)
                     val l = battleEndClickRegion.randomLocation()
-                    repeat(Random.nextInt(7,9)) { region.click(l); yield() }
+                    repeat(Random.nextInt(7, 9)) { region.click(l); yield() }
                 } else yield()
             }
         }
@@ -173,7 +173,7 @@ abstract class MapRunner(
                 logger.info("Battle ${_battles++} complete, clicking through battle results")
                 delay(400)
                 val l = battleEndClickRegion.randomLocation()
-                repeat(Random.nextInt(7,9)) { region.click(l); yield() }
+                repeat(Random.nextInt(7, 9)) { region.click(l); yield() }
                 battlesPassed++
             } else yield()
         }
@@ -201,6 +201,29 @@ abstract class MapRunner(
         logger.info("Back at combat menu")
         scriptStats.sortiesDone += 1
         _battles = 1
+    }
+
+    /**
+     *  handles night battle termination that would change the location to home
+     */
+
+    protected suspend fun handleNightBattleResults() {
+        logger.info("Night battle terminated, returning to home")
+        val home = GameLocation.mappings(config)[LocationId.HOME]!!
+        val dailyReset = GameLocation.mappings(config)[LocationId.IMPORTANT_INFORMATION]!!
+        while (isActive) {
+            if (home.isInRegion(region)) {
+                logger.info("At home")
+                break
+            } else if (dailyReset.isInRegion(region)) {
+                logger.info("Daily Reset has occurred")
+                break
+            }
+        }
+        logger.info("Back at home")
+        scriptStats.sortiesDone += 1
+        _battles = 1
+
     }
 
     private fun isInBattle() = pauseButtonRegion.has("combat/battle/pause.png", 0.9)

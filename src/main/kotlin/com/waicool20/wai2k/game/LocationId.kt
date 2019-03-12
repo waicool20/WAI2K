@@ -38,5 +38,9 @@ enum class LocationId {
     DORMITORIES,
     BATTLE,
     PROFILE,
+    IMPORTANT_INFORMATION,
+    NEWS,
+    LOGIN_REWARDS,
+    EVENT_CALENDAR,
     UNKNOWN
 }

@@ -110,6 +110,9 @@ class CombatModule(
         // Set game location back to combat menu now that battle has ended
         gameState.currentGameLocation = GameLocation.mappings(config)[LocationId.COMBAT_MENU] ?: error("Bad locations.json file")
         logger.info("Sortie complete")
+
+        //if terminated back to home, check for daily reset
+        navigator.checkDailyReset()
         // Back to combat menu or home, check logistics
         navigator.checkLogistics()
     }
