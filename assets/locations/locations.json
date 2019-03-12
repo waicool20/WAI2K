@@ -841,6 +841,16 @@
           "width": 205,
           "height": 144
         }
+      },
+      {
+        "dest": "equip_enhancement",
+        "asset": {
+          "imageName": "",
+          "x": 144,
+          "y": 322,
+          "width": 240,
+          "height": 105
+        }
       }
     ]
   },
@@ -894,6 +904,33 @@
           "y": 120,
           "width": 715,
           "height": 927
+        }
+      }
+    ]
+  },
+  {
+    "id": "equip_enhancement",
+    "isIntermediate": false,
+    "landmarks": [
+      {
+        "asset": {
+          "imageName": "equip_enhancement",
+          "x": 567,
+          "y": 261,
+          "width": 60,
+          "height": 60
+        }
+      }
+    ],
+    "links": [
+      {
+        "dest": "home",
+        "asset": {
+          "imageName": "",
+          "x": 120,
+          "y": 0,
+          "width": 205,
+          "height": 144
         }
       }
     ]

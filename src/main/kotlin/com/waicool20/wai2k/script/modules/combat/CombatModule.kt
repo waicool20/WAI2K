@@ -69,6 +69,8 @@ class CombatModule(
         // Return if the base doll limit is already reached
         if (gameState.dollOverflow) return
         runCombatCycle()
+        if (gameState.equipOverflow) return
+        runCombatCycle()
     }
 
     /**
@@ -474,6 +476,15 @@ class CombatModule(
                 gameState.currentGameLocation = GameLocation.mappings(config)[LocationId.TDOLL_ENHANCEMENT] ?: error("Bad locations.json file")
                 return
             }
+
+            region.subRegion(1185, 696, 278, 95).findOrNull("combat/equipEnhancement.png")?.apply {
+                logger.info("Equip limit reached, cancelling sortie")
+                clickRandomly()
+                gameState.equipOverflow = true
+                gameState.currentGameLocation = GameLocation.mappings(config)[LocationId.EQUIP_ENHANCEMENT] ?: error("Bad locations.json file")
+                return
+            }
+
 
             // Wait for start operation button to appear first before handing off control to
             // map specific files

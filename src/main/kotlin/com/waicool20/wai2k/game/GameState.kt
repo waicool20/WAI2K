@@ -24,6 +24,7 @@ class GameState {
     var requiresRestart: Boolean = false
 
     var dollOverflow: Boolean = false
+    var equipOverflow: Boolean = false
     var currentGameLocation: GameLocation = GameLocation(LocationId.UNKNOWN)
     val echelons: List<Echelon> = List(10) { Echelon(it + 1) }
     var delayCoefficient = 1.0
@@ -32,6 +33,7 @@ class GameState {
         requiresUpdate = true
         requiresRestart = false
         dollOverflow = false
+        equipOverflow = false
         currentGameLocation = GameLocation(LocationId.UNKNOWN)
         delayCoefficient = 1.0
         echelons.forEach {

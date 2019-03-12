@@ -95,7 +95,8 @@ data class Wai2KProfile(
 
     class Factory(
             enhancement: Enhancement = Enhancement(),
-            disassembly: Disassembly = Disassembly()
+            disassembly: Disassembly = Disassembly(),
+            equipEnhancement: EquipEnhancement = EquipEnhancement()
     ) {
         class Enhancement(
                 enabled: Boolean = true
@@ -113,9 +114,19 @@ data class Wai2KProfile(
             val enabled by enabledProperty
         }
 
+        class EquipEnhancement(
+                enabled: Boolean = false
+        ) {
+            val enabledProperty = enabled.toProperty()
+
+            val enabled by enabledProperty
+        }
+
+        val equipEnchancementProperty = equipEnhancement.toProperty()
         val enhancementProperty = enhancement.toProperty()
         val disassemblyProperty = disassembly.toProperty()
 
+        val equipEnhancement by equipEnchancementProperty
         val enhancement by enhancementProperty
         val disassembly by disassemblyProperty
     }
@@ -201,7 +212,8 @@ data class Wai2KProfile(
     private val logger = loggerFor<Wai2KProfile>()
 
     val nameProperty = DEFAULT_NAME.toProperty()
-    @get:JsonIgnore var name by nameProperty
+    @get:JsonIgnore
+    var name by nameProperty
 
     @get:JsonIgnore
     val path: Path

@@ -257,6 +257,7 @@ class FactoryModule(
         }
     }
 
+
     private fun updateJob(screenshot: BufferedImage, action: (List<String>) -> Boolean): Job {
         return launch {
             Ocr.forConfig(config).doOCRAndTrim(screenshot)

@@ -38,5 +38,6 @@ enum class LocationId {
     DORMITORIES,
     BATTLE,
     PROFILE,
+    EQUIP_ENHANCEMENT,
     UNKNOWN
 }
