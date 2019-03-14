@@ -144,9 +144,8 @@ class ResearchModule(
 
         delay(500)
 
-        if (region.has("close.png")) {
+        if (region.doesntHave("close.png")) {
 
-        } else {
             while (isActive) {
                 logger.info("Attempting to find enhancement target")
                 val selectEquipButton = region.subRegion(479, 432, 240, 353)

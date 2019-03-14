@@ -68,7 +68,7 @@ class CombatModule(
         if (!profile.combat.enabled) return
         // Return if the base doll limit is already reached
         if (gameState.dollOverflow) return
-        runCombatCycle()
+        // Return if equipment limit is reached
         if (gameState.equipOverflow) return
         runCombatCycle()
     }
