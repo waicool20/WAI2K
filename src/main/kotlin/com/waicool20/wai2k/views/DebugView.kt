@@ -19,16 +19,22 @@
 
 package com.waicool20.wai2k.views
 
+import com.waicool20.wai2k.android.AndroidDevice
 import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.useCharFilter
 import com.waicool20.waicoolutils.javafx.CoroutineScopeView
+import com.waicool20.waicoolutils.javafx.addListener
 import com.waicool20.waicoolutils.logging.loggerFor
+import javafx.embed.swing.SwingFXUtils
 import javafx.scene.control.*
+import javafx.scene.control.SpinnerValueFactory.IntegerSpinnerValueFactory
+import javafx.scene.image.ImageView
 import javafx.scene.layout.VBox
 import javafx.stage.FileChooser
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import kotlinx.coroutines.javafx.JavaFx
+import net.sourceforge.tess4j.ITesseract
 import org.sikuli.script.ImagePath
 import org.sikuli.script.Pattern
 import tornadofx.*
@@ -42,6 +48,14 @@ class DebugView : CoroutineScopeView() {
     private val pathField: TextField by fxid()
     private val assetOCRButton: Button by fxid()
 
+    private val xSpinner: Spinner<Int> by fxid()
+    private val ySpinner: Spinner<Int> by fxid()
+    private val wSpinner: Spinner<Int> by fxid()
+    private val hSpinner: Spinner<Int> by fxid()
+    private val ocrImageView: ImageView by fxid()
+    private val OCRButton: Button by fxid()
+    private val resetOCRButton: Button by fxid()
+
     private val useLSTMCheckBox: CheckBox by fxid()
     private val filterCheckBox: CheckBox by fxid()
     private val filterOptions: ToggleGroup by fxid()
@@ -49,6 +63,8 @@ class DebugView : CoroutineScopeView() {
     private val digitsOnlyRadioButton: RadioButton by fxid()
     private val customRadioButton: RadioButton by fxid()
     private val allowedCharsTextField: TextField by fxid()
+
+    private var lastAndroidDevice: AndroidDevice? = null
 
     private val wai2KContext: Wai2KContext by inject()
 
@@ -64,10 +80,73 @@ class DebugView : CoroutineScopeView() {
         openButton.setOnAction { openPath() }
         testButton.setOnAction { testPath() }
         assetOCRButton.setOnAction { doAssetOCR() }
+        OCRButton.setOnAction { doOCR() }
+        resetOCRButton.setOnAction { updateOCRUi() }
     }
 
     private fun uiSetup() {
         filterOptionsVBox.disableWhen { filterCheckBox.selectedProperty().not() }
+        updateOCRUi()
+        wai2KContext.wai2KConfig.lastDeviceSerialProperty
+                .addListener("DebugViewDeviceListener") { _ -> updateOCRUi() }
+    }
+
+    fun updateOCRUi(serial: String = wai2KContext.wai2KConfig.lastDeviceSerial) {
+        val device = async(Dispatchers.IO) {
+            wai2KContext.adbServer.listDevices().find { it.adbSerial == serial }
+                    .also { lastAndroidDevice = it }
+        }
+        launch(Dispatchers.IO) {
+            fun updateImageView() = launch(Dispatchers.IO) {
+                val image = device.await()!!.takeScreenshot().let {
+                    if (wSpinner.value > 0 && hSpinner.value > 0) {
+                        it.getSubimage(xSpinner.value, ySpinner.value, wSpinner.value, hSpinner.value)
+                    } else it
+                }
+                withContext(Dispatchers.JavaFx) {
+                    ocrImageView.image = SwingFXUtils.toFXImage(image, null)
+                }
+            }
+            withContext(Dispatchers.JavaFx) {
+                device.await()?.let {
+                    val maxWidth = it.properties.displayWidth
+                    val maxHeight = it.properties.displayHeight
+                    xSpinner.valueFactory = IntegerSpinnerValueFactory(0, maxWidth, 0)
+                    ySpinner.valueFactory = IntegerSpinnerValueFactory(0, maxHeight, 0)
+                    wSpinner.valueFactory = IntegerSpinnerValueFactory(0, maxWidth, maxWidth)
+                    hSpinner.valueFactory = IntegerSpinnerValueFactory(0, maxHeight, maxHeight)
+
+                    xSpinner.valueProperty().addListener("DebugViewXSpinner") { newVal ->
+                        if (newVal + wSpinner.value > maxWidth) {
+                            wSpinner.valueFactory.value = maxWidth - newVal
+                        }
+                        updateImageView()
+                    }
+                    ySpinner.valueProperty().addListener("DebugViewYSpinner") { newVal ->
+                        if (newVal + hSpinner.value > maxHeight) {
+                            hSpinner.valueFactory.value = maxHeight - newVal
+                        }
+                        updateImageView()
+                    }
+                    wSpinner.valueProperty().addListener("DebugViewWSpinner") { newVal ->
+                        if (newVal + xSpinner.value > maxWidth) {
+                            wSpinner.valueFactory.value = maxWidth - xSpinner.value
+                        }
+                        updateImageView()
+                    }
+                    hSpinner.valueProperty().addListener("DebugViewHSpinner") { newVal ->
+                        if (newVal + ySpinner.value > maxHeight) {
+                            hSpinner.valueFactory.value = maxHeight - ySpinner.value
+                        }
+                        updateImageView()
+                    }
+                }
+            }
+            while (isActive) {
+                updateImageView()
+                delay(1000)
+            }
+        }
     }
 
     private fun openPath() {
@@ -115,18 +194,36 @@ class DebugView : CoroutineScopeView() {
         launch(Dispatchers.IO) {
             val path = Paths.get(pathField.text)
             if (Files.exists(path)) {
-                val ocr = Ocr.forConfig(
-                        config = wai2KContext.wai2KConfig,
-                        digitsOnly = filterCheckBox.isSelected && filterOptions.selectedToggle == digitsOnlyRadioButton,
-                        useLSTM = useLSTMCheckBox.isSelected
-                )
-                if (filterCheckBox.isSelected && filterOptions.selectedToggle == customRadioButton) {
-                    ocr.useCharFilter(allowedCharsTextField.text)
-                }
-                logger.info("Result: \n${ocr.doOCR(path.toFile())}")
+                logger.info("Result: \n${getOCR().doOCR(path.toFile())}\n----------")
             } else {
                 logger.warn("That asset doesn't exist!")
             }
         }
+    }
+
+    private fun doOCR() {
+        launch(Dispatchers.IO) {
+            lastAndroidDevice?.let {
+                val image = it.takeScreenshot().let { bi ->
+                    if (wSpinner.value > 0 && hSpinner.value > 0) {
+                        bi.getSubimage(xSpinner.value, ySpinner.value, wSpinner.value, hSpinner.value)
+                    } else bi
+                }
+                logger.info("Result: \n${getOCR().doOCR(image)}\n----------")
+            }
+
+        }
+    }
+
+    private fun getOCR(): ITesseract {
+        val ocr = Ocr.forConfig(
+                config = wai2KContext.wai2KConfig,
+                digitsOnly = filterCheckBox.isSelected && filterOptions.selectedToggle == digitsOnlyRadioButton,
+                useLSTM = useLSTMCheckBox.isSelected
+        )
+        if (filterCheckBox.isSelected && filterOptions.selectedToggle == customRadioButton) {
+            ocr.useCharFilter(allowedCharsTextField.text)
+        }
+        return ocr
     }
 }
