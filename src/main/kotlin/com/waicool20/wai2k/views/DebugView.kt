@@ -20,20 +20,20 @@
 package com.waicool20.wai2k.views
 
 import com.waicool20.wai2k.config.Wai2KContext
+import com.waicool20.waicoolutils.javafx.CoroutineScopeView
 import com.waicool20.waicoolutils.logging.loggerFor
 import javafx.scene.control.Button
 import javafx.scene.control.TextField
 import javafx.scene.layout.VBox
 import javafx.stage.FileChooser
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.sikuli.script.ImagePath
 import org.sikuli.script.Pattern
-import tornadofx.*
 import java.nio.file.Files
 import java.nio.file.Paths
 
-class DebugView : View() {
+class DebugView : CoroutineScopeView() {
     override val root: VBox by fxml("/views/debug.fxml")
     private val openButton: Button by fxid()
     private val testButton: Button by fxid()
@@ -49,40 +49,44 @@ class DebugView : View() {
 
     override fun onDock() {
         super.onDock()
-        openButton.setOnAction {
-            FileChooser().apply {
-                title = "Open path to an asset..."
-                pathField.text.takeIf { it.isNotBlank() }?.let { initialDirectory = Paths.get(it).parent.toFile() }
-                extensionFilters.add(FileChooser.ExtensionFilter("PNG files (*.png)", "*.png"))
-                showOpenDialog(null)?.let {
-                    pathField.text = it.path
-                }
+        openButton.setOnAction { openPath() }
+        testButton.setOnAction { testPath() }
+        assetOCRButton.setOnAction { doAssetOCR() }
+    }
+
+    private fun openPath() {
+        FileChooser().apply {
+            title = "Open path to an asset..."
+            pathField.text.takeIf { it.isNotBlank() }?.let { initialDirectory = Paths.get(it).parent.toFile() }
+            extensionFilters.add(FileChooser.ExtensionFilter("PNG files (*.png)", "*.png"))
+            showOpenDialog(null)?.let {
+                pathField.text = it.path
             }
         }
-
-        testButton.setOnAction { GlobalScope.launch { testPath() } }
     }
 
     private fun testPath() {
-        wai2KContext.apply {
-            val path = Paths.get(pathField.text)
-            if (Files.exists(path)) {
-                logger.info("Finding $path")
-                ImagePath.add(path.parent.toString())
-                val device = wai2KContext.adbServer.listDevices(true).find { it.adbSerial == wai2KConfig.lastDeviceSerial }
-                if (device == null) {
-                    logger.warn("Could not find device!")
-                    return
+        launch(Dispatchers.IO) {
+            wai2KContext.apply {
+                val path = Paths.get(pathField.text)
+                if (Files.exists(path)) {
+                    logger.info("Finding $path")
+                    ImagePath.add(path.parent.toString())
+                    val device = wai2KContext.adbServer.listDevices(true).find { it.adbSerial == wai2KConfig.lastDeviceSerial }
+                    if (device == null) {
+                        logger.warn("Could not find device!")
+                        return@launch
+                    }
+                    // Set similarity to 0.1f to make sikulix report the similarity value down to 0.6
+                    device.screen.findAllOrEmpty(Pattern(path.fileName.toString()).similar(0.6f))
+                            .takeIf { it.isNotEmpty() }
+                            ?.forEach {
+                                logger.info("Found ${path.fileName}: $it")
+                            } ?: run { logger.warn("Could not find the asset anywhere") }
+                    ImagePath.remove(path.parent.toString())
+                } else {
+                    logger.warn("That asset doesn't exist!")
                 }
-                // Set similarity to 0.1f to make sikulix report the similarity value down to 0.6
-                device.screen.findAllOrEmpty(Pattern(path.fileName.toString()).similar(0.6f))
-                        .takeIf { it.isNotEmpty() }
-                        ?.forEach {
-                            logger.info("Found ${path.fileName}: $it")
-                        } ?: run { logger.warn("Could not find the asset anywhere") }
-                ImagePath.remove(path.parent.toString())
-            } else {
-                logger.warn("That asset doesn't exist!")
             }
         }
     }
