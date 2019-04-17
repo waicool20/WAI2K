@@ -57,7 +57,11 @@ class DebugView : CoroutineScopeView() {
     private fun openPath() {
         FileChooser().apply {
             title = "Open path to an asset..."
-            pathField.text.takeIf { it.isNotBlank() }?.let { initialDirectory = Paths.get(it).parent.toFile() }
+            initialDirectory = if (pathField.text.isNotBlank()) {
+                Paths.get(pathField.text).parent.toFile()
+            } else {
+                wai2KContext.wai2KConfig.assetsDirectory.toFile()
+            }
             extensionFilters.add(FileChooser.ExtensionFilter("PNG files (*.png)", "*.png"))
             showOpenDialog(null)?.let {
                 pathField.text = it.path
