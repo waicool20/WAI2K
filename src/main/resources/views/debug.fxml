@@ -19,28 +19,87 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
-      minWidth="-Infinity" spacing="10.0" xmlns="http://javafx.com/javafx/8.0.162-ea"
-      xmlns:fx="http://javafx.com/fxml/1">
+
+<VBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
     <children>
-        <HBox spacing="10.0">
+      <Label text="Asset Testing:" />
+        <HBox alignment="CENTER_LEFT" spacing="10.0">
             <children>
-                <TextField fx:id="pathField" prefWidth="300.0" promptText="/path/to/asset"/>
-                <Button fx:id="openButton" mnemonicParsing="false" text="Open"/>
+                <TextField fx:id="pathField" prefWidth="300.0" promptText="/path/to/asset" />
+                <Button fx:id="openButton" mnemonicParsing="false" text="Open" />
+              <Button fx:id="testButton" mnemonicParsing="false" text="Test" />
+            <Button fx:id="assetOCRButton" mnemonicParsing="false" text="OCR" />
             </children>
             <VBox.margin>
-                <Insets/>
+                <Insets left="10.0" />
             </VBox.margin>
         </HBox>
-        <Button fx:id="testButton" mnemonicParsing="false" text="Test"/>
+      <Separator prefWidth="200.0" />
+      <Label text="On-Screen OCR Testing:" />
+      <HBox alignment="CENTER_LEFT" spacing="5.0">
+         <children>
+            <Label text="W:" />
+            <Spinner fx:id="wSpinner" editable="true" prefWidth="100.0" />
+            <Label text="H:" />
+            <Spinner fx:id="hSpinner" editable="true" prefWidth="100.0" />
+            <Label text="X:" />
+            <Spinner editable="true" prefWidth="100.0" fx:id="xSpinner" />
+            <Label text="Y:" />
+            <Spinner fx:id="ySpinner" editable="true" prefWidth="100.0" />
+         </children>
+         <VBox.margin>
+            <Insets left="10.0" />
+         </VBox.margin>
+      </HBox>
+      <HBox alignment="CENTER">
+         <children>
+            <ImageView fx:id="ocrImageView" fitHeight="200.0" fitWidth="400.0" pickOnBounds="true" preserveRatio="true" />
+         </children>
+      </HBox>
+      <Button fx:id="OCRButton" mnemonicParsing="false" text="OCR" />
+      <Separator prefWidth="200.0" />
+      <Label text="OCR Options" />
+      <VBox alignment="CENTER_LEFT" spacing="15.0">
+         <children>
+            <CheckBox fx:id="useLSTMCheckBox" mnemonicParsing="false" text="Use LSTM Engine" />
+            <CheckBox fx:id="filterCheckBox" mnemonicParsing="false" text="Use filters:" />
+            <VBox fx:id="filterOptionsVBox" spacing="5.0">
+               <children>
+                  <RadioButton fx:id="digitsOnlyRadioButton" mnemonicParsing="false" selected="true" text="Digits Only [0-9]">
+                     <toggleGroup>
+                        <ToggleGroup fx:id="filterOptions" />
+                     </toggleGroup>
+                  </RadioButton>
+                  <HBox alignment="CENTER_LEFT" spacing="5.0">
+                     <children>
+                        <RadioButton fx:id="customRadioButton" mnemonicParsing="false" text="Custom:" toggleGroup="$filterOptions" />
+                        <TextField fx:id="allowedCharsTextField" promptText="Allowed Characters" />
+                     </children>
+                  </HBox>
+               </children>
+               <VBox.margin>
+                  <Insets left="10.0" />
+               </VBox.margin>
+            </VBox>
+         </children>
+         <VBox.margin>
+            <Insets left="10.0" />
+         </VBox.margin>
+      </VBox>
     </children>
     <padding>
-        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
     </padding>
 </VBox>

@@ -20,16 +20,18 @@
 package com.waicool20.wai2k.views
 
 import com.waicool20.wai2k.config.Wai2KContext
+import com.waicool20.wai2k.util.Ocr
+import com.waicool20.wai2k.util.useCharFilter
 import com.waicool20.waicoolutils.javafx.CoroutineScopeView
 import com.waicool20.waicoolutils.logging.loggerFor
-import javafx.scene.control.Button
-import javafx.scene.control.TextField
+import javafx.scene.control.*
 import javafx.scene.layout.VBox
 import javafx.stage.FileChooser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.sikuli.script.ImagePath
 import org.sikuli.script.Pattern
+import tornadofx.*
 import java.nio.file.Files
 import java.nio.file.Paths
 
@@ -38,6 +40,15 @@ class DebugView : CoroutineScopeView() {
     private val openButton: Button by fxid()
     private val testButton: Button by fxid()
     private val pathField: TextField by fxid()
+    private val assetOCRButton: Button by fxid()
+
+    private val useLSTMCheckBox: CheckBox by fxid()
+    private val filterCheckBox: CheckBox by fxid()
+    private val filterOptions: ToggleGroup by fxid()
+    private val filterOptionsVBox: VBox by fxid()
+    private val digitsOnlyRadioButton: RadioButton by fxid()
+    private val customRadioButton: RadioButton by fxid()
+    private val allowedCharsTextField: TextField by fxid()
 
     private val wai2KContext: Wai2KContext by inject()
 
@@ -49,9 +60,14 @@ class DebugView : CoroutineScopeView() {
 
     override fun onDock() {
         super.onDock()
+        uiSetup()
         openButton.setOnAction { openPath() }
         testButton.setOnAction { testPath() }
         assetOCRButton.setOnAction { doAssetOCR() }
+    }
+
+    private fun uiSetup() {
+        filterOptionsVBox.disableWhen { filterCheckBox.selectedProperty().not() }
     }
 
     private fun openPath() {
@@ -91,6 +107,25 @@ class DebugView : CoroutineScopeView() {
                 } else {
                     logger.warn("That asset doesn't exist!")
                 }
+            }
+        }
+    }
+
+    private fun doAssetOCR() {
+        launch(Dispatchers.IO) {
+            val path = Paths.get(pathField.text)
+            if (Files.exists(path)) {
+                val ocr = Ocr.forConfig(
+                        config = wai2KContext.wai2KConfig,
+                        digitsOnly = filterCheckBox.isSelected && filterOptions.selectedToggle == digitsOnlyRadioButton,
+                        useLSTM = useLSTMCheckBox.isSelected
+                )
+                if (filterCheckBox.isSelected && filterOptions.selectedToggle == customRadioButton) {
+                    ocr.useCharFilter(allowedCharsTextField.text)
+                }
+                logger.info("Result: \n${ocr.doOCR(path.toFile())}")
+            } else {
+                logger.warn("That asset doesn't exist!")
             }
         }
     }
