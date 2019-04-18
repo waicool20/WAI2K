@@ -72,22 +72,22 @@ class InitModule(
         logger.info("Reading logistics support status")
         // Optimize by taking a single screenshot and working on that
         val image = region.takeScreenshot()
-        val entry = region.subRegion(485, 0, 229, region.h).findAllOrEmpty("init/logistics.png")
+        val entry = region.subRegion(485, 0, 240, region.h).findAllOrEmpty("init/logistics.png")
                 // Map each region to whole logistic support entry
-                .map { image.getSubimage(it.x - 130, it.y - 80, 853, 144) }
+                .map { image.getSubimage(it.x - 135, it.y - 82, 853, 144) }
                 .map {
                     listOf(
                             async {
                                 // Echelon section on the right without the word "Echelon"
-                                Ocr.forConfig(config, digitsOnly = true).doOCRAndTrim(it.getSubimage(0, 26, 83, 118))
+                                Ocr.forConfig(config, digitsOnly = true).doOCRAndTrim(it.getSubimage(0, 25, 83, 100))
                             },
                             async {
                                 // Logistics number ie. 1-1
-                                Ocr.forConfig(config).doOCRAndTrim(it.getSubimage(120, 27, 105, 50))
+                                Ocr.forConfig(config).doOCRAndTrim(it.getSubimage(165, 30, 66, 33))
                             },
                             async {
                                 // Timer xx:xx:xx
-                                Ocr.forConfig(config).doOCRAndTrim(it.getSubimage(593, 49, 200, 50))
+                                Ocr.forConfig(config).doOCRAndTrim(it.getSubimage(600, 71, 188, 40))
                             }
                     )
                 }
