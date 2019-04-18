@@ -285,7 +285,7 @@ class Navigator(
             val image = if (cont) {
                 // Increment sent stats if we are continuing
                 scriptStats.logisticsSupportSent++
-                "confirm.png"
+                "ok_large.png"
             } else "cancel.png"
 
             region.waitSuspending(image, 10)?.clickRandomly()
