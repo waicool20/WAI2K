@@ -113,17 +113,19 @@ class LogisticsSupportModule(
 
         // Start mission
         clickMissionStart(missionIndex)
+
+        // Click the ok button of the popup if any of the resources broke the hard cap
+        region.findOrNull("ok_large.png")?.let {
+            logger.info("One of the resources reached its limit!")
+            it.clickRandomly()
+        }
+
         region.waitSuspending("logistics/formation.png", 10)
         clickEchelon(echelon)
         // Click ok button
         delay(300)
 
         region.clickUntilGone("ok.png", 10)
-        delay(100)
-        region.findOrNull("confirm.png")?.let {
-            logger.info("One of the resources reached its limit!")
-            it.clickRandomly()
-        }
 
         // Wait for logistics mission icon to appear again
         region.subRegion(131, 306, 257, 118).waitSuspending("logistics/logistics.png", 7)
@@ -177,7 +179,9 @@ class LogisticsSupportModule(
         logger.debug("Opening up the logistic support menu")
         // Left most mission button x: 704 y: 219 w: 306 h: 856
         val missionRegion = region.subRegion(704 + (333 * mission), 219, 306, 856)
-        while (missionRegion.has("logistics/by.png")) {
+        // Need a separate check region because the ammo icon might not be covered by the resource limit popup
+        val checkRegion = region.subRegion(704 + (333 * 1), 219, 306, 856)
+        while (checkRegion.has("logistics/ammo.png")) {
             missionRegion.clickRandomly(); yield()
         }
     }
