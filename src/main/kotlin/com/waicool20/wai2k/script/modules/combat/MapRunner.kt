@@ -121,9 +121,8 @@ abstract class MapRunner(
         }
         logger.info("Resupplying")
         mapRunnerRegions.resupply.clickRandomly()
-        // Close dialog in case echelon doesn't need resupply
-        region.findOrNull("close.png")?.clickRandomly()
         logger.info("Resupply complete")
+        delay(200)
     }
 
     /**
