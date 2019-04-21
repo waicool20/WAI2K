@@ -26,7 +26,6 @@ import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.Ocr
-import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.*
@@ -72,7 +71,7 @@ class FactoryModule(
             selectCharacterButton.clickRandomly(); delay(500)
 
             // Find the old doll count
-            statUpdateJobs += updateJob(region.subRegion(1750, 810, 290, 70).takeScreenshot()) { count ->
+            statUpdateJobs += getCurrentDollCount { count ->
                 val c = count[0].toInt()
                 oldDollCount?.get(0)?.toIntOrNull()?.let {
                     dollsUsedForEnhancement.getAndAdd(it - c)
@@ -174,7 +173,7 @@ class FactoryModule(
                     .waitSuspending("factory/select.png", 10)?.clickRandomly()
             delay(750)
 
-            statUpdateJobs += updateJob(region.subRegion(1750, 810, 290, 70).takeScreenshot()) { count ->
+            statUpdateJobs += getCurrentDollCount { count ->
                 val c = count[0].toInt()
                 oldDollCount?.get(0)?.toIntOrNull()?.let {
                     dollsDisassembled.getAndAdd(it - c)
@@ -185,7 +184,7 @@ class FactoryModule(
 
             // Click smart select button
             logger.info("Using smart select")
-            region.subRegion(1770, 859, 247, 158).clickRandomly()
+            region.subRegion(1770, 890, 247, 158).clickRandomly()
             delay(200)
 
             // Confirm doll selection
@@ -208,7 +207,7 @@ class FactoryModule(
         delay(750)
 
         while (isActive) {
-            statUpdateJobs += updateJob(region.subRegion(1750, 810, 290, 70).takeScreenshot()) { count ->
+            statUpdateJobs += getCurrentDollCount { count ->
                 val c = count[0].toInt()
                 oldDollCount?.get(0)?.toIntOrNull()?.let {
                     dollsDisassembled.getAndAdd(it - c)
@@ -232,9 +231,9 @@ class FactoryModule(
             // Click ok
             region.subRegion(1768, 889, 250, 158).find("factory/ok.png").clickRandomly(); yield()
             // Click disassemble button
-            region.subRegion(1749, 885, 247, 95).clickRandomly(); delay(200)
+            region.subRegion(1749, 885, 247, 95).clickRandomly(); delay(250)
             // Click confirm
-            region.subRegion(1100, 688, 324, 161).find("confirm.png").clickRandomly(); delay(200)
+            region.subRegion(1100, 688, 324, 161).find("ok_large.png").clickRandomly(); delay(200)
             // Update stats
             scriptStats.disassemblesDone += 1
             // Can break if disassembled count is less than 12
@@ -257,7 +256,8 @@ class FactoryModule(
         }
     }
 
-    private fun updateJob(screenshot: BufferedImage, action: (List<String>) -> Boolean): Job {
+    private fun getCurrentDollCount(action: (List<String>) -> Boolean): Job {
+        val screenshot = region.subRegion(1750, 814, 290, 70).takeScreenshot()
         return launch {
             Ocr.forConfig(config).doOCRAndTrim(screenshot)
                     .also { logger.info("Detected doll count: $it") }
