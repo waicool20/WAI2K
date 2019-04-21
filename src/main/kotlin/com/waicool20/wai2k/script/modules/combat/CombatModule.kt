@@ -500,7 +500,7 @@ class CombatModule(
         val asset = "combat/maps/${map.toUpperCase()}/zoom-anchor.png"
         if (Files.notExists(config.assetsDirectory.resolve(asset))) return
         var zooms = 0
-        while (region.doesntHave(asset, 0.98)) {
+        while (region.doesntHave(asset, 0.95)) {
             logger.info("Zoom anchor not found, attempting to zoom out")
             // Zoom in slightly randomly in case to jumble things up,
             // helps keeps thing from getting stuck
