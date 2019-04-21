@@ -228,7 +228,7 @@ class CombatModule(
                     .map {
                         DollRegions(
                                 image.getSubimage(it.x + 67, it.y + 79, 165, 40),
-                                image.getSubimage(it.x + 184, it.y + 129, 39, 27),
+                                image.getSubimage(it.x + 184, it.y + 130, 39, 30),
                                 region.subRegion(it.x - 7, it.y, 244, 164)
                         )
                     }.filter {
@@ -283,7 +283,7 @@ class CombatModule(
                     .sortedBy { it.x }
                     .map {
                         DollRegions(
-                                image.getSubimage(it.x - 157, it.y - 188, 257, 52),
+                                image.getSubimage(it.x - 157, it.y - 186, 257, 50),
                                 image.getSubimage(it.x - 139, it.y - 55, 221, 1)
                         )
                     }
