@@ -50,25 +50,18 @@ class Map5_4(
     }
 
     private suspend fun planPath() {
-        logger.info("Entering planning mode")
-        mapRunnerRegions.planningMode.clickRandomly(); yield()
         logger.info("Selecting echelon at heliport")
         region.subRegion(312, 334, 60, 60)
                 .clickRandomly(); yield()
+
+        logger.info("Entering planning mode")
+        mapRunnerRegions.planningMode.clickRandomly(); yield()
+
         logger.info("Selecting node 1")
-        // Use a shorter region because of entering turn 1 dialog possibly blocking clicks
-        region.subRegion(547, 257, 60, 35)
-                .clickRandomly(); yield()
-        logger.info("Selecting node 2")
-        region.subRegion(790, 237, 60, 60)
-                .clickRandomly(); yield()
-        logger.info("Selecting node 3")
         region.subRegion(1073, 254, 60, 60)
                 .clickRandomly(); yield()
-        logger.info("Selecting node 4")
-        region.subRegion(1087, 475, 60, 60)
-                .clickRandomly(); yield()
-        logger.info("Selecting node 5")
+
+        logger.info("Selecting node 2")
         region.subRegion(1072, 658, 60, 60)
                 .clickRandomly(); yield()
         logger.info("Executing plan")
