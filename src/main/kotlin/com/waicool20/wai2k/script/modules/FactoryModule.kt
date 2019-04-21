@@ -143,7 +143,7 @@ class FactoryModule(
             // Click enhance button
             region.subRegion(1763, 873, 250, 96).clickRandomly(); delay(300)
             // Click confirm if not enough T-dolls, got to get rid of the trash anyways :D
-            region.findOrNull("confirm.png")?.clickRandomly(); yield()
+            region.findOrNull("ok_large.png")?.clickRandomly(); yield()
 
             region.waitSuspending("close.png", 30)?.clickRandomly()
         }
