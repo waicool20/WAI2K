@@ -122,7 +122,7 @@ abstract class MapRunner(
         logger.info("Resupplying")
         mapRunnerRegions.resupply.clickRandomly()
         logger.info("Resupply complete")
-        delay(200)
+        delay(400)
     }
 
     /**
