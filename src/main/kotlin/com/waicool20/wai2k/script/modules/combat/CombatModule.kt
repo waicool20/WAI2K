@@ -41,7 +41,6 @@ import java.awt.image.BufferedImage
 import java.nio.file.Files
 import java.text.DecimalFormat
 import kotlin.math.min
-import kotlin.math.roundToLong
 import kotlin.random.Random
 import kotlin.reflect.full.primaryConstructor
 
@@ -108,7 +107,8 @@ class CombatModule(
         executeMapRunner()
 
         // Set game location back to combat menu now that battle has ended
-        gameState.currentGameLocation = GameLocation.mappings(config)[LocationId.COMBAT_MENU] ?: error("Bad locations.json file")
+        gameState.currentGameLocation = GameLocation.mappings(config)[LocationId.COMBAT_MENU]
+                ?: error("Bad locations.json file")
         logger.info("Sortie complete")
         // Back to combat menu or home, check logistics
         navigator.checkLogistics()
@@ -428,27 +428,18 @@ class CombatModule(
         navigator.checkLogistics()
 
         // Swipe up if map is > 4
-        if (map.drop(2).take(1).toInt() > 4) {
-            region.subRegion(1020, 880, 675, 140).randomLocation().let {
-                region.swipeRandomly(it, it.offset(0, -650))
+        when (val mapNum = map.drop(2).take(1).toInt()) {
+            in 1..4 -> {
+                region.subRegion(925, 355 + 176 * (mapNum - 1), 440, 130)
+                        .clickRandomly()
             }
-        }
-        delay(200)
-        // Narrow vertical region containing the map names, 1-1, 1-2 etc.
-        val findRegion = region.subRegion(1060, 336, 150, 744)
-        val asset = "combat/maps/${map.replace(Regex("[enEN]"), "")}.png"
-        // Click until map asset is gone
-        withTimeoutOrNull(10000) {
-            while (isActive) {
-                navigator.checkLogistics()
-                val mapRegion = findRegion.findOrNull(asset)
-                        ?.let { region.subRegion(it.x - 342, it.y, 1274, 50) }
-                if (mapRegion != null) {
-                    navigator.checkLogistics()
-                    mapRegion.clickRandomly()
-                    break
+            else -> {
+                region.subRegion(1020, 880, 675, 140).randomLocation().let {
+                    region.swipeRandomly(it, it.offset(0, -650))
                 }
-                delay(200)
+                navigator.checkLogistics()
+                region.subRegion(925, 472 + 176 * (mapNum - 4), 440, 130)
+                        .clickRandomly()
             }
         }
     }
@@ -476,7 +467,8 @@ class CombatModule(
                 logger.info("T-doll limit reached, cancelling sortie")
                 clickRandomly()
                 gameState.dollOverflow = true
-                gameState.currentGameLocation = GameLocation.mappings(config)[LocationId.TDOLL_ENHANCEMENT] ?: error("Bad locations.json file")
+                gameState.currentGameLocation = GameLocation.mappings(config)[LocationId.TDOLL_ENHANCEMENT]
+                        ?: error("Bad locations.json file")
                 return
             }
 
