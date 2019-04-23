@@ -39,7 +39,7 @@ class Map2_6(
 
     override suspend fun execute() {
         deployEchelons(
-                COMMAND_POST to region.subRegion(425, 485, 103, 113)
+                COMMAND_POST at region.subRegion(425, 485, 103, 113)
         )
         mapRunnerRegions.startOperation.clickRandomly(); yield()
         waitForGNKSplash()

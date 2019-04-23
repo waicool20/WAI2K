@@ -38,8 +38,8 @@ class Map5_4(
 
     override suspend fun execute() {
         deployEchelons(
-                HELIPORT to region.subRegion(295, 320, 87, 83),
-                COMMAND_POST to region.subRegion(1715, 233, 103, 113)
+                HELIPORT at region.subRegion(295, 320, 87, 83),
+                COMMAND_POST at region.subRegion(1715, 233, 103, 113)
         )
         mapRunnerRegions.startOperation.clickRandomly(); yield()
         waitForGNKSplash()

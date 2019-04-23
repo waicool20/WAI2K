@@ -38,6 +38,8 @@ abstract class MapRunner(
         protected val config: Wai2KConfig,
         protected val profile: Wai2KProfile
 ) : CoroutineScope {
+    protected data class Deployment(val label: String, val region: AndroidRegion)
+
     private val logger = loggerFor<MapRunner>()
     private val pauseButtonRegion = region.subRegion(1020, 0, 110, 50)
     private val battleEndClickRegion = region.subRegion(992, 24, 1168, 121)
@@ -91,11 +93,11 @@ abstract class MapRunner(
     /**
      * Deploys the given echelons to the given locations using click regions
      *
-     * @param echelons A variable list of pairs that contain the destination label and
+     * @param deployments A variable list of [Deployment] that contain the destination label and
      * the corresponding click region (Heliport, Command post etc.)
      */
-    protected suspend fun deployEchelons(vararg echelons: Pair<String, AndroidRegion>) {
-        echelons.forEachIndexed { i, (label, region) ->
+    protected suspend fun deployEchelons(vararg deployments: Deployment) {
+        deployments.forEachIndexed { i, (label, region) ->
             logger.info("Deploying echelon ${i + 1} to $label")
             region.clickRandomly(); delay(300)
             mapRunnerRegions.deploy.clickRandomly()
@@ -201,6 +203,8 @@ abstract class MapRunner(
         scriptStats.sortiesDone += 1
         _battles = 1
     }
+
+    protected infix fun String.at(region: AndroidRegion) = Deployment(this, region)
 
     private fun isInBattle() = pauseButtonRegion.has("combat/battle/pause.png", 0.9)
 }

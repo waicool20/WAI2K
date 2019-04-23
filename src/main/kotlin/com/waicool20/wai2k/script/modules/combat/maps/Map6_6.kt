@@ -40,7 +40,7 @@ class Map6_6(
     override suspend fun execute() {
         //shrink initial deployment's command post size as the map is rather big, making the nodes rather small
         deployEchelons(
-                COMMAND_POST to region.subRegion(219, 331, 60, 60)
+                COMMAND_POST at region.subRegion(219, 331, 60, 60)
         )
         mapRunnerRegions.startOperation.clickRandomly(); yield()
         waitForGNKSplash()
