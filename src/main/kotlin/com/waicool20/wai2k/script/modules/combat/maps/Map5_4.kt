@@ -36,14 +36,14 @@ class Map5_4(
     private val logger = loggerFor<Map5_4>()
     override val isCorpseDraggingMap = true
 
+    private val heliportDeployment = HELIPORT at region.subRegion(295, 320, 87, 83)
+    private val commandPostDeployment = COMMAND_POST at region.subRegion(1715, 233, 103, 113)
+
     override suspend fun execute() {
-        deployEchelons(
-                HELIPORT at region.subRegion(295, 320, 87, 83),
-                COMMAND_POST at region.subRegion(1715, 233, 103, 113)
-        )
+        deployEchelons(heliportDeployment, commandPostDeployment)
         mapRunnerRegions.startOperation.clickRandomly(); yield()
         waitForGNKSplash()
-        resupplyEchelon(COMMAND_POST, region.subRegion(1715, 233, 103, 113))
+        resupplyEchelon(commandPostDeployment)
         planPath()
         waitForTurnEnd(5)
         handleBattleResults()

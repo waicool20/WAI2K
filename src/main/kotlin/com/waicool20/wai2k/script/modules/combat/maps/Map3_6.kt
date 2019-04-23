@@ -25,7 +25,6 @@ import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.script.modules.combat.MapRunner
 import com.waicool20.waicoolutils.logging.loggerFor
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
 
 class Map3_6(
@@ -37,14 +36,14 @@ class Map3_6(
     private val logger = loggerFor<Map3_6>()
     override val isCorpseDraggingMap = false
 
+    private val heliportDeployment = HELIPORT at region.subRegion(1187, 557, 60, 60)
+    private val commandPostDeployment = COMMAND_POST at region.subRegion(1734, 329, 103, 113)
+
     override suspend fun execute() {
-        deployEchelons(
-                COMMAND_POST at region.subRegion(1734, 329, 103, 113),
-                HELIPORT at region.subRegion(1187, 557, 60, 60)
-        )
+        deployEchelons(commandPostDeployment, heliportDeployment)
         mapRunnerRegions.startOperation.clickRandomly(); yield()
         waitForGNKSplash()
-        resupplyEchelon(HELIPORT, region.subRegion(1187, 557, 60, 60))
+        resupplyEchelon(heliportDeployment)
         planPath()
         waitForTurnEnd(3)
         handleBattleResults()
@@ -66,7 +65,7 @@ class Map3_6(
 
         //Pan down
         region.subRegion(784, 950, 240, 100).let {
-            it.swipeToRandomly(it.offset(0, -900 ), 1000); yield()
+            it.swipeToRandomly(it.offset(0, -900), 1000); yield()
         }
 
         logger.info("Selecting node 3")

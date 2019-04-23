@@ -26,6 +26,7 @@ import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.game.MapRunnerRegions
 import com.waicool20.wai2k.script.ScriptRunner
+import com.waicool20.wai2k.script.modules.combat.MapRunner.Deployment
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.*
 import org.reflections.Reflections
@@ -93,7 +94,7 @@ abstract class MapRunner(
     /**
      * Deploys the given echelons to the given locations using click regions
      *
-     * @param deployments A variable list of [Deployment] that contain the destination label and
+     * @param deployments A variable list of [Deployment] that contains the destination label and
      * the corresponding click region (Heliport, Command post etc.)
      */
     protected suspend fun deployEchelons(vararg deployments: Deployment) {
@@ -110,14 +111,14 @@ abstract class MapRunner(
     /**
      * Resupplies an echelon at the given location using click regions
      *
-     * @param label Destination label, used for logging
-     * @param region Click region of the destination (Heliport, Command post etc.)
+     * @param deployment [Deployment] that contains the destination label and
+     * the corresponding click region (Heliport, Command post etc.)
      */
-    protected suspend fun resupplyEchelon(label: String, region: AndroidRegion) {
-        logger.info("Resupplying echelon at $label")
+    protected suspend fun resupplyEchelon(deployment: Deployment) {
+        logger.info("Resupplying echelon at ${deployment.label}")
         // Clicking twice, first to highlight the echelon, the second time to enter the deployment menu
         logger.info("Selecting echelon")
-        region.apply {
+        deployment.region.apply {
             clickRandomly(); yield()
             clickRandomly(); delay(300)
         }

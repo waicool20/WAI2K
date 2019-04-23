@@ -25,7 +25,6 @@ import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.script.modules.combat.MapRunner
 import com.waicool20.waicoolutils.logging.loggerFor
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
 
 class Map2_6(
@@ -37,13 +36,13 @@ class Map2_6(
     private val logger = loggerFor<Map2_6>()
     override val isCorpseDraggingMap = false
 
+    private val commandPostDeployment = COMMAND_POST at region.subRegion(425, 485, 103, 113)
+
     override suspend fun execute() {
-        deployEchelons(
-                COMMAND_POST at region.subRegion(425, 485, 103, 113)
-        )
+        deployEchelons(commandPostDeployment)
         mapRunnerRegions.startOperation.clickRandomly(); yield()
         waitForGNKSplash()
-        resupplyEchelon(COMMAND_POST, region.subRegion(425, 485, 103, 113))
+        resupplyEchelon(commandPostDeployment)
         planPath()
         waitForTurnEnd(1)
         waitForGNKSplash(45)
@@ -69,7 +68,7 @@ class Map2_6(
         mapRunnerRegions.executePlan.clickRandomly(); yield()
     }
 
-    private suspend fun nextTurn()  {
+    private suspend fun nextTurn() {
         logger.info("Entering planning mode")
         mapRunnerRegions.planningMode.clickRandomly(); yield()
         logger.info("Selecting echelon at heliport")

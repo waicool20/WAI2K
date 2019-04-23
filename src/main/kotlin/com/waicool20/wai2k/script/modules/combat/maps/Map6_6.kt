@@ -25,7 +25,6 @@ import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.script.modules.combat.MapRunner
 import com.waicool20.waicoolutils.logging.loggerFor
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
 
 class Map6_6(
@@ -37,14 +36,14 @@ class Map6_6(
     private val logger = loggerFor<Map6_6>()
     override val isCorpseDraggingMap = false
 
+    //shrink initial deployment's command post size as the map is rather big, making the nodes rather small
+    private val commandPostDeployment = COMMAND_POST at region.subRegion(219, 331, 60, 60)
+
     override suspend fun execute() {
-        //shrink initial deployment's command post size as the map is rather big, making the nodes rather small
-        deployEchelons(
-                COMMAND_POST at region.subRegion(219, 331, 60, 60)
-        )
+        deployEchelons(commandPostDeployment)
         mapRunnerRegions.startOperation.clickRandomly(); yield()
         waitForGNKSplash()
-        resupplyEchelon(COMMAND_POST, region.subRegion(219, 331, 60, 60))
+        resupplyEchelon(commandPostDeployment)
         planPath()
         waitForTurnEnd(2)
         waitForGNKSplash(45)
