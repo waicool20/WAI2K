@@ -26,11 +26,16 @@ import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.game.MapRunnerRegions
 import com.waicool20.wai2k.script.ScriptRunner
-import com.waicool20.wai2k.script.modules.combat.MapRunner.Deployment
+import com.waicool20.wai2k.util.Ocr
+import com.waicool20.wai2k.util.doOCRAndTrim
+import com.waicool20.waicoolutils.binarizeImage
 import com.waicool20.waicoolutils.logging.loggerFor
+import com.waicool20.waicoolutils.pad
 import kotlinx.coroutines.*
 import org.reflections.Reflections
+import java.awt.Color
 import kotlin.coroutines.CoroutineContext
+import kotlin.math.abs
 import kotlin.random.Random
 
 abstract class MapRunner(
@@ -146,7 +151,7 @@ abstract class MapRunner(
                     logger.info("Battle ${_battles++} complete, clicking through battle results")
                     delay(400)
                     val l = battleEndClickRegion.randomLocation()
-                    repeat(Random.nextInt(7,9)) { region.click(l); yield() }
+                    repeat(Random.nextInt(7, 9)) { region.click(l); yield() }
                 } else yield()
             }
         }
@@ -169,21 +174,64 @@ abstract class MapRunner(
         var battlesPassed = 0
         while (isActive && battlesPassed < battles) {
             if (isInBattle()) {
-                logger.info("Entered battle $_battles")
-                // Wait until it disappears
-                while (isActive && isInBattle()) yield()
-                logger.info("Battle ${_battles++} complete, clicking through battle results")
-                delay(400)
-                val l = battleEndClickRegion.randomLocation()
-                repeat(Random.nextInt(7,9)) { region.click(l); yield() }
+                clickThroughBattle()
                 battlesPassed++
-            } else yield()
+            }
+            yield()
         }
         region.waitSuspending("combat/battle/terminate.png", 1200)
         logger.info("Turn ended")
         // Click end button
         delay(400)
         repeat(Random.nextInt(2, 3)) { mapRunnerRegions.endBattle.clickRandomly() }
+    }
+
+    /**
+     * Waits for the current turn to end by checking the current turn and amount of action points left
+     * Relies on OCR, may not be that reliable
+     * This also clicks through any battle results when node battle ends
+     *
+     * @param turn Turn number
+     * @param points No of action points
+     */
+    protected suspend fun waitForTurnAndPoints(turn: Int, points: Int) {
+        logger.info("Waiting for turn $turn and action points $points")
+        val ocr = Ocr.forConfig(config, digitsOnly = true)
+        var currentTurn = 0
+        var currentPoints = 0
+        while (isActive && (currentTurn != turn || currentPoints != points)) {
+            if (isInBattle()) clickThroughBattle()
+            val screenshot = region.takeScreenshot()
+            val newTurn = ocr.doOCRAndTrim(screenshot.getSubimage(748, 53, 86, 72))
+                    .let { if (it.firstOrNull() == '8') it.replaceFirst("8", "0") else it }
+                    .toIntOrNull() ?: continue
+            val newPoints = ocr.doOCRAndTrim(screenshot.getSubimage(1730, 970, 135, 76).binarizeImage().pad(10, 10, Color.BLACK))
+                    .toIntOrNull() ?: continue
+            // Ignore point deltas larger than 10
+            if ((currentTurn != newTurn || currentPoints != newPoints) && abs(currentPoints - newPoints) < 10) {
+                logger.info("Current turn: $newTurn ($turn) | Current action points: $newPoints ($points)")
+                currentTurn = newTurn
+                currentPoints = newPoints
+            }
+            yield()
+        }
+        logger.info("Reached required turns and action points!")
+        delay(1000)
+        while (isActive) {
+            if (isInBattle()) clickThroughBattle()
+            if (region.has("combat/battle/terminate.png")) break
+        }
+        repeat(Random.nextInt(2, 3)) { mapRunnerRegions.endBattle.clickRandomly() }
+    }
+
+    private suspend fun clickThroughBattle() {
+        logger.info("Entered battle $_battles")
+        // Wait until it disappears
+        while (isActive && isInBattle()) yield()
+        logger.info("Battle ${_battles++} complete, clicking through battle results")
+        delay(400)
+        val l = battleEndClickRegion.randomLocation()
+        repeat(Random.nextInt(7, 9)) { region.click(l); yield() }
     }
 
     /**
