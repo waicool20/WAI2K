@@ -36,7 +36,7 @@ class Map2_6(
     private val logger = loggerFor<Map2_6>()
     override val isCorpseDraggingMap = false
 
-    private val commandPostDeployment = COMMAND_POST at region.subRegion(425, 485, 103, 113)
+    private val commandPostDeployment = COMMAND_POST at region.subRegion(458, 510, 60, 60)
 
     override suspend fun execute() {
         deployEchelons(commandPostDeployment)
@@ -44,44 +44,19 @@ class Map2_6(
         waitForGNKSplash()
         resupplyEchelon(commandPostDeployment)
         planPath()
-        waitForTurnEnd(1)
-        waitForGNKSplash(45)
-        nextTurn()
-        waitForTurnEnd(1)
+        waitForTurnEnd(3)
         handleBattleResults()
     }
 
     private suspend fun planPath() {
         logger.info("Entering planning mode")
         mapRunnerRegions.planningMode.clickRandomly(); yield()
-        logger.info("Selecting echelon at command post")
-        region.subRegion(425, 485, 103, 113)
-                .clickRandomly(); yield()
-        // Use a shorter region because of entering turn 1 dialog possibly blocking clicks
+
         logger.info("Selecting node 1")
-        region.subRegion(391, 257, 60, 35)
+        region.subRegion(1205, 165, 60, 60)
                 .clickRandomly(); yield()
-        logger.info("Selecting node 2")
-        region.subRegion(721, 495, 60, 60)
-                .clickRandomly(); yield()
+
         logger.info("Executing plan")
         mapRunnerRegions.executePlan.clickRandomly(); yield()
     }
-
-    private suspend fun nextTurn() {
-        logger.info("Entering planning mode")
-        mapRunnerRegions.planningMode.clickRandomly(); yield()
-        logger.info("Selecting echelon at heliport")
-        region.subRegion(724, 513, 60, 60)
-                .clickRandomly(); yield()
-        logger.info("Selecting node 1")
-        region.subRegion(1184, 416, 60, 60)
-                .clickRandomly(); yield()
-        logger.info("Selecting node 2")
-        region.subRegion(1213, 173, 60, 60)
-                .clickRandomly(); yield()
-        logger.info("Executing plan")
-        mapRunnerRegions.executePlan.clickRandomly(); yield()
-    }
-
 }
