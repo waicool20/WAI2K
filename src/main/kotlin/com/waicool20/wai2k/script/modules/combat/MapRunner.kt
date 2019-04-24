@@ -224,6 +224,21 @@ abstract class MapRunner(
         repeat(Random.nextInt(2, 3)) { mapRunnerRegions.endBattle.clickRandomly() }
     }
 
+    /**
+     * Waits for the assets to appear and assumes that the turn is complete
+     */
+    protected suspend fun waitForTurnAssets(vararg assets: String) {
+        logger.info("Waiting for ${assets.size} assets to appear")
+        while(assets.any { region.doesntHave(it, 0.98) }) {
+            if (isInBattle()) clickThroughBattle()
+            yield()
+        }
+        logger.info("All assets are now on screen")
+        region.waitSuspending("combat/battle/terminate.png", 1200)
+        // Click end button
+        repeat(Random.nextInt(2, 3)) { mapRunnerRegions.endBattle.clickRandomly() }
+    }
+
     private suspend fun clickThroughBattle() {
         logger.info("Entered battle $_battles")
         // Wait until it disappears
