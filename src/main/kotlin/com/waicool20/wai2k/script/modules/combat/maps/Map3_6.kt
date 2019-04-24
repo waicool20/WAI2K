@@ -36,44 +36,32 @@ class Map3_6(
     private val logger = loggerFor<Map3_6>()
     override val isCorpseDraggingMap = false
 
-    private val heliportDeployment = HELIPORT at region.subRegion(1187, 557, 60, 60)
-    private val commandPostDeployment = COMMAND_POST at region.subRegion(1734, 329, 103, 113)
+    private val heliportDeployment = HELIPORT at region.subRegion(1179, 558, 60, 60)
+    private val commandPostDeployment = COMMAND_POST at region.subRegion(1740, 357, 60, 60)
 
     override suspend fun execute() {
-        deployEchelons(commandPostDeployment, heliportDeployment)
+        deployEchelons(heliportDeployment, commandPostDeployment)
         mapRunnerRegions.startOperation.clickRandomly(); yield()
         waitForGNKSplash()
         resupplyEchelon(heliportDeployment)
         planPath()
-        waitForTurnEnd(3)
+        waitForTurnEnd(2)
         handleBattleResults()
     }
 
     private suspend fun planPath() {
         logger.info("Entering planning mode")
         mapRunnerRegions.planningMode.clickRandomly(); yield()
-        logger.info("Selecting echelon at heliport")
-        region.subRegion(1187, 557, 60, 60)
-                .clickRandomly(); yield()
-
-        logger.info("Selecting node 1")
-        region.subRegion(922, 582, 60, 60)
-                .clickRandomly(); yield()
-        logger.info("Selecting node 2")
-        region.subRegion(1060, 833, 60, 60)
-                .clickRandomly(); yield()
 
         //Pan down
         region.subRegion(784, 950, 240, 100).let {
             it.swipeToRandomly(it.offset(0, -900), 1000); yield()
         }
 
-        logger.info("Selecting node 3")
-        region.subRegion(958, 286, 60, 60)
+        logger.info("Selecting node 1")
+        region.subRegion(848, 557, 60, 60)
                 .clickRandomly(); yield()
-        logger.info("Selecting node 4")
-        region.subRegion(846, 559, 60, 60)
-                .clickRandomly(); yield()
+
         logger.info("Executing plan")
         mapRunnerRegions.executePlan.clickRandomly(); yield()
     }
