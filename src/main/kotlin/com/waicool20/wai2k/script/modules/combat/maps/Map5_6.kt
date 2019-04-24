@@ -37,10 +37,18 @@ class Map5_6(
     private val logger = loggerFor<Map5_6>()
     override val isCorpseDraggingMap = false
 
-    private val heliportDeployment = HELIPORT at region.subRegion(1783, 277, 60, 60)
+    private val heliportDeployment = HELIPORT at region.subRegion(1768, 282, 60, 60)
+    private val commandPostDeployment = COMMAND_POST at region.subRegion(1721, 740, 60, 60)
 
     override suspend fun execute() {
-        deployment()
+        deployEchelons(commandPostDeployment)
+
+        //Pan up
+        region.subRegion(1300, 100, 240, 100).randomLocation().let { l ->
+            repeat(2) { region.swipeRandomly(l, l.offset(0, 700), 400) }
+        }
+
+        deployEchelons(heliportDeployment)
         mapRunnerRegions.startOperation.clickRandomly(); yield()
         waitForGNKSplash()
         resupplyEchelon(heliportDeployment)
@@ -49,45 +57,14 @@ class Map5_6(
         handleBattleResults()
     }
 
-    private suspend fun deployment() {
-        logger.info("Deploying echelon 1 to command post")
-        region.subRegion(1712, 717, 103, 113)
-                .clickRandomly(); yield()
-        mapRunnerRegions.deploy.clickRandomly()
-        delay(300)
-
-        //Pan up
-        region.subRegion(1300, 100, 240, 100).randomLocation().let { l ->
-            repeat(2) { region.swipeRandomly(l, l.offset(0, 700), 400) }
-        }
-
-        logger.info("Deploying echelon 2 to heliport")
-        region.subRegion(1783, 277, 60, 60)
-                .clickRandomly(); yield()
-        mapRunnerRegions.deploy.clickRandomly()
-        delay(300)
-
-        logger.info("Deployment complete")
-    }
-
     private suspend fun planPath() {
         logger.info("Entering planning mode")
         mapRunnerRegions.planningMode.clickRandomly(); yield()
-        logger.info("Selecting echelon at heliport")
-        region.subRegion(1783, 277, 60, 60)
-                .clickRandomly(); yield()
+
         logger.info("Selecting node 1")
-        region.subRegion(1417, 239, 60, 60)
+        region.subRegion(419, 337, 60, 60)
                 .clickRandomly(); yield()
-        logger.info("Selecting node 2")
-        region.subRegion(1127, 333, 60, 60)
-                .clickRandomly(); yield()
-        logger.info("Selecting node 3")
-        region.subRegion(778, 279, 60, 60)
-                .clickRandomly(); yield()
-        logger.info("Selecting node 4")
-        region.subRegion(409, 366, 60, 60)
-                .clickRandomly(); yield()
+
         logger.info("Executing plan")
         mapRunnerRegions.executePlan.clickRandomly(); yield()
     }
