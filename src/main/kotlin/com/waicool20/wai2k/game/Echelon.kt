@@ -32,7 +32,7 @@ data class Echelon(val number: Int) {
         var repairEta: Instant? = null
     }
 
-    fun hasRepairs() = !members.all { it.repairEta == null }
+    fun hasRepairs() = members.any { it.repairEta != null }
     fun needsRepairs() = members.any { it.needsRepair }
 }
 
