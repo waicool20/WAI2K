@@ -59,8 +59,10 @@ class InitModule(
         navigator.navigateTo(LocationId.HOME_STATUS)
         logger.info("Updating gamestate")
         measureTimeMillis {
-            launch { updateRepairs() }
+            val repairJob = launch { updateRepairs() }
             updateLogistics()
+            // Wait for repairs to finish updating if script just started
+            if (scriptStats.sortiesDone == 0) repairJob.join()
         }.let { logger.info("Finished updating game state in $it ms") }
         gameState.requiresUpdate = false
     }
@@ -134,7 +136,7 @@ class InitModule(
                 .map {
                     async {
                         // Echelon section on the right without the word "Echelon"
-                        Ocr.forConfig(config, digitsOnly = true).doOCRAndTrim(it.getSubimage(0, 26, 83, 118))
+                        Ocr.forConfig(config, digitsOnly = true).doOCRAndTrim(it.getSubimage(0, 25, 83, 100))
                     } to async { readRepairTimers(it) }
                 }.map { it.first.await().toInt() to it.second.await() }
 
