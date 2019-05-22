@@ -50,7 +50,6 @@ abstract class MapRunner(
     private val pauseButtonRegion = region.subRegion(1020, 0, 110, 50)
     private val battleEndClickRegion = region.subRegion(992, 24, 1168, 121)
     private var _battles = 1
-    private var deployedEchelons = 1
 
     companion object {
         const val COMMAND_POST = "command post"
@@ -104,13 +103,14 @@ abstract class MapRunner(
      * the corresponding click region (Heliport, Command post etc.)
      */
     protected suspend fun deployEchelons(vararg deployments: Deployment) {
+        var deployedEchelons = 1
         deployments.forEach { (label, region) ->
             logger.info("Deploying echelon ${deployedEchelons++} to $label")
             region.clickRandomly(); delay(300)
             mapRunnerRegions.deploy.clickRandomly()
             delay(300)
         }
-
+        delay(200)
         logger.info("Deployment complete")
     }
 
