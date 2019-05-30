@@ -45,7 +45,7 @@ class Map3_6(
         waitForGNKSplash()
         resupplyEchelon(heliportDeployment)
         planPath()
-        waitForTurnEnd(2)
+        waitForTurnAssets("$PREFIX/turn-end.png")
         handleBattleResults()
     }
 
