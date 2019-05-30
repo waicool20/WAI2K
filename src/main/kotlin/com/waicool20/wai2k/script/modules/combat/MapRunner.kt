@@ -182,9 +182,7 @@ abstract class MapRunner(
         }
         region.waitSuspending("combat/battle/terminate.png", 1200)
         logger.info("Turn ended")
-        // Click end button
-        delay(400)
-        repeat(Random.nextInt(2, 3)) { mapRunnerRegions.endBattle.clickRandomly() }
+        endTurn()
     }
 
     /**
@@ -222,7 +220,7 @@ abstract class MapRunner(
             if (isInBattle()) clickThroughBattle()
             if (region.has("combat/battle/terminate.png")) break
         }
-        repeat(Random.nextInt(2, 3)) { mapRunnerRegions.endBattle.clickRandomly() }
+        endTurn()
     }
 
     /**
@@ -230,14 +228,13 @@ abstract class MapRunner(
      */
     protected suspend fun waitForTurnAssets(vararg assets: String) {
         logger.info("Waiting for ${assets.size} assets to appear")
-        while(assets.any { region.doesntHave(it, 0.98) }) {
+        while (assets.any { region.doesntHave(it, 0.98) }) {
             if (isInBattle()) clickThroughBattle()
             yield()
         }
         logger.info("All assets are now on screen")
         region.waitSuspending("combat/battle/terminate.png", 1200)
-        // Click end button
-        repeat(Random.nextInt(2, 3)) { mapRunnerRegions.endBattle.clickRandomly() }
+        endTurn()
     }
 
     private suspend fun clickThroughBattle() {
@@ -272,4 +269,11 @@ abstract class MapRunner(
     protected infix fun String.at(region: AndroidRegion) = Deployment(this, region)
 
     private fun isInBattle() = pauseButtonRegion.has("combat/battle/pause.png", 0.9)
+
+    private suspend fun endTurn() {
+        do {
+            repeat(Random.nextInt(2, 3)) { mapRunnerRegions.endBattle.clickRandomly() }
+            delay(250)
+        } while (region.has("combat/battle/terminate.png"))
+    }
 }
