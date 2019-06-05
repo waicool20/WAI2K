@@ -62,6 +62,12 @@
             <Spinner fx:id="mapRunnerSimThresholdSpinner" editable="true" />
          </children>
       </HBox>
+      <HBox alignment="CENTER_LEFT" spacing="10.0">
+         <children>
+            <Label prefWidth="220.0" text="OCR threshold:" />
+            <Spinner fx:id="ocrThresholdSpinner" editable="true" />
+         </children>
+      </HBox>
       <Separator prefWidth="200.0" />
       <VBox spacing="10.0">
          <children>

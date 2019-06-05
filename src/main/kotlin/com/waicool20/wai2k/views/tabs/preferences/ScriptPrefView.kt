@@ -36,6 +36,7 @@ class ScriptPrefView : View() {
     private val defaultSimThresholdSpinner: Spinner<Double> by fxid()
     private val mapRunnerSimThresholdSpinner: Spinner<Double> by fxid()
     private val fastScreenshotModeCheckBox: CheckBox by fxid()
+    private val ocrThresholdSpinner: Spinner<Double> by fxid()
 
     private val context: Wai2KContext by inject()
 
@@ -46,12 +47,14 @@ class ScriptPrefView : View() {
         mouseDelaySpinner.valueFactory = DoubleSpinnerValueFactory(0.0, 100.0, 0.15, 0.01)
         defaultSimThresholdSpinner.valueFactory = DoubleSpinnerValueFactory(0.0, 1.0, 0.8, 0.05)
         mapRunnerSimThresholdSpinner.valueFactory = DoubleSpinnerValueFactory(0.0, 1.0, 0.8, 0.05)
+        ocrThresholdSpinner.valueFactory = DoubleSpinnerValueFactory(0.0, 20.0, 0.9, 0.1)
         context.wai2KConfig.scriptConfig.apply {
             loopDelaySpinner.bind(loopDelayProperty)
             scanRateSpinner.bind(sikulixScanRateProperty)
             mouseDelaySpinner.bind(mouseDelayProperty)
             defaultSimThresholdSpinner.bind(defaultSimilarityThresholdProperty)
             mapRunnerSimThresholdSpinner.bind(mapRunnerSimilarityThresholdProperty)
+            ocrThresholdSpinner.bind(ocrThresholdProperty)
             fastScreenshotModeCheckBox.bind(fastScreenshotModeProperty)
         }
     }

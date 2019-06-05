@@ -29,6 +29,7 @@ class ScriptConfig(
         mouseDelay: Double = 0.15,
         defaultSimilarityThreshold: Double = 0.9,
         mapRunnerSimilarityThreshold: Double = 0.85,
+        ocrThreshold: Double = 0.9,
         fastScreenshotMode: Boolean = false
 ) {
     val loopDelayProperty = loopDelay.toProperty()
@@ -36,6 +37,7 @@ class ScriptConfig(
     val mouseDelayProperty = mouseDelay.toProperty()
     val defaultSimilarityThresholdProperty = defaultSimilarityThreshold.toProperty()
     val mapRunnerSimilarityThresholdProperty = mapRunnerSimilarityThreshold.toProperty()
+    val ocrThresholdProperty = ocrThreshold.toProperty()
     val fastScreenshotModeProperty = fastScreenshotMode.toProperty()
 
     var loopDelay by loopDelayProperty
@@ -43,5 +45,6 @@ class ScriptConfig(
     var mouseDelay by mouseDelayProperty
     var defaultSimilarityThreshold by defaultSimilarityThresholdProperty
     var mapRunnerSimilarityThreshold by mapRunnerSimilarityThresholdProperty
+    var ocrThreshold by ocrThresholdProperty
     var fastScreenshotMode by fastScreenshotModeProperty
 }

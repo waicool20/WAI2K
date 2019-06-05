@@ -44,8 +44,6 @@ import kotlin.math.min
 import kotlin.random.Random
 import kotlin.reflect.full.primaryConstructor
 
-private const val OCR_THRESHOLD = 2
-
 class CombatModule(
         scriptRunner: ScriptRunner,
         region: AndroidRegion,
@@ -173,9 +171,9 @@ class CombatModule(
         // Check if dolls were switched correctly, might not be the case if one of them leveled
         // up and the positions got switched
         wasCancelled = gameState.echelons[0].members[1].name
-                .distanceTo(profile.combat.draggers[echelon1Doll]!!.name) >= OCR_THRESHOLD ||
+                .distanceTo(profile.combat.draggers[echelon1Doll]!!.name) >= config.scriptConfig.ocrThreshold ||
                 gameState.echelons[1].members[0].name
-                        .distanceTo(profile.combat.draggers[echelon2Doll]!!.name) >= OCR_THRESHOLD
+                        .distanceTo(profile.combat.draggers[echelon2Doll]!!.name) >= config.scriptConfig.ocrThreshold
         logger.info("Switching dolls took ${System.currentTimeMillis() - startTime} ms")
     }
 
@@ -223,7 +221,7 @@ class CombatModule(
             }
         }
 
-        logger.info("Attempting to find dragging doll $doll with given criteria name = $name, distance < $OCR_THRESHOLD, level >= $level")
+        logger.info("Attempting to find dragging doll $doll with given criteria name = $name, distance < $config.scriptConfig.ocrThreshold, level >= $level")
         repeat(retries) { i ->
             // Take a screenshot after each retry, just in case it was a bad one in case its not OCRs fault
             // Optimize by taking a single screenshot and working on that
@@ -242,7 +240,7 @@ class CombatModule(
                         val ocrLevel = it.level.await()
                         val distance = ocrName.distanceTo(name, Ocr.OCR_DISTANCE_MAP)
                         logger.debug("[Scan OCR] Name: $ocrName | Distance: $distance | Level: $ocrLevel")
-                        distance < OCR_THRESHOLD && ocrLevel ?: 1 >= level
+                        distance < config.scriptConfig.ocrThreshold && ocrLevel ?: 1 >= level
                     }
                     // Return click regions
                     .map { it.clickRegion }
@@ -294,8 +292,8 @@ class CombatModule(
                         )
                     }
             // Checking if the ocr results were gibberish
-            if (members.none { it.name.distanceTo(profile.combat.draggers[1]!!.name) < OCR_THRESHOLD } &&
-                    members.none { it.name.distanceTo(profile.combat.draggers[2]!!.name) < OCR_THRESHOLD }) {
+            if (members.none { it.name.distanceTo(profile.combat.draggers[1]!!.name) < config.scriptConfig.ocrThreshold } &&
+                    members.none { it.name.distanceTo(profile.combat.draggers[2]!!.name) < config.scriptConfig.ocrThreshold }) {
                 logger.info("Update repair status ocr failed after $i attempts, retries remaining: ${retries - i}")
                 if (i == retries) {
                     logger.warn("Could not update repair status after $retries attempts, continue anyways")
@@ -352,7 +350,7 @@ class CombatModule(
                         .filterAsync {
                             region.subRegion(it.x - 7, it.y - 268, 243, 431).has("combat/critical-dmg.png") ||
                                     Ocr.forConfig(config).doOCRAndTrim(screenshot.getSubimage(it.x + 67, it.y + 72, 161, 52)).let { oName ->
-                                        members.any { it.name.distanceTo(oName) < OCR_THRESHOLD }
+                                        members.any { it.name.distanceTo(oName) < config.scriptConfig.ocrThreshold }
                                     }
                         }.map { region.subRegion(it.x - 7, it.y - 268, 243, 431) }
                         .also { logger.info("${it.size} dolls need repair") }
