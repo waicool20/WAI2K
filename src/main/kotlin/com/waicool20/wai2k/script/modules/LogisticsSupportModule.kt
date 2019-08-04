@@ -197,7 +197,7 @@ class LogisticsSupportModule(
 
         while (eRegion.doesntHave("echelons/echelon${echelon.number}.png")) {
             delay(100)
-            val echelons = (1..7).mapAsync(this) {
+            val echelons = (1..7).mapAsync {
                 it to eRegion.findOrNull("echelons/echelon$it.png")
             }.filter { it.second != null }.map { it.first to it.second!! }
             logger.debug("Visible echelons: ${echelons.map { it.first }}")

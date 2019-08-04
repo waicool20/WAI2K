@@ -157,7 +157,7 @@ class InitModule(
      * @returns Map with member index as key and repair timer duration as value
      */
     private suspend fun readRepairTimers(image: BufferedImage): Map<Int, Duration> {
-        return (0 until 5).mapAsync(this) { entry ->
+        return (0 until 5).mapAsync { entry ->
             // Single repair entry without the "Repairing" or "Standby"
             Ocr.forConfig(config).doOCRAndTrim(image.getSubimage(110 + 145 * entry, 45, 134, 65))
                     .takeIf { it.contains("Repairing") }
