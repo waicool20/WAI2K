@@ -27,8 +27,11 @@ import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.waicoolutils.logging.loggerFor
-import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.withTimeoutOrNull
 import java.text.DecimalFormat
 import java.time.Duration
 import java.time.Instant
@@ -62,25 +65,19 @@ class Navigator(
      */
     suspend fun identifyCurrentLocation(retries: Int = 3): GameLocation {
         logger.info("Identifying current location")
-        val channel = Channel<GameLocation?>()
+        val locations = locations.entries.sortedBy { it.value.isIntermediate }
+                .map { it.value }.asFlow()
         repeat(retries) { i ->
             checkLogistics(true)
-            val jobs = locations.entries.sortedBy { it.value.isIntermediate }
-                    .map { (_, model) ->
-                        launch { channel.send(model.takeIf { model.isInRegion(region) }) }
-                    }
-            for (loc in channel) {
-                loc?.let { model ->
-                    logger.info("GameLocation found: $model")
-                    gameState.currentGameLocation = model
-                    return model
-                }
-                if (jobs.all { it.isCompleted }) break
+            try {
+                return locations.flatMapMerge { loc ->
+                    flow { emit(loc.takeIf { loc.isInRegion(region) }) }
+                }.filterNotNull().first()
+            } catch (e: NoSuchElementException) {
+                logger.warn("Could not find location after ${i + 1} attempts, retries remaining: ${retries - i - 1}")
+                delay(1000)
             }
-            logger.warn("Could not find location after ${i + 1} attempts, retries remaining: ${retries - i - 1}")
-            delay(1000)
         }
-        channel.close()
         logger.warn("Current location could not be identified")
         coroutineContext.cancelAndYield()
     }
