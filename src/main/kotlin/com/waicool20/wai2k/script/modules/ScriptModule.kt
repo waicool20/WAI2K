@@ -123,6 +123,6 @@ abstract class ScriptModule(
         }
         navigator.checkLogistics()
         cRegion.subRegion(0, 0, 195, cRegion.h)
-                .clickUntilGone("chapters/clickable/$chapter.png", 20, 0.96)
+                .clickUntilGone("chapters/$chapter.png", 20, 0.96)
     }
 }
