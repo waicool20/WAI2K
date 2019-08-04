@@ -267,17 +267,15 @@ class CombatModule(
 
         // Temporary convenience class for storing doll regions
         class DollRegions(nameImage: BufferedImage, hpImage: BufferedImage) {
-            private val _name = async {
+            val name = async {
                 Ocr.forConfig(config).doOCRAndTrim(nameImage)
             }
-            private val _percent = async {
+            val percent = async {
                 val image = hpImage.binarizeImage()
                 var whites = 0.0
                 repeat(image.width) { i -> if (image.getRGB(i, 0) == Color.WHITE.rgb) whites++ }
                 whites / image.width * 100
             }
-            val name by lazy { runBlocking { _name.await() } }
-            val percent by lazy { runBlocking { _percent.await() } }
         }
 
         for (i in 1..retries) {
@@ -292,8 +290,8 @@ class CombatModule(
                         )
                     }
             // Checking if the ocr results were gibberish
-            if (members.none { it.name.distanceTo(profile.combat.draggers[1]!!.name) < config.scriptConfig.ocrThreshold } &&
-                    members.none { it.name.distanceTo(profile.combat.draggers[2]!!.name) < config.scriptConfig.ocrThreshold }) {
+            if (members.none { it.name.await().distanceTo(profile.combat.draggers[1]!!.name) < config.scriptConfig.ocrThreshold } &&
+                    members.none { it.name.await().distanceTo(profile.combat.draggers[2]!!.name) < config.scriptConfig.ocrThreshold }) {
                 logger.info("Update repair status ocr failed after $i attempts, retries remaining: ${retries - i}")
                 if (i == retries) {
                     logger.warn("Could not update repair status after $retries attempts, continue anyways")
@@ -305,9 +303,9 @@ class CombatModule(
             val formatter = DecimalFormat("##.#")
             gameState.echelons[echelon - 1].members.forEachIndexed { j, member ->
                 val dMember = members.getOrNull(j)
-                member.name = dMember?.name ?: "Unknown"
-                member.needsRepair = (dMember?.percent ?: 100.0) < profile.combat.repairThreshold
-                val sPercent = dMember?.percent?.let { formatter.format(it) } ?: "N/A"
+                member.name = dMember?.name?.await() ?: "Unknown"
+                member.needsRepair = (dMember?.percent?.await() ?: 100.0) < profile.combat.repairThreshold
+                val sPercent = dMember?.percent?.await()?.let { formatter.format(it) } ?: "N/A"
                 logger.info("[Repair OCR] Name: ${member.name} | HP (%): $sPercent")
             }
             break
