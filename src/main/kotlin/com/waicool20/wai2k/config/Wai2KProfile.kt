@@ -55,7 +55,7 @@ data class Wai2KProfile(
             enabled: Boolean = false,
             receivalMode: ReceivalMode = ReceivalMode.RANDOM,
             assignments: MutableMap<Int, ListProperty<Int>> = (1..10).associateWith {
-                SimpleListProperty<Int>(ArrayList<Int>().observable())
+                SimpleListProperty<Int>(ArrayList<Int>().asObservable())
             }.toMutableMap()
     ) {
         enum class ReceivalMode {

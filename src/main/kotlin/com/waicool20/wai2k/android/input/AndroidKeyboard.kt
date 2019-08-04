@@ -125,6 +125,5 @@ class AndroidKeyboard(val robot: AndroidRobot) {
      * @param action Action to execute while keeping the lock this object.
      * @return Result of [action]
      */
-    @Synchronized
     inline fun <T> atomicAction(action: () -> T): T = synchronized(this) { action() }
 }
