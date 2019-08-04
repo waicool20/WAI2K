@@ -323,12 +323,11 @@ open class AndroidRegion(xPos: Int, yPos: Int, width: Int, height: Int) : Region
     }
 
     override fun <PSI : Any> findAllOrEmpty(psi: PSI): List<AndroidMatch> {
-        val matches = mutableListOf<AndroidMatch>()
-        try {
-            matches.addAll(findAll(psi).asSequence().toList())
+        return try {
+            findAll(psi).asSequence().toList()
         } catch (e: FindFailed) {
+            emptyList()
         }
-        return matches
     }
 
     override fun subRegion(x: Int, y: Int, width: Int, height: Int): AndroidRegion {
