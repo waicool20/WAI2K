@@ -61,6 +61,7 @@ class StopModule(
             }
             if (stop) {
                 logger.info("Script time stop condition reached for $mode, terminating further execution")
+                logger.info("Final script statistics: ${scriptRunner.scriptStats}")
                 if (profile.stop.exitProgram) {
                     exitProcess(0)
                 } else {
