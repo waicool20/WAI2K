@@ -65,12 +65,10 @@ class CombatModule(
         if (!profile.combat.enabled) return
         // Return if the base doll limit is already reached
         if (gameState.dollOverflow) return
-        // Return if echelon 1 has repairs, also return if its a corpse dragging map and
-        // echelon 2 has repairs
-        if (gameState.echelons[0].hasRepairs() ||
-                (mapRunner.isCorpseDraggingMap && gameState.echelons[1].hasRepairs())) {
-            return
-        }
+        // Return if echelon 1 has repairs
+        if (gameState.echelons[0].hasRepairs()) return
+        // Also Return if its a corpse dragging map and echelon 2 has repairs
+        if (mapRunner.isCorpseDraggingMap && gameState.echelons[1].hasRepairs()) return
         runCombatCycle()
     }
 
