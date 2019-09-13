@@ -28,6 +28,7 @@ import org.sikuli.script.IScreen
 import se.vidstige.jadb.JadbDevice
 import java.awt.image.BufferedImage
 import java.awt.image.DataBufferByte
+import java.io.DataInputStream
 import java.io.InputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -202,16 +203,11 @@ class AndroidDevice(
 
     //<editor-fold desc="Screenshot">
 
-    private val fastScreenshotBufferSize = properties.displayWidth * properties.displayHeight * 3
     private val screenshotBufferSize = properties.displayWidth * properties.displayHeight * 4 + 16
-    private val screenshotRenderBuffer = ByteBuffer.allocateDirect(screenshotBufferSize)
     private val screenshotReadBuffer = ByteArray(screenshotBufferSize)
-    private var screenshotIsRendering = false
 
     private var screenRecordProcess: Process? = null
     private var lastScreenshot: BufferedImage? = null
-    private var lastScreenshotTime = System.currentTimeMillis()
-    private val screenshotExpiryTime = 15
 
     init {
         Runtime.getRuntime().addShutdownHook(Thread {
@@ -226,7 +222,7 @@ class AndroidDevice(
      */
     fun takeScreenshot(): BufferedImage {
         if (fastScreenshotMode) return takeFastScreenshot()
-        var exception: Exception? = null
+        var throwable: Throwable? = null
         for (i in 0 until 3) {
             try {
                 var offset = 0
@@ -243,7 +239,7 @@ class AndroidDevice(
                 return BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR).apply {
                     buffer.position(buffer.position() + 8) // Skip 2 ints
                     val imageBuffer = (raster.dataBuffer as DataBufferByte).data
-                    for (pixel in 0 until imageBuffer.size step 3) {
+                    for (pixel in imageBuffer.indices step 3) {
                         // Data in buffer is RGBX, therefore the reversed order
                         imageBuffer[pixel + 2] = buffer.get()
                         imageBuffer[pixel + 1] = buffer.get()
@@ -251,11 +247,11 @@ class AndroidDevice(
                         buffer.get()
                     }
                 }
-            } catch (e: Exception) {
-                exception = e
+            } catch (t: Throwable) {
+                throwable = t
             }
         }
-        throw exception ?: error("Could not take screenshot due to unknown error")
+        throw throwable ?: error("Could not take screenshot due to unknown error")
     }
 
     /**
@@ -264,51 +260,27 @@ class AndroidDevice(
      * the data is already in program memory.
      */
     private fun takeFastScreenshot(): BufferedImage {
-        fun renderScreenshot(): BufferedImage {
-            screenshotIsRendering = true
-            val shallowBuffer = screenshotRenderBuffer.duplicate().apply { clear() }
-            val width = properties.displayWidth
-            val height = properties.displayHeight
-            val image = BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR).apply {
-                val imageBuffer = (raster.dataBuffer as DataBufferByte).data
-                for (pixel in 0 until imageBuffer.size step 3) {
-                    // Data in buffer is RGB, therefore the reversed order
-                    imageBuffer[pixel + 2] = shallowBuffer.get()
-                    imageBuffer[pixel + 1] = shallowBuffer.get()
-                    imageBuffer[pixel] = shallowBuffer.get()
-                }
-            }
-
-            lastScreenshot = image
-            lastScreenshotTime = System.currentTimeMillis()
-            screenshotIsRendering = false
-            return image
-        }
-
         if (screenRecordProcess == null || screenRecordProcess?.isAlive == false) {
             thread {
                 screenRecordProcess?.destroy()
                 screenRecordProcess = adbServer.execute(this, "screenrecord", "--output-format=raw-frames", "-").start()
-                screenRecordProcess?.inputStream?.let { inputStream ->
-                    var offset = 0
-                    while (screenRecordProcess?.isAlive == true && fastScreenshotMode) {
-                        while (offset < fastScreenshotBufferSize) {
-                            offset += inputStream.read(screenshotReadBuffer, offset, fastScreenshotBufferSize - offset)
+                val inputStream = DataInputStream(screenRecordProcess!!.inputStream.buffered())
+                while (screenRecordProcess?.isAlive == true && fastScreenshotMode) {
+                    lastScreenshot = BufferedImage(properties.displayWidth, properties.displayHeight, BufferedImage.TYPE_3BYTE_BGR).apply {
+                        val imageBuffer = (raster.dataBuffer as DataBufferByte).data
+                        for (pixel in imageBuffer.indices step 3) {
+                            // Data in buffer is RGB, therefore the reversed order
+                            imageBuffer[pixel + 2] = inputStream.readByte()
+                            imageBuffer[pixel + 1] = inputStream.readByte()
+                            imageBuffer[pixel] = inputStream.readByte()
                         }
-                        if (!screenshotIsRendering) {
-                            screenshotRenderBuffer.clear()
-                            screenshotRenderBuffer.put(screenshotReadBuffer)
-                        }
-                        offset = 0
                     }
-                    screenRecordProcess?.destroy()
                 }
+                screenRecordProcess?.destroy()
             }
         }
-        lastScreenshot?.takeIf {
-            System.currentTimeMillis() - lastScreenshotTime < screenshotExpiryTime
-        }?.let { return it }
-        return renderScreenshot()
+        return lastScreenshot
+                ?: BufferedImage(properties.displayWidth, properties.displayHeight, BufferedImage.TYPE_3BYTE_BGR)
     }
 
     //</editor-fold>
