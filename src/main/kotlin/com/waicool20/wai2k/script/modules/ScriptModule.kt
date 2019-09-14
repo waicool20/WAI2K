@@ -44,6 +44,12 @@ abstract class ScriptModule(
     override val coroutineContext: CoroutineContext
         get() = scriptRunner.coroutineContext
 
+    companion object {
+        private const val CHAPTER_MIN = 0
+        private const val CHAPTER_MAX = 9
+        private const val CHAPTER_SIMILARITY = 0.9
+    }
+
     private val logger = loggerFor<ScriptModule>()
 
     val gameState get() = scriptRunner.gameState
@@ -93,7 +99,6 @@ abstract class ScriptModule(
      * @param chapter Chapter number
      */
     protected suspend fun clickChapter(chapter: Int) {
-        val CHAPTER_SIMILARITY = 0.9
         // Region containing all chapters
         val cRegion = region.subRegion(407, 146, 283, 934)
         // Top 1/4 part of lsRegion
@@ -103,14 +108,14 @@ abstract class ScriptModule(
         var retries = 0
         while (cRegion.doesntHave("chapters/$chapter.png", CHAPTER_SIMILARITY)) {
             navigator.checkLogistics()
-            val chapters = (0..7).filterAsync { cRegion.has("chapters/$it.png", CHAPTER_SIMILARITY) }
+            val chapters = (CHAPTER_MIN..CHAPTER_MAX).filterAsync { cRegion.has("chapters/$it.png", CHAPTER_SIMILARITY) }
             logger.debug("Visible chapters: $chapters")
             when {
-                chapter <= chapters.min() ?: 3 -> {
+                chapter <= chapters.min() ?: CHAPTER_MAX / 2 -> {
                     logger.debug("Swiping down the chapters")
                     upperSwipeRegion.swipeToRandomly(lowerSwipeRegion)
                 }
-                chapter >= chapters.max() ?: 4 -> {
+                chapter >= chapters.max() ?: CHAPTER_MAX / 2 + 1 -> {
                     logger.debug("Swiping up the chapters")
                     lowerSwipeRegion.swipeToRandomly(upperSwipeRegion)
                 }
