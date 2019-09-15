@@ -31,8 +31,7 @@ import java.awt.image.BufferedImage
 import java.awt.image.DataBufferByte
 import java.io.DataInputStream
 import java.io.InputStream
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
+import java.text.DecimalFormat
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
@@ -208,6 +207,12 @@ class AndroidDevice(
 
     private var screenRecordProcess: Process? = null
     private var lastScreenshot: BufferedImage? = null
+    private var lastScreenshotTime = System.currentTimeMillis()
+    /**
+     * Frames per Second for device, only valid when using fast screenshot mode
+     */
+    var screenshotFPS = 0.0
+        private set
 
     init {
         Runtime.getRuntime().addShutdownHook(Thread {
@@ -251,24 +256,22 @@ class AndroidDevice(
             thread {
                 screenRecordProcess?.destroy()
                 screenRecordProcess = adbServer.execute(this, "screenrecord", "--output-format=raw-frames", "-").start()
-                val inputStream = DataInputStream(screenRecordProcess!!.inputStream.buffered())
+                val inputStream = DataInputStream(screenRecordProcess!!.inputStream)
                 while (screenRecordProcess?.isAlive == true && fastScreenshotMode) {
-                    lastScreenshot = BufferedImage(properties.displayWidth, properties.displayHeight, BufferedImage.TYPE_3BYTE_BGR).apply {
-                        val imageBuffer = (raster.dataBuffer as DataBufferByte).data
-                        for (pixel in imageBuffer.indices step 3) {
-                            // Data in buffer is RGB, therefore the reversed order
-                            imageBuffer[pixel + 2] = inputStream.readByte()
-                            imageBuffer[pixel + 1] = inputStream.readByte()
-                            imageBuffer[pixel] = inputStream.readByte()
-                        }
-                    }
+                    lastScreenshot = ImageUtils.createByteRGBBufferedImage(properties.displayWidth, properties.displayHeight)
+                            .apply { inputStream.readFully((raster.dataBuffer as DataBufferByte).data) }
+                    val current = System.currentTimeMillis()
+                    screenshotFPS = (screenshotFPS + 1000.0 / (current - lastScreenshotTime)) / 2
+                    lastScreenshotTime = current
                 }
                 screenRecordProcess?.destroy()
+                screenshotFPS = 0.0
             }
         }
-        return lastScreenshot
-                ?: BufferedImage(properties.displayWidth, properties.displayHeight, BufferedImage.TYPE_3BYTE_BGR)
+        return lastScreenshot ?: ImageUtils.createByteRGBBufferedImage(
+                properties.displayWidth, properties.displayHeight
+        )
     }
-
+    
     //</editor-fold>
 }
