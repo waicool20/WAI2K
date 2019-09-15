@@ -23,6 +23,7 @@ import com.waicool20.wai2k.android.input.AndroidInput
 import com.waicool20.wai2k.util.executeAndReadLines
 import com.waicool20.wai2k.util.executeAndReadText
 import com.waicool20.wai2k.util.executeOrShell
+import com.waicool20.waicoolutils.ImageUtils
 import com.waicool20.waicoolutils.logging.loggerFor
 import org.sikuli.script.IScreen
 import se.vidstige.jadb.JadbDevice
@@ -204,7 +205,6 @@ class AndroidDevice(
     //<editor-fold desc="Screenshot">
 
     private val screenshotBufferSize = properties.displayWidth * properties.displayHeight * 4 + 16
-    private val screenshotReadBuffer = ByteArray(screenshotBufferSize)
 
     private var screenRecordProcess: Process? = null
     private var lastScreenshot: BufferedImage? = null
@@ -225,27 +225,14 @@ class AndroidDevice(
         var throwable: Throwable? = null
         for (i in 0 until 3) {
             try {
-                var offset = 0
-                val inputStream = execute("screencap")
-                while (offset < screenshotBufferSize) {
-                    offset += inputStream.read(screenshotReadBuffer, offset, screenshotBufferSize - offset)
-                }
-
-                val buffer = ByteBuffer.wrap(screenshotReadBuffer)
-                        .order(ByteOrder.LITTLE_ENDIAN)
-
-                val width = buffer.int
-                val height = buffer.int
-                return BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR).apply {
-                    buffer.position(buffer.position() + 8) // Skip 2 ints
-                    val imageBuffer = (raster.dataBuffer as DataBufferByte).data
-                    for (pixel in imageBuffer.indices step 3) {
-                        // Data in buffer is RGBX, therefore the reversed order
-                        imageBuffer[pixel + 2] = buffer.get()
-                        imageBuffer[pixel + 1] = buffer.get()
-                        imageBuffer[pixel] = buffer.get()
-                        buffer.get()
-                    }
+                val inputStream = DataInputStream(execute("screencap"))
+                val width = inputStream.read() or (inputStream.read() shl 8) or
+                        (inputStream.read() shl 16) or (inputStream.read() shl 24)
+                val height = inputStream.read() or (inputStream.read() shl 8) or
+                        (inputStream.read() shl 16) or (inputStream.read() shl 24)
+                inputStream.skip(8)
+                return ImageUtils.createByteRGBBufferedImage(width, height, true).apply {
+                    inputStream.readFully((raster.dataBuffer as DataBufferByte).data)
                 }
             } catch (t: Throwable) {
                 throwable = t
