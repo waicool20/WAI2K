@@ -46,23 +46,16 @@ class Map0_2(
         waitForGNKSplash()
         resupplyEchelon(heliportDeployment)
         planPath()
-        waitForTurnEnd(3)
-        waitForGNKSplash(20)
-        planPath2()
-        waitForTurnEnd(2)
+        waitForTurnEnd(5)
         handleBattleResults()
     }
 
     private suspend fun planPath() {
+        logger.info("Selecting echelon at command post")
+        commandPostDeployment.region.clickRandomly(); yield()
+
         logger.info("Entering planning mode")
         mapRunnerRegions.planningMode.clickRandomly(); yield()
-
-        logger.info("Selecting echelon at command post")
-        region.subRegion(1054, 487, 110, 110)
-                .clickRandomly(); yield()
-        logger.info("Selecting node 1")
-        region.subRegion(811, 350, 60, 60)
-                .clickRandomly(); yield()
 
         // Pan up
         region.subRegion(1020, 110, 240, 10).let {
@@ -70,31 +63,11 @@ class Map0_2(
             it.swipeToRandomly(it.offset(0, 600), 500); delay(300)
         }
 
+        logger.info("Selecting node 1")
+        region.subRegion(853, 412, 60, 60)
+                .clickRandomly(); yield()
+
         logger.info("Selecting node 2")
-        region.subRegion(873, 920, 60, 60)
-                .clickRandomly(); yield()
-        logger.info("Selecting node 3")
-        region.subRegion(1100, 572, 60, 60)
-                .clickRandomly(); yield()
-        logger.info("Selecting node 4")
-        region.subRegion(853, 412, 60, 60)
-                .clickRandomly(); yield()
-
-        logger.info("Executing plan")
-        mapRunnerRegions.executePlan.clickRandomly()
-    }
-
-    private suspend fun planPath2() {
-        logger.info("Entering planning mode")
-        mapRunnerRegions.planningMode.clickRandomly(); yield()
-
-        logger.info("Selecting echelon at node 4")
-        region.subRegion(853, 412, 60, 60)
-                .clickRandomly(); yield()
-        logger.info("Selecting node 5")
-        region.subRegion(1337, 409, 60, 60)
-                .clickRandomly(); yield()
-        logger.info("Selecting node 6")
         region.subRegion(1647, 472, 60, 60)
                 .clickRandomly(); yield()
 
