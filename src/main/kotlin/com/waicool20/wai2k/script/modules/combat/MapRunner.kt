@@ -145,15 +145,7 @@ abstract class MapRunner(
         logger.info("Waiting for G&K splash screen")
         val battleClicker = launch {
             while (isActive) {
-                if (isInBattle()) {
-                    logger.info("Entered enemy battle $_battles")
-                    // Wait until it disappears
-                    while (isActive && isInBattle()) yield()
-                    logger.info("Battle ${_battles++} complete, clicking through battle results")
-                    delay(400)
-                    val l = battleEndClickRegion.randomLocation()
-                    repeat(Random.nextInt(7, 9)) { region.click(l); yield() }
-                } else yield()
+                if (isInBattle()) clickThroughBattle() else yield()
             }
         }
         // Wait for the G&K splash to appear within 10 seconds
@@ -237,16 +229,6 @@ abstract class MapRunner(
         endTurn()
     }
 
-    private suspend fun clickThroughBattle() {
-        logger.info("Entered battle $_battles")
-        // Wait until it disappears
-        while (isActive && isInBattle()) yield()
-        logger.info("Battle ${_battles++} complete, clicking through battle results")
-        delay(400)
-        val l = battleEndClickRegion.randomLocation()
-        repeat(Random.nextInt(7, 9)) { region.click(l); yield() }
-    }
-
     /**
      * Clicks through the battle results and waits for the game to return to the combat menu
      */
@@ -267,6 +249,16 @@ abstract class MapRunner(
     }
 
     protected infix fun String.at(region: AndroidRegion) = Deployment(this, region)
+
+    private suspend fun clickThroughBattle() {
+        logger.info("Entered battle $_battles")
+        // Wait until it disappears
+        while (isActive && isInBattle()) yield()
+        logger.info("Battle ${_battles++} complete, clicking through battle results")
+        delay(400)
+        val l = battleEndClickRegion.randomLocation()
+        repeat(Random.nextInt(7, 9)) { region.click(l); yield() }
+    }
 
     private fun isInBattle() = pauseButtonRegion.has("combat/battle/pause.png", 0.9)
 
