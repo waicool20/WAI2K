@@ -29,19 +29,20 @@ import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.script.ScriptContext
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.waicoolutils.SikuliXLoader
+import com.waicool20.waicoolutils.javafx.CoroutineScopeView
 import com.waicool20.waicoolutils.logging.LoggingEventBus
 import com.waicool20.waicoolutils.logging.loggerFor
 import javafx.application.Application
 import javafx.scene.control.Label
 import javafx.scene.layout.AnchorPane
-import javafx.util.Duration
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import tornadofx.*
 import java.nio.file.Files
 import java.nio.file.Paths
-import kotlin.concurrent.thread
 
-
-class LoaderView : View() {
+class LoaderView : CoroutineScopeView() {
     override val root: AnchorPane by fxml("/views/loader.fxml")
     private val statusLabel: Label by fxid()
     private val parameters: Application.Parameters by param()
@@ -69,7 +70,7 @@ class LoaderView : View() {
     private fun startStatusListener() {
         LoggingEventBus.initialize()
         LoggingEventBus.subscribe(Regex(".* - (.*)")) {
-            runLater { statusLabel.text = it.groupValues[1] }
+            launch { statusLabel.text = it.groupValues[1] }
         }
     }
 
@@ -82,7 +83,7 @@ class LoaderView : View() {
         loadAdbServer()
         loadWai2KProfile()
         loadScriptRunner()
-        thread {
+        launch(Dispatchers.Default) {
             loadSikuliX()
             closeAndShowMainApp()
         }
@@ -153,7 +154,8 @@ class LoaderView : View() {
 
     private fun closeAndShowMainApp() {
         logger.info("Loading all done! Starting main application")
-        runLater(Duration.millis(500.0)) {
+        launch {
+            delay(500)
             close()
             primaryStage.show()
             if (wai2KConfig.showConsoleOnStart) {

@@ -22,6 +22,7 @@ package com.waicool20.wai2k.views.tabs
 import com.waicool20.wai2k.android.AndroidDevice
 import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.util.Binder
+import com.waicool20.waicoolutils.javafx.CoroutineScopeView
 import com.waicool20.waicoolutils.javafx.addListener
 import com.waicool20.waicoolutils.logging.loggerFor
 import javafx.embed.swing.SwingFXUtils
@@ -34,14 +35,12 @@ import javafx.scene.layout.VBox
 import javafx.stage.FileChooser
 import javafx.util.StringConverter
 import kotlinx.coroutines.*
-import kotlinx.coroutines.javafx.JavaFx
 import org.controlsfx.glyphfont.FontAwesome
 import org.controlsfx.glyphfont.Glyph
 import tornadofx.*
 import javax.imageio.ImageIO
-import kotlin.concurrent.thread
 
-class DeviceTabView : View(), Binder {
+class DeviceTabView : CoroutineScopeView(), Binder {
     override val root: VBox by fxml("/views/tabs/device-tab.fxml")
     private val androidVersionLabel: Label by fxid()
     private val brandLabel: Label by fxid()
@@ -77,7 +76,7 @@ class DeviceTabView : View(), Binder {
 
         refreshDeviceLists { list ->
             list.find { it.adbSerial == context.wai2KConfig.lastDeviceSerial }?.let {
-                runLater { deviceComboBox.selectionModel.select(it) }
+                launch { deviceComboBox.selectionModel.select(it) }
             }
         }
         createBindings()
@@ -116,7 +115,7 @@ class DeviceTabView : View(), Binder {
                     title = "Save screenshot to?"
                     extensionFilters.add(FileChooser.ExtensionFilter("PNG files (*.png)", "*.png"))
                     showSaveDialog(null)?.let { file ->
-                        GlobalScope.launch(Dispatchers.IO) { ImageIO.write(device.takeScreenshot(), "PNG", file) }
+                        launch(Dispatchers.IO) { ImageIO.write(device.takeScreenshot(), "PNG", file) }
                     }
                 }
             }
@@ -127,13 +126,13 @@ class DeviceTabView : View(), Binder {
     }
 
     private fun refreshDeviceLists(action: (List<AndroidDevice>) -> Unit = {}) {
-        thread(name = "Refresh Device List Task") {
+        launch(Dispatchers.IO + CoroutineName("Refresh Device List Task")) {
             logger.debug("Refreshing device list")
             val serial = deviceComboBox.selectedItem?.adbSerial
             val list = context.adbServer.listDevices()
 
             logger.debug("Found ${list.size} devices")
-            runLater {
+            withContext(Dispatchers.Main) {
                 deviceComboBox.items.setAll(list)
                 list.find { it.adbSerial == serial }?.let {
                     deviceComboBox.selectionModel.select(it)
@@ -155,22 +154,24 @@ class DeviceTabView : View(), Binder {
         }
     }
 
-    private fun createNewRenderJob(device: AndroidDevice) = GlobalScope.launch {
-        var lastCaptureTime = System.currentTimeMillis()
-        while (isActive) {
-            if (owningTab?.isSelected == true) {
-                val image = if (realtimePreviewCheckbox.isSelected && device.fastScreenshotMode) {
-                    device.takeScreenshot()
-                } else {
-                    device.screen.lastScreenImage?.image?.takeIf {
-                        System.currentTimeMillis() - lastCaptureTime < 3000
-                    } ?: run {
-                        lastCaptureTime = System.currentTimeMillis()
-                        device.screen.capture().image
+    private fun createNewRenderJob(device: AndroidDevice): Job {
+        return launch(Dispatchers.IO + CoroutineName("Device Tab Render Job")) {
+            var lastCaptureTime = System.currentTimeMillis()
+            while (isActive) {
+                if (owningTab?.isSelected == true) {
+                    val image = if (realtimePreviewCheckbox.isSelected && device.fastScreenshotMode) {
+                        device.takeScreenshot()
+                    } else {
+                        device.screen.lastScreenImage?.image?.takeIf {
+                            System.currentTimeMillis() - lastCaptureTime < 3000
+                        } ?: run {
+                            lastCaptureTime = System.currentTimeMillis()
+                            device.screen.capture().image
+                        }
                     }
-                }
-                withContext(Dispatchers.JavaFx) {
-                    deviceView.image = SwingFXUtils.toFXImage(image, null)
+                    withContext(Dispatchers.Main) {
+                        deviceView.image = SwingFXUtils.toFXImage(image, null)
+                    }
                 }
             }
         }

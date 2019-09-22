@@ -24,6 +24,7 @@ import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.waicoolutils.DesktopUtils
 import com.waicool20.waicoolutils.javafx.AlertFactory
+import com.waicool20.waicoolutils.javafx.CoroutineScopeView
 import com.waicool20.waicoolutils.javafx.listen
 import com.waicool20.waicoolutils.javafx.listenDebounced
 import javafx.geometry.Pos
@@ -32,15 +33,18 @@ import javafx.scene.control.Hyperlink
 import javafx.scene.control.TextField
 import javafx.scene.layout.VBox
 import javafx.stage.FileChooser
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import tornadofx.*
 import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardWatchEventKinds.*
-import kotlin.concurrent.thread
 import kotlin.system.exitProcess
 
-class InitialConfigurationView : View() {
+class InitialConfigurationView : CoroutineScopeView() {
     override val root: VBox by fxml("/views/initial-config.fxml")
 
     private val sikulixContent: VBox by fxid()
@@ -115,7 +119,7 @@ class InitialConfigurationView : View() {
     }
 
     private fun checkConfig() {
-        if (context.wai2KConfig.isValid) runLater { close() }
+        if (context.wai2KConfig.isValid) launch { close() }
     }
 
     private fun chooseSikulixPath() {
@@ -164,10 +168,10 @@ class InitialConfigurationView : View() {
         }
         val ws = FileSystems.getDefault().newWatchService()
         val watchKey = ocrDir.register(ws, arrayOf(ENTRY_MODIFY, ENTRY_CREATE, ENTRY_DELETE))
-        thread(name = "OCR Directory Watcher Thread") {
+        launch(Dispatchers.Default + CoroutineName("OCR Directory Watcher")) {
             while (true) {
-                val key = ws.take()
-                key.pollEvents().filterNot { it.kind() == OVERFLOW }.forEach {
+                val key = withContext(Dispatchers.IO) { ws.take() }
+                repeat(key.pollEvents().filterNot { it.kind() == OVERFLOW }.size) {
                     if (context.wai2KConfig.ocrIsValid()) watchKey.cancel()
                     checkConfig()
                 }
