@@ -31,6 +31,7 @@ import tornadofx.*
 class ScriptPrefView : View() {
     override val root: VBox by fxml("/views/tabs/preferences/script.fxml")
     private val loopDelaySpinner: Spinner<Int> by fxid()
+    private val baseNavigationDelaySpinner: Spinner<Int> by fxid()
     private val scanRateSpinner: Spinner<Int> by fxid()
     private val mouseDelaySpinner: Spinner<Double> by fxid()
     private val defaultSimThresholdSpinner: Spinner<Double> by fxid()
@@ -43,6 +44,7 @@ class ScriptPrefView : View() {
     override fun onDock() {
         super.onDock()
         loopDelaySpinner.valueFactory = IntegerSpinnerValueFactory(0, Int.MAX_VALUE)
+        baseNavigationDelaySpinner.valueFactory = IntegerSpinnerValueFactory(0, Int.MAX_VALUE)
         scanRateSpinner.valueFactory = IntegerSpinnerValueFactory(1, Int.MAX_VALUE)
         mouseDelaySpinner.valueFactory = DoubleSpinnerValueFactory(0.0, 100.0, 0.15, 0.01)
         defaultSimThresholdSpinner.valueFactory = DoubleSpinnerValueFactory(0.0, 1.0, 0.8, 0.05)
@@ -50,6 +52,7 @@ class ScriptPrefView : View() {
         ocrThresholdSpinner.valueFactory = DoubleSpinnerValueFactory(0.0, 20.0, 0.9, 0.1)
         context.wai2KConfig.scriptConfig.apply {
             loopDelaySpinner.bind(loopDelayProperty)
+            baseNavigationDelaySpinner.bind(baseNavigationDelayProperty)
             scanRateSpinner.bind(sikulixScanRateProperty)
             mouseDelaySpinner.bind(mouseDelayProperty)
             defaultSimThresholdSpinner.bind(defaultSimilarityThresholdProperty)

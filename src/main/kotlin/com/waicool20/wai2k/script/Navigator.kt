@@ -129,7 +129,7 @@ class Navigator(
                         // Wait around average transition delay if not an intermediate location
                         // since it cant transition immediately
                         if (!srcLoc.isIntermediate) {
-                            delay(avgTransitionDelay)
+                            delay(avgTransitionDelay + config.scriptConfig.baseNavigationDelay)
                             ticks++
                         }
                     }

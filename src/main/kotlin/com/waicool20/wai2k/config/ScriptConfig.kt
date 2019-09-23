@@ -25,6 +25,7 @@ import tornadofx.*
 @JsonIgnoreProperties(ignoreUnknown = true)
 class ScriptConfig(
         loopDelay: Int = 15,
+        baseNavigationDelay: Int = 500,
         sikulixScanRate: Int = 20,
         mouseDelay: Double = 0.15,
         defaultSimilarityThreshold: Double = 0.9,
@@ -33,6 +34,7 @@ class ScriptConfig(
         fastScreenshotMode: Boolean = false
 ) {
     val loopDelayProperty = loopDelay.toProperty()
+    val baseNavigationDelayProperty = baseNavigationDelay.toProperty()
     val sikulixScanRateProperty = sikulixScanRate.toProperty()
     val mouseDelayProperty = mouseDelay.toProperty()
     val defaultSimilarityThresholdProperty = defaultSimilarityThreshold.toProperty()
@@ -41,6 +43,7 @@ class ScriptConfig(
     val fastScreenshotModeProperty = fastScreenshotMode.toProperty()
 
     var loopDelay by loopDelayProperty
+    var baseNavigationDelay by baseNavigationDelayProperty
     var sikulixScanRate by sikulixScanRateProperty
     var mouseDelay by mouseDelayProperty
     var defaultSimilarityThreshold by defaultSimilarityThresholdProperty
