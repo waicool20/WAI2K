@@ -95,7 +95,8 @@ data class Wai2KProfile(
 
     class Factory(
             enhancement: Enhancement = Enhancement(),
-            disassembly: Disassembly = Disassembly()
+            disassembly: Disassembly = Disassembly(),
+            alwaysDisassembleAfterEnhance: Boolean = true
     ) {
         class Enhancement(
                 enabled: Boolean = true
@@ -115,9 +116,11 @@ data class Wai2KProfile(
 
         val enhancementProperty = enhancement.toProperty()
         val disassemblyProperty = disassembly.toProperty()
+        val alwaysDisassembleAfterEnhanceProperty = alwaysDisassembleAfterEnhance.toProperty()
 
         val enhancement by enhancementProperty
         val disassembly by disassemblyProperty
+        val alwaysDisassembleAfterEnhance by alwaysDisassembleAfterEnhanceProperty
     }
 
     class Stop(

@@ -50,7 +50,8 @@ class FactoryModule(
     private suspend fun checkDollOverflow() {
         if (!gameState.dollOverflow) return
         if (profile.factory.enhancement.enabled) enhanceDolls()
-        if (!gameState.dollOverflow) return
+        // Bypass overflow check if always disassemble
+        if (!profile.factory.alwaysDisassembleAfterEnhance && !gameState.dollOverflow) return
         if (profile.factory.disassembly.enabled) disassembleDolls()
     }
 

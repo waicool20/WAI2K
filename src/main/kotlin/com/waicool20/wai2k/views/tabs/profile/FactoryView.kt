@@ -27,13 +27,20 @@ class FactoryView : AbstractProfileView() {
     override val root: VBox by fxml("/views/tabs/profile/factory.fxml")
     private val enableEnhancementCheckBox: CheckBox by fxid()
     private val enableDisassemblyCheckBox: CheckBox by fxid()
+    private val alwaysDisassembleAfterEnhanceCheckBox: CheckBox by fxid()
 
     override fun setValues() = Unit
 
     override fun createBindings() {
+        alwaysDisassembleAfterEnhanceCheckBox.disableWhen {
+            enableEnhancementCheckBox.selectedProperty().not() or
+            enableDisassemblyCheckBox.selectedProperty().not()
+        }
+
         context.currentProfile.factory.apply {
             enableEnhancementCheckBox.bind(enhancement.enabledProperty)
             enableDisassemblyCheckBox.bind(disassembly.enabledProperty)
+            alwaysDisassembleAfterEnhanceCheckBox.bind(alwaysDisassembleAfterEnhanceProperty)
         }
     }
 }
