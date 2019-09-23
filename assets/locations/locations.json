@@ -897,5 +897,32 @@
         }
       }
     ]
+  },
+  {
+    "id": "fairy_details",
+    "isIntermediate": false,
+    "landmarks": [
+      {
+        "asset": {
+          "imageName": "fairy_details",
+          "x": 1243,
+          "y": 73,
+          "width": 60,
+          "height": 60
+        }
+      }
+    ],
+    "links": [
+      {
+        "dest": "formation",
+        "asset": {
+          "imageName": "",
+          "x": 120,
+          "y": 364,
+          "width": 139,
+          "height": 321
+        }
+      }
+    ]
   }
 ]
