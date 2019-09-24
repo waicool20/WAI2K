@@ -270,9 +270,7 @@ class CombatModule(
             }
             val percent = async {
                 val image = hpImage.binarizeImage()
-                var whites = 0.0
-                repeat(image.width) { i -> if (image.getRGB(i, 0) == Color.WHITE.rgb) whites++ }
-                whites / image.width * 100
+                image.countColor(Color.WHITE) / image.width.toDouble() * 100
             }
         }
 
