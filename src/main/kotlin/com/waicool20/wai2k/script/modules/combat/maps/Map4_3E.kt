@@ -45,7 +45,7 @@ class Map4_3E(
         deployEchelons(heliportDeployment, commandPostDeployment)
         mapRunnerRegions.startOperation.clickRandomly(); yield()
         waitForGNKSplash()
-        resupplyEchelon(commandPostDeployment)
+        resupplyEchelons(commandPostDeployment)
         planPath()
         waitForTurnEnd(4)
         handleBattleResults()

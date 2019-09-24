@@ -43,7 +43,7 @@ profile: Wai2KProfile
         deployment()
         mapRunnerRegions.startOperation.clickRandomly(); yield()
         waitForGNKSplash()
-        resupplyEchelon(heliportDeployment)
+        resupplyEchelons(heliportDeployment)
         planPath()
         waitForTurnEnd(4)
         handleBattleResults()

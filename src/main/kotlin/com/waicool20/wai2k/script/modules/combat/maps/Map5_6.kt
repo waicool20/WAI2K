@@ -25,7 +25,6 @@ import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.script.modules.combat.MapRunner
 import com.waicool20.waicoolutils.logging.loggerFor
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
 
 class Map5_6(
@@ -51,7 +50,7 @@ class Map5_6(
         deployEchelons(heliportDeployment)
         mapRunnerRegions.startOperation.clickRandomly(); yield()
         waitForGNKSplash()
-        resupplyEchelon(heliportDeployment)
+        resupplyEchelons(heliportDeployment)
         planPath()
         waitForTurnEnd(2)
         handleBattleResults()

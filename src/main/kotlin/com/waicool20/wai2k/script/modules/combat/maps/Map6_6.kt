@@ -42,7 +42,7 @@ class Map6_6(
         deployEchelons(commandPostDeployment)
         mapRunnerRegions.startOperation.clickRandomly(); yield()
         waitForGNKSplash()
-        resupplyEchelon(commandPostDeployment)
+        resupplyEchelons(commandPostDeployment)
         planPath()
         waitForTurnEnd(5)
         handleBattleResults()

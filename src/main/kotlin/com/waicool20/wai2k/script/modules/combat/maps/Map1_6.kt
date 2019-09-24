@@ -43,7 +43,7 @@ class Map1_6(
         deployEchelons(commandPostDeployment)
         mapRunnerRegions.startOperation.clickRandomly(); yield()
         waitForGNKSplash()
-        resupplyEchelon(commandPostDeployment)
+        resupplyEchelons(commandPostDeployment)
         planPath()
         waitForTurnAssets("$PREFIX/turn-end.png")
         handleBattleResults()

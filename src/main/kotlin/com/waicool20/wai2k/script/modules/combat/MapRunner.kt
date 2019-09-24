@@ -117,21 +117,23 @@ abstract class MapRunner(
     /**
      * Resupplies an echelon at the given location using click regions
      *
-     * @param deployment [Deployment] that contains the destination label and
+     * @param deployments [Deployment] that contains the destination label and
      * the corresponding click region (Heliport, Command post etc.)
      */
-    protected suspend fun resupplyEchelon(deployment: Deployment) {
-        logger.info("Resupplying echelon at ${deployment.label}")
-        // Clicking twice, first to highlight the echelon, the second time to enter the deployment menu
-        logger.info("Selecting echelon")
-        deployment.region.apply {
-            clickRandomly(); yield()
-            clickRandomly(); delay(300)
+    protected suspend fun resupplyEchelons(vararg deployments: Deployment) {
+        for ((label, region) in deployments) {
+            logger.info("Resupplying echelon at $label")
+            // Clicking twice, first to highlight the echelon, the second time to enter the deployment menu
+            logger.info("Selecting echelon")
+            region.apply {
+                clickRandomly(); yield()
+                clickRandomly(); delay(300)
+            }
+            logger.info("Resupplying")
+            mapRunnerRegions.resupply.clickRandomly()
+            logger.info("Resupply complete")
+            delay(750)
         }
-        logger.info("Resupplying")
-        mapRunnerRegions.resupply.clickRandomly()
-        logger.info("Resupply complete")
-        delay(750)
     }
 
     /**
