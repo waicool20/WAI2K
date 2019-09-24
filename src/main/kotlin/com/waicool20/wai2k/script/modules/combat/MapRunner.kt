@@ -29,6 +29,7 @@ import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.waicoolutils.binarizeImage
+import com.waicool20.waicoolutils.countColor
 import com.waicool20.waicoolutils.logging.loggerFor
 import com.waicool20.waicoolutils.pad
 import kotlinx.coroutines.*
@@ -44,7 +45,7 @@ abstract class MapRunner(
         protected val config: Wai2KConfig,
         protected val profile: Wai2KProfile
 ) : CoroutineScope {
-    protected data class Deployment(val label: String, val region: AndroidRegion)
+    protected data class Deployment(val label: String, val region: AndroidRegion, val mustBeSupplied: Boolean = false)
 
     private val logger = loggerFor<MapRunner>()
     private val pauseButtonRegion = region.subRegion(1020, 0, 110, 50)
@@ -101,17 +102,32 @@ abstract class MapRunner(
      *
      * @param deployments A variable list of [Deployment] that contains the destination label and
      * the corresponding click region (Heliport, Command post etc.)
+     *
+     * @return Deployments that need resupply, can be used in conjunction with [resupplyEchelons]
      */
-    protected suspend fun deployEchelons(vararg deployments: Deployment) {
-        var deployedEchelons = 1
-        deployments.forEach { (label, region) ->
-            logger.info("Deploying echelon ${deployedEchelons++} to $label")
-            region.clickRandomly(); delay(300)
+    protected suspend fun deployEchelons(vararg deployments: Deployment): Array<Deployment> = coroutineScope {
+        val needsResupply = deployments.filterIndexed { i, (label, dRegion, mustBeSupplied) ->
+            logger.info("Deploying echelon ${i + 1} to $label")
+            dRegion.clickRandomly(); delay(500)
+            val screenshot = region.takeScreenshot()
+            val ammoNeedsSupply = async {
+                if (!mustBeSupplied) return@async false
+                val image = screenshot.getSubimage(705, 797, 158, 1).binarizeImage()
+                image.countColor(Color.WHITE) != image.width
+            }
+            val rationNeedsSupply = async {
+                if (!mustBeSupplied) return@async false
+                val image = screenshot.getSubimage(705, 838, 158, 1).binarizeImage()
+                image.countColor(Color.WHITE) != image.width
+            }
             mapRunnerRegions.deploy.clickRandomly()
             delay(300)
+            ammoNeedsSupply.await() && rationNeedsSupply.await()
         }
+        needsResupply.forEach { logger.info("Echelon at ${it.label} needs resupply!") }
         delay(200)
         logger.info("Deployment complete")
+        needsResupply.toTypedArray()
     }
 
     /**
@@ -251,6 +267,7 @@ abstract class MapRunner(
     }
 
     protected infix fun String.at(region: AndroidRegion) = Deployment(this, region)
+    protected fun supplied(deployment: Deployment) = deployment.copy(mustBeSupplied = true)
 
     private suspend fun clickThroughBattle() {
         logger.info("Entered battle $_battles")
