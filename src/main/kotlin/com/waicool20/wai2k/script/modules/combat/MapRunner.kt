@@ -130,6 +130,10 @@ abstract class MapRunner(
         needsResupply.toTypedArray()
     }
 
+    @JvmName("resupplyEchelonsArray")
+    protected suspend fun resupplyEchelons(deployments: Array<Deployment>)
+            = resupplyEchelons(*deployments)
+
     /**
      * Resupplies an echelon at the given location using click regions
      *
