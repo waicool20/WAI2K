@@ -141,7 +141,7 @@ abstract class MapRunner(
      * @param timeout Max amount of time to wait for splash, can be set to longer lengths for
      * between turns
      */
-    protected suspend fun waitForGNKSplash(timeout: Long = 10) {
+    protected suspend fun waitForGNKSplash(timeout: Long = 10) = coroutineScope {
         logger.info("Waiting for G&K splash screen")
         val battleClicker = launch {
             while (isActive) {
@@ -232,7 +232,7 @@ abstract class MapRunner(
     /**
      * Clicks through the battle results and waits for the game to return to the combat menu
      */
-    protected suspend fun handleBattleResults() {
+    protected suspend fun handleBattleResults() = coroutineScope {
         logger.info("Battle ended, clicking through battle results")
         val combatMenu = GameLocation.mappings(config)[LocationId.COMBAT_MENU]!!
         val clickLocation = battleEndClickRegion.randomLocation()
