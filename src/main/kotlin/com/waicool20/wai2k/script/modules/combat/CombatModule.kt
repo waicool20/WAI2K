@@ -409,18 +409,21 @@ class CombatModule(
     private suspend fun clickCombatMap(map: String) {
         logger.info("Choosing combat map $map")
         navigator.checkLogistics()
-        when {
-            map.endsWith("e", true) -> {
-                logger.info("Selecting emergency map")
-                region.subRegion(1709, 265, 125, 25).clickRandomly()
-            }
-            map.endsWith("n", true) -> {
-                logger.info("Selecting night map")
-                region.subRegion(1871, 265, 142, 25).clickRandomly()
-            }
-            else -> {
-                // Just in case, shouldn't be needed
-                // region.subRegion(1558, 265, 84, 25).clickRandomly()
+        // Only needed when script first starts as we are unsure what map mode the game is in
+        if (scriptStats.sortiesDone == 0) {
+            when {
+                map.endsWith("e", true) -> {
+                    logger.info("Selecting emergency map")
+                    region.subRegion(1709, 265, 125, 25).clickRandomly()
+                }
+                map.endsWith("n", true) -> {
+                    logger.info("Selecting night map")
+                    region.subRegion(1871, 265, 142, 25).clickRandomly()
+                }
+                else -> {
+                    // Normal map
+                    region.subRegion(1558, 265, 84, 25).clickRandomly()
+                }
             }
         }
         navigator.checkLogistics()
