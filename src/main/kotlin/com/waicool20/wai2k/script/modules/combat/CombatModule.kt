@@ -230,12 +230,12 @@ class CombatModule(
                     .map {
                         DollRegions(
                                 image.getSubimage(it.x + 67, it.y + 79, 165, 40),
-                                image.getSubimage(it.x + 184, it.y + 130, 39, 30),
+                                image.getSubimage(it.x + 188, it.y + 126, 39, 30),
                                 region.subRegion(it.x - 7, it.y, 244, 164)
                         )
                     }.filter {
                         val ocrName = it.name.await()
-                        val ocrLevel = it.level.await()
+                        val ocrLevel = it.level.await()?.coerceIn(0..100)
                         val distance = ocrName.distanceTo(name, Ocr.OCR_DISTANCE_MAP)
                         logger.debug("[Scan OCR] Name: $ocrName | Distance: $distance | Level: $ocrLevel")
                         distance < config.scriptConfig.ocrThreshold && ocrLevel ?: 1 >= level
