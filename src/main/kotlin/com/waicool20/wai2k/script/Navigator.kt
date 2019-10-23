@@ -25,7 +25,9 @@ import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.game.GFL
 import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.LocationId
+import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.cancelAndYield
+import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -254,7 +256,8 @@ class Navigator(
 
             // Even if the logistics arrived didnt show up, its possible
             // that it was clicked through by some other function
-            if (region.doesntHave("navigator/logistics_dialog.png")) break
+            val repeatDialogRegion = region.subRegion(575, 425, 1000, 100)
+            if (!Ocr.forConfig(config).doOCRAndTrim(repeatDialogRegion).contains("Repeat")) break
 
             logisticsArrived = true
 
