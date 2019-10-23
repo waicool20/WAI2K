@@ -147,7 +147,7 @@ class FactoryModule(
             delay(300)
 
             // Click confirm if not enough T-dolls, got to get rid of the trash anyways :D
-            region.findOrNull("ok_large.png")?.let {
+            region.findOrNull("ok.png")?.let {
                 logger.info("Not enough T-dolls for enhancement, but enhancing anyways")
                 it.clickRandomly()
             }
@@ -240,7 +240,7 @@ class FactoryModule(
             // Click disassemble button
             region.subRegion(1749, 885, 247, 95).clickRandomly(); delay(250)
             // Click confirm
-            region.subRegion(1100, 688, 324, 161).find("ok_large.png").clickRandomly(); delay(200)
+            region.subRegion(1100, 688, 324, 161).find("ok.png").clickRandomly(); delay(200)
             // Update stats
             scriptStats.disassemblesDone += 1
             // Can break if disassembled count is less than 12

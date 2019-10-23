@@ -115,7 +115,7 @@ class LogisticsSupportModule(
         clickMissionStart(missionIndex)
 
         // Click the ok button of the popup if any of the resources broke the hard cap
-        region.findOrNull("ok_large.png")?.let {
+        region.findOrNull("ok.png")?.let {
             logger.info("One of the resources reached its limit!")
             it.clickRandomly()
         }
