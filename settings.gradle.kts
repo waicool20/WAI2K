@@ -17,6 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-rootProject.name = 'WAI2K'
+rootProject.name = "WAI2K"
 
-include ":waicoolUtils"
+include(":waicoolUtils")
