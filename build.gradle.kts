@@ -67,7 +67,7 @@ dependencies {
         exclude("org.jboss")
     }
 
-    implementation(project(":waicoolUtils"))
+    implementation("com.waicool20:waicoolUtils")
 
     compileOnly("com.sikulix", "sikulixapi", "1.1.3-SNAPSHOT") {
         exclude("com.sikulix")

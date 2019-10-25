@@ -19,4 +19,4 @@
 
 rootProject.name = "WAI2K"
 
-include(":waicoolUtils")
+includeBuild("./waicoolUtils")
