@@ -20,3 +20,4 @@
 rootProject.name = "WAI2K"
 
 includeBuild("./waicoolUtils")
+includeBuild("./CVAuto")

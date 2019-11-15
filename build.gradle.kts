@@ -68,13 +68,7 @@ dependencies {
     }
 
     implementation("com.waicool20:waicoolUtils")
-
-    compileOnly("com.sikulix", "sikulixapi", "1.1.3-SNAPSHOT") {
-        exclude("com.sikulix")
-        exclude("com.github.vidstige")
-        exclude("com.github.tulskiy")
-        exclude("com.melloware")
-    }
+    implementation("com.waicool20.cvauto:android")
 }
 
 tasks {
@@ -90,6 +84,8 @@ tasks {
         kotlinOptions {
             jvmTarget = JavaVersion.VERSION_1_8.toString()
             freeCompilerArgs = listOf(
+                    "-Xuse-experimental=kotlin.Experimental",
+                    "-Xuse-experimental=kotlin.time.ExperimentalTime",
                     "-Xuse-experimental=kotlinx.coroutines.FlowPreview",
                     "-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi",
                     "-Xuse-experimental=kotlinx.coroutines.ObsoleteCoroutinesApi"
