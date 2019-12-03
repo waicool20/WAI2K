@@ -18,6 +18,7 @@
  */
 
 package com.waicool20.wai2k.script.modules.combat.maps
+/*
 
 import com.waicool20.wai2k.android.AndroidRegion
 import com.waicool20.wai2k.config.Wai2KConfig
@@ -62,4 +63,4 @@ class Map6_6(
         logger.info("Executing plan")
         mapRunnerRegions.executePlan.clickRandomly(); yield()
     }
-}
+}*/

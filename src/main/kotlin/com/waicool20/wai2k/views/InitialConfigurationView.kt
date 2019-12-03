@@ -19,20 +19,16 @@
 
 package com.waicool20.wai2k.views
 
-import com.waicool20.wai2k.android.AdbServer
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.waicoolutils.DesktopUtils
 import com.waicool20.waicoolutils.javafx.AlertFactory
 import com.waicool20.waicoolutils.javafx.CoroutineScopeView
-import com.waicool20.waicoolutils.javafx.listen
-import com.waicool20.waicoolutils.javafx.listenDebounced
 import javafx.geometry.Pos
 import javafx.scene.control.Button
 import javafx.scene.control.Hyperlink
 import javafx.scene.control.TextField
 import javafx.scene.layout.VBox
-import javafx.stage.FileChooser
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -40,7 +36,6 @@ import kotlinx.coroutines.withContext
 import tornadofx.*
 import java.nio.file.FileSystems
 import java.nio.file.Files
-import java.nio.file.Paths
 import java.nio.file.StandardWatchEventKinds.*
 import kotlin.system.exitProcess
 
@@ -70,42 +65,10 @@ class InitialConfigurationView : CoroutineScopeView() {
     override fun onDock() {
         super.onDock()
         currentStage?.isResizable = false
-        pathTextField.textProperty().apply {
-            listen { pathTextField.styleClass.setAll("unsure") }
-            listenDebounced(1000, "InitialConfig-path") { newVal ->
-                context.wai2KConfig.apply {
-                    sikulixJarPath = Paths.get(newVal)
-                    if (sikulixJarIsValid()) {
-                        pathTextField.styleClass.setAll("valid")
-                    } else {
-                        pathTextField.styleClass.setAll("invalid")
-                    }
-                }
-                checkConfig()
-            }
-        }
-        adbPathTextField.textProperty().apply {
-            listen { adbPathTextField.styleClass.setAll("unsure") }
-            listenDebounced(1000, "InitialConfig-adbpath") { newVal ->
-                context.wai2KConfig.apply {
-                    adbPath = Paths.get(newVal)
-                    if (AdbServer.findAdb("$adbPath") != null) {
-                        adbPathTextField.styleClass.setAll("valid")
-                    } else {
-                        adbPathTextField.styleClass.setAll("invalid")
-                    }
-                }
-                checkConfig()
-            }
-        }
         addRequiredOcrFilesHyperlinks()
         context.wai2KConfig.apply {
-            if (sikulixJarIsValid()) sikulixContent.removeFromParent()
-            if (AdbServer.findAdb("$adbPath") != null) adbContent.removeFromParent()
             if (ocrIsValid()) ocrContent.removeFromParent()
         }
-        chooseButton.action(::chooseSikulixPath)
-        adbChooseButton.action(::chooseAdbPath)
         monitorOcrFiles()
     }
 
@@ -120,27 +83,6 @@ class InitialConfigurationView : CoroutineScopeView() {
 
     private fun checkConfig() {
         if (context.wai2KConfig.isValid) launch { close() }
-    }
-
-    private fun chooseSikulixPath() {
-        FileChooser().apply {
-            title = "Path to Sikulix Jar File..."
-            extensionFilters.add(FileChooser.ExtensionFilter("JAR files (*.jar)", "*.jar"))
-            showOpenDialog(null)?.let {
-                context.wai2KConfig.sikulixJarPath = it.toPath()
-                pathTextField.text = it.path
-            }
-        }
-    }
-
-    private fun chooseAdbPath() {
-        FileChooser().apply {
-            title = "Path to adb executable..."
-            showOpenDialog(null)?.let {
-                context.wai2KConfig.adbPath = it.toPath()
-                adbPathTextField.text = it.path
-            }
-        }
     }
 
     private fun addRequiredOcrFilesHyperlinks() {

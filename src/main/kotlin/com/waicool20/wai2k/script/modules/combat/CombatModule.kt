@@ -18,6 +18,7 @@
  */
 
 package com.waicool20.wai2k.script.modules.combat
+/*
 
 import com.waicool20.wai2k.android.AndroidRegion
 import com.waicool20.wai2k.config.Wai2KConfig
@@ -72,9 +73,11 @@ class CombatModule(
         runCombatCycle()
     }
 
-    /**
+    */
+/**
      * Runs a combat cycle
-     */
+     *//*
+
     private suspend fun runCombatCycle() {
         // Don't need to switch dolls if previous run was cancelled
         // or the map is not meant for corpse dragging
@@ -118,11 +121,13 @@ class CombatModule(
 
     //<editor-fold desc="Doll Switching">
 
-    /**
+    */
+/**
      * Switches the dolls in the echelons who will be dragging, which doll goes into which
      * echelon depends on the sortie cycle. On even sortie cycles (ie. 0, 2, 4...)
      * doll 1 goes into echelon 1, doll 2 goes into echelon 2 and vice versa
-     */
+     *//*
+
     private suspend fun switchDolls() {
         navigator.navigateTo(LocationId.FORMATION)
         val startTime = System.currentTimeMillis()
@@ -175,9 +180,11 @@ class CombatModule(
         logger.info("Switching dolls took ${System.currentTimeMillis() - startTime} ms")
     }
 
-    /**
+    */
+/**
      * Applies the filters ( stars and types ) in formation doll list
-     */
+     *//*
+
     private suspend fun applyFilters(doll: Int, reset: Boolean) {
         logger.info("Applying doll filters for dragging doll $doll")
         val criteria = profile.combat.draggers[doll] ?: error("Invalid doll: $doll")
@@ -190,11 +197,13 @@ class CombatModule(
 
     private var scanRetries = 0
 
-    /**
+    */
+/**
      * Scans for valid dolls in the formation doll list
      *
      * @return List of regions that can be clicked to select the valid doll
-     */
+     *//*
+
     private suspend fun scanValidDolls(doll: Int, retries: Int = 3): List<AndroidRegion> {
         // Wait for menu to settle starting around 300 ms
         // The amount of time waited is increased each time the doll scanning fails
@@ -386,9 +395,11 @@ class CombatModule(
 
     //<editor-fold desc="Map Selection and Combat">
 
-    /**
+    */
+/**
      * Clicks the given combat map chapter
-     */
+     *//*
+
     private suspend fun clickCombatChapter(chapter: Int) {
         logger.info("Choosing combat chapter $chapter")
         if (region.doesntHave("locations/landmarks/combat_menu.png")) {
@@ -401,11 +412,13 @@ class CombatModule(
         navigator.checkLogistics()
     }
 
-    /**
+    */
+/**
      * Clicks the map given the map name, it will switch the combat type depending on the suffix
      * of the given map string, 'N' for night battle and 'E for emergency battles
      * else it is assumed to be a normal map
-     */
+     *//*
+
     private suspend fun clickCombatMap(map: String) {
         logger.info("Choosing combat map $map")
         navigator.checkLogistics()
@@ -425,6 +438,8 @@ class CombatModule(
                     region.subRegion(1558, 265, 84, 25).clickRandomly()
                 }
             }
+            // Wait for it to settle
+            delay(400)
         }
         navigator.checkLogistics()
 
@@ -445,9 +460,11 @@ class CombatModule(
         }
     }
 
-    /**
+    */
+/**
      * Enters the map and waits for the start button to appear
-     */
+     *//*
+
     private suspend fun enterBattle(map: String) {
         // Enter battle, use higher similarity threshold to exclude possibly disabled
         // button which will be slightly transparent
@@ -485,10 +502,12 @@ class CombatModule(
         gameState.currentGameLocation = GameLocation(LocationId.BATTLE)
     }
 
-    /**
+    */
+/**
      * Checks if a given map has a given asset called 'zoom-anchor.png' and tries to zoom out until
      * it can find that asset on the screen
-     */
+     *//*
+
     private suspend fun zoomMap(map: String) {
         val asset = "combat/maps/${map.toUpperCase()}/zoom-anchor.png"
         if (Files.notExists(config.assetsDirectory.resolve(asset))) return
@@ -523,10 +542,12 @@ class CombatModule(
         logger.info("Zoom anchor found, ready to begin map")
     }
 
-    /**
+    */
+/**
      * Sets the similarity threshold to map runner settings then executes the map runner,
      * it restores the default similarity threshold before finishing
-     */
+     *//*
+
     private suspend fun executeMapRunner() {
         // Set similarity to slightly lower threshold for discrepancies because of zoom level
         Settings.MinSimilarity = config.scriptConfig.mapRunnerSimilarityThreshold
@@ -536,3 +557,4 @@ class CombatModule(
     }
     //</editor-fold>
 }
+*/

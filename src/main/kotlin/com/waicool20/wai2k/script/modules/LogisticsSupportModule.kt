@@ -19,6 +19,7 @@
 
 package com.waicool20.wai2k.script.modules
 
+/*
 import com.waicool20.wai2k.android.AndroidRegion
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
@@ -48,9 +49,11 @@ class LogisticsSupportModule(
         checkLogisticTimers()
     }
 
-    /**
+    */
+/**
      * Checks if any echelons require dispatching then dispatches them
-     */
+     *//*
+
     private suspend fun checkAndDispatchEchelons() {
         val queue = profile.logistics.assignments
                 // Map to echelon
@@ -83,9 +86,11 @@ class LogisticsSupportModule(
         }
     }
 
-    /**
+    */
+/**
      * Tries to return to home and receive echelons if any logistic timers have expired
-     */
+     *//*
+
     private suspend fun checkLogisticTimers() {
         if (gameState.echelons.any { it.logisticsSupportAssignment?.eta?.isBefore(Instant.now()) == true }) {
             logger.info("An echelon probably came back, gonna check home")
@@ -94,12 +99,14 @@ class LogisticsSupportModule(
         }
     }
 
-    /**
+    */
+/**
      * Dispatches an echelon to some logistic support
      *
      * @param echelon Echelon to dispatch
      * @param nextMission Next Logistic Support mission to dispatch the echelon to
-     */
+     *//*
+
     private suspend fun dispatchEchelon(echelon: Echelon, nextMission: LogisticsSupport) {
         logger.info("Next mission for $echelon is ${nextMission.number}")
         clickLogisticSupportChapter(nextMission)
@@ -149,32 +156,38 @@ class LogisticsSupportModule(
         echelon.logisticsSupportEnabled = false
     }
 
-    /**
+    */
+/**
      * Clicks the chapter of the given logistic support
      *
      * @param ls Logistic support
-     */
+     *//*
+
     private suspend fun clickLogisticSupportChapter(ls: LogisticsSupport) {
         logger.info("Choosing logistics support chapter ${ls.chapter}")
         clickChapter(ls.chapter)
         logger.info("At logistics support chapter ${ls.chapter}")
     }
 
-    /**
+    */
+/**
      * Checks if the mission for given index is running
      *
      * @param mission Index of mission from left to right 0-3
-     */
+     *//*
+
     private fun missionRunning(mission: Int): Boolean {
         val missionRegion = region.subRegion(704 + (333 * mission), 219, 306, 856)
         return missionRegion.has("logistics/retreat.png")
     }
 
-    /**
+    */
+/**
      * Clicks on mission start button for given mission index
      *
      * @param mission Index of mission from left to right 0-3
-     */
+     *//*
+
     private suspend fun clickMissionStart(mission: Int) {
         logger.debug("Opening up the logistic support menu")
         // Left most mission button x: 704 y: 219 w: 306 h: 856
@@ -186,11 +199,13 @@ class LogisticsSupportModule(
         }
     }
 
-    /**
+    */
+/**
      * Clicks on the echelon when in the dispatch screen
      *
      * @param echelon Echelon to click
-     */
+     *//*
+
     private suspend fun clickEchelon(echelon: Echelon) {
         logger.debug("Clicking the echelon")
         val eRegion = region.subRegion(119, 0, 150, region.h)
@@ -219,10 +234,12 @@ class LogisticsSupportModule(
         yield()
     }
 
-    /**
+    */
+/**
      * Checks if the amount of ongoing logistic support is 4
-     */
+     *//*
+
     private fun logisticSupportLimitReached(): Boolean {
         return gameState.echelons.mapNotNull { it.logisticsSupportAssignment }.size >= 4
     }
-}
+}*/

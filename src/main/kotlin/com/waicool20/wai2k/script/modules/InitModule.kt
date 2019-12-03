@@ -19,7 +19,12 @@
 
 package com.waicool20.wai2k.script.modules
 
-import com.waicool20.wai2k.android.AndroidRegion
+import boofcv.io.image.UtilImageIO
+import com.waicool20.cvauto.android.AndroidRegion
+import com.waicool20.cvauto.core.Region
+import com.waicool20.cvauto.core.asCachedRegion
+import com.waicool20.cvauto.core.template.FileTemplate
+import com.waicool20.cvauto.util.asGrayF32
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.game.LocationId
@@ -35,7 +40,6 @@ import com.waicool20.waicoolutils.logging.loggerFor
 import com.waicool20.waicoolutils.mapAsync
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import java.awt.Rectangle
 import java.awt.image.BufferedImage
 import java.time.Duration
 import java.time.Instant
@@ -73,8 +77,10 @@ class InitModule(
     private suspend fun updateLogistics() {
         logger.info("Reading logistics support status")
         // Optimize by taking a single screenshot and working on that
-        val image = region.takeScreenshot()
-        val entry = region.subRegion(485, 0, 240, region.h).findAllOrEmpty("init/logistics.png")
+        val image = region.capture()
+        val entry = region.subRegion(485, 0, 240, region.height)
+                .findBest(FileTemplate("init/logistics.png"), 10)
+                .map { it.region }
                 // Map each region to whole logistic support entry
                 .map { image.getSubimage(it.x - 135, it.y - 82, 853, 144) }
                 .map {
@@ -115,24 +121,25 @@ class InitModule(
     private suspend fun updateRepairs() {
         logger.info("Reading repair status")
         // Optimize by taking a single screenshot and working on that
-        val image = region.takeScreenshot()
+        val cache = region.asCachedRegion()
 
-        val firstEntryRegion = Rectangle(450, 0, 159, region.h)
+        //val firstEntryRegion = region.subRegion(450, 0, 159, region.height)
+        val firstEntryRegion = cache.subRegion(450, 0, 159, region.height)
         val repairRegions = async {
-            region.subRegion(firstEntryRegion).findAllOrEmpty("init/repairing.png")
+            firstEntryRegion.findBest(FileTemplate("init/repairing.png"), 6)
         }
         val standbyRegions = async {
-            region.subRegion(firstEntryRegion).findAllOrEmpty("init/standby.png")
+            firstEntryRegion.findBest(FileTemplate("init/standby.png"), 6)
         }
         val trainingRegions = async {
-            region.subRegion(firstEntryRegion).findAllOrEmpty("init/in-training.png")
+            firstEntryRegion.findBest(FileTemplate("init/in-training.png"), 6)
         }
         // Find all the echelons that have a girl in repair
         val entries = repairRegions.await() + standbyRegions.await() + trainingRegions.await()
 
         // Map each region to whole logistic support entry
-        val mappedEntries = entries
-                .map { image.getSubimage(it.x - 110, it.y - 11, 853, 144) }
+        val mappedEntries = entries.map { it.region }
+                .map { cache.capture().getSubimage(it.x - 110, it.y - 11, 853, 144) }
                 .map {
                     async {
                         // Echelon section on the right without the word "Echelon"

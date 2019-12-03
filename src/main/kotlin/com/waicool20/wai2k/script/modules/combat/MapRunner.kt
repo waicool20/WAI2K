@@ -19,7 +19,8 @@
 
 package com.waicool20.wai2k.script.modules.combat
 
-import com.waicool20.wai2k.android.AndroidRegion
+import com.waicool20.cvauto.android.AndroidRegion
+import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.game.GameLocation
@@ -108,8 +109,8 @@ abstract class MapRunner(
     protected suspend fun deployEchelons(vararg deployments: Deployment): Array<Deployment> = coroutineScope {
         val needsResupply = deployments.filterIndexed { i, (label, dRegion, mustBeSupplied) ->
             logger.info("Deploying echelon ${i + 1} to $label")
-            dRegion.clickRandomly(); delay(500)
-            val screenshot = region.takeScreenshot()
+            dRegion.click(); delay(500)
+            val screenshot = region.capture()
             val ammoNeedsSupply = async {
                 if (!mustBeSupplied) return@async false
                 val image = screenshot.getSubimage(705, 797, 158, 1).binarizeImage()
@@ -120,7 +121,7 @@ abstract class MapRunner(
                 val image = screenshot.getSubimage(705, 838, 158, 1).binarizeImage()
                 image.countColor(Color.WHITE) != image.width
             }
-            mapRunnerRegions.deploy.clickRandomly()
+            mapRunnerRegions.deploy.click()
             delay(300)
             ammoNeedsSupply.await() && rationNeedsSupply.await()
         }
@@ -146,11 +147,11 @@ abstract class MapRunner(
             // Clicking twice, first to highlight the echelon, the second time to enter the deployment menu
             logger.info("Selecting echelon")
             region.apply {
-                clickRandomly(); yield()
-                clickRandomly(); delay(300)
+                click(); yield()
+                click(); delay(300)
             }
             logger.info("Resupplying")
-            mapRunnerRegions.resupply.clickRandomly()
+            mapRunnerRegions.resupply.click()
             logger.info("Resupply complete")
             delay(750)
         }
@@ -171,7 +172,7 @@ abstract class MapRunner(
             }
         }
         // Wait for the G&K splash to appear within 10 seconds
-        region.waitSuspending("combat/battle/splash.png", timeout)?.apply {
+        region.waitHas(FileTemplate("combat/battle/splash.png"), timeout)?.apply {
             logger.info("G&K splash screen appeared")
             delay(2000)
         } ?: logger.info("G&K splash screen did not appear")
@@ -194,7 +195,7 @@ abstract class MapRunner(
             }
             yield()
         }
-        region.waitSuspending("combat/battle/terminate.png", 1200)
+        region.waitHas(FileTemplate("combat/battle/terminate.png"), 1200)
         logger.info("Turn ended")
         endTurn()
     }
@@ -214,7 +215,7 @@ abstract class MapRunner(
         var currentPoints = 0
         while (isActive && (currentTurn != turn || currentPoints != points)) {
             if (isInBattle()) clickThroughBattle()
-            val screenshot = region.takeScreenshot()
+            val screenshot = region.capture()
             val newTurn = ocr.doOCRAndTrim(screenshot.getSubimage(748, 53, 86, 72))
                     .let { if (it.firstOrNull() == '8') it.replaceFirst("8", "0") else it }
                     .toIntOrNull() ?: continue
@@ -232,7 +233,7 @@ abstract class MapRunner(
         delay(1000)
         while (isActive) {
             if (isInBattle()) clickThroughBattle()
-            if (region.has("combat/battle/terminate.png")) break
+            if (region.has(FileTemplate("combat/battle/terminate.png"))) break
         }
         endTurn()
     }
@@ -242,12 +243,12 @@ abstract class MapRunner(
      */
     protected suspend fun waitForTurnAssets(vararg assets: String) {
         logger.info("Waiting for ${assets.size} assets to appear")
-        while (assets.any { region.doesntHave(it, 0.98) }) {
+        while (assets.any { region.doesntHave(FileTemplate(it, 0.98)) }) {
             if (isInBattle()) clickThroughBattle()
             yield()
         }
         logger.info("All assets are now on screen")
-        region.waitSuspending("combat/battle/terminate.png", 1200)
+        region.waitHas(FileTemplate("combat/battle/terminate.png"), 1200)
         endTurn()
     }
 
@@ -257,9 +258,9 @@ abstract class MapRunner(
     protected suspend fun handleBattleResults() = coroutineScope {
         logger.info("Battle ended, clicking through battle results")
         val combatMenu = GameLocation.mappings(config)[LocationId.COMBAT_MENU]!!
-        val clickLocation = battleEndClickRegion.randomLocation()
+        val clickLocation = battleEndClickRegion.randomPoint()
         val clickJob = launch {
-            while (isActive) region.click(clickLocation)
+            while (isActive) region.device.input.touchInterface?.tap(0, clickLocation.x, clickLocation.y)
         }
         while (isActive) {
             if (combatMenu.isInRegion(region)) break
@@ -279,16 +280,18 @@ abstract class MapRunner(
         while (isActive && isInBattle()) yield()
         logger.info("Battle ${_battles++} complete, clicking through battle results")
         delay(400)
-        val l = battleEndClickRegion.randomLocation()
-        repeat(Random.nextInt(7, 9)) { region.click(l); yield() }
+        val l = battleEndClickRegion.randomPoint()
+        repeat(Random.nextInt(7, 9)) {
+            region.device.input.touchInterface?.tap(0, l.x, l.y); yield()
+        }
     }
 
-    private fun isInBattle() = pauseButtonRegion.has("combat/battle/pause.png", 0.9)
+    private fun isInBattle() = pauseButtonRegion.has(FileTemplate("combat/battle/pause.png", 0.9))
 
     private suspend fun endTurn() {
         do {
-            repeat(Random.nextInt(2, 3)) { mapRunnerRegions.endBattle.clickRandomly() }
+            repeat(Random.nextInt(2, 3)) { mapRunnerRegions.endBattle.click() }
             delay(250)
-        } while (region.has("combat/battle/terminate.png"))
+        } while (region.has(FileTemplate("combat/battle/terminate.png")))
     }
 }

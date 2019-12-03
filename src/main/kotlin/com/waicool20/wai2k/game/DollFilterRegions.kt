@@ -19,7 +19,7 @@
 
 package com.waicool20.wai2k.game
 
-import com.waicool20.wai2k.android.AndroidRegion
+import com.waicool20.cvauto.android.AndroidRegion
 
 class DollFilterRegions(region: AndroidRegion) {
     /**

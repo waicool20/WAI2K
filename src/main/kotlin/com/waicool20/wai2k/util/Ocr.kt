@@ -19,7 +19,7 @@
 
 package com.waicool20.wai2k.util
 
-import com.waicool20.wai2k.android.AndroidRegion
+import com.waicool20.cvauto.core.Region
 import com.waicool20.wai2k.config.Wai2KConfig
 import net.sourceforge.tess4j.ITessAPI
 import net.sourceforge.tess4j.ITesseract
@@ -81,7 +81,7 @@ object Ocr {
     }
 }
 
-fun ITesseract.doOCRAndTrim(region: AndroidRegion) = doOCRAndTrim(region.takeScreenshot())
+fun ITesseract.doOCRAndTrim(region: Region<*>) = doOCRAndTrim(region.capture())
 fun ITesseract.doOCRAndTrim(image: BufferedImage) = doOCR(image).trim()
 
 fun ITesseract.useCharFilter(chars: String) = apply {

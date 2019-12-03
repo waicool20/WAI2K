@@ -35,11 +35,7 @@ class PathPrefView : View() {
     override fun onDock() {
         super.onDock()
         context.wai2KConfig.apply {
-            sikulixJarPathLink.textProperty().bind(sikulixJarPathProperty.asString())
-            adbPathLink.textProperty().bind(adbPathProperty.asString())
             assetsDirPathLink.textProperty().bind(assetsDirectoryProperty.asString())
-            sikulixJarPathLink.setOnAction { DesktopUtils.open(sikulixJarPath.parent) }
-            adbPathLink.setOnAction { DesktopUtils.open(adbPath.parent) }
             assetsDirPathLink.setOnAction { DesktopUtils.open(assetsDirectory) }
         }
     }

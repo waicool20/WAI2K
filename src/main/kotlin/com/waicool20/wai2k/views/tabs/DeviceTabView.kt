@@ -19,7 +19,8 @@
 
 package com.waicool20.wai2k.views.tabs
 
-import com.waicool20.wai2k.android.AndroidDevice
+import com.waicool20.cvauto.android.ADB
+import com.waicool20.cvauto.android.AndroidDevice
 import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.util.Binder
 import com.waicool20.waicoolutils.javafx.CoroutineScopeView
@@ -38,6 +39,7 @@ import kotlinx.coroutines.*
 import org.controlsfx.glyphfont.FontAwesome
 import org.controlsfx.glyphfont.Glyph
 import tornadofx.*
+import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
 
 class DeviceTabView : CoroutineScopeView(), Binder {
@@ -75,7 +77,7 @@ class DeviceTabView : CoroutineScopeView(), Binder {
         }
 
         refreshDeviceLists { list ->
-            list.find { it.adbSerial == context.wai2KConfig.lastDeviceSerial }?.let {
+            list.find { it.serial == context.wai2KConfig.lastDeviceSerial }?.let {
                 launch { deviceComboBox.selectionModel.select(it) }
             }
         }
@@ -98,7 +100,7 @@ class DeviceTabView : CoroutineScopeView(), Binder {
                 itemProp.stringBinding { it?.properties?.model ?: "" }
         )
         serialLabel.bind(
-                itemProp.stringBinding { it?.adbSerial ?: "" }
+                itemProp.stringBinding { it?.serial ?: "" }
         )
         displayLabel.textProperty().bind(
                 itemProp.stringBinding {
@@ -115,26 +117,26 @@ class DeviceTabView : CoroutineScopeView(), Binder {
                     title = "Save screenshot to?"
                     extensionFilters.add(FileChooser.ExtensionFilter("PNG files (*.png)", "*.png"))
                     showSaveDialog(null)?.let { file ->
-                        launch(Dispatchers.IO) { ImageIO.write(device.takeScreenshot(), "PNG", file) }
+                        launch(Dispatchers.IO) { ImageIO.write(device.screens[0].capture(), "PNG", file) }
                     }
                 }
             }
         }
         context.wai2KConfig.scriptConfig.fastScreenshotModeProperty.addListener("DeviceTabViewFSMListener") { newVal ->
-            deviceComboBox.selectedItem?.fastScreenshotMode = newVal
+            deviceComboBox.selectedItem?.screens?.firstOrNull()?.fastCaptureMode = newVal
         }
     }
 
     private fun refreshDeviceLists(action: (List<AndroidDevice>) -> Unit = {}) {
         launch(Dispatchers.IO + CoroutineName("Refresh Device List Task")) {
             logger.debug("Refreshing device list")
-            val serial = deviceComboBox.selectedItem?.adbSerial
-            val list = context.adbServer.listDevices()
+            val serial = deviceComboBox.selectedItem?.serial
+            val list = ADB.getDevices()
 
             logger.debug("Found ${list.size} devices")
             withContext(Dispatchers.Main) {
                 deviceComboBox.items.setAll(list)
-                list.find { it.adbSerial == serial }?.let {
+                list.find { it.serial == serial }?.let {
                     deviceComboBox.selectionModel.select(it)
                 } ?: deviceComboBox.selectionModel.clearSelection()
             }
@@ -145,9 +147,9 @@ class DeviceTabView : CoroutineScopeView(), Binder {
     private fun setNewDevice(device: AndroidDevice?) {
         if (device != null) {
             logger.debug("Selected device: ${device.properties.name}")
-            context.wai2KConfig.lastDeviceSerial = device.adbSerial
+            context.wai2KConfig.lastDeviceSerial = device.serial
             context.wai2KConfig.save()
-            device.fastScreenshotMode = context.wai2KConfig.scriptConfig.fastScreenshotMode
+            device.screens[0].fastCaptureMode = context.wai2KConfig.scriptConfig.fastScreenshotMode
             // Cancel the current job before starting a new one
             renderJob?.cancel()
             renderJob = createNewRenderJob(device)
@@ -159,14 +161,14 @@ class DeviceTabView : CoroutineScopeView(), Binder {
             var lastCaptureTime = System.currentTimeMillis()
             while (isActive) {
                 if (owningTab?.isSelected == true) {
-                    val image = if (realtimePreviewCheckbox.isSelected && device.fastScreenshotMode) {
-                        device.takeScreenshot()
+                    val image = if (realtimePreviewCheckbox.isSelected && device.screens[0].fastCaptureMode) {
+                        device.screens[0].capture()
                     } else {
-                        device.screen.lastScreenImage?.image?.takeIf {
+                        device.screens[0].getLastScreenCapture()?.takeIf {
                             System.currentTimeMillis() - lastCaptureTime < 3000
                         } ?: run {
                             lastCaptureTime = System.currentTimeMillis()
-                            device.screen.capture().image
+                            device.screens[0].capture()
                         }
                     }
                     withContext(Dispatchers.Main) {
