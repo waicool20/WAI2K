@@ -33,7 +33,6 @@ import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
-import org.mockito.internal.matchers.And
 import kotlin.coroutines.CoroutineContext
 
 abstract class ScriptModule(
@@ -139,8 +138,10 @@ abstract class ScriptModule(
             }
         }
         navigator.checkLogistics()
-        cRegion.subRegion(0, 0, 195, cRegion.height).clickWhile(timeout = 20) {
-            it.has(FileTemplate("chapters/$chapter.png", 0.96))
-        }
+        delay(200)
+        cRegion.subRegion(0, 0, 195, cRegion.height).clickTemplateWhile(
+                template = FileTemplate("chapters/$chapter.png"),
+                timeout = 20
+        ) { has(it) }
     }
 }
