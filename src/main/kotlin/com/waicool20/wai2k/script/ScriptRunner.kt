@@ -35,7 +35,6 @@ import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.*
 import org.reflections.Reflections
 import java.time.Instant
-import java.util.concurrent.Executors
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.roundToLong
 import kotlin.reflect.full.primaryConstructor
@@ -46,7 +45,8 @@ class ScriptRunner(
 ) : CoroutineScope {
     private var scriptJob: Job? = null
     override val coroutineContext: CoroutineContext
-        get() = scriptJob?.takeIf { it.isActive }?.let { it + Dispatchers.Default } ?: Dispatchers.Default
+        get() = scriptJob?.takeIf { it.isActive }?.let { it + Dispatchers.Default }
+                ?: Dispatchers.Default
 
     private val logger = loggerFor<ScriptRunner>()
     private var currentDevice: AndroidDevice? = null
@@ -101,7 +101,7 @@ class ScriptRunner(
             }
         }
         currentConfig.scriptConfig.apply {
-            Region.DEFAULT_MATCHER.settings.matchWidth = 480
+            Region.DEFAULT_MATCHER.settings.matchDimension = 480
             Region.DEFAULT_MATCHER.settings.defaultThreshold = defaultSimilarityThreshold
             currentDevice?.input?.touchInterface?.settings?.postTapDelay = (mouseDelay * 1000).roundToLong()
         }
