@@ -19,8 +19,9 @@
 
 package com.waicool20.wai2k.script.modules
 
-/*
-import com.waicool20.wai2k.android.AndroidRegion
+
+import com.waicool20.cvauto.android.AndroidRegion
+import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.game.Echelon
@@ -49,11 +50,9 @@ class LogisticsSupportModule(
         checkLogisticTimers()
     }
 
-    */
-/**
+    /**
      * Checks if any echelons require dispatching then dispatches them
-     *//*
-
+     */
     private suspend fun checkAndDispatchEchelons() {
         val queue = profile.logistics.assignments
                 // Map to echelon
@@ -86,11 +85,10 @@ class LogisticsSupportModule(
         }
     }
 
-    */
-/**
-     * Tries to return to home and receive echelons if any logistic timers have expired
-     *//*
 
+    /**
+     * Tries to return to home and receive echelons if any logistic timers have expired
+     */
     private suspend fun checkLogisticTimers() {
         if (gameState.echelons.any { it.logisticsSupportAssignment?.eta?.isBefore(Instant.now()) == true }) {
             logger.info("An echelon probably came back, gonna check home")
@@ -99,14 +97,12 @@ class LogisticsSupportModule(
         }
     }
 
-    */
-/**
+    /**
      * Dispatches an echelon to some logistic support
      *
      * @param echelon Echelon to dispatch
      * @param nextMission Next Logistic Support mission to dispatch the echelon to
-     *//*
-
+     */
     private suspend fun dispatchEchelon(echelon: Echelon, nextMission: LogisticsSupport) {
         logger.info("Next mission for $echelon is ${nextMission.number}")
         clickLogisticSupportChapter(nextMission)
@@ -121,21 +117,24 @@ class LogisticsSupportModule(
         // Start mission
         clickMissionStart(missionIndex)
 
-        // Click the ok button of the popup if any of the resources broke the hard cap
-        region.findOrNull("ok.png")?.let {
-            logger.info("One of the resources reached its limit!")
-            it.clickRandomly()
-        }
+        delay(250)
 
-        region.waitSuspending("logistics/formation.png", 10)
+        // Click the ok button of the popup if any of the resources broke the hard cap
+        // Use subregion so it doesnt click dispatch ok instead
+        region.subRegion(500, 90, 1155, 815).findBest(FileTemplate("ok.png"))
+                ?.also { logger.info("One of the resources reached its limit!") }
+                ?.region?.click()
+
+        region.waitHas(FileTemplate("logistics/formation.png"), 10)
         clickEchelon(echelon)
         // Click ok button
         delay(300)
 
-        region.clickUntilGone("ok.png", 10)
+        region.clickTemplateWhile(FileTemplate("ok.png")) { has(it) }
 
         // Wait for logistics mission icon to appear again
-        region.subRegion(131, 306, 257, 118).waitSuspending("logistics/logistics.png", 7)
+        region.subRegion(131, 306, 257, 118)
+                .waitHas(FileTemplate("logistics/logistics.png"), 7000)
 
         // Check if mission is running
         if (missionRunning(missionIndex)) {
@@ -151,69 +150,59 @@ class LogisticsSupportModule(
         logger.info("Disabled logistics support for echelon ${echelon.number}")
         delay(300)
         // Click close button
-        region.subRegion(940, 757, 280, 107).clickRandomly()
+        region.subRegion(940, 757, 280, 107).click()
         // Disable echelon
         echelon.logisticsSupportEnabled = false
     }
 
-    */
-/**
+    /**
      * Clicks the chapter of the given logistic support
      *
      * @param ls Logistic support
-     *//*
-
+     */
     private suspend fun clickLogisticSupportChapter(ls: LogisticsSupport) {
         logger.info("Choosing logistics support chapter ${ls.chapter}")
         clickChapter(ls.chapter)
         logger.info("At logistics support chapter ${ls.chapter}")
     }
 
-    */
-/**
+    /**
      * Checks if the mission for given index is running
      *
      * @param mission Index of mission from left to right 0-3
-     *//*
-
+     */
     private fun missionRunning(mission: Int): Boolean {
         val missionRegion = region.subRegion(704 + (333 * mission), 219, 306, 856)
-        return missionRegion.has("logistics/retreat.png")
+        return missionRegion.has(FileTemplate("logistics/retreat.png"))
     }
 
-    */
-/**
+    /**
      * Clicks on mission start button for given mission index
      *
      * @param mission Index of mission from left to right 0-3
-     *//*
-
+     */
     private suspend fun clickMissionStart(mission: Int) {
         logger.debug("Opening up the logistic support menu")
         // Left most mission button x: 704 y: 219 w: 306 h: 856
         val missionRegion = region.subRegion(704 + (333 * mission), 219, 306, 856)
         // Need a separate check region because the ammo icon might not be covered by the resource limit popup
         val checkRegion = region.subRegion(704 + (333 * 1), 219, 306, 856)
-        while (checkRegion.has("logistics/ammo.png")) {
-            missionRegion.clickRandomly(); yield()
-        }
+        missionRegion.clickWhile { checkRegion.has(FileTemplate("logistics/ammo.png")) }
     }
 
-    */
-/**
+    /**
      * Clicks on the echelon when in the dispatch screen
      *
      * @param echelon Echelon to click
-     *//*
-
+     */
     private suspend fun clickEchelon(echelon: Echelon) {
         logger.debug("Clicking the echelon")
-        val eRegion = region.subRegion(119, 0, 150, region.h)
+        val eRegion = region.subRegion(119, 0, 150, region.height)
 
-        while (eRegion.doesntHave("echelons/echelon${echelon.number}.png")) {
+        while (eRegion.doesntHave(FileTemplate("echelons/echelon${echelon.number}.png"))) {
             delay(100)
             val echelons = (1..7).mapAsync {
-                it to eRegion.findOrNull("echelons/echelon$it.png")
+                it to eRegion.findBest(FileTemplate("echelons/echelon$it.png"))?.region as? AndroidRegion
             }.filter { it.second != null }.map { it.first to it.second!! }
             logger.debug("Visible echelons: ${echelons.map { it.first }}")
             val lEchelon = echelons.minBy { it.first } ?: echelons.first()
@@ -221,25 +210,23 @@ class LogisticsSupportModule(
             when {
                 echelon.number <= lEchelon.first -> {
                     logger.debug("Swiping down the echelons")
-                    lEchelon.second.swipeToRandomly(hEchelon.second)
+                    lEchelon.second.swipeTo(hEchelon.second)
                 }
                 echelon.number >= hEchelon.first -> {
                     logger.debug("Swiping up the echelons")
-                    hEchelon.second.swipeToRandomly(lEchelon.second)
+                    hEchelon.second.swipeTo(lEchelon.second)
                 }
             }
             delay(300)
         }
-        eRegion.findOrNull("echelons/echelon${echelon.number}.png")?.clickRandomly()
+        eRegion.findBest(FileTemplate("echelons/echelon${echelon.number}.png"))?.region?.click()
         yield()
     }
 
-    */
-/**
+    /**
      * Checks if the amount of ongoing logistic support is 4
-     *//*
-
+     */
     private fun logisticSupportLimitReached(): Boolean {
         return gameState.echelons.mapNotNull { it.logisticsSupportAssignment }.size >= 4
     }
-}*/
+}
