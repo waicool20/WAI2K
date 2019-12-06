@@ -79,7 +79,7 @@ class InitModule(
         // Optimize by taking a single screenshot and working on that
         val image = region.capture()
         val entry = region.subRegion(485, 0, 240, region.height)
-                .findBest(FileTemplate("init/logistics.png"), 10)
+                .findBest(FileTemplate("init/logistics.png"), 4)
                 .map { it.region }
                 // Map each region to whole logistic support entry
                 .map { image.getSubimage(it.x - 135, it.y - 82, 853, 144) }
