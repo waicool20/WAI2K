@@ -19,8 +19,7 @@
 
 package com.waicool20.wai2k.script.modules.combat.maps
 
-/*
-import com.waicool20.wai2k.android.AndroidRegion
+import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.script.ScriptRunner
@@ -43,7 +42,7 @@ class Map0_2(
 
     override suspend fun execute() {
         val rEchelons = deployEchelons(commandPostDeployment, heliportDeployment)
-        mapRunnerRegions.startOperation.clickRandomly(); yield()
+        mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
         resupplyEchelons(rEchelons + heliportDeployment)
         planPath()
@@ -53,26 +52,26 @@ class Map0_2(
 
     private suspend fun planPath() {
         logger.info("Selecting echelon at command post")
-        commandPostDeployment.region.clickRandomly(); yield()
+        commandPostDeployment.region.click(); yield()
 
         logger.info("Entering planning mode")
-        mapRunnerRegions.planningMode.clickRandomly(); yield()
+        mapRunnerRegions.planningMode.click(); yield()
 
         // Pan up
-        region.subRegion(1020, 110, 240, 10).let {
-            it.swipeToRandomly(it.offset(0, 600), 500); yield()
-            it.swipeToRandomly(it.offset(0, 600), 500); delay(300)
+        region.subRegionAs<AndroidRegion>(1020, 110, 240, 10).let {
+            it.swipeTo(it.copy().apply { translate(0, 600) }, 500); yield()
+            it.swipeTo(it.copy().apply { translate(0, 600) }, 500); delay(300)
         }
 
         logger.info("Selecting node 1")
         region.subRegion(853, 412, 60, 60)
-                .clickRandomly(); yield()
+                .click(); yield()
 
         logger.info("Selecting node 2")
         region.subRegion(1647, 472, 60, 60)
-                .clickRandomly(); yield()
+                .click(); yield()
 
         logger.info("Executing plan")
-        mapRunnerRegions.executePlan.clickRandomly()
+        mapRunnerRegions.executePlan.click()
     }
-}*/
+}

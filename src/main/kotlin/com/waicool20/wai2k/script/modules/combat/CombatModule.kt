@@ -18,9 +18,11 @@
  */
 
 package com.waicool20.wai2k.script.modules.combat
-/*
 
-import com.waicool20.wai2k.android.AndroidRegion
+import com.waicool20.cvauto.android.AndroidRegion
+import com.waicool20.cvauto.core.asCachedRegion
+import com.waicool20.cvauto.core.input.ITouchInterface
+import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.config.Wai2KProfile.DollCriteria
@@ -35,11 +37,14 @@ import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.wai2k.util.useLegacyEngine
 import com.waicool20.waicoolutils.*
 import com.waicool20.waicoolutils.logging.loggerFor
-import kotlinx.coroutines.*
-import org.sikuli.basics.Settings
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.yield
 import java.awt.Color
 import java.awt.image.BufferedImage
 import java.nio.file.Files
+import java.nio.file.Paths
 import java.text.DecimalFormat
 import kotlin.math.min
 import kotlin.random.Random
@@ -73,10 +78,9 @@ class CombatModule(
         runCombatCycle()
     }
 
-    */
-/**
+    /**
      * Runs a combat cycle
-     *//*
+     */
 
     private suspend fun runCombatCycle() {
         // Don't need to switch dolls if previous run was cancelled
@@ -121,20 +125,18 @@ class CombatModule(
 
     //<editor-fold desc="Doll Switching">
 
-    */
-/**
+    /**
      * Switches the dolls in the echelons who will be dragging, which doll goes into which
      * echelon depends on the sortie cycle. On even sortie cycles (ie. 0, 2, 4...)
      * doll 1 goes into echelon 1, doll 2 goes into echelon 2 and vice versa
-     *//*
-
+     */
     private suspend fun switchDolls() {
         navigator.navigateTo(LocationId.FORMATION)
         val startTime = System.currentTimeMillis()
         logger.info("Switching doll 2 of echelon 1")
         // Doll 2 region ( excludes stuff below name/type )
-        region.subRegion(612, 167, 263, 667).clickRandomly(); yield()
-        region.waitSuspending("doll-list/lock.png", 5)
+        region.subRegion(612, 167, 263, 667).click(); yield()
+        region.waitHas(FileTemplate("doll-list/lock.png"), 5000)
 
         val draggers = profile.combat.draggers
         // If sorties done is even use doll 1 else doll 2
@@ -150,15 +152,15 @@ class CombatModule(
         dollSwitchingCache.getOrPut(dragger1) {
             scanResults = scanValidDolls(echelon1Doll)
             scanResults[dragger1.index]
-        }.clickRandomly()
+        }.click()
         delay(400)
         updateEchelonRepairStatus(1)
 
         // Select echelon 2
-        region.subRegion(120, 296, 184, 109).clickRandomly(); delay(200)
+        region.subRegion(120, 296, 184, 109).click(); delay(200)
         // Doll 1 region ( excludes stuff below name/type )
-        region.subRegion(335, 167, 263, 667).clickRandomly(); yield()
-        region.waitSuspending("doll-list/lock.png", 5)
+        region.subRegion(335, 167, 263, 667).click(); yield()
+        region.waitHas(FileTemplate("doll-list/lock.png"), 5000)
 
         // Apply new filters only if they are different from the other doll
         if (dragger1.stars != dragger2.stars || dragger1.type != dragger2.type) {
@@ -167,7 +169,7 @@ class CombatModule(
         dollSwitchingCache.getOrPut(dragger2) {
             if (!sameDragger || scanResults.isEmpty()) scanResults = scanValidDolls(echelon2Doll)
             scanResults[dragger2.index]
-        }.clickRandomly()
+        }.click()
         delay(400)
         updateEchelonRepairStatus(2)
 
@@ -180,11 +182,9 @@ class CombatModule(
         logger.info("Switching dolls took ${System.currentTimeMillis() - startTime} ms")
     }
 
-    */
-/**
+    /**
      * Applies the filters ( stars and types ) in formation doll list
-     *//*
-
+     */
     private suspend fun applyFilters(doll: Int, reset: Boolean) {
         logger.info("Applying doll filters for dragging doll $doll")
         val criteria = profile.combat.draggers[doll] ?: error("Invalid doll: $doll")
@@ -192,18 +192,16 @@ class CombatModule(
         val type = criteria.type
         applyDollFilters(stars, type, reset)
         delay(500)
-        region.waitSuspending("doll-list/lock.png", 5)
+        region.waitHas(FileTemplate("doll-list/lock.png"), 5000)
     }
 
     private var scanRetries = 0
 
-    */
-/**
+    /**
      * Scans for valid dolls in the formation doll list
      *
      * @return List of regions that can be clicked to select the valid doll
-     *//*
-
+     */
     private suspend fun scanValidDolls(doll: Int, retries: Int = 3): List<AndroidRegion> {
         // Wait for menu to settle starting around 300 ms
         // The amount of time waited is increased each time the doll scanning fails
@@ -232,15 +230,16 @@ class CombatModule(
         repeat(retries) { i ->
             // Take a screenshot after each retry, just in case it was a bad one in case its not OCRs fault
             // Optimize by taking a single screenshot and working on that
-            val image = region.takeScreenshot()
-            region.findAllOrEmpty("doll-list/lock.png")
+            val cache = region.asCachedRegion()
+            cache.findBest(FileTemplate("doll-list/lock.png"), 12)
                     .also { logger.info("Found ${it.size} dolls on screen") }
                     // Transform the lock region into 3 distinct regions used for ocr and clicking by offset
+                    .map { it.region }
                     .map {
                         DollRegions(
-                                image.getSubimage(it.x + 67, it.y + 79, 165, 40),
-                                image.getSubimage(it.x + 188, it.y + 126, 39, 30),
-                                region.subRegion(it.x - 7, it.y, 244, 164)
+                                cache.capture().getSubimage(it.x + 67, it.y + 79, 165, 40),
+                                cache.capture().getSubimage(it.x + 188, it.y + 126, 39, 30),
+                                region.subRegionAs(it.x - 7, it.y, 244, 164)
                         )
                     }.filter {
                         val ocrName = it.name.await()
@@ -284,14 +283,15 @@ class CombatModule(
         }
 
         for (i in 1..retries) {
-            val image = region.takeScreenshot()
-            val members = region.findAllOrEmpty("formation/stats.png")
+            val cache = region.asCachedRegion()
+            val members = cache.findBest(FileTemplate("formation/stats.png"), 5)
                     .also { logger.info("Found ${it.size} dolls on screen") }
+                    .map { it.region }
                     .sortedBy { it.x }
                     .map {
                         DollRegions(
-                                image.getSubimage(it.x - 157, it.y - 186, 257, 50),
-                                image.getSubimage(it.x - 139, it.y - 55, 221, 1)
+                                cache.capture().getSubimage(it.x - 157, it.y - 186, 257, 50),
+                                cache.capture().getSubimage(it.x - 139, it.y - 55, 221, 1)
                         )
                     }
             // Checking if the ocr results were gibberish
@@ -309,7 +309,8 @@ class CombatModule(
             gameState.echelons[echelon - 1].members.forEachIndexed { j, member ->
                 val dMember = members.getOrNull(j)
                 member.name = dMember?.name?.await() ?: "Unknown"
-                member.needsRepair = (dMember?.percent?.await() ?: 100.0) < profile.combat.repairThreshold
+                member.needsRepair = (dMember?.percent?.await()
+                        ?: 100.0) < profile.combat.repairThreshold
                 val sPercent = dMember?.percent?.await()?.let { formatter.format(it) } ?: "N/A"
                 logger.info("[Repair OCR] Name: ${member.name} | HP (%): $sPercent")
             }
@@ -327,8 +328,8 @@ class CombatModule(
             return if ((scriptStats.sortiesDone - 1) % profile.combat.repairCheckFrequency == 0) {
                 logger.info("Checking home for repairs, next check at ${scriptStats.sortiesDone + profile.combat.repairCheckFrequency} sorties")
                 navigator.navigateTo(LocationId.HOME)
-                region.waitSuspending("locations/repair.png", 10)
-                region.subRegion(1337, 290, 345, 155).has("alert.png")
+                region.waitHas(FileTemplate("locations/repair.png"), 10000)
+                region.subRegion(1337, 290, 345, 155).has(FileTemplate("alert.png"))
             } else false
         }
 
@@ -339,47 +340,52 @@ class CombatModule(
             navigator.navigateTo(LocationId.REPAIR)
 
             while (isActive) {
-                val repairSlots = region.findAllOrEmpty("combat/empty-repair.png")
-                repairSlots.firstOrNull()?.clickRandomly()
+                val repairSlots = region.findBest(FileTemplate("combat/empty-repair.png"), 7)
+                        .map { it.region }
+                repairSlots.firstOrNull()?.click()
                         ?: run {
                             logger.info("No available repair slots, cancelling sortie")
                             return
                         }
                 delay(1000)
 
-                val screenshot = region.takeScreenshot()
-                val repairRegions = region.findAllOrEmpty("doll-list/lock.png")
+                val cache = region.asCachedRegion()
+                val repairRegions = cache.findBest(FileTemplate("doll-list/lock.png"), 12)
                         .also { logger.info("Found ${it.size} dolls on screen") }
+                        .map { it.region }
                         .filterAsync {
-                            region.subRegion(it.x - 7, it.y - 268, 243, 431).has("combat/critical-dmg.png") ||
-                                    Ocr.forConfig(config).doOCRAndTrim(screenshot.getSubimage(it.x + 67, it.y + 72, 161, 52)).let { oName ->
+                            region.subRegion(it.x - 7, it.y - 268, 243, 431).has(FileTemplate("combat/critical-dmg.png")) ||
+                                    Ocr.forConfig(config).doOCRAndTrim(cache.capture().getSubimage(it.x + 67, it.y + 72, 161, 52)).let { oName ->
                                         members.any { it.name.distanceTo(oName) < config.scriptConfig.ocrThreshold }
                                     }
                         }.map { region.subRegion(it.x - 7, it.y - 268, 243, 431) }
                         .also { logger.info("${it.size} dolls need repair") }
                 if (repairRegions.isEmpty()) {
                     // Click close popup
-                    region.findOrNull("close.png")?.clickRandomly()
+                    region.findBest(FileTemplate("close.png"))?.region?.click()
                     break
                 }
 
                 // Select all T-Dolls
                 logger.info("Selecting dolls that need repairing")
-                region.mouseDelay(0.0) {
+                region.device.input.touchInterface?.settings?.apply {
+                    val oldDelay = postTapDelay
+                    postTapDelay = 0
                     repairRegions.take(repairSlots.size).sortedBy { it.y * 10 + it.x }.forEach {
-                        it.clickRandomly(); yield()
+                        it.click(); yield()
                         scriptStats.repairs++
                     }
+                    postTapDelay = oldDelay
                 }
 
                 // Click ok
-                region.subRegion(1768, 749, 250, 159).clickRandomly(); delay(100)
+                region.subRegion(1768, 749, 250, 159).click(); delay(100)
                 // Use quick repair
-                region.subRegion(545, 713, 99, 96).clickRandomly(); yield()
+                region.subRegion(545, 713, 99, 96).click(); yield()
                 // Click ok
-                region.subRegion(1381, 710, 250, 96).clickRandomly(); yield()
+                region.subRegion(1381, 710, 250, 96).click(); yield()
                 // Click close
-                region.waitSuspending("close.png", 15)?.clickRandomly()
+                region.waitHas(FileTemplate("close.png"), 15000)?.click()
                 // If dolls that needed repair is equal or less than the repair slot count then
                 // no more dolls need repairs and we can exit
                 if (repairRegions.size <= repairSlots.size) break
@@ -395,30 +401,26 @@ class CombatModule(
 
     //<editor-fold desc="Map Selection and Combat">
 
-    */
-/**
+    /**
      * Clicks the given combat map chapter
-     *//*
-
+     */
     private suspend fun clickCombatChapter(chapter: Int) {
         logger.info("Choosing combat chapter $chapter")
-        if (region.doesntHave("locations/landmarks/combat_menu.png")) {
+        if (region.doesntHave(FileTemplate("locations/landmarks/combat_menu.png"))) {
             logger.info("Chapter menu not on screen!")
             // Click back button in case one of the maps was opened accidentally
-            region.subRegion(383, 92, 169, 94).clickRandomly()
+            region.subRegion(383, 92, 169, 94).click()
         }
         clickChapter(chapter)
         logger.info("At combat chapter $chapter")
         navigator.checkLogistics()
     }
 
-    */
-/**
+    /**
      * Clicks the map given the map name, it will switch the combat type depending on the suffix
      * of the given map string, 'N' for night battle and 'E for emergency battles
      * else it is assumed to be a normal map
-     *//*
-
+     */
     private suspend fun clickCombatMap(map: String) {
         logger.info("Choosing combat map $map")
         navigator.checkLogistics()
@@ -427,15 +429,15 @@ class CombatModule(
             when {
                 map.endsWith("e", true) -> {
                     logger.info("Selecting emergency map")
-                    region.subRegion(1709, 265, 125, 25).clickRandomly()
+                    region.subRegion(1709, 265, 125, 25).click()
                 }
                 map.endsWith("n", true) -> {
                     logger.info("Selecting night map")
-                    region.subRegion(1871, 265, 142, 25).clickRandomly()
+                    region.subRegion(1871, 265, 142, 25).click()
                 }
                 else -> {
                     // Normal map
-                    region.subRegion(1558, 265, 84, 25).clickRandomly()
+                    region.subRegion(1558, 265, 84, 25).click()
                 }
             }
             // Wait for it to settle
@@ -447,24 +449,24 @@ class CombatModule(
         when (val mapNum = map.drop(2).take(1).toInt()) {
             in 1..4 -> {
                 region.subRegion(925, 355 + 176 * (mapNum - 1), 440, 130)
-                        .clickRandomly()
+                        .click()
             }
             else -> {
-                region.subRegion(1020, 880, 675, 140).randomLocation().let {
-                    region.swipeRandomly(it, it.offset(0, -650))
+                region.subRegion(1020, 880, 675, 140).randomPoint().let {
+                    region.device.input.touchInterface?.swipe(
+                            ITouchInterface.Swipe(0, it.x, it.y, it.x, it.y - 650), 1000
+                    )
                 }
                 navigator.checkLogistics()
                 region.subRegion(925, 472 + 176 * (mapNum - 4), 440, 130)
-                        .clickRandomly()
+                        .click()
             }
         }
     }
 
-    */
-/**
+    /**
      * Enters the map and waits for the start button to appear
-     *//*
-
+     */
     private suspend fun enterBattle(map: String) {
         // Enter battle, use higher similarity threshold to exclude possibly disabled
         // button which will be slightly transparent
@@ -478,12 +480,13 @@ class CombatModule(
             // and try again
             if (loops++ == 5) return
             region.subRegion(790, 800, 580, 140)
-                    .findOrNull("combat/battle/normal.png")?.clickRandomly() ?: continue
+                    .findBest(FileTemplate("combat/battle/normal.png"))?.region?.click() ?: continue
             delay(200)
 
-            region.subRegion(1185, 696, 278, 95).findOrNull("combat/enhancement.png")?.apply {
+            region.subRegion(1185, 696, 278, 95)
+                    .findBest(FileTemplate("combat/enhancement.png"))?.region?.apply {
                 logger.info("T-doll limit reached, cancelling sortie")
-                clickRandomly()
+                click()
                 gameState.dollOverflow = true
                 gameState.currentGameLocation = GameLocation.mappings(config)[LocationId.TDOLL_ENHANCEMENT]
                         ?: error("Bad locations.json file")
@@ -492,7 +495,7 @@ class CombatModule(
 
             // Wait for start operation button to appear first before handing off control to
             // map specific files
-            if (region.waitSuspending("combat/battle/start.png", 15) != null) {
+            if (region.waitHas(FileTemplate("combat/battle/start.png"), 15000) != null) {
                 logger.info("Entered map $map")
                 break
             }
@@ -502,22 +505,19 @@ class CombatModule(
         gameState.currentGameLocation = GameLocation(LocationId.BATTLE)
     }
 
-    */
-/**
+    /**
      * Checks if a given map has a given asset called 'zoom-anchor.png' and tries to zoom out until
      * it can find that asset on the screen
-     *//*
-
+     */
     private suspend fun zoomMap(map: String) {
-        val asset = "combat/maps/${map.toUpperCase()}/zoom-anchor.png"
-        if (Files.notExists(config.assetsDirectory.resolve(asset))) return
+        val template = FileTemplate("combat/maps/${map.toUpperCase()}/zoom-anchor.png", 0.95)
+        if (Files.notExists(Paths.get(template.source))) return
         var zooms = 0
-        while (region.doesntHave(asset, 0.95)) {
+        while (region.doesntHave(template)) {
             logger.info("Zoom anchor not found, attempting to zoom out")
             // Zoom in slightly randomly in case to jumble things up,
             // helps keeps thing from getting stuck
             region.pinch(
-                    region.center,
                     Random.nextInt(20, 50),
                     Random.nextInt(50, 70),
                     Random.nextDouble(-10.0, 10.0),
@@ -525,7 +525,6 @@ class CombatModule(
             )
             // Then zoom out
             region.pinch(
-                    region.center,
                     Random.nextInt(500, 700),
                     Random.nextInt(20, 50),
                     Random.nextDouble(-10.0, 10.0),
@@ -533,7 +532,7 @@ class CombatModule(
             )
             if (zooms++ >= 5) {
                 // Click select operation to go back to combat menu
-                region.subRegion(11, 14, 191, 110).clickRandomly()
+                region.subRegion(11, 14, 191, 110).click()
                 gameState.currentGameLocation = GameLocation(LocationId.COMBAT)
                 return
             }
@@ -542,19 +541,21 @@ class CombatModule(
         logger.info("Zoom anchor found, ready to begin map")
     }
 
-    */
-/**
+    /**
      * Sets the similarity threshold to map runner settings then executes the map runner,
      * it restores the default similarity threshold before finishing
-     *//*
-
+     */
     private suspend fun executeMapRunner() {
         // Set similarity to slightly lower threshold for discrepancies because of zoom level
-        Settings.MinSimilarity = config.scriptConfig.mapRunnerSimilarityThreshold
-        region.mouseDelay(0.0) { mapRunner.execute() }
+        region.matcher.settings.defaultThreshold = config.scriptConfig.mapRunnerSimilarityThreshold
+        region.device.input.touchInterface?.settings?.apply {
+            val oldDelay = postTapDelay
+            postTapDelay = 0
+            mapRunner.execute()
+            postTapDelay = oldDelay
+        }
         // Restore script threshold
-        Settings.MinSimilarity = config.scriptConfig.defaultSimilarityThreshold
+        region.matcher.settings.defaultThreshold = config.scriptConfig.defaultSimilarityThreshold
     }
     //</editor-fold>
 }
-*/

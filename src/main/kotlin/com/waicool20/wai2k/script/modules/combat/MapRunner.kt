@@ -19,7 +19,9 @@
 
 package com.waicool20.wai2k.script.modules.combat
 
+import com.waicool20.cvauto.android.AndroidDevice
 import com.waicool20.cvauto.android.AndroidRegion
+import com.waicool20.cvauto.core.Region
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
@@ -46,7 +48,7 @@ abstract class MapRunner(
         protected val config: Wai2KConfig,
         protected val profile: Wai2KProfile
 ) : CoroutineScope {
-    protected data class Deployment(val label: String, val region: AndroidRegion, val mustBeSupplied: Boolean = false)
+    protected data class Deployment(val label: String, val region: Region<AndroidDevice>, val mustBeSupplied: Boolean = false)
 
     private val logger = loggerFor<MapRunner>()
     private val pauseButtonRegion = region.subRegion(1020, 0, 110, 50)
@@ -271,7 +273,7 @@ abstract class MapRunner(
         _battles = 1
     }
 
-    protected infix fun String.at(region: AndroidRegion) = Deployment(this, region)
+    protected infix fun String.at(region: Region<AndroidDevice>) = Deployment(this, region)
     protected fun supplied(deployment: Deployment) = deployment.copy(mustBeSupplied = true)
 
     private suspend fun clickThroughBattle() {
