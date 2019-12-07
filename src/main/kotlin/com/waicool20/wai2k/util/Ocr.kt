@@ -70,6 +70,7 @@ object Ocr {
             digitsOnly: Boolean = false,
             useLSTM: Boolean = false
     ) = Tesseract().apply {
+        setTessVariable("user_defined_dpi", "300")
         setDatapath(config.ocrDirectory.toString())
         if (useLSTM) {
             useLSTMEngine()
