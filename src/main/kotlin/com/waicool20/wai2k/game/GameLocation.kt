@@ -103,7 +103,6 @@ data class GameLocation(val id: LocationId, val isIntermediate: Boolean = false)
      *
      * @return True if location is on screen
      */
-    @UseExperimental(ExperimentalTime::class)
     fun isInRegion(region: Region<AndroidDevice>): Boolean {
         if (landmarks.isEmpty()) return false
         return landmarks.all { it.asset.getSubRegionFor(region).has(FileTemplate(it.asset.imagePath, 0.90)) }

@@ -101,19 +101,19 @@ abstract class ScriptModule(
         // Region containing all chapters
         val cRegion = region.subRegion(407, 146, 283, 934)
         // Top 1/4 part of lsRegion
-        val upperSwipeRegion = cRegion.subRegion(
+        val upperSwipeRegion = cRegion.subRegionAs<AndroidRegion>(
                 cRegion.width / 2 - 15,
                 0,
                 30,
                 cRegion.height / 4
-        ) as AndroidRegion
+        )
         // Lower 1/4 part of lsRegion
-        val lowerSwipeRegion = cRegion.subRegion(
+        val lowerSwipeRegion = cRegion.subRegionAs<AndroidRegion>(
                 cRegion.width / 2 - 15,
                 cRegion.height / 4 + cRegion.height / 2,
                 30,
                 cRegion.height / 4
-        ) as AndroidRegion
+        )
         var retries = 0
         while (cRegion.doesntHave(FileTemplate("chapters/$chapter.png", CHAPTER_SIMILARITY))) {
             navigator.checkLogistics()
