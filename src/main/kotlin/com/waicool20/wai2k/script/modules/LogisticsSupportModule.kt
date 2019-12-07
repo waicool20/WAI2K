@@ -125,7 +125,7 @@ class LogisticsSupportModule(
                 ?.also { logger.info("One of the resources reached its limit!") }
                 ?.region?.click()
 
-        region.waitHas(FileTemplate("logistics/formation.png"), 10)
+        region.waitHas(FileTemplate("logistics/formation.png"), 10000)
         clickEchelon(echelon)
         // Click ok button
         delay(300)
