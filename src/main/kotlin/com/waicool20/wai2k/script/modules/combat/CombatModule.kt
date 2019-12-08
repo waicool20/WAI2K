@@ -58,8 +58,10 @@ class CombatModule(
         navigator: Navigator
 ) : ScriptModule(scriptRunner, region, config, profile, navigator) {
     private val logger = loggerFor<CombatModule>()
-    private val mapRunner = MapRunner.list[profile.combat.map]?.primaryConstructor
-            ?.call(scriptRunner, region, config, profile) ?: error("Unsupported map")
+    private val mapRunner by lazy {
+        MapRunner.list[profile.combat.map]?.primaryConstructor
+                ?.call(scriptRunner, region, config, profile) ?: error("Unsupported map")
+    }
 
     private var wasCancelled = false
 
