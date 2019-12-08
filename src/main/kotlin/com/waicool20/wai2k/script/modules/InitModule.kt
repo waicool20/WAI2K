@@ -78,7 +78,7 @@ class InitModule(
         logger.info("Reading logistics support status")
         // Optimize by taking a single screenshot and working on that
         val image = region.capture()
-        val entry = region.subRegion(485, 0, 240, region.height)
+        val entry = region.subRegion(422, 0, 240, region.height)
                 .findBest(FileTemplate("init/logistics.png"), 4)
                 .map { it.region }
                 // Map each region to whole logistic support entry
@@ -123,8 +123,7 @@ class InitModule(
         // Optimize by taking a single screenshot and working on that
         val cache = region.asCachedRegion()
 
-        //val firstEntryRegion = region.subRegion(450, 0, 159, region.height)
-        val firstEntryRegion = cache.subRegion(450, 0, 159, region.height)
+        val firstEntryRegion = cache.subRegion(388, 0, 159, region.height)
         val repairRegions = async {
             firstEntryRegion.findBest(FileTemplate("init/repairing.png"), 6)
         }
