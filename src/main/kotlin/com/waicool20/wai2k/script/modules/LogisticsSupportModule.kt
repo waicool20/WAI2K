@@ -29,10 +29,13 @@ import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.game.LogisticsSupport
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
+import com.waicool20.wai2k.util.Ocr
+import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.wai2k.util.formatted
 import com.waicool20.waicoolutils.logging.loggerFor
 import com.waicool20.waicoolutils.mapAsync
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.yield
 import java.time.Instant
 
@@ -197,24 +200,33 @@ class LogisticsSupportModule(
      */
     private suspend fun clickEchelon(echelon: Echelon) {
         logger.debug("Clicking the echelon")
-        val eRegion = region.subRegion(119, 0, 150, region.height)
+        val eRegion = region.subRegion(162, 40, 170, region.height - 140)
 
-        while (eRegion.doesntHave(FileTemplate("echelons/echelon${echelon.number}.png"))) {
+        while (isActive) {
             delay(100)
-            val echelons = (1..7).mapAsync {
-                it to eRegion.findBest(FileTemplate("echelons/echelon$it.png"))?.region as? AndroidRegion
-            }.filter { it.second != null }.map { it.first to it.second!! }
-            logger.debug("Visible echelons: ${echelons.map { it.first }}")
-            val lEchelon = echelons.minBy { it.first } ?: echelons.first()
-            val hEchelon = echelons.maxBy { it.first } ?: echelons.last()
+            val echelons = eRegion.findBest(FileTemplate("echelons/echelon.png"), 8)
+                    .map { it.region }
+                    .map { it.copyAs<AndroidRegion>(it.x + 93, it.y - 40, 45, 100) }
+                    .mapAsync { Ocr.forConfig(config, true).doOCRAndTrim(it).toInt() to it }
+                    .toMap()
+            logger.debug("Visible echelons: ${echelons.keys}")
+            if (echelon.number in echelons.keys) {
+                echelons[echelon.number]?.click()
+                break
+            }
+            if (echelons.keys.isEmpty()) continue
+            val lEchelon = echelons.keys.min() ?: echelons.keys.firstOrNull() ?: continue
+            val hEchelon = echelons.keys.max() ?: echelons.keys.lastOrNull() ?: continue
+            val lEchelonRegion = echelons[lEchelon] ?: continue
+            val hEchelonRegion = echelons[hEchelon] ?: continue
             when {
-                echelon.number <= lEchelon.first -> {
+                echelon.number <= lEchelon -> {
                     logger.debug("Swiping down the echelons")
-                    lEchelon.second.swipeTo(hEchelon.second)
+                    lEchelonRegion.swipeTo(hEchelonRegion)
                 }
-                echelon.number >= hEchelon.first -> {
+                echelon.number >= hEchelon -> {
                     logger.debug("Swiping up the echelons")
-                    hEchelon.second.swipeTo(lEchelon.second)
+                    hEchelonRegion.swipeTo(lEchelonRegion)
                 }
             }
             delay(300)

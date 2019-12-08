@@ -99,7 +99,7 @@ abstract class ScriptModule(
      */
     protected suspend fun clickChapter(chapter: Int) {
         // Region containing all chapters
-        val cRegion = region.subRegion(407, 146, 283, 934)
+        val cRegion = region.subRegion(395, 146, 283, 934)
         // Top 1/4 part of lsRegion
         val upperSwipeRegion = cRegion.subRegionAs<AndroidRegion>(
                 cRegion.width / 2 - 15,
