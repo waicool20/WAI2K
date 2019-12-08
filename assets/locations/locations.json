@@ -6,10 +6,10 @@
       {
         "asset": {
           "imageName": "home",
-          "x": 107,
-          "y": 513,
-          "width": 53,
-          "height": 53
+          "x": 144,
+          "y": 253,
+          "width": 60,
+          "height": 60
         }
       }
     ],
@@ -18,70 +18,60 @@
         "dest": "combat_menu",
         "asset": {
           "imageName": "",
-          "x": 1345,
-          "y": 596,
-          "width": 328,
-          "height": 149
+          "x": 1328,
+          "y": 547,
+          "width": 375,
+          "height": 161
         }
       },
       {
         "dest": "home_status",
         "asset": {
           "imageName": "",
-          "x": 106,
-          "y": 485,
-          "width": 82,
-          "height": 110
+          "x": 104,
+          "y": 484,
+          "width": 80,
+          "height": 111
         }
       },
       {
         "dest": "formation",
         "asset": {
           "imageName": "",
-          "x": 1694,
-          "y": 632,
-          "width": 317,
-          "height": 149
+          "x": 1720,
+          "y": 546,
+          "width": 286,
+          "height": 162
         }
       },
       {
         "dest": "factory_menu",
         "asset": {
           "imageName": "",
-          "x": 1694,
-          "y": 491,
-          "width": 317,
-          "height": 124
+          "x": 1730,
+          "y": 371,
+          "width": 273,
+          "height": 143
         }
       },
       {
         "dest": "repair",
         "asset": {
           "imageName": "",
-          "x": 1346,
-          "y": 312,
-          "width": 317,
-          "height": 124
+          "x": 1204,
+          "y": 546,
+          "width": 109,
+          "height": 162
         }
       },
       {
         "dest": "research_menu",
         "asset": {
           "imageName": "",
-          "x": 1346,
-          "y": 452,
-          "width": 317,
-          "height": 124
-        }
-      },
-      {
-        "dest": "dormitories",
-        "asset": {
-          "imageName": "",
-          "x": 1694,
-          "y": 348,
-          "width": 317,
-          "height": 124
+          "x": 1371,
+          "y": 370,
+          "width": 354,
+          "height": 144
         }
       },
       {
@@ -103,8 +93,8 @@
       {
         "asset": {
           "imageName": "home_status",
-          "x": 1238,
-          "y": 514,
+          "x": 1176,
+          "y": 513,
           "width": 53,
           "height": 53
         }
@@ -115,70 +105,50 @@
         "dest": "home",
         "asset": {
           "imageName": "",
-          "x": 1238,
-          "y": 515,
-          "width": 51,
-          "height": 51
+          "x": 1176,
+          "y": 513,
+          "width": 53,
+          "height": 53
         }
       },
       {
         "dest": "combat_menu",
         "asset": {
           "imageName": "",
-          "x": 1345,
-          "y": 596,
-          "width": 328,
-          "height": 149
+          "x": 1328,
+          "y": 547,
+          "width": 375,
+          "height": 161
         }
       },
       {
         "dest": "formation",
         "asset": {
           "imageName": "",
-          "x": 1694,
-          "y": 632,
-          "width": 317,
-          "height": 149
+          "x": 1720,
+          "y": 546,
+          "width": 286,
+          "height": 162
         }
       },
       {
         "dest": "factory_menu",
         "asset": {
           "imageName": "",
-          "x": 1694,
-          "y": 491,
-          "width": 317,
-          "height": 124
-        }
-      },
-      {
-        "dest": "repair",
-        "asset": {
-          "imageName": "",
-          "x": 1346,
-          "y": 312,
-          "width": 317,
-          "height": 124
+          "x": 1730,
+          "y": 371,
+          "width": 273,
+          "height": 143
         }
       },
       {
         "dest": "research_menu",
         "asset": {
           "imageName": "",
-          "x": 1346,
-          "y": 452,
-          "width": 317,
-          "height": 124
-        }
-      },
-      {
-        "dest": "dormitories",
-        "asset": {
-          "imageName": "",
-          "x": 1694,
-          "y": 348,
-          "width": 317,
-          "height": 124
+          "x": 1371,
+          "y": 370,
+          "width": 354,
+          "height": 144
         }
       }
     ]
@@ -190,8 +160,8 @@
       {
         "asset": {
           "imageName": "formation",
-          "x": 1770,
-          "y": 951,
+          "x": 1783,
+          "y": 992,
           "width": 60,
           "height": 60
         }
@@ -205,7 +175,7 @@
           "x": 120,
           "y": 0,
           "width": 205,
-          "height": 104
+          "height": 130
         }
       }
     ]
@@ -217,8 +187,8 @@
       {
         "asset": {
           "imageName": "factory_menu",
-          "x": 420,
-          "y": 50,
+          "x": 513,
+          "y": 53,
           "width": 60,
           "height": 60
         }
@@ -232,15 +202,15 @@
           "x": 120,
           "y": 0,
           "width": 205,
-          "height": 104
+          "height": 130
         }
       },
       {
         "dest": "tdoll_production",
         "asset": {
           "imageName": "",
-          "x": 126,
-          "y": 179,
+          "x": 131,
+          "y": 164,
           "width": 257,
           "height": 117
         }
@@ -249,8 +219,8 @@
         "dest": "dummy_link",
         "asset": {
           "imageName": "",
-          "x": 126,
-          "y": 318,
+          "x": 131,
+          "y": 296,
           "width": 257,
           "height": 117
         }
@@ -259,8 +229,8 @@
         "dest": "tdoll_enhancement",
         "asset": {
           "imageName": "",
-          "x": 126,
-          "y": 458,
+          "x": 131,
+          "y": 429,
           "width": 257,
           "height": 117
         }
@@ -269,8 +239,8 @@
         "dest": "tdoll_disassembly",
         "asset": {
           "imageName": "",
-          "x": 126,
-          "y": 598,
+          "x": 131,
+          "y": 561,
           "width": 257,
           "height": 117
         }
@@ -279,8 +249,8 @@
         "dest": "equipment_production",
         "asset": {
           "imageName": "",
-          "x": 126,
-          "y": 738,
+          "x": 131,
+          "y": 693,
           "width": 257,
           "height": 117
         }
@@ -295,7 +265,7 @@
         "asset": {
           "imageName": "tdoll_production",
           "x": 445,
-          "y": 150,
+          "y": 152,
           "width": 60,
           "height": 60
         }
@@ -309,15 +279,15 @@
           "x": 120,
           "y": 0,
           "width": 205,
-          "height": 104
+          "height": 130
         }
       },
       {
         "dest": "dummy_link",
         "asset": {
           "imageName": "",
-          "x": 126,
-          "y": 318,
+          "x": 131,
+          "y": 296,
           "width": 257,
           "height": 117
         }
@@ -326,8 +296,8 @@
         "dest": "tdoll_enhancement",
         "asset": {
           "imageName": "",
-          "x": 126,
-          "y": 458,
+          "x": 131,
+          "y": 429,
           "width": 257,
           "height": 117
         }
@@ -336,8 +306,8 @@
         "dest": "tdoll_disassembly",
         "asset": {
           "imageName": "",
-          "x": 126,
-          "y": 598,
+          "x": 131,
+          "y": 561,
           "width": 257,
           "height": 117
         }
@@ -346,8 +316,8 @@
         "dest": "equipment_production",
         "asset": {
           "imageName": "",
-          "x": 126,
-          "y": 738,
+          "x": 131,
+          "y": 693,
           "width": 257,
           "height": 117
         }
@@ -376,15 +346,15 @@
           "x": 120,
           "y": 0,
           "width": 205,
-          "height": 104
+          "height": 130
         }
       },
       {
         "dest": "tdoll_production",
         "asset": {
           "imageName": "",
-          "x": 126,
-          "y": 179,
+          "x": 131,
+          "y": 164,
           "width": 257,
           "height": 117
         }
@@ -393,8 +363,8 @@
         "dest": "tdoll_enhancement",
         "asset": {
           "imageName": "",
-          "x": 126,
-          "y": 458,
+          "x": 131,
+          "y": 429,
           "width": 257,
           "height": 117
         }
@@ -403,8 +373,8 @@
         "dest": "tdoll_disassembly",
         "asset": {
           "imageName": "",
-          "x": 126,
-          "y": 598,
+          "x": 131,
+          "y": 561,
           "width": 257,
           "height": 117
         }
@@ -413,8 +383,8 @@
         "dest": "equipment_production",
         "asset": {
           "imageName": "",
-          "x": 126,
-          "y": 738,
+          "x": 131,
+          "y": 693,
           "width": 257,
           "height": 117
         }
@@ -428,8 +398,8 @@
       {
         "asset": {
           "imageName": "tdoll_enhancement",
-          "x": 1538,
-          "y": 784,
+          "x": 1531,
+          "y": 796,
           "width": 60,
           "height": 60
         }
@@ -443,15 +413,15 @@
           "x": 120,
           "y": 0,
           "width": 205,
-          "height": 104
+          "height": 130
         }
       },
       {
         "dest": "tdoll_production",
         "asset": {
           "imageName": "",
-          "x": 126,
-          "y": 179,
+          "x": 131,
+          "y": 164,
           "width": 257,
           "height": 117
         }
@@ -460,8 +430,8 @@
         "dest": "dummy_link",
         "asset": {
           "imageName": "",
-          "x": 126,
-          "y": 318,
+          "x": 131,
+          "y": 296,
           "width": 257,
           "height": 117
         }
@@ -470,8 +440,8 @@
         "dest": "tdoll_disassembly",
         "asset": {
           "imageName": "",
-          "x": 126,
-          "y": 598,
+          "x": 131,
+          "y": 561,
           "width": 257,
           "height": 117
         }
@@ -480,8 +450,8 @@
         "dest": "equipment_production",
         "asset": {
           "imageName": "",
-          "x": 126,
-          "y": 738,
+          "x": 131,
+          "y": 693,
           "width": 257,
           "height": 117
         }
@@ -495,8 +465,8 @@
       {
         "asset": {
           "imageName": "tdoll_disassembly",
-          "x": 916,
-          "y": 818,
+          "x": 907,
+          "y": 771,
           "width": 60,
           "height": 60
         }
@@ -510,15 +480,15 @@
           "x": 120,
           "y": 0,
           "width": 205,
-          "height": 104
+          "height": 130
         }
       },
       {
         "dest": "tdoll_production",
         "asset": {
           "imageName": "",
-          "x": 126,
-          "y": 179,
+          "x": 131,
+          "y": 164,
           "width": 257,
           "height": 117
         }
@@ -527,8 +497,8 @@
         "dest": "dummy_link",
         "asset": {
           "imageName": "",
-          "x": 126,
-          "y": 318,
+          "x": 131,
+          "y": 296,
           "width": 257,
           "height": 117
         }
@@ -537,8 +507,8 @@
         "dest": "tdoll_enhancement",
         "asset": {
           "imageName": "",
-          "x": 126,
-          "y": 458,
+          "x": 131,
+          "y": 429,
           "width": 257,
           "height": 117
         }
@@ -547,8 +517,8 @@
         "dest": "equipment_production",
         "asset": {
           "imageName": "",
-          "x": 126,
-          "y": 738,
+          "x": 131,
+          "y": 693,
           "width": 257,
           "height": 117
         }
@@ -577,15 +547,15 @@
           "x": 120,
           "y": 0,
           "width": 205,
-          "height": 104
+          "height": 130
         }
       },
       {
         "dest": "tdoll_production",
         "asset": {
           "imageName": "",
-          "x": 126,
-          "y": 179,
+          "x": 131,
+          "y": 164,
           "width": 257,
           "height": 117
         }
@@ -594,8 +564,8 @@
         "dest": "dummy_link",
         "asset": {
           "imageName": "",
-          "x": 126,
-          "y": 318,
+          "x": 131,
+          "y": 296,
           "width": 257,
           "height": 117
         }
@@ -604,8 +574,8 @@
         "dest": "tdoll_enhancement",
         "asset": {
           "imageName": "",
-          "x": 126,
-          "y": 458,
+          "x": 131,
+          "y": 429,
           "width": 257,
           "height": 117
         }
@@ -614,8 +584,8 @@
         "dest": "tdoll_disassembly",
         "asset": {
           "imageName": "",
-          "x": 126,
-          "y": 598,
+          "x": 131,
+          "y": 561,
           "width": 257,
           "height": 117
         }
@@ -629,8 +599,8 @@
       {
         "asset": {
           "imageName": "combat_menu",
-          "x": 398,
-          "y": 48,
+          "x": 524,
+          "y": 47,
           "width": 60,
           "height": 60
         }
@@ -641,10 +611,10 @@
         "dest": "home",
         "asset": {
           "imageName": "",
-          "x": 126,
-          "y": 5,
-          "width": 194,
-          "height": 134
+          "x": 120,
+          "y": 0,
+          "width": 205,
+          "height": 130
         }
       },
       {
@@ -652,7 +622,7 @@
         "asset": {
           "imageName": "",
           "x": 131,
-          "y": 166,
+          "y": 296,
           "width": 257,
           "height": 118
         }
@@ -662,7 +632,7 @@
         "asset": {
           "imageName": "",
           "x": 131,
-          "y": 306,
+          "y": 429,
           "width": 257,
           "height": 118
         }
@@ -688,10 +658,10 @@
         "dest": "combat_menu",
         "asset": {
           "imageName": "",
-          "x": 384,
-          "y": 93,
-          "width": 168,
-          "height": 93
+          "x": 383,
+          "y": 92,
+          "width": 169,
+          "height": 94
         }
       }
     ]
@@ -703,8 +673,8 @@
       {
         "asset": {
           "imageName": "combat",
-          "x": 1855,
-          "y": 158,
+          "x": 1870,
+          "y": 165,
           "width": 45,
           "height": 45
         }
@@ -715,10 +685,10 @@
         "dest": "home",
         "asset": {
           "imageName": "",
-          "x": 126,
-          "y": 5,
-          "width": 194,
-          "height": 134
+          "x": 120,
+          "y": 0,
+          "width": 205,
+          "height": 130
         }
       },
       {
@@ -726,7 +696,7 @@
         "asset": {
           "imageName": "",
           "x": 131,
-          "y": 306,
+          "y": 429,
           "width": 257,
           "height": 118
         }
@@ -762,10 +732,10 @@
         "dest": "home",
         "asset": {
           "imageName": "",
-          "x": 126,
-          "y": 5,
-          "width": 194,
-          "height": 134
+          "x": 120,
+          "y": 0,
+          "width": 205,
+          "height": 130
         }
       },
       {
@@ -773,7 +743,7 @@
         "asset": {
           "imageName": "",
           "x": 131,
-          "y": 166,
+          "y": 296,
           "width": 257,
           "height": 118
         }
@@ -797,7 +767,7 @@
       {
         "asset": {
           "imageName": "repair",
-          "x": 389,
+          "x": 508,
           "y": 62,
           "width": 60,
           "height": 60
@@ -812,7 +782,7 @@
           "x": 120,
           "y": 0,
           "width": 205,
-          "height": 144
+          "height": 130
         }
       }
     ]
@@ -824,8 +794,8 @@
       {
         "asset": {
           "imageName": "research_menu",
-          "x": 410,
-          "y": 30,
+          "x": 512,
+          "y": 38,
           "width": 60,
           "height": 60
         }
@@ -839,7 +809,7 @@
           "x": 120,
           "y": 0,
           "width": 205,
-          "height": 144
+          "height": 130
         }
       }
     ]
@@ -863,10 +833,10 @@
         "dest": "home",
         "asset": {
           "imageName": "",
-          "x": 14,
-          "y": 14,
-          "width": 191,
-          "height": 114
+          "x": 120,
+          "y": 0,
+          "width": 205,
+          "height": 130
         }
       }
     ]
@@ -905,8 +875,8 @@
       {
         "asset": {
           "imageName": "fairy_details",
-          "x": 1243,
-          "y": 73,
+          "x": 186,
+          "y": 833,
           "width": 60,
           "height": 60
         }
