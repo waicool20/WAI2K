@@ -134,10 +134,11 @@ class CombatModule(
      */
     private suspend fun switchDolls() {
         navigator.navigateTo(LocationId.FORMATION)
+        delay(1000) // Formation takes a while to load/render
         val startTime = System.currentTimeMillis()
         logger.info("Switching doll 2 of echelon 1")
         // Doll 2 region ( excludes stuff below name/type )
-        region.subRegion(612, 167, 263, 667).click(); yield()
+        region.subRegion(630, 201, 247, 554).click(); yield()
         region.waitHas(FileTemplate("doll-list/lock.png"), 5000)
 
         val draggers = profile.combat.draggers
@@ -147,40 +148,24 @@ class CombatModule(
         val echelon2Doll = ((scriptStats.sortiesDone + 1) and 1) + 1
         val dragger1 = draggers[echelon1Doll]!!
         val dragger2 = draggers[echelon2Doll]!!
-        val sameDragger = dragger1.name == dragger2.name
-        var scanResults = emptyList<AndroidRegion>()
 
         applyFilters(echelon1Doll, false)
-        dollSwitchingCache.getOrPut(dragger1) {
-            scanResults = scanValidDolls(echelon1Doll)
-            scanResults[dragger1.index]
-        }.click()
+        if (scriptStats.sortiesDone and 1 == 0) {
+            dollSwitchingCache.getOrPut(dragger1) {
+                scanValidDolls(echelon1Doll)[dragger1.index]
+            }.click()
+        } else {
+            dollSwitchingCache.getOrPut(dragger2) {
+                scanValidDolls(echelon2Doll)[dragger2.index]
+            }
+        }
         delay(400)
         updateEchelonRepairStatus(1)
-
-        // Select echelon 2
-        region.subRegion(120, 296, 184, 109).click(); delay(200)
-        // Doll 1 region ( excludes stuff below name/type )
-        region.subRegion(335, 167, 263, 667).click(); yield()
-        region.waitHas(FileTemplate("doll-list/lock.png"), 5000)
-
-        // Apply new filters only if they are different from the other doll
-        if (dragger1.stars != dragger2.stars || dragger1.type != dragger2.type) {
-            applyFilters(echelon2Doll, true)
-        }
-        dollSwitchingCache.getOrPut(dragger2) {
-            if (!sameDragger || scanResults.isEmpty()) scanResults = scanValidDolls(echelon2Doll)
-            scanResults[dragger2.index]
-        }.click()
-        delay(400)
-        updateEchelonRepairStatus(2)
 
         // Check if dolls were switched correctly, might not be the case if one of them leveled
         // up and the positions got switched
         wasCancelled = gameState.echelons[0].members[1].name
-                .distanceTo(profile.combat.draggers[echelon1Doll]!!.name) >= config.scriptConfig.ocrThreshold ||
-                gameState.echelons[1].members[0].name
-                        .distanceTo(profile.combat.draggers[echelon2Doll]!!.name) >= config.scriptConfig.ocrThreshold
+                .distanceTo(profile.combat.draggers[echelon1Doll]!!.name) >= config.scriptConfig.ocrThreshold
         logger.info("Switching dolls took ${System.currentTimeMillis() - startTime} ms")
     }
 
@@ -218,7 +203,7 @@ class CombatModule(
         // Temporary convenience class for storing doll regions
         class DollRegions(nameRegionImage: BufferedImage, levelRegionImage: BufferedImage, val clickRegion: AndroidRegion) {
             val name = async {
-                Ocr.forConfig(config).doOCRAndTrim(nameRegionImage)
+                Ocr.forConfig(config).doOCRAndTrim(nameRegionImage).removePrefix("' ").removePrefix(", ")
             }
             val level = async {
                 val i = levelRegionImage.pad(30, 30, Color.WHITE).binarizeImage().scale()
@@ -229,6 +214,8 @@ class CombatModule(
         }
 
         logger.info("Attempting to find dragging doll $doll with given criteria name = $name, distance < $config.scriptConfig.ocrThreshold, level >= $level")
+        // Set matcher to high resolution, otherwise sometimes not all lock.png are found
+        region.matcher.settings.matchDimension = ScriptRunner.HIGH_RES
         repeat(retries) { i ->
             // Take a screenshot after each retry, just in case it was a bad one in case its not OCRs fault
             // Optimize by taking a single screenshot and working on that
@@ -239,9 +226,9 @@ class CombatModule(
                     .map { it.region }
                     .map {
                         DollRegions(
-                                cache.capture().getSubimage(it.x + 67, it.y + 79, 165, 40),
-                                cache.capture().getSubimage(it.x + 188, it.y + 126, 39, 30),
-                                region.subRegionAs(it.x - 7, it.y, 244, 164)
+                                cache.capture().getSubimage(it.x + 60, it.y + 71, 166, 46),
+                                cache.capture().getSubimage(it.x + 168, it.y + 118, 58, 35),
+                                region.subRegionAs(it.x - 4, it.y, 230, 154)
                         )
                     }.filter {
                         val ocrName = it.name.await()
@@ -262,6 +249,7 @@ class CombatModule(
                         }
                     }
         }
+        region.matcher.settings.matchDimension = ScriptRunner.NORMAL_RES
         logger.warn("Failed to find dragging doll $doll that matches criteria after $retries attempts")
         coroutineContext.cancelAndYield()
     }
@@ -292,8 +280,8 @@ class CombatModule(
                     .sortedBy { it.x }
                     .map {
                         DollRegions(
-                                cache.capture().getSubimage(it.x - 157, it.y - 186, 257, 50),
-                                cache.capture().getSubimage(it.x - 139, it.y - 55, 221, 1)
+                                cache.capture().getSubimage(it.x - 153, it.y - 184, 247, 46),
+                                cache.capture().getSubimage(it.x - 133, it.y - 61, 209, 1)
                         )
                     }
             // Checking if the ocr results were gibberish
@@ -512,26 +500,20 @@ class CombatModule(
      * it can find that asset on the screen
      */
     private suspend fun zoomMap(map: String) {
-        val template = FileTemplate("combat/maps/${map.toUpperCase()}/zoom-anchor.png", 0.95)
+        val template = FileTemplate("combat/maps/${map.toUpperCase()}/zoom-anchor.png", 0.65)
         if (Files.notExists(Paths.get(template.source))) return
         var zooms = 0
         while (region.doesntHave(template)) {
             logger.info("Zoom anchor not found, attempting to zoom out")
-            // Zoom in slightly randomly in case to jumble things up,
-            // helps keeps thing from getting stuck
-            region.pinch(
-                    Random.nextInt(20, 50),
-                    Random.nextInt(50, 70),
-                    Random.nextDouble(-10.0, 10.0),
-                    300
-            )
             // Then zoom out
-            region.pinch(
-                    Random.nextInt(500, 700),
-                    Random.nextInt(20, 50),
-                    Random.nextDouble(-10.0, 10.0),
-                    2500
-            )
+            repeat(2) {
+                region.pinch(
+                        Random.nextInt(500, 700),
+                        Random.nextInt(20, 50),
+                        Random.nextDouble(-10.0, 10.0),
+                        1000
+                )
+            }
             if (zooms++ >= 5) {
                 // Click select operation to go back to combat menu
                 region.subRegion(11, 14, 191, 110).click()
