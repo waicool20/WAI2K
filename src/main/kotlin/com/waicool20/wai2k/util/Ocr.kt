@@ -53,7 +53,7 @@ object Ocr {
 
     fun cleanNumericString(string: String): String {
         var text = string
-        numberReplacements.forEach { r, num ->
+        numberReplacements.forEach { (r, num) ->
             text = text.replace(Regex("[$r]"), num)
         }
         return text

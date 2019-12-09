@@ -43,6 +43,10 @@ class ScriptRunner(
         wai2KConfig: Wai2KConfig = Wai2KConfig(),
         wai2KProfile: Wai2KProfile = Wai2KProfile()
 ) : CoroutineScope {
+    companion object {
+        const val NORMAL_RES = 480
+        const val HIGH_RES = 720
+    }
     private var scriptJob: Job? = null
     override val coroutineContext: CoroutineContext
         get() = scriptJob?.takeIf { it.isActive }?.let { it + Dispatchers.Default }
@@ -101,7 +105,7 @@ class ScriptRunner(
             }
         }
         currentConfig.scriptConfig.apply {
-            Region.DEFAULT_MATCHER.settings.matchDimension = 480
+            Region.DEFAULT_MATCHER.settings.matchDimension = NORMAL_RES
             Region.DEFAULT_MATCHER.settings.defaultThreshold = defaultSimilarityThreshold
             currentDevice?.input?.touchInterface?.settings?.postTapDelay = (mouseDelay * 1000).roundToLong()
         }

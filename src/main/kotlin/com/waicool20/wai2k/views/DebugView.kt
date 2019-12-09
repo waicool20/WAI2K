@@ -25,6 +25,7 @@ import com.waicool20.cvauto.core.Region
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.cvauto.util.asGrayF32
 import com.waicool20.wai2k.config.Wai2KContext
+import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.useCharFilter
 import com.waicool20.waicoolutils.javafx.CoroutineScopeView
@@ -180,7 +181,7 @@ class DebugView : CoroutineScopeView() {
                         return@launch
                     }
                     val image = device.screens[0].capture().asGrayF32()
-                    Region.DEFAULT_MATCHER.settings.matchDimension = 480
+                    Region.DEFAULT_MATCHER.settings.matchDimension = ScriptRunner.NORMAL_RES
                     // Set similarity to 0.6f to make sikulix report the similarity value down to 0.6
                     val (results, duration) = measureTimedValue {
                         device.screens[0].matcher.findBest(FileTemplate(path, 0.6), image, 20)
