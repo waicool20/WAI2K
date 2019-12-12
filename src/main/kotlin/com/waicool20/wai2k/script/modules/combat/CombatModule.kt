@@ -43,11 +43,8 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.yield
 import java.awt.Color
 import java.awt.image.BufferedImage
-import java.nio.file.Files
-import java.nio.file.Paths
 import java.text.DecimalFormat
 import kotlin.math.min
-import kotlin.random.Random
 import kotlin.reflect.full.primaryConstructor
 
 class CombatModule(
@@ -107,11 +104,6 @@ class CombatModule(
         clickCombatMap(map)
         enterBattle(map)
         // Cancel further execution if not in battle, maybe due to doll/equip overflow
-        wasCancelled = gameState.currentGameLocation.id != LocationId.BATTLE
-        if (wasCancelled) return
-
-        zoomMap(map)
-        // Cancel further execution if not in battle, maybe due to bad zoom
         wasCancelled = gameState.currentGameLocation.id != LocationId.BATTLE
         if (wasCancelled) return
 
@@ -493,36 +485,6 @@ class CombatModule(
 
         // Set location to battle
         gameState.currentGameLocation = GameLocation(LocationId.BATTLE)
-    }
-
-    /**
-     * Checks if a given map has a given asset called 'zoom-anchor.png' and tries to zoom out until
-     * it can find that asset on the screen
-     */
-    private suspend fun zoomMap(map: String) {
-        val template = FileTemplate("combat/maps/${map.toUpperCase()}/zoom-anchor.png", 0.65)
-        if (Files.notExists(Paths.get(template.source))) return
-        var zooms = 0
-        while (region.doesntHave(template)) {
-            logger.info("Zoom anchor not found, attempting to zoom out")
-            // Then zoom out
-            repeat(2) {
-                region.pinch(
-                        Random.nextInt(500, 700),
-                        Random.nextInt(20, 50),
-                        Random.nextDouble(-10.0, 10.0),
-                        1000
-                )
-            }
-            if (zooms++ >= 5) {
-                // Click select operation to go back to combat menu
-                region.subRegion(11, 14, 191, 110).click()
-                gameState.currentGameLocation = GameLocation(LocationId.COMBAT)
-                return
-            }
-            delay(1000)
-        }
-        logger.info("Zoom anchor found, ready to begin map")
     }
 
     /**

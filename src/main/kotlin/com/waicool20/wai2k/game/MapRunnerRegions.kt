@@ -51,4 +51,19 @@ class MapRunnerRegions(region: AndroidRegion) {
      * Start operation button that starts the battle in the beginning
      */
     val startOperation = region.subRegion(1737, 905, 407, 158)
+
+    /**
+     * Pause button that appears at the top of the screen when engaging enemies
+     */
+    val pauseButton = region.subRegion(1020, 0, 110, 50)
+
+    /**
+     * Region to click when battle ends
+     */
+    val battleEndClick = region.subRegion(992, 24, 1168, 121)
+
+    /**
+     * Match window
+     */
+    val window = region.subRegion(455, 151, 1281, 929)
 }

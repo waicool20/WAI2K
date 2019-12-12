@@ -19,10 +19,12 @@
 
 package com.waicool20.wai2k.script.modules.combat
 
-import com.waicool20.cvauto.android.AndroidDevice
+import boofcv.struct.image.GrayF32
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.waicool20.cvauto.android.AndroidRegion
-import com.waicool20.cvauto.core.Region
 import com.waicool20.cvauto.core.template.FileTemplate
+import com.waicool20.cvauto.util.*
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.game.GameLocation
@@ -35,12 +37,18 @@ import com.waicool20.waicoolutils.binarizeImage
 import com.waicool20.waicoolutils.countColor
 import com.waicool20.waicoolutils.logging.loggerFor
 import com.waicool20.waicoolutils.pad
+import georegression.struct.homography.Homography2D_F64
 import kotlinx.coroutines.*
 import org.reflections.Reflections
 import java.awt.Color
+import java.awt.image.BufferedImage
+import javax.imageio.ImageIO
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.pow
 import kotlin.random.Random
+
 
 abstract class MapRunner(
         protected val scriptRunner: ScriptRunner,
@@ -48,16 +56,20 @@ abstract class MapRunner(
         protected val config: Wai2KConfig,
         protected val profile: Wai2KProfile
 ) : CoroutineScope {
-    protected data class Deployment(val label: String, val region: Region<AndroidDevice>, val mustBeSupplied: Boolean = false)
-
     private val logger = loggerFor<MapRunner>()
-    private val pauseButtonRegion = region.subRegion(1020, 0, 110, 50)
-    private val battleEndClickRegion = region.subRegion(992, 24, 1168, 121)
     private var _battles = 1
+    /**
+     * Map homography cache
+     */
+    private var mapH: Homography2D_F64? = null
+    /**
+     * How many homography samples to take
+     */
+    private val hSamples = 1
+    private val minScroll = 75
 
     companion object {
-        const val COMMAND_POST = "command post"
-        const val HELIPORT = "heliport"
+        private val mapper = jacksonObjectMapper()
 
         val list = Reflections("com.waicool20.wai2k.script.modules.combat.maps")
                 .getSubTypesOf(MapRunner::class.java)
@@ -78,6 +90,21 @@ abstract class MapRunner(
      * A property that contains the asset prefix of the map
      */
     val PREFIX = "combat/maps/${javaClass.simpleName.replace("_", "-").drop(3)}"
+
+    private val _nodes = async(Dispatchers.IO) {
+        mapper.readValue<List<MapNode>>(config.assetsDirectory.resolve("$PREFIX/map.json").toFile())
+    }
+
+    private val _fullMap = async(Dispatchers.IO) {
+        ImageIO.read(config.assetsDirectory.resolve("$PREFIX/map.png").toFile()).extractNodes()
+    }
+
+    /**
+     * The nodes defined for this map
+     */
+    protected val nodes = runBlocking { _nodes.await() }
+
+    protected val fullMap = runBlocking { _fullMap.await() }
 
     /**
      * Container class that contains commonly used regions
@@ -103,52 +130,48 @@ abstract class MapRunner(
     /**
      * Deploys the given echelons to the given locations using click regions
      *
-     * @param deployments A variable list of [Deployment] that contains the destination label and
-     * the corresponding click region (Heliport, Command post etc.)
+     * @param nodes Nodes to deploy to
      *
      * @return Deployments that need resupply, can be used in conjunction with [resupplyEchelons]
      */
-    protected suspend fun deployEchelons(vararg deployments: Deployment): Array<Deployment> = coroutineScope {
-        val needsResupply = deployments.filterIndexed { i, (label, dRegion, mustBeSupplied) ->
-            logger.info("Deploying echelon ${i + 1} to $label")
-            dRegion.click(); delay(500)
+    protected suspend fun deployEchelons(vararg nodes: MapNode): Array<MapNode> = coroutineScope {
+        val needsResupply = nodes.filterIndexed { i, node ->
+            logger.info("Deploying echelon ${i + 1} to $node")
+            node.findRegion().click(); delay(750)
             val screenshot = region.capture()
             val ammoNeedsSupply = async {
-                if (!mustBeSupplied) return@async false
-                val image = screenshot.getSubimage(705, 797, 158, 1).binarizeImage()
+                val image = screenshot.getSubimage(645, 820, 218, 1).binarizeImage()
                 image.countColor(Color.WHITE) != image.width
             }
             val rationNeedsSupply = async {
-                if (!mustBeSupplied) return@async false
-                val image = screenshot.getSubimage(705, 838, 158, 1).binarizeImage()
+                val image = screenshot.getSubimage(645, 860, 218, 1).binarizeImage()
                 image.countColor(Color.WHITE) != image.width
             }
             mapRunnerRegions.deploy.click()
             delay(300)
             ammoNeedsSupply.await() && rationNeedsSupply.await()
         }
-        needsResupply.forEach { logger.info("Echelon at ${it.label} needs resupply!") }
+        needsResupply.forEach { logger.info("Echelon at $it needs resupply!") }
         delay(200)
         logger.info("Deployment complete")
         needsResupply.toTypedArray()
     }
 
     @JvmName("resupplyEchelonsArray")
-    protected suspend fun resupplyEchelons(deployments: Array<Deployment>)
-            = resupplyEchelons(*deployments)
+    protected suspend fun resupplyEchelons(nodes: Array<MapNode>) = resupplyEchelons(*nodes)
 
     /**
-     * Resupplies an echelon at the given location using click regions
+     * Resupplies an echelon at the given nodes, skips normal type nodes
      *
-     * @param deployments [Deployment] that contains the destination label and
-     * the corresponding click region (Heliport, Command post etc.)
+     * @param nodes Nodes to resupply
      */
-    protected suspend fun resupplyEchelons(vararg deployments: Deployment) {
-        for ((label, region) in deployments) {
-            logger.info("Resupplying echelon at $label")
+    protected suspend fun resupplyEchelons(vararg nodes: MapNode) {
+        for (node in nodes.distinct()) {
+            if (node.type == MapNode.Type.Normal) continue
+            logger.info("Resupplying echelon at $node")
             // Clicking twice, first to highlight the echelon, the second time to enter the deployment menu
             logger.info("Selecting echelon")
-            region.apply {
+            node.findRegion().apply {
                 click(); yield()
                 click(); delay(300)
             }
@@ -166,7 +189,7 @@ abstract class MapRunner(
      * @param timeout Max amount of time to wait for splash, can be set to longer lengths for
      * between turns
      */
-    protected suspend fun waitForGNKSplash(timeout: Long = 10) = coroutineScope {
+    protected suspend fun waitForGNKSplash(timeout: Long = 10000) = coroutineScope {
         logger.info("Waiting for G&K splash screen")
         val battleClicker = launch {
             while (isActive) {
@@ -174,10 +197,12 @@ abstract class MapRunner(
             }
         }
         // Wait for the G&K splash to appear within 10 seconds
+        region.matcher.settings.matchDimension = ScriptRunner.HIGH_RES
         region.waitHas(FileTemplate("combat/battle/splash.png"), timeout)?.apply {
             logger.info("G&K splash screen appeared")
             delay(2000)
         } ?: logger.info("G&K splash screen did not appear")
+        region.matcher.settings.matchDimension = ScriptRunner.NORMAL_RES
         battleClicker.cancel()
     }
 
@@ -260,7 +285,7 @@ abstract class MapRunner(
     protected suspend fun handleBattleResults() = coroutineScope {
         logger.info("Battle ended, clicking through battle results")
         val combatMenu = GameLocation.mappings(config)[LocationId.COMBAT_MENU]!!
-        val clickLocation = battleEndClickRegion.randomPoint()
+        val clickLocation = mapRunnerRegions.battleEndClick.randomPoint()
         val clickJob = launch {
             while (isActive) region.device.input.touchInterface?.tap(0, clickLocation.x, clickLocation.y)
         }
@@ -271,10 +296,79 @@ abstract class MapRunner(
         logger.info("Back at combat menu")
         scriptStats.sortiesDone += 1
         _battles = 1
+        mapH = null
     }
 
-    protected infix fun String.at(region: Region<AndroidDevice>) = Deployment(this, region)
-    protected fun supplied(deployment: Deployment) = deployment.copy(mustBeSupplied = true)
+    protected suspend fun MapNode.findRegion(): AndroidRegion {
+        val window = mapRunnerRegions.window
+        val H = mapH ?: fullMap.homographyMultiSample(window.capture().extractNodes())
+        // Rect that is relative to the window
+        val rect = H.transformRect(rect)
+        logger.debug("$this estimated to be at Rect(x=${rect.x}, y=${rect.y}, width=${rect.width}, height=${rect.height})")
+        val diff = (rect.width.toDouble() - width).pow(2) + (rect.height.toDouble() - height).pow(2)
+        if (diff > 100 * 100) {
+            logger.debug("Estimation seems off, will try again after zoom | diff=$diff")
+            region.pinch(
+                    Random.nextInt(500, 700),
+                    Random.nextInt(20, 50),
+                    0.0,
+                    500
+            )
+            delay(1500)
+            mapH = null
+            return findRegion()
+        }
+        val clickRegion = window.copyAs<AndroidRegion>(
+                window.x + rect.x,
+                window.y + rect.y,
+                rect.width,
+                rect.height
+        )
+        if (!window.contains(clickRegion)) {
+            logger.info("Node $this not in map window")
+            val center = region.subRegion(
+                    (region.width - 5) / 2,
+                    (region.height - 5) / 2,
+                    5, 5
+            )
+            when {
+                clickRegion.y < window.y -> {
+                    val dist = max(window.y - clickRegion.y, minScroll)
+                    val from = center.copyAs<AndroidRegion>().apply { translate(0, -dist) }
+                    val to = center.copyAs<AndroidRegion>().apply { translate(0, dist) }
+                    logger.info("Scroll up $dist px")
+                    from.swipeTo(to)
+                }
+                clickRegion.y > window.y + window.height -> {
+                    val dist = max(clickRegion.y - (window.y + window.height), minScroll)
+                    val from = center.copyAs<AndroidRegion>().apply { translate(0, dist) }
+                    val to = center.copyAs<AndroidRegion>().apply { translate(0, -dist) }
+                    logger.info("Scroll down $dist px")
+                    from.swipeTo(to)
+                }
+            }
+            when {
+                clickRegion.x < window.x -> {
+                    val dist = max(window.x - clickRegion.x, minScroll)
+                    val from = center.copyAs<AndroidRegion>().apply { translate(-dist, 0) }
+                    val to = center.copyAs<AndroidRegion>().apply { translate(dist, 0) }
+                    logger.info("Scroll left $dist px")
+                    from.swipeTo(to)
+                }
+                clickRegion.x > window.x + window.width -> {
+                    val dist = max(clickRegion.x - (window.x + window.width), minScroll)
+                    val from = center.copyAs<AndroidRegion>().apply { translate(dist, 0) }
+                    val to = center.copyAs<AndroidRegion>().apply { translate(-dist, 0) }
+                    logger.info("Scroll right $dist px")
+                    from.swipeTo(to)
+                }
+            }
+            mapH = null
+            delay(200)
+            return findRegion()
+        }
+        return clickRegion
+    }
 
     private suspend fun clickThroughBattle() {
         logger.info("Entered battle $_battles")
@@ -282,18 +376,46 @@ abstract class MapRunner(
         while (isActive && isInBattle()) yield()
         logger.info("Battle ${_battles++} complete, clicking through battle results")
         delay(400)
-        val l = battleEndClickRegion.randomPoint()
+        val l = mapRunnerRegions.battleEndClick.randomPoint()
         repeat(Random.nextInt(7, 9)) {
             region.device.input.touchInterface?.tap(0, l.x, l.y); yield()
         }
     }
 
-    private fun isInBattle() = pauseButtonRegion.has(FileTemplate("combat/battle/pause.png", 0.9))
+    private fun isInBattle() = mapRunnerRegions.pauseButton.has(FileTemplate("combat/battle/pause.png", 0.9))
 
     private suspend fun endTurn() {
         do {
             repeat(Random.nextInt(2, 3)) { mapRunnerRegions.endBattle.click() }
             delay(250)
         } while (region.has(FileTemplate("combat/battle/terminate.png")))
+    }
+
+    /**
+     * Returns a masked image where nodes and path lines are located
+     */
+    private fun BufferedImage.extractNodes(): GrayF32 {
+        val hsv = asPlanar().asHsv()
+        val whiteNodes = hsv.clone().apply { hsvFilter(satRange = 0..10, valRange = 200..255) }.getBand(2)
+        val redNodes = hsv.clone().apply { hsvFilter(hueRange = arrayOf(0..10, 350..360), satRange = arrayOf(20..100)) }.getBand(2)
+        val blueNodes = hsv.apply { hsvFilter(hueRange = 200..210, satRange = 20..100) }.getBand(2)
+        return whiteNodes + redNodes + blueNodes
+    }
+
+    /**
+     * Calculates multiple homography matrices and then takes an element wise average
+     */
+    private suspend fun GrayF32.homographyMultiSample(other: GrayF32): Homography2D_F64 {
+        return coroutineScope {
+            val hDeferred = List(hSamples) { async { homography(other) } }
+            val h = hDeferred.map { it.await() }
+            val result = Homography2D_F64()
+            for (r in 0 until 3) {
+                for (c in 0 until 3) {
+                    result.set(r, c, h.map { it.get(r, c) }.average())
+                }
+            }
+            result
+        }
     }
 }
