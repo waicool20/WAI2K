@@ -180,7 +180,9 @@ class DebugView : CoroutineScopeView() {
                         logger.warn("Could not find device!")
                         return@launch
                     }
-                    val image = device.screens[0].capture().asGrayF32()
+                    val image = device.screens[0].capture()
+                            .getSubimage(xSpinner.value, ySpinner.value, wSpinner.value, hSpinner.value)
+                            .asGrayF32()
                     Region.DEFAULT_MATCHER.settings.matchDimension = ScriptRunner.NORMAL_RES
                     // Set similarity to 0.6f to make sikulix report the similarity value down to 0.6
                     val (results, duration) = measureTimedValue {
