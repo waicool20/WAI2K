@@ -38,6 +38,7 @@ class Map0_2(
     override val isCorpseDraggingMap = true
 
     override suspend fun execute() {
+        nodes[2].findRegion() // Try focus boss node to get map centered
         val rEchelons = deployEchelons(nodes[14], nodes[13])
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
