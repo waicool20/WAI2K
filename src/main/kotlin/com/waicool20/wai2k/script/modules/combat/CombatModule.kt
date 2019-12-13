@@ -308,16 +308,7 @@ class CombatModule(
 
     private suspend fun checkRepairs() {
         logger.info("Checking for repairs")
-        suspend fun checkHome(): Boolean {
-            return if ((scriptStats.sortiesDone - 1) % profile.combat.repairCheckFrequency == 0) {
-                logger.info("Checking home for repairs, next check at ${scriptStats.sortiesDone + profile.combat.repairCheckFrequency} sorties")
-                navigator.navigateTo(LocationId.HOME)
-                region.waitHas(FileTemplate("locations/repair.png"), 10000)
-                region.subRegion(1337, 290, 345, 155).has(FileTemplate("alert.png"))
-            } else false
-        }
-
-        if (gameState.echelons.any { it.needsRepairs() } || checkHome()) {
+        if (gameState.echelons.any { it.needsRepairs() }) {
             logger.info("Repairs required")
             val members = gameState.echelons.flatMap { it.members }.filter { it.needsRepair }
 
@@ -334,16 +325,19 @@ class CombatModule(
                 delay(1000)
 
                 val cache = region.asCachedRegion()
+                // Set matcher to high resolution, otherwise sometimes not all lock.png are found
+                region.matcher.settings.matchDimension = ScriptRunner.HIGH_RES
                 val repairRegions = cache.findBest(FileTemplate("doll-list/lock.png"), 12)
                         .also { logger.info("Found ${it.size} dolls on screen") }
                         .map { it.region }
                         .filterAsync {
-                            region.subRegion(it.x - 7, it.y - 268, 243, 431).has(FileTemplate("combat/critical-dmg.png")) ||
-                                    Ocr.forConfig(config).doOCRAndTrim(cache.capture().getSubimage(it.x + 67, it.y + 72, 161, 52)).let { oName ->
+                            region.subRegion(it.x - 4, it.y - 258, 230, 413).has(FileTemplate("combat/critical-dmg.png")) ||
+                                    Ocr.forConfig(config).doOCRAndTrim(cache.capture().getSubimage(it.x + 61, it.y + 77, 166, 46)).let { oName ->
                                         members.any { it.name.distanceTo(oName) < config.scriptConfig.ocrThreshold }
                                     }
-                        }.map { region.subRegion(it.x - 7, it.y - 268, 243, 431) }
+                        }.map { region.subRegion(it.x - 4, it.y - 258, 230, 413) }
                         .also { logger.info("${it.size} dolls need repair") }
+                region.matcher.settings.matchDimension = ScriptRunner.NORMAL_RES
                 if (repairRegions.isEmpty()) {
                     // Click close popup
                     region.findBest(FileTemplate("close.png"))?.region?.click()
@@ -363,7 +357,7 @@ class CombatModule(
                 }
 
                 // Click ok
-                region.subRegion(1768, 749, 250, 159).click(); delay(100)
+                region.subRegion(1888, 749, 250, 158).click(); delay(100)
                 // Use quick repair
                 region.subRegion(545, 713, 99, 96).click(); yield()
                 // Click ok
