@@ -21,6 +21,7 @@ package com.waicool20.wai2k.views
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.waicool20.cvauto.android.ADB
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.Wai2K
 import com.waicool20.wai2k.config.Wai2KConfig
@@ -79,6 +80,7 @@ class LoaderView : CoroutineScopeView() {
     }
 
     private fun startLoading() {
+        loadADB()
         loadWai2KConfig()
         loadWai2KProfile()
         loadScriptRunner()
@@ -86,6 +88,11 @@ class LoaderView : CoroutineScopeView() {
         launch(Dispatchers.Default) {
             closeAndShowMainApp()
         }
+    }
+
+    private fun loadADB() {
+        logger.info("Preparing ADB...")
+        ADB.getDevices()
     }
 
     private fun loadWai2KConfig() {
