@@ -306,7 +306,7 @@ abstract class MapRunner(
         val rect = H.transformRect(rect)
         logger.debug("$this estimated to be at Rect(x=${rect.x}, y=${rect.y}, width=${rect.width}, height=${rect.height})")
         val diff = (rect.width.toDouble() - width).pow(2) + (rect.height.toDouble() - height).pow(2)
-        if (diff > 100 * 100) {
+        if (diff > 80 * 80) {
             logger.debug("Estimation seems off, will try again after zoom | diff=$diff")
             region.pinch(
                     Random.nextInt(500, 700),
