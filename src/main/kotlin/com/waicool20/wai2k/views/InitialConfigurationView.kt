@@ -42,15 +42,7 @@ import kotlin.system.exitProcess
 class InitialConfigurationView : CoroutineScopeView() {
     override val root: VBox by fxml("/views/initial-config.fxml")
 
-    private val sikulixContent: VBox by fxid()
-    private val adbContent: VBox by fxid()
     private val ocrContent: VBox by fxid()
-
-    private val pathTextField: TextField by fxid()
-    private val chooseButton: Button by fxid()
-
-    private val adbPathTextField: TextField by fxid()
-    private val adbChooseButton: Button by fxid()
 
     private val requiredFilesVBox: VBox by fxid()
     private val ocrPathLink: Hyperlink by fxid()
