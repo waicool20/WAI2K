@@ -111,10 +111,10 @@ class Navigator(
                 logger.info("Already at ${dest.id}")
                 return
             }
-            logger.debug("Found solution: CURRENT->${path.joinToString("->") { "${it.dest.id}" }}")
+            logger.debug("Found solution: CURRENT(${cLocation.id})->${path.formatted()}")
             for ((srcLoc, destLoc, link) in path) {
-                if (gameState.currentGameLocation.isIntermediate && destLoc.isInRegion(region)) {
-                    logger.info("At ${destLoc.id}")
+                if (srcLoc.isIntermediate && destLoc.isInRegion(region)) {
+                    logger.info("At ${destLoc.id} | Intermediate(${srcLoc.id})")
                     continue
                 }
                 logger.info("Going to ${destLoc.id}")
@@ -202,7 +202,7 @@ class Navigator(
                     logger.info("At destination $destination")
                     return
                 } else {
-                    logger.info("At ${destLoc.id}")
+                    logger.info("At ${destLoc.id} | ${path.dropWhile { it.dest != destLoc }.formatted()}")
                 }
             }
         }
@@ -334,4 +334,9 @@ class Navigator(
             logger.info("Logged in")
         }
     }
+
+    private fun List<GameLocation.GameLocationLink>?.formatted(): String {
+        return this?.joinToString("->") { "${it.dest.id}" } ?: ""
+    }
+
 }
