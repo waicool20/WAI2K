@@ -11,6 +11,15 @@
           "width": 60,
           "height": 60
         }
+      },
+      {
+        "asset": {
+          "imageName": "home0",
+          "x": 1338,
+          "y": 564,
+          "width": 60,
+          "height": 60
+        }
       }
     ],
     "links": [
