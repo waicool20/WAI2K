@@ -138,11 +138,11 @@ class InitModule(
 
         // Map each region to whole logistic support entry
         val mappedEntries = entries.map { it.region }
-                .map { cache.capture().getSubimage(it.x - 110, it.y - 11, 853, 144) }
+                .map { cache.capture().getSubimage(it.x - 109, it.y - 12, 851, 143) }
                 .map {
                     async {
                         // Echelon section on the right without the word "Echelon"
-                        Ocr.forConfig(config, digitsOnly = true).doOCRAndTrim(it.getSubimage(0, 25, 83, 100))
+                        Ocr.forConfig(config).doOCRAndTrim(it.getSubimage(0, 25, 82, 100))
                     } to async { readRepairTimers(it) }
                 }.map { it.first.await().toInt() to it.second.await() }
 
@@ -165,7 +165,7 @@ class InitModule(
     private suspend fun readRepairTimers(image: BufferedImage): Map<Int, Duration> {
         return (0 until 5).mapAsync { entry ->
             // Single repair entry without the "Repairing" or "Standby"
-            Ocr.forConfig(config).doOCRAndTrim(image.getSubimage(110 + 145 * entry, 45, 134, 65))
+            Ocr.forConfig(config).doOCRAndTrim(image.getSubimage(112 + 145 * entry, 38, 125, 78))
                     .takeIf { it.contains("Repairing") }
                     ?.let { timer ->
                         Regex("(\\d\\d):(\\d\\d):(\\d\\d)").find(timer)?.groupValues?.let {
