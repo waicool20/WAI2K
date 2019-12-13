@@ -141,15 +141,16 @@ class CombatModule(
         val dragger1 = draggers[echelon1Doll]!!
         val dragger2 = draggers[echelon2Doll]!!
 
-        applyFilters(echelon1Doll, false)
         if (scriptStats.sortiesDone and 1 == 0) {
+            applyFilters(echelon1Doll, false)
             dollSwitchingCache.getOrPut(dragger1) {
                 scanValidDolls(echelon1Doll)[dragger1.index]
             }.click()
         } else {
+            applyFilters(echelon2Doll, false)
             dollSwitchingCache.getOrPut(dragger2) {
                 scanValidDolls(echelon2Doll)[dragger2.index]
-            }
+            }.click()
         }
         delay(400)
         updateEchelonRepairStatus(1)
@@ -171,7 +172,8 @@ class CombatModule(
         val type = criteria.type
         applyDollFilters(stars, type, reset)
         delay(500)
-        region.waitHas(FileTemplate("doll-list/lock.png"), 5000)
+        region.subRegion(1188, 214, 258, 252)
+                .waitDoesntHave(FileTemplate("doll-list/filtermenu.png"), 5000)
     }
 
     private var scanRetries = 0
@@ -205,7 +207,7 @@ class CombatModule(
             }
         }
 
-        logger.info("Attempting to find dragging doll $doll with given criteria name = $name, distance < $config.scriptConfig.ocrThreshold, level >= $level")
+        logger.info("Attempting to find dragging doll $doll with given criteria name = $name, distance < ${config.scriptConfig.ocrThreshold}, level >= $level")
         // Set matcher to high resolution, otherwise sometimes not all lock.png are found
         region.matcher.settings.matchDimension = ScriptRunner.HIGH_RES
         repeat(retries) { i ->
@@ -220,7 +222,7 @@ class CombatModule(
                         DollRegions(
                                 cache.capture().getSubimage(it.x + 60, it.y + 71, 166, 46),
                                 cache.capture().getSubimage(it.x + 168, it.y + 118, 58, 35),
-                                region.subRegionAs(it.x - 4, it.y, 230, 154)
+                                region.subRegionAs(it.x - 4, it.y, 136, 154)
                         )
                     }.filter {
                         val ocrName = it.name.await()
