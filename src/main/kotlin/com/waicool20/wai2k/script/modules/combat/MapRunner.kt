@@ -382,6 +382,10 @@ abstract class MapRunner(
         repeat(Random.nextInt(7, 9)) {
             region.device.input.touchInterface?.tap(0, l.x, l.y); yield()
         }
+        // If the clicks above managed to halt battle plan just cancel the dialog
+        delay(400)
+        region.subRegion(761, 674, 283, 144)
+                .findBest(FileTemplate("combat/battle/cancel.png"))?.region?.click()
     }
 
     private fun isInBattle() = mapRunnerRegions.pauseButton.has(FileTemplate("combat/battle/pause.png", 0.9))
