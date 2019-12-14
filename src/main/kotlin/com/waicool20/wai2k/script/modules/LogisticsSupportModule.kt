@@ -231,7 +231,6 @@ class LogisticsSupportModule(
             }
             delay(300)
         }
-        eRegion.findBest(FileTemplate("echelons/echelon${echelon.number}.png"))?.region?.click()
         yield()
     }
 
