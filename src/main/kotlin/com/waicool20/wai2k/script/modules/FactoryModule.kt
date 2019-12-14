@@ -126,7 +126,8 @@ class FactoryModule(
 
             // Click smart select button
             logger.info("Using smart select")
-            region.subRegion(1770, 862, 247, 158).click(); yield()
+            region.subRegion(1770, 862, 247, 158).click();
+            delay(400)
 
             // Confirm doll selection
             val okButton = region.subRegion(1768, 859, 250, 158)
@@ -137,14 +138,15 @@ class FactoryModule(
                 logger.info("Stopping enhancement due to lack of 2 star T-dolls")
                 break
             } else {
+                logger.info("Confirm doll selections")
                 okButton.click()
-                scriptStats.enhancementsDone += 1
             }
 
             delay(200)
             // Click enhance button
             logger.info("Enhancing T-doll")
             region.subRegion(1763, 892, 250, 96).click()
+            scriptStats.enhancementsDone += 1
             delay(300)
 
             // Click confirm if not enough T-dolls, got to get rid of the trash anyways :D
@@ -169,7 +171,7 @@ class FactoryModule(
         logger.info("Disassembling 2 star T-dolls")
         while (isActive) {
             region.subRegion(483, 200, 1557, 565)
-                    .waitHas(FileTemplate("factory/select.png"), 10)?.click()
+                    .waitHas(FileTemplate("factory/select.png"), 10000)?.click()
             delay(750)
 
             // Find the old doll count
@@ -180,7 +182,7 @@ class FactoryModule(
             // Click smart select button
             logger.info("Using smart select")
             region.subRegion(1770, 890, 247, 158).click()
-            delay(200)
+            delay(400)
 
             // Confirm doll selection
             val okButton = region.subRegion(1768, 889, 250, 158)
@@ -189,10 +191,11 @@ class FactoryModule(
                 logger.info("No more 2 star T-dolls to disassemble!")
                 break
             }
+            logger.info("Confirm doll selections")
             // Click ok
             okButton.click(); delay(500)
             // Click disassemble button
-            region.subRegion(1749, 885, 247, 95).click()
+            region.subRegion(1749, 839, 247, 95).click(); delay(500)
             // Update stats
             scriptStats.disassemblesDone += 1
         }
@@ -220,27 +223,32 @@ class FactoryModule(
             // Select all the dolls
             dolls.sortedBy { it.y * 10 + it.x }.forEach { it.click() }
             scriptStats.dollsUsedForDisassembly += dolls.size
+            logger.info("Confirm doll selections")
             // Click ok
             region.subRegion(1768, 889, 250, 158)
-                    .findBest(FileTemplate("factory/ok.png"))?.region?.click(); delay(250)
+                    .findBest(FileTemplate("factory/ok.png"))?.region?.click(); delay(500)
+            logger.info("Disassembling selected T-dolls")
             // Click disassemble button
-            region.subRegion(1749, 885, 247, 95).click(); delay(250)
+            region.subRegion(1749, 839, 247, 95).click(); delay(500)
             // Click confirm
             region.subRegion(1100, 865, 324, 161)
                     .findBest(FileTemplate("ok.png"))?.region?.click(); delay(200)
             // Update stats
             scriptStats.disassemblesDone += 1
             // Can break if disassembled count is less than 12
-            if (dolls.size < 12) break
+            if (dolls.size < 12) {
+                logger.info("No more 3 star T-dolls to disassemble!")
+                break
+            } else {
+                logger.info("Still more 3 star T-dolls to disassemble")
+            }
             // Wait for menu to settle
             region.subRegion(483, 200, 1557, 565)
-                    .waitHas(FileTemplate("factory/select.png"), 10)?.let {
+                    .waitHas(FileTemplate("factory/select.png"), 10000)?.let {
                         it.click()
                         delay(750)
                     }
         }
-
-        logger.info("No more 3 star T-dolls to disassemble!")
         if (!gameState.dollOverflow) logger.info("The base now has space for new dolls")
     }
 
