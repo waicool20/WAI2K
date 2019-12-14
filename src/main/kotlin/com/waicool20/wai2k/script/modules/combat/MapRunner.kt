@@ -222,7 +222,7 @@ abstract class MapRunner(
             }
             yield()
         }
-        region.waitHas(FileTemplate("combat/battle/terminate.png"), 1200)
+        region.waitHas(FileTemplate("combat/battle/terminate.png"), 10000)
         logger.info("Turn ended")
         endTurn()
     }
@@ -275,7 +275,7 @@ abstract class MapRunner(
             yield()
         }
         logger.info("All assets are now on screen")
-        region.waitHas(FileTemplate("combat/battle/terminate.png"), 1200)
+        region.waitHas(FileTemplate("combat/battle/terminate.png"), 10000)
         endTurn()
     }
 

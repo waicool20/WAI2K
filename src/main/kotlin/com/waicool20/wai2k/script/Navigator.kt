@@ -295,7 +295,7 @@ class Navigator(
                 "ok.png"
             } else "cancel.png"
 
-            region.waitHas(FileTemplate(image), 10)?.click()
+            region.waitHas(FileTemplate(image), 10000)?.click()
             scriptStats.logisticsSupportReceived++
 
             // Mark game state dirty, needs updating
@@ -326,7 +326,7 @@ class Navigator(
                 start(GFL.pkgName, GFL.mainActivity)
             }
             logger.info("Game restarted, waiting for login screen")
-            region.waitHas(FileTemplate("login.png"), 3600)
+            region.waitHas(FileTemplate("login.png"), 5 * 60 * 1000)
             logger.info("Logging in")
             region.subRegion(630, 400, 900, 300).click()
             while (locations[LocationId.HOME]?.isInRegion(region) == false) delay(100)
