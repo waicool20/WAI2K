@@ -331,6 +331,8 @@ abstract class MapRunner(
                     (region.height - 5) / 2,
                     5, 5
             )
+            // Add some randomness
+            center.translate(Random.nextInt(-50, 50), Random.nextInt(-50, 50))
             when {
                 clickRegion.y < window.y -> {
                     val dist = max(window.y - clickRegion.y, minScroll)
