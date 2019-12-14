@@ -84,13 +84,13 @@ A compiled Jar file which you can execute directly will be generated in the buil
 
 # Screenshots
 
-Main Window - Status Tab:
+Main Window - Status Tab:  
 ![Main Window - Status Tab](screenshots/main-status.png?raw=true)
 
-Main Window - Device Tab:
+Main Window - Device Tab:  
 ![Main Window - Device Tab](screenshots/main-device.png?raw=true)
 
-Console Window (Logs):
+Console Window (Logs):  
 ![Console Window](screenshots/console.png?raw=true)
 
 # Want to chat?
