@@ -231,7 +231,6 @@ class LogisticsSupportModule(
             }
             delay(300)
         }
-        yield()
     }
 
     /**
