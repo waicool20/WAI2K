@@ -157,7 +157,7 @@ class CombatModule(
                 }
 
                 if (switchDoll != null) {
-                    switchDoll.copy(width = 222).click()
+                    switchDoll.copy(width = 142).click()
                     break
                 }
             }
