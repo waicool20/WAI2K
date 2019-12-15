@@ -24,7 +24,7 @@ import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.game.DollFilterRegions
-import com.waicool20.wai2k.game.DollType
+import com.waicool20.wai2k.game.TDoll
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.cancelAndYield
@@ -68,7 +68,7 @@ abstract class ScriptModule(
      * @param type Doll type, null if you don't care (Default)
      * @param reset Resets filters first before applying the filters
      */
-    protected suspend fun applyDollFilters(stars: Int? = null, type: DollType? = null, reset: Boolean = false) {
+    protected suspend fun applyDollFilters(stars: Int? = null, type: TDoll.Type? = null, reset: Boolean = false) {
         if (stars == null && type == null && !reset) return
         dollFilterRegions.filter.click()
         delay(500)

@@ -19,7 +19,9 @@
 
 package com.waicool20.wai2k.script.modules.combat
 
+import com.waicool20.cvauto.android.AndroidDevice
 import com.waicool20.cvauto.android.AndroidRegion
+import com.waicool20.cvauto.core.Region
 import com.waicool20.cvauto.core.asCachedRegion
 import com.waicool20.cvauto.core.input.ITouchInterface
 import com.waicool20.cvauto.core.template.FileTemplate
@@ -28,14 +30,17 @@ import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.config.Wai2KProfile.DollCriteria
 import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.LocationId
+import com.waicool20.wai2k.game.TDoll
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.script.modules.ScriptModule
 import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.wai2k.util.doOCRAndTrim
-import com.waicool20.wai2k.util.useLegacyEngine
-import com.waicool20.waicoolutils.*
+import com.waicool20.waicoolutils.binarizeImage
+import com.waicool20.waicoolutils.countColor
+import com.waicool20.waicoolutils.distanceTo
+import com.waicool20.waicoolutils.filterAsync
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -44,7 +49,6 @@ import kotlinx.coroutines.yield
 import java.awt.Color
 import java.awt.image.BufferedImage
 import java.text.DecimalFormat
-import kotlin.math.min
 import kotlin.reflect.full.primaryConstructor
 
 class CombatModule(
@@ -127,125 +131,60 @@ class CombatModule(
     private suspend fun switchDolls() {
         navigator.navigateTo(LocationId.FORMATION)
         delay(1000) // Formation takes a while to load/render
-        val startTime = System.currentTimeMillis()
-        logger.info("Switching doll 2 of echelon 1")
-        // Doll 2 region ( excludes stuff below name/type )
-        region.subRegion(630, 201, 247, 554).click(); yield()
-        region.waitHas(FileTemplate("doll-list/lock.png"), 5000)
 
-        val draggers = profile.combat.draggers
-        // If sorties done is even use doll 1 else doll 2
-        val echelon1Doll = (scriptStats.sortiesDone and 1) + 1
-        // If sorties done is odd use doll 2 else doll 1
-        val echelon2Doll = ((scriptStats.sortiesDone + 1) and 1) + 1
-        val dragger1 = draggers[echelon1Doll]!!
-        val dragger2 = draggers[echelon2Doll]!!
+        if (scriptStats.sortiesDone >= 1) {
+            val startTime = System.currentTimeMillis()
+            logger.info("Switching doll 2 of echelon 1")
+            // Doll 2 region ( excludes stuff below name/type )
+            region.subRegion(630, 201, 247, 554).click(); yield()
+            region.waitHas(FileTemplate("doll-list/lock.png"), 5000)
 
-        if (scriptStats.sortiesDone and 1 == 0) {
-            applyFilters(echelon1Doll, false)
-            dollSwitchingCache.getOrPut(dragger1) {
-                scanValidDolls(echelon1Doll)[dragger1.index]
-            }.click()
-        } else {
-            applyFilters(echelon2Doll, false)
-            dollSwitchingCache.getOrPut(dragger2) {
-                scanValidDolls(echelon2Doll)[dragger2.index]
-            }.click()
+            var switchDoll: Region<AndroidDevice>? = null
+            region.matcher.settings.matchDimension = ScriptRunner.HIGH_RES
+            val tdolls = profile.combat.draggers
+                    .map { TDoll.lookup(config, it.name) ?: error("Invalid doll: ${it.name}") }
+                    // Distinct filter types that way we dont set filters twice for same filter
+                    .distinctBy { it.type.ordinal * 10 + it.stars }
+            for ((i, tdoll) in tdolls.withIndex()) {
+                applyFilters(tdoll, i == 1)
+                switchDoll = region.findBest(FileTemplate("doll-list/echelon2-captain.png"))?.region
+
+                if (switchDoll == null) {
+                    // TODO maybe implement scrolling instead of this
+                    // Toggle descending/ascending and search again
+                    region.subRegion(1771, 672, 247, 87).click()
+                    delay(750)
+                    switchDoll = region.findBest(FileTemplate("doll-list/echelon2-captain.png"))?.region
+                }
+
+                if (switchDoll != null) {
+                    switchDoll.copy(width = 222).click()
+                    break
+                }
+            }
+            if (switchDoll == null) error("Could not find replacement dragging doll")
+            region.matcher.settings.matchDimension = ScriptRunner.NORMAL_RES
+            logger.info("Switching dolls took ${System.currentTimeMillis() - startTime} ms")
+            delay(400)
         }
-        delay(400)
+
         updateEchelonRepairStatus(1)
 
         // Check if dolls were switched correctly, might not be the case if one of them leveled
         // up and the positions got switched
-        wasCancelled = gameState.echelons[0].members[1].name
-                .distanceTo(profile.combat.draggers[echelon1Doll]!!.name) >= config.scriptConfig.ocrThreshold
-        logger.info("Switching dolls took ${System.currentTimeMillis() - startTime} ms")
+        val echelon1Members = gameState.echelons[0].members.map { it.name }
+        wasCancelled = profile.combat.draggers.none { it.name in echelon1Members }
     }
 
     /**
      * Applies the filters ( stars and types ) in formation doll list
      */
-    private suspend fun applyFilters(doll: Int, reset: Boolean) {
-        logger.info("Applying doll filters for dragging doll $doll")
-        val criteria = profile.combat.draggers[doll] ?: error("Invalid doll: $doll")
-        val stars = criteria.stars
-        val type = criteria.type
-        applyDollFilters(stars, type, reset)
+    private suspend fun applyFilters(tdoll: TDoll, reset: Boolean) {
+        logger.info("Applying doll filters for dragging doll ${tdoll.name}")
+        tdoll.apply { applyDollFilters(stars, type, reset) }
         delay(500)
         region.subRegion(1188, 214, 258, 252)
                 .waitDoesntHave(FileTemplate("doll-list/filtermenu.png"), 5000)
-    }
-
-    private var scanRetries = 0
-
-    /**
-     * Scans for valid dolls in the formation doll list
-     *
-     * @return List of regions that can be clicked to select the valid doll
-     */
-    private suspend fun scanValidDolls(doll: Int, retries: Int = 3): List<AndroidRegion> {
-        // Wait for menu to settle starting around 300 ms
-        // The amount of time waited is increased each time the doll scanning fails
-        // up to a maximum of 1000 ms
-        delay(min(1000L, 300L + scanRetries * 100))
-
-        logger.info("Scanning for valid dolls in filtered list for dragging doll $doll")
-        val criteria = profile.combat.draggers[doll] ?: error("Invalid doll: $doll")
-        val name = criteria.name
-        val level = criteria.level
-
-        // Temporary convenience class for storing doll regions
-        class DollRegions(nameRegionImage: BufferedImage, levelRegionImage: BufferedImage, val clickRegion: AndroidRegion) {
-            val name = async {
-                Ocr.forConfig(config).doOCRAndTrim(nameRegionImage).removePrefix("' ").removePrefix(", ")
-            }
-            val level = async {
-                val i = levelRegionImage.pad(30, 30, Color.WHITE).binarizeImage().scale()
-                val ocr = Ocr.forConfig(config, digitsOnly = true, useLSTM = true)
-                ocr.doOCRAndTrim(i).toIntOrNull()
-                        ?: ocr.useLegacyEngine().doOCRAndTrim(i).toIntOrNull()
-            }
-        }
-
-        logger.info("Attempting to find dragging doll $doll with given criteria name = $name, distance < ${config.scriptConfig.ocrThreshold}, level >= $level")
-        // Set matcher to high resolution, otherwise sometimes not all lock.png are found
-        region.matcher.settings.matchDimension = ScriptRunner.HIGH_RES
-        repeat(retries) { i ->
-            // Take a screenshot after each retry, just in case it was a bad one in case its not OCRs fault
-            // Optimize by taking a single screenshot and working on that
-            val cache = region.asCachedRegion()
-            cache.findBest(FileTemplate("doll-list/lock.png"), 12)
-                    .also { logger.info("Found ${it.size} dolls on screen") }
-                    // Transform the lock region into 3 distinct regions used for ocr and clicking by offset
-                    .map { it.region }
-                    .map {
-                        DollRegions(
-                                cache.capture().getSubimage(it.x + 60, it.y + 71, 166, 46),
-                                cache.capture().getSubimage(it.x + 168, it.y + 118, 58, 35),
-                                region.subRegionAs(it.x - 4, it.y, 136, 154)
-                        )
-                    }.filter {
-                        val ocrName = it.name.await()
-                        val ocrLevel = it.level.await()?.coerceIn(0..100)
-                        val distance = ocrName.distanceTo(name, Ocr.OCR_DISTANCE_MAP)
-                        logger.debug("[Scan OCR] Name: $ocrName | Distance: $distance | Level: $ocrLevel")
-                        distance < config.scriptConfig.ocrThreshold && ocrLevel ?: 1 >= level
-                    }
-                    // Return click regions
-                    .map { it.clickRegion }
-                    .also {
-                        if (it.isEmpty()) {
-                            logger.info("Failed to find dragging doll $doll with given criteria after ${i + 1} attempts, retries remaining: ${retries - i - 1}")
-                        } else {
-                            scanRetries++
-                            logger.info("Found ${it.size} dolls that match the criteria for doll $doll")
-                            return it.sortedBy { it.y * 10 + it.x }
-                        }
-                    }
-        }
-        region.matcher.settings.matchDimension = ScriptRunner.NORMAL_RES
-        logger.warn("Failed to find dragging doll $doll that matches criteria after $retries attempts")
-        coroutineContext.cancelAndYield()
     }
 
     //</editor-fold>
@@ -257,8 +196,10 @@ class CombatModule(
 
         // Temporary convenience class for storing doll regions
         class DollRegions(nameImage: BufferedImage, hpImage: BufferedImage) {
-            val name = async {
-                Ocr.forConfig(config).doOCRAndTrim(nameImage)
+            val tdollOcr = async {
+                val ocr = Ocr.forConfig(config).doOCRAndTrim(nameImage.binarizeImage(0.9))
+                val tdoll = TDoll.lookup(config, ocr)
+                ocr to tdoll
             }
             val percent = async {
                 val image = hpImage.binarizeImage()
@@ -274,13 +215,14 @@ class CombatModule(
                     .sortedBy { it.x }
                     .map {
                         DollRegions(
-                                cache.capture().getSubimage(it.x - 153, it.y - 184, 247, 46),
+                                cache.capture().getSubimage(it.x - 153, it.y - 183, 247, 84),
                                 cache.capture().getSubimage(it.x - 133, it.y - 61, 209, 1)
                         )
                     }
             // Checking if the ocr results were gibberish
-            if (members.none { it.name.await().distanceTo(profile.combat.draggers[1]!!.name) < config.scriptConfig.ocrThreshold } &&
-                    members.none { it.name.await().distanceTo(profile.combat.draggers[2]!!.name) < config.scriptConfig.ocrThreshold }) {
+            // Skip check if game state hasnt been initialized yet
+            val member2 = members.getOrNull(1)?.tdollOcr?.await()?.second?.name ?: continue
+            if (profile.combat.draggers.none { it.name == member2 }) {
                 logger.info("Update repair status ocr failed after $i attempts, retries remaining: ${retries - i}")
                 if (i == retries) {
                     logger.warn("Could not update repair status after $retries attempts, continue anyways")
@@ -292,11 +234,11 @@ class CombatModule(
             val formatter = DecimalFormat("##.#")
             gameState.echelons[echelon - 1].members.forEachIndexed { j, member ->
                 val dMember = members.getOrNull(j)
-                member.name = dMember?.name?.await() ?: "Unknown"
+                member.name = dMember?.tdollOcr?.await()?.second?.name ?: "Unknown"
                 member.needsRepair = (dMember?.percent?.await()
                         ?: 100.0) < profile.combat.repairThreshold
                 val sPercent = dMember?.percent?.await()?.let { formatter.format(it) } ?: "N/A"
-                logger.info("[Repair OCR] Name: ${member.name} | HP (%): $sPercent")
+                logger.info("[Repair OCR] Name: ${dMember?.tdollOcr?.await()?.first} | HP (%): $sPercent")
             }
             break
         }

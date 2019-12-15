@@ -20,6 +20,7 @@
 package com.waicool20.wai2k.game
 
 import com.waicool20.cvauto.android.AndroidRegion
+import com.waicool20.wai2k.game.TDoll.Type
 
 class DollFilterRegions(region: AndroidRegion) {
     /**
@@ -42,12 +43,12 @@ class DollFilterRegions(region: AndroidRegion) {
      * Map of individual gun types and their regions
      */
     val typeRegions = mapOf(
-            DollType.HG to region.subRegion(917, 537, 256, 117),
-            DollType.SMG to region.subRegion(1188,537, 256, 117),
-            DollType.RF to region.subRegion(1459,537, 256, 117),
-            DollType.AR to region.subRegion(917, 672, 256, 117),
-            DollType.MG to region.subRegion(1188,672, 256, 117),
-            DollType.SG to region.subRegion(1459,672, 256, 117)
+            Type.HG to region.subRegion(917, 537, 256, 117),
+            Type.SMG to region.subRegion(1188,537, 256, 117),
+            Type.RF to region.subRegion(1459,537, 256, 117),
+            Type.AR to region.subRegion(917, 672, 256, 117),
+            Type.MG to region.subRegion(1188,672, 256, 117),
+            Type.SG to region.subRegion(1459,672, 256, 117)
     )
 
     /**

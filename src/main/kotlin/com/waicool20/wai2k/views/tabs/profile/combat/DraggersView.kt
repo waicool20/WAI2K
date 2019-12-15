@@ -19,31 +19,20 @@
 
 package com.waicool20.wai2k.views.tabs.profile.combat
 
-import com.waicool20.wai2k.game.DollType
+import com.waicool20.wai2k.game.TDoll
 import com.waicool20.wai2k.views.tabs.profile.AbstractProfileView
 import com.waicool20.waicoolutils.javafx.addListener
 import javafx.scene.control.Button
-import javafx.scene.control.ComboBox
 import javafx.scene.control.Spinner
 import javafx.scene.control.SpinnerValueFactory.IntegerSpinnerValueFactory
-import javafx.scene.control.TextField
 import javafx.scene.layout.VBox
-import org.controlsfx.control.Rating
-import kotlin.collections.set
+import javafx.util.StringConverter
+import org.controlsfx.control.PrefixSelectionComboBox
 
 class DraggersView : AbstractProfileView() {
     override val root: VBox by fxml("/views/tabs/profile/combat/draggers.fxml")
-    private val doll1NameTextField: TextField by fxid()
-    private val doll1StarsRating: Rating by fxid()
-    private val doll1LevelSpinner: Spinner<Int> by fxid()
-    private val doll1TypeComboBox: ComboBox<DollType> by fxid()
-    private val doll1IndexSpinner: Spinner<Int> by fxid()
-
-    private val doll2NameTextField: TextField by fxid()
-    private val doll2StarsRating: Rating by fxid()
-    private val doll2LevelSpinner: Spinner<Int> by fxid()
-    private val doll2TypeComboBox: ComboBox<DollType> by fxid()
-    private val doll2IndexSpinner: Spinner<Int> by fxid()
+    private val doll1NameComboBox: PrefixSelectionComboBox<TDoll> by fxid()
+    private val doll2NameComboBox: PrefixSelectionComboBox<TDoll> by fxid()
 
     private val swapButton: Button by fxid()
 
@@ -53,68 +42,40 @@ class DraggersView : AbstractProfileView() {
     }
 
     override fun setValues() {
-        doll1LevelSpinner.valueFactory = IntegerSpinnerValueFactory(1, 100)
-        doll2LevelSpinner.valueFactory = IntegerSpinnerValueFactory(1, 100)
-        doll1IndexSpinner.valueFactory = IntegerSpinnerValueFactory(0, 11)
-        doll2IndexSpinner.valueFactory = IntegerSpinnerValueFactory(0, 11)
-        doll1TypeComboBox.items.setAll(DollType.values().toList())
-        doll2TypeComboBox.items.setAll(DollType.values().toList())
+        val converter = object : StringConverter<TDoll>() {
+            override fun toString(td: TDoll) = td.name
+            override fun fromString(s: String) = TDoll.lookup(context.wai2KConfig, s)
+        }
+        val dolls = TDoll.listAll(context.wai2KConfig).sortedBy { it.name }
+        doll1NameComboBox.items.setAll(dolls)
+        doll2NameComboBox.items.setAll(dolls)
+        doll1NameComboBox.converter = converter
+        doll2NameComboBox.converter = converter
+        doll1NameComboBox.typingDelay = 1000
+        doll2NameComboBox.typingDelay = 1000
     }
 
     override fun createBindings() {
         with(context.currentProfile.combat) {
-            val doll1 = draggers[1]!!
-            val doll2 = draggers[2]!!
-            doll1NameTextField.text = doll1.name
-            doll1LevelSpinner.valueFactory.value = doll1.level
-            doll1StarsRating.rating = doll1.stars.toDouble()
-            doll1TypeComboBox.value = doll1.type
-            doll1IndexSpinner.valueFactory.value = doll1.index
+            val doll1 = draggers[0]!!
+            val doll2 = draggers[1]!!
 
-            doll2NameTextField.text = doll2.name
-            doll2LevelSpinner.valueFactory.value = doll2.level
-            doll2StarsRating.rating = doll2.stars.toDouble()
-            doll2TypeComboBox.value = doll2.type
-            doll2IndexSpinner.valueFactory.value = doll2.index
+            doll1NameComboBox.selectionModel.select(TDoll.lookup(context.wai2KConfig, doll1.name))
+            doll2NameComboBox.selectionModel.select(TDoll.lookup(context.wai2KConfig, doll2.name))
         }
         with(context.currentProfile.combat) {
-            doll1NameTextField.textProperty().addListener("Doll1NameTextFieldListener") { newVal ->
-                draggers[1]?.name = newVal
+            doll1NameComboBox.selectionModel.selectedItemProperty().addListener("Doll1NameListener") { tdoll ->
+                draggers[0].name = tdoll.name
             }
-            doll1LevelSpinner.valueProperty().addListener("Doll1LevelSpinnerListener") { newVal ->
-                draggers[1]?.level = newVal
-            }
-            doll1StarsRating.ratingProperty().addListener("Doll1StarsRatingListener") { newVal ->
-                draggers[1]?.stars = newVal.toInt()
-            }
-            doll1TypeComboBox.valueProperty().addListener("Doll1TypeComboBoxListener") { newVal ->
-                draggers[1]?.type = newVal
-            }
-            doll1IndexSpinner.valueProperty().addListener("Doll1IndexSpinnerListener") { newVal ->
-                draggers[1]?.index = newVal
-            }
-
-            doll2NameTextField.textProperty().addListener("Doll2NameTextFieldListener") { newVal ->
-                draggers[2]?.name = newVal
-            }
-            doll2LevelSpinner.valueProperty().addListener("Doll2LevelSpinnerListener") { newVal ->
-                draggers[2]?.level = newVal
-            }
-            doll2StarsRating.ratingProperty().addListener("Doll2StarsRatingListener") { newVal ->
-                draggers[2]?.stars = newVal.toInt()
-            }
-            doll2TypeComboBox.valueProperty().addListener("Doll2TypeComboBoxListener") { newVal ->
-                draggers[2]?.type = newVal
-            }
-            doll2IndexSpinner.valueProperty().addListener("Doll2IndexSpinnerListener") { newVal ->
-                draggers[2]?.index = newVal
+            doll2NameComboBox.selectionModel.selectedItemProperty().addListener("Doll2NameListener") { tdoll ->
+                draggers[1].name = tdoll.name
             }
         }
     }
 
     private fun swapDolls() {
         context.currentProfile.combat.apply {
-            draggers[2] = draggers[1].also { draggers[1] = draggers[2] }
+            draggers[1] = draggers[0].also { draggers[0] = draggers[1] }
         }
         createBindings()
     }

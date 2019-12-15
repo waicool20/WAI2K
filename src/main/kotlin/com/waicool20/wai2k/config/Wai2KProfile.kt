@@ -23,13 +23,11 @@ import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.waicool20.wai2k.Wai2K
-import com.waicool20.wai2k.game.DollType
 import com.waicool20.waicoolutils.javafx.json.fxJacksonObjectMapper
 import com.waicool20.waicoolutils.javafx.toProperty
 import com.waicool20.waicoolutils.logging.loggerFor
@@ -49,7 +47,7 @@ data class Wai2KProfile(
         val factory: Factory = Factory(),
         val stop: Stop = Stop()
 ) {
-    data class DollCriteria(var name: String, var level: Int, var stars: Int, var type: DollType, var index: Int)
+    data class DollCriteria(var name: String)
 
     class Logistics(
             enabled: Boolean = false,
@@ -75,9 +73,9 @@ data class Wai2KProfile(
             map: String = "4-3E",
             repairThreshold: Int = 40,
             repairCheckFrequency: Int = 3,
-            draggers: MutableMap<Int, DollCriteria> = mutableMapOf(
-                    1 to DollCriteria("WA2000", 100, 5, DollType.RF, 0),
-                    2 to DollCriteria("FAL", 100, 5, DollType.AR, 0)
+            draggers: MutableList<DollCriteria> = mutableListOf(
+                    DollCriteria("WA2000"),
+                    DollCriteria("FAL")
             )
     ) {
         val enabledProperty = enabled.toProperty()
@@ -190,11 +188,8 @@ data class Wai2KProfile(
                     name = "${path.fileName}".removeSuffix(Wai2K.CONFIG_SUFFIX)
                     printDebugInfo()
                 }
-            } catch (e: JsonMappingException) {
-                if (e.message?.startsWith("No content to map due to end-of-input") == false) {
-                    loaderLogger.warn("Error occurred while loading the profile: ${e.message}")
-                    throw e
-                }
+            } catch (e: Exception) {
+                loaderLogger.warn("Error occurred while loading the profile: ${e.message}")
                 loaderLogger.info("Using default profile")
                 Wai2KProfile().apply { save() }
             }
