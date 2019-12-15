@@ -59,9 +59,8 @@ dependencies {
     implementation("ch.qos.logback", "logback-classic", "1.2.3")
     implementation("org.controlsfx", "controlsfx", "8.40.14")
     implementation("org.reflections", "reflections", "0.9.11")
-    implementation("com.github.vidstige", "jadb", "v1.1.0")
 
-    compile("net.sourceforge.tess4j", "tess4j", "4.4.0") {
+    implementation("net.sourceforge.tess4j", "tess4j", "4.4.0") {
         exclude("org.ghost4j")
         exclude("org.apache.pdfbox")
         exclude("org.jboss")
