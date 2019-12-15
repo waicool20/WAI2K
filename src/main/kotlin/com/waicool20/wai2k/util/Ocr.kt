@@ -31,7 +31,7 @@ object Ocr {
             "cCDGoOQ@" to "0", "iIl\\[\\]|!" to "1",
             "zZ" to "2", "E" to "3",
             "Ah" to "4", "sS" to "5",
-            "b" to "6", "B:" to "8",
+            "bG" to "6", "B:" to "8",
             "- —" to ""
     )
 
@@ -43,7 +43,8 @@ object Ocr {
             "3E" to 0.2,
             "4Ah" to 0.1,
             "5sS" to 0.1,
-            "6b" to 0.1,
+            "6Gb" to 0.1,
+            "7-" to 0.3,
             "8B:" to 0.2
     )
 
