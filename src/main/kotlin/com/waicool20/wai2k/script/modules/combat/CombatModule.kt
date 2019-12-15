@@ -39,7 +39,6 @@ import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.waicoolutils.binarizeImage
 import com.waicool20.waicoolutils.countColor
-import com.waicool20.waicoolutils.distanceTo
 import com.waicool20.waicoolutils.filterAsync
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.async
@@ -275,10 +274,11 @@ class CombatModule(
                         .also { logger.info("Found ${it.size} dolls on screen") }
                         .map { it.region }
                         .filterAsync {
-                            region.subRegion(it.x - 4, it.y - 258, 230, 413).has(FileTemplate("combat/critical-dmg.png")) ||
-                                    Ocr.forConfig(config).doOCRAndTrim(cache.capture().getSubimage(it.x + 61, it.y + 77, 166, 46)).let { oName ->
-                                        members.any { it.name.distanceTo(oName) < config.scriptConfig.ocrThreshold }
-                                    }
+                            val isCritical = region.subRegion(it.x - 4, it.y - 258, 230, 413).has(FileTemplate("combat/critical-dmg.png"))
+                            val isDmgedMember = Ocr.forConfig(config).doOCRAndTrim(cache.capture().getSubimage(it.x + 61, it.y + 77, 166, 46))
+                                    .let { TDoll.lookup(config, it) }
+                                    ?.let { tdoll -> members.any { it.name == tdoll.name } } == true
+                            isCritical || isDmgedMember
                         }.map { region.subRegion(it.x - 4, it.y - 258, 230, 413) }
                         .also { logger.info("${it.size} dolls need repair") }
                 region.matcher.settings.matchDimension = ScriptRunner.NORMAL_RES
