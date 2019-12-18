@@ -62,14 +62,22 @@ abstract class MapRunner(
      * Map homography cache
      */
     private var mapH: Homography2D_F64? = null
-    /**
-     * How many homography samples to take
-     */
-    private val hSamples = 1
-    private val minScroll = 75
 
     companion object {
         private val mapper = jacksonObjectMapper()
+        /**
+         * How many homography samples to take
+         */
+        private const val hSamples = 1
+        /**
+         * Minimum scroll in pixels, because sometimes smaller scrolls dont register properly
+         */
+        private const val minScroll = 75
+        /**
+         * Difference theresholds
+         */
+        private const val maxMapDiff = 80.0
+        private const val maxSideDiff = 5.0
 
         val list = Reflections("com.waicool20.wai2k.script.modules.combat.maps")
                 .getSubTypesOf(MapRunner::class.java)
@@ -305,9 +313,12 @@ abstract class MapRunner(
         // Rect that is relative to the window
         val rect = H.transformRect(rect)
         logger.debug("$this estimated to be at Rect(x=${rect.x}, y=${rect.y}, width=${rect.width}, height=${rect.height})")
-        val diff = (rect.width.toDouble() - width).pow(2) + (rect.height.toDouble() - height).pow(2)
-        if (diff > 80 * 80) {
-            logger.debug("Estimation seems off, will try again after zoom | diff=$diff")
+        // Difference from reference values in map.json and estimated rect values
+        val mapDiff = (rect.width.toDouble() - width).pow(2) + (rect.height.toDouble() - height).pow(2)
+        // Difference between rect width and height, should be roughly square (1:1)
+        val sideDiff = (rect.width.toDouble() - rect.height).pow(2)
+        if (mapDiff > maxMapDiff.pow(2) || sideDiff > maxSideDiff.pow(2)) {
+            logger.debug("Estimation seems off, will try again after zoom | diff=$mapDiff, max=$maxMapDiff | sideDiff=$sideDiff, max=$maxSideDiff")
             region.pinch(
                     Random.nextInt(500, 700),
                     Random.nextInt(20, 50),
