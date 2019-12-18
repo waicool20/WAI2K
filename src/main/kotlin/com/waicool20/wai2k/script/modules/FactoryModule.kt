@@ -19,7 +19,10 @@
 
 package com.waicool20.wai2k.script.modules
 
-import com.waicool20.wai2k.android.AndroidRegion
+import com.waicool20.cvauto.android.AndroidRegion
+import com.waicool20.cvauto.core.input.ITouchInterface
+import com.waicool20.cvauto.core.template.FileTemplate
+import com.waicool20.cvauto.core.template.ImageTemplate
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.game.LocationId
@@ -29,8 +32,7 @@ import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.*
-import org.sikuli.script.Image
-import java.awt.image.BufferedImage
+import java.awt.Point
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
 
@@ -62,58 +64,56 @@ class FactoryModule(
         logger.info("Doll limit reached, will try to enhance")
         navigator.navigateTo(LocationId.TDOLL_ENHANCEMENT)
 
-        var oldDollCount: List<String>? = null
-        val dollsUsedForEnhancement = AtomicInteger(0)
-        val statUpdateJobs = mutableListOf<Job>()
+        var oldCount: Int? = null
 
         while (isActive) {
-            val selectCharacterButton = region.subRegion(464, 189, 264, 497)
+            val selectCharacterButton = region.subRegion(468, 206, 246, 605)
             // Click select character
-            selectCharacterButton.clickRandomly(); delay(500)
+            selectCharacterButton.click(); delay(1000)
 
             // Find the old doll count
-            statUpdateJobs += getCurrentDollCount { count ->
-                val c = count[0].toInt()
-                oldDollCount?.get(0)?.toIntOrNull()?.let {
-                    dollsUsedForEnhancement.getAndAdd(it - c)
-                }
-                oldDollCount = count
-                c >= count[1].toInt()
-            }
+            val (currentCount, _) = getCurrentDollCount()
+            oldCount?.let { scriptStats.dollsUsedForEnhancement += it - currentCount }
+            oldCount = currentCount
 
             logger.info("Selecting highest level T-doll for enhancement")
             // Randomly select a doll on the screen for enhancement
             while (isActive) {
-                val doll = region.findAllOrEmpty("doll-list/lock.png")
-                        .also { logger.info("Found ${it.size} dolls on screen available for enhancement") }
-                        // Map lock region to doll region
-                        .map { region.subRegion(it.x - 7, it.y, 244, it.h) }
+                val doll = // Map lock region to doll region
                         // Prioritize higher level dolls
-                        .sortedBy { it.y * 10 + it.x }
-                        .firstOrNull()
+                        region.findBest(FileTemplate("doll-list/lock.png"), 20)
+                                .map { it.region }
+                                .also { logger.info("Found ${it.size} dolls on screen available for enhancement") }
+                                // Map lock region to doll region
+                                .map { region.subRegion(it.x - 7, it.y, 244, it.height) }
+                                .minBy { it.y * 10 + it.x }
                 if (doll == null) {
-                    if (region.findAllOrEmpty("doll-list/logistics.png").size >= 12) {
+                    if (region.findBest(FileTemplate("doll-list/logistics.png"), 20).size >= 12) {
                         logger.info("All dolls are unavailable, checking down the list")
 
                         // Check if we actually scrolled down by comparing this subregion
                         val compareRegion = region.subRegion(120, 970, 265, 110)
-                        val screenshot = compareRegion.takeScreenshot()
+                        val screenshot = compareRegion.capture()
+
+                        val src = region.subRegion(140, 620, 1590, 455).randomPoint()
+                        val dest = Point(src.x, src.y).apply { translate(0, Random.nextInt(-490, -480)) }
 
                         // Swipe down because all the dolls presented were in logistics
-                        region.subRegion(140, 620, 1590, 455).randomLocation().let {
-                            region.swipeRandomly(it, it.offset(0, Random.nextInt(-490, -480)), 1000)
-                        }
+                        region.device.input.touchInterface?.swipe(ITouchInterface.Swipe(
+                                0, src.x, src.y, dest.x, dest.y
+                        ), 1000)
+
                         delay(100)
                         // If it actually scrolled down then the region will have different contents
                         // from before
-                        if (compareRegion.doesntHave(Image(screenshot, "SwipeCompare"))) continue
+                        if (compareRegion.doesntHave(ImageTemplate(screenshot))) continue
                     }
                     logger.info("No suitable doll that can be enhanced found")
                     // Click cancel
-                    region.subRegion(120, 0, 205, 144).clickRandomly()
+                    region.subRegion(120, 0, 205, 144).click()
                     return
                 } else {
-                    doll.clickRandomly()
+                    doll.click()
                     break
                 }
             }
@@ -121,89 +121,81 @@ class FactoryModule(
             delay(400)
             // Click "Select t-doll" button
             logger.info("Selecting T-dolls that will be used for enhancement")
-            region.subRegion(760, 200, 1250, 550).find("factory/select.png").clickRandomly()
+            region.subRegion(760, 217, 1250, 550).findBest(FileTemplate("factory/select.png"))?.region?.click()
             delay(200)
 
             // Click smart select button
             logger.info("Using smart select")
-            region.subRegion(1770, 859, 247, 158).clickRandomly(); yield()
+            region.subRegion(1770, 862, 247, 158).click();
+            delay(400)
 
             // Confirm doll selection
-            val okButton = region.subRegion(1768, 859, 250, 158).findOrNull("factory/ok.png")
+            val okButton = region.subRegion(1768, 859, 250, 158)
+                    .findBest(FileTemplate("factory/ok.png"))?.region
             if (okButton == null) {
                 // Click cancel if no t dolls could be used for enhancement
-                region.subRegion(120, 0, 205, 144).clickRandomly()
+                region.subRegion(120, 0, 205, 144).click()
                 logger.info("Stopping enhancement due to lack of 2 star T-dolls")
                 break
             } else {
-                okButton.clickRandomly()
-                scriptStats.enhancementsDone += 1
+                logger.info("Confirm doll selections")
+                okButton.click()
             }
 
             delay(200)
             // Click enhance button
             logger.info("Enhancing T-doll")
-            region.subRegion(1763, 873, 250, 96).clickRandomly()
+            region.subRegion(1763, 892, 250, 96).click()
+            scriptStats.enhancementsDone += 1
             delay(300)
 
             // Click confirm if not enough T-dolls, got to get rid of the trash anyways :D
-            region.findOrNull("ok.png")?.let {
+            region.subRegion(1095, 668, 290, 150)
+                    .findBest(FileTemplate("ok.png"))?.region?.let {
                 logger.info("Not enough T-dolls for enhancement, but enhancing anyways")
-                it.clickRandomly()
+                it.click()
             }
 
-            region.waitSuspending("close.png", 30)?.clickRandomly()
+            region.waitHas(FileTemplate("close.png"), 30000)?.click()
         }
 
-        // Update stats after all the update jobs are complete
-        launch {
-            statUpdateJobs.forEach { it.join() }
-            scriptStats.dollsUsedForEnhancement += dollsUsedForEnhancement.get()
-            if (!gameState.dollOverflow) logger.info("The base now has space for new dolls")
-        }
-        // If disassembly is enabled then it will need to know the gamestate after enhancement
-        // so we will need to wait for the update job to complete
-        if (profile.factory.disassembly.enabled) statUpdateJobs.forEach { it.join() }
+        if (!gameState.dollOverflow) logger.info("The base now has space for new dolls")
     }
 
     private suspend fun disassembleDolls() {
         logger.info("Doll limit reached, will try to disassemble")
         navigator.navigateTo(LocationId.TDOLL_DISASSEMBLY)
 
-        var oldDollCount: List<String>? = null
-        val dollsDisassembled = AtomicInteger(0)
-        val statUpdateJobs = mutableListOf<Job>()
+        var oldCount: Int? = null
 
         logger.info("Disassembling 2 star T-dolls")
         while (isActive) {
             region.subRegion(483, 200, 1557, 565)
-                    .waitSuspending("factory/select.png", 10)?.clickRandomly()
+                    .waitHas(FileTemplate("factory/select.png"), 10000)?.click()
             delay(750)
 
-            statUpdateJobs += getCurrentDollCount { count ->
-                val c = count[0].toInt()
-                oldDollCount?.get(0)?.toIntOrNull()?.let {
-                    dollsDisassembled.getAndAdd(it - c)
-                }
-                oldDollCount = count
-                c >= count[1].toInt()
-            }
+            // Find the old doll count
+            val (currentCount, _) = getCurrentDollCount()
+            oldCount?.let { scriptStats.dollsUsedForDisassembly += it - currentCount }
+            oldCount = currentCount
 
             // Click smart select button
             logger.info("Using smart select")
-            region.subRegion(1770, 890, 247, 158).clickRandomly()
-            delay(200)
+            region.subRegion(1770, 890, 247, 158).click()
+            delay(400)
 
             // Confirm doll selection
-            val okButton = region.subRegion(1768, 889, 250, 158).findOrNull("factory/ok.png")
+            val okButton = region.subRegion(1768, 889, 250, 158)
+                    .findBest(FileTemplate("factory/ok.png"))?.region
             if (okButton == null) {
                 logger.info("No more 2 star T-dolls to disassemble!")
                 break
             }
+            logger.info("Confirm doll selections")
             // Click ok
-            okButton.clickRandomly(); delay(500)
+            okButton.click(); delay(500)
             // Click disassemble button
-            region.subRegion(1749, 885, 247, 95).clickRandomly()
+            region.subRegion(1749, 839, 247, 95).click(); delay(500)
             // Update stats
             scriptStats.disassemblesDone += 1
         }
@@ -213,69 +205,65 @@ class FactoryModule(
         applyDollFilters(3)
         delay(750)
 
-        while (isActive) {
-            statUpdateJobs += getCurrentDollCount { count ->
-                val c = count[0].toInt()
-                oldDollCount?.get(0)?.toIntOrNull()?.let {
-                    dollsDisassembled.getAndAdd(it - c)
-                }
-                oldDollCount = count
-                c >= count[1].toInt()
-            }
+        val (currentCount, _) = getCurrentDollCount()
+        oldCount?.let { scriptStats.dollsUsedForDisassembly += it - currentCount }
 
-            val dolls = region.findAllOrEmpty("doll-list/3star.png")
+        while (isActive) {
+            region.matcher.settings.matchDimension = ScriptRunner.HIGH_RES
+            val dolls = region.findBest(FileTemplate("doll-list/3star.png"), 12)
+                    .map { it.region }
                     .also { logger.info("Found ${it.size} that can be disassembled") }
-                    .map { region.subRegion(it.x - 102, it.y, 239, 427) }
+                    .map { region.subRegion(it.x - 102, it.y, 136, 427) }
+            region.matcher.settings.matchDimension = ScriptRunner.NORMAL_RES
             if (dolls.isEmpty()) {
-                // Click cancel if no t dolls could be used for enhancement
-                region.subRegion(120, 0, 205, 144).clickRandomly()
+                // Click cancel if no t dolls could be used for disassembly
+                region.subRegion(120, 0, 205, 144).click()
                 break
             }
             // Select all the dolls
-            region.mouseDelay(0.0) {
-                dolls.sortedBy { it.y * 10 + it.x }.forEach { it.clickRandomly() }
-            }
+            dolls.sortedBy { it.y * 10 + it.x }.forEach { it.click() }
+            scriptStats.dollsUsedForDisassembly += dolls.size
+            logger.info("Confirm doll selections")
             // Click ok
-            region.subRegion(1768, 889, 250, 158).find("factory/ok.png").clickRandomly(); yield()
+            region.subRegion(1768, 889, 250, 158)
+                    .findBest(FileTemplate("factory/ok.png"))?.region?.click(); delay(500)
+            logger.info("Disassembling selected T-dolls")
             // Click disassemble button
-            region.subRegion(1749, 885, 247, 95).clickRandomly(); delay(250)
+            region.subRegion(1749, 839, 247, 95).click(); delay(500)
             // Click confirm
-            region.subRegion(1100, 688, 324, 161).find("ok.png").clickRandomly(); delay(200)
+            region.subRegion(1100, 865, 324, 161)
+                    .findBest(FileTemplate("ok.png"))?.region?.click(); delay(200)
             // Update stats
             scriptStats.disassemblesDone += 1
             // Can break if disassembled count is less than 12
-            if (dolls.size < 12) break
+            if (dolls.size < 12) {
+                logger.info("No more 3 star T-dolls to disassemble!")
+                break
+            } else {
+                logger.info("Still more 3 star T-dolls to disassemble")
+            }
             // Wait for menu to settle
             region.subRegion(483, 200, 1557, 565)
-                    .waitSuspending("factory/select.png", 10)?.let {
-                        it.clickRandomly()
+                    .waitHas(FileTemplate("factory/select.png"), 10000)?.let {
+                        it.click()
                         delay(750)
                     }
         }
-
-        logger.info("No more 3 star T-dolls to disassemble!")
-
-        // Update stats after all the update jobs are complete
-        launch {
-            statUpdateJobs.forEach { it.join() }
-            scriptStats.dollsUsedForDisassembly += dollsDisassembled.get()
-            if (!gameState.dollOverflow) logger.info("The base now has space for new dolls")
-        }
+        if (!gameState.dollOverflow) logger.info("The base now has space for new dolls")
     }
 
-    private fun getCurrentDollCount(action: (List<String>) -> Boolean): Job {
-        val screenshot = region.subRegion(1750, 814, 290, 70).takeScreenshot()
-        return launch {
-            Ocr.forConfig(config).doOCRAndTrim(screenshot)
-                    .also { logger.info("Detected doll count: $it") }
-                    .split(Regex("\\D"))
-                    .let { currentDollCount ->
-                        gameState.dollOverflow = try {
-                            action(currentDollCount)
-                        } catch (e: Exception) {
-                            false
-                        }
-                    }
+    private tailrec fun getCurrentDollCount(): Pair<Int, Int> {
+        val dollCountRegion = region.subRegion(1750, 750, 300, 150)
+        var ocrResult = ""
+        while(isActive) {
+            ocrResult = Ocr.forConfig(config).doOCRAndTrim(dollCountRegion)
+            if (ocrResult.contains("capacity", true)) break
         }
+        return Regex("(\\d+)/(\\d+)").find(ocrResult)?.groupValues?.let {
+            val count = it[1].toInt()
+            val total = it[2].toInt()
+            gameState.dollOverflow = count >= total
+            count to total
+        } ?: getCurrentDollCount()
     }
 }

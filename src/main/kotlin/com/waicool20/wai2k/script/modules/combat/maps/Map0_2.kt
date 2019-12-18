@@ -19,7 +19,7 @@
 
 package com.waicool20.wai2k.script.modules.combat.maps
 
-import com.waicool20.wai2k.android.AndroidRegion
+import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.script.ScriptRunner
@@ -37,14 +37,12 @@ class Map0_2(
     private val logger = loggerFor<Map0_2>()
     override val isCorpseDraggingMap = true
 
-    private val heliportDeployment = HELIPORT at region.subRegion(410, 497, 60, 60)
-    private val commandPostDeployment = supplied(COMMAND_POST at region.subRegion(1054, 487, 110, 110))
-
     override suspend fun execute() {
-        val rEchelons = deployEchelons(commandPostDeployment, heliportDeployment)
-        mapRunnerRegions.startOperation.clickRandomly(); yield()
+        nodes[2].findRegion() // Try focus boss node to get map centered
+        val rEchelons = deployEchelons(nodes[14], nodes[13])
+        mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
-        resupplyEchelons(rEchelons + heliportDeployment)
+        resupplyEchelons(rEchelons + nodes[13])
         planPath()
         waitForTurnEnd(5)
         handleBattleResults()
@@ -52,26 +50,18 @@ class Map0_2(
 
     private suspend fun planPath() {
         logger.info("Selecting echelon at command post")
-        commandPostDeployment.region.clickRandomly(); yield()
+        nodes[14].findRegion().click()
 
         logger.info("Entering planning mode")
-        mapRunnerRegions.planningMode.clickRandomly(); yield()
+        mapRunnerRegions.planningMode.click(); yield()
 
-        // Pan up
-        region.subRegion(1020, 110, 240, 10).let {
-            it.swipeToRandomly(it.offset(0, 600), 500); yield()
-            it.swipeToRandomly(it.offset(0, 600), 500); delay(300)
-        }
+        logger.info("Selecting ${nodes[0]}")
+        nodes[0].findRegion().click()
 
-        logger.info("Selecting node 1")
-        region.subRegion(853, 412, 60, 60)
-                .clickRandomly(); yield()
-
-        logger.info("Selecting node 2")
-        region.subRegion(1647, 472, 60, 60)
-                .clickRandomly(); yield()
+        logger.info("Selecting ${nodes[2]}")
+        nodes[2].findRegion().click(); yield()
 
         logger.info("Executing plan")
-        mapRunnerRegions.executePlan.clickRandomly()
+        mapRunnerRegions.executePlan.click()
     }
 }

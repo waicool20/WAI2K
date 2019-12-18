@@ -19,16 +19,25 @@
 
 package com.waicool20.wai2k.game
 
+import boofcv.struct.image.GrayF32
 import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.waicool20.wai2k.android.AndroidRegion
+import com.waicool20.cvauto.android.AndroidDevice
+import com.waicool20.cvauto.android.AndroidRegion
+import com.waicool20.cvauto.core.Region
+import com.waicool20.cvauto.core.template.FileTemplate
+import com.waicool20.cvauto.util.asGrayF32
+import com.waicool20.cvauto.util.matching.ITemplateMatcher
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.script.Asset
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
+import java.awt.image.BufferedImage
 import java.util.*
+import kotlin.time.ExperimentalTime
+import kotlin.time.measureTimedValue
 
 /**
  * Represents a location in the game
@@ -94,11 +103,9 @@ data class GameLocation(val id: LocationId, val isIntermediate: Boolean = false)
      *
      * @return True if location is on screen
      */
-    suspend fun isInRegion(region: AndroidRegion): Boolean {
+    fun isInRegion(region: Region<AndroidDevice>): Boolean {
         if (landmarks.isEmpty()) return false
-        return landmarks.map {
-            GlobalScope.async { it.asset.getSubRegionFor(region.androidScreen).has(it.asset.imagePath) }
-        }.all { it.await() }
+        return landmarks.all { it.asset.getSubRegionFor(region).has(FileTemplate(it.asset.imagePath, 0.98)) }
     }
 
     /**

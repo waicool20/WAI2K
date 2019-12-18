@@ -19,7 +19,7 @@
 
 package com.waicool20.wai2k.util
 
-import com.waicool20.wai2k.android.AndroidRegion
+import com.waicool20.cvauto.core.Region
 import com.waicool20.wai2k.config.Wai2KConfig
 import net.sourceforge.tess4j.ITessAPI
 import net.sourceforge.tess4j.ITesseract
@@ -31,7 +31,7 @@ object Ocr {
             "cCDGoOQ@" to "0", "iIl\\[\\]|!" to "1",
             "zZ" to "2", "E" to "3",
             "Ah" to "4", "sS" to "5",
-            "b" to "6", "B:" to "8",
+            "bG" to "6", "B:" to "8",
             "- —" to ""
     )
 
@@ -43,7 +43,8 @@ object Ocr {
             "3E" to 0.2,
             "4Ah" to 0.1,
             "5sS" to 0.1,
-            "6b" to 0.1,
+            "6Gb" to 0.1,
+            "7-" to 0.3,
             "8B:" to 0.2
     )
 
@@ -53,7 +54,7 @@ object Ocr {
 
     fun cleanNumericString(string: String): String {
         var text = string
-        numberReplacements.forEach { r, num ->
+        numberReplacements.forEach { (r, num) ->
             text = text.replace(Regex("[$r]"), num)
         }
         return text
@@ -70,6 +71,7 @@ object Ocr {
             digitsOnly: Boolean = false,
             useLSTM: Boolean = false
     ) = Tesseract().apply {
+        setTessVariable("user_defined_dpi", "300")
         setDatapath(config.ocrDirectory.toString())
         if (useLSTM) {
             useLSTMEngine()
@@ -81,7 +83,7 @@ object Ocr {
     }
 }
 
-fun ITesseract.doOCRAndTrim(region: AndroidRegion) = doOCRAndTrim(region.takeScreenshot())
+fun ITesseract.doOCRAndTrim(region: Region<*>) = doOCRAndTrim(region.capture())
 fun ITesseract.doOCRAndTrim(image: BufferedImage) = doOCR(image).trim()
 
 fun ITesseract.useCharFilter(chars: String) = apply {

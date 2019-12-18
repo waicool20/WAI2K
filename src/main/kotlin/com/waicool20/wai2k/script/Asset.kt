@@ -19,7 +19,9 @@
 
 package com.waicool20.wai2k.script
 
-import com.waicool20.wai2k.android.AndroidRegion
+import com.waicool20.cvauto.android.AndroidDevice
+import com.waicool20.cvauto.android.AndroidRegion
+import com.waicool20.cvauto.core.Region
 
 /**
  * Represents and asset and its expected geometry
@@ -51,7 +53,7 @@ data class Asset(
      *
      * @param region Parent region (Should always be full android screen)
      */
-    fun getSubRegionFor(region: AndroidRegion): AndroidRegion {
+    fun getSubRegionFor(region: Region<AndroidDevice>): Region<AndroidDevice> {
         return region.subRegion(x, y, width, height)
     }
 }

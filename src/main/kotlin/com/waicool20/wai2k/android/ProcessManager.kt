@@ -19,12 +19,15 @@
 
 package com.waicool20.wai2k.android
 
+import com.waicool20.cvauto.android.AndroidDevice
+
 class ProcessManager(val device: AndroidDevice) {
     /**
      * Gets the name of the currently active activity
      */
     val currentActivity get() =
-        device.executeAndReadText("dumpsys", "window", "windows", "|", "grep", "-E", "'mCurrentFocus'")
+        device.execute("dumpsys", "window", "windows", "|", "grep", "-E", "'mCurrentFocus'")
+                .inputStream.bufferedReader().readText()
                 .takeLastWhile { it != ' ' }.dropLast(1)
 
     /**
@@ -36,7 +39,8 @@ class ProcessManager(val device: AndroidDevice) {
      * @return true if started successfully
      */
     fun start(pkg: String, activity: String): Boolean {
-        return !device.executeAndReadText("am", "start", "-n", "$pkg/$activity")
+        return !device.execute("am", "start", "-n", "$pkg/$activity")
+                .inputStream.bufferedReader().readText()
                 .contains("Error")
     }
 

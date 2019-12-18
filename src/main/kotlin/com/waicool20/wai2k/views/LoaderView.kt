@@ -21,8 +21,9 @@ package com.waicool20.wai2k.views
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.waicool20.cvauto.android.ADB
+import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.Wai2K
-import com.waicool20.wai2k.android.AdbServer
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.config.Wai2KProfile
@@ -79,14 +80,19 @@ class LoaderView : CoroutineScopeView() {
     }
 
     private fun startLoading() {
+        loadADB()
         loadWai2KConfig()
-        loadAdbServer()
         loadWai2KProfile()
         loadScriptRunner()
+        FileTemplate.checkPaths.add(wai2KConfig.assetsDirectory)
         launch(Dispatchers.Default) {
-            loadSikuliX()
             closeAndShowMainApp()
         }
+    }
+
+    private fun loadADB() {
+        logger.info("Preparing ADB...")
+        ADB.getDevices()
     }
 
     private fun loadWai2KConfig() {
@@ -95,12 +101,6 @@ class LoaderView : CoroutineScopeView() {
         if (!wai2KConfig.isValid) {
             find<InitialConfigurationView>().openModal(owner = currentWindow, block = true)
         }
-        AdbServer.findAdb("${wai2KConfig.adbPath}")?.let { wai2KConfig.adbPath = Paths.get(it).toAbsolutePath() }
-    }
-
-    private fun loadAdbServer() {
-        logger.info("Loaded adb executable @ ${wai2KConfig.adbPath}")
-        context.adbServer = AdbServer(wai2KConfig.adbPath)
     }
 
     private fun loadWai2KProfile() {
@@ -108,7 +108,7 @@ class LoaderView : CoroutineScopeView() {
     }
 
     private fun loadScriptRunner() {
-        setInScope(ScriptContext(ScriptRunner(wai2KConfig, currentProfile, context.adbServer)))
+        setInScope(ScriptContext(ScriptRunner(wai2KConfig, currentProfile)))
     }
 
     private fun parseCommandLine() {
@@ -141,14 +141,6 @@ class LoaderView : CoroutineScopeView() {
                     wai2KConfig.ocrDirectory = dir
                 }
             }
-        }
-    }
-
-    private fun loadSikuliX() {
-        SikuliXLoader.loadAndTest(wai2KConfig.sikulixJarPath)
-        if (Files.exists(wai2KConfig.assetsDirectory)) {
-            SikuliXLoader.loadImagePath(wai2KConfig.assetsDirectory)
-            logger.info("Loading assets @ ${wai2KConfig.assetsDirectory}")
         }
     }
 

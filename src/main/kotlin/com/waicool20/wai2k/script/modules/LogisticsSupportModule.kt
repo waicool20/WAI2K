@@ -19,7 +19,9 @@
 
 package com.waicool20.wai2k.script.modules
 
-import com.waicool20.wai2k.android.AndroidRegion
+
+import com.waicool20.cvauto.android.AndroidRegion
+import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.game.Echelon
@@ -27,10 +29,13 @@ import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.game.LogisticsSupport
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
+import com.waicool20.wai2k.util.Ocr
+import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.wai2k.util.formatted
 import com.waicool20.waicoolutils.logging.loggerFor
 import com.waicool20.waicoolutils.mapAsync
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.yield
 import java.time.Instant
 
@@ -83,6 +88,7 @@ class LogisticsSupportModule(
         }
     }
 
+
     /**
      * Tries to return to home and receive echelons if any logistic timers have expired
      */
@@ -114,21 +120,24 @@ class LogisticsSupportModule(
         // Start mission
         clickMissionStart(missionIndex)
 
-        // Click the ok button of the popup if any of the resources broke the hard cap
-        region.findOrNull("ok.png")?.let {
-            logger.info("One of the resources reached its limit!")
-            it.clickRandomly()
-        }
+        delay(250)
 
-        region.waitSuspending("logistics/formation.png", 10)
+        // Click the ok button of the popup if any of the resources broke the hard cap
+        // Use subregion so it doesnt click dispatch ok instead
+        region.subRegion(500, 90, 1155, 815).findBest(FileTemplate("ok.png"))
+                ?.also { logger.info("One of the resources reached its limit!") }
+                ?.region?.click()
+
+        region.waitHas(FileTemplate("logistics/formation.png"), 10000)
         clickEchelon(echelon)
         // Click ok button
         delay(300)
 
-        region.clickUntilGone("ok.png", 10)
+        region.clickTemplateWhile(FileTemplate("ok.png")) { has(it) }
 
         // Wait for logistics mission icon to appear again
-        region.subRegion(131, 306, 257, 118).waitSuspending("logistics/logistics.png", 7)
+        region.subRegion(131, 306, 257, 118)
+                .waitHas(FileTemplate("logistics/logistics.png"), 7000)
 
         // Check if mission is running
         if (missionRunning(missionIndex)) {
@@ -144,7 +153,7 @@ class LogisticsSupportModule(
         logger.info("Disabled logistics support for echelon ${echelon.number}")
         delay(300)
         // Click close button
-        region.subRegion(940, 757, 280, 107).clickRandomly()
+        region.subRegion(940, 757, 280, 107).click()
         // Disable echelon
         echelon.logisticsSupportEnabled = false
     }
@@ -167,7 +176,7 @@ class LogisticsSupportModule(
      */
     private fun missionRunning(mission: Int): Boolean {
         val missionRegion = region.subRegion(704 + (333 * mission), 219, 306, 856)
-        return missionRegion.has("logistics/retreat.png")
+        return missionRegion.has(FileTemplate("logistics/retreat.png"))
     }
 
     /**
@@ -181,9 +190,7 @@ class LogisticsSupportModule(
         val missionRegion = region.subRegion(704 + (333 * mission), 219, 306, 856)
         // Need a separate check region because the ammo icon might not be covered by the resource limit popup
         val checkRegion = region.subRegion(704 + (333 * 1), 219, 306, 856)
-        while (checkRegion.has("logistics/ammo.png")) {
-            missionRegion.clickRandomly(); yield()
-        }
+        missionRegion.clickWhile { checkRegion.has(FileTemplate("logistics/ammo.png")) }
     }
 
     /**
@@ -193,30 +200,37 @@ class LogisticsSupportModule(
      */
     private suspend fun clickEchelon(echelon: Echelon) {
         logger.debug("Clicking the echelon")
-        val eRegion = region.subRegion(119, 0, 150, region.h)
+        val eRegion = region.subRegion(162, 40, 170, region.height - 140)
 
-        while (eRegion.doesntHave("echelons/echelon${echelon.number}.png")) {
+        while (isActive) {
             delay(100)
-            val echelons = (1..7).mapAsync {
-                it to eRegion.findOrNull("echelons/echelon$it.png")
-            }.filter { it.second != null }.map { it.first to it.second!! }
-            logger.debug("Visible echelons: ${echelons.map { it.first }}")
-            val lEchelon = echelons.minBy { it.first } ?: echelons.first()
-            val hEchelon = echelons.maxBy { it.first } ?: echelons.last()
+            val echelons = eRegion.findBest(FileTemplate("echelons/echelon.png"), 8)
+                    .map { it.region }
+                    .map { it.copyAs<AndroidRegion>(it.x + 93, it.y - 40, 45, 100) }
+                    .mapAsync { Ocr.forConfig(config, true).doOCRAndTrim(it).toInt() to it }
+                    .toMap()
+            logger.debug("Visible echelons: ${echelons.keys}")
+            if (echelon.number in echelons.keys) {
+                echelons[echelon.number]?.click()
+                break
+            }
+            if (echelons.keys.isEmpty()) continue
+            val lEchelon = echelons.keys.min() ?: echelons.keys.firstOrNull() ?: continue
+            val hEchelon = echelons.keys.max() ?: echelons.keys.lastOrNull() ?: continue
+            val lEchelonRegion = echelons[lEchelon] ?: continue
+            val hEchelonRegion = echelons[hEchelon] ?: continue
             when {
-                echelon.number <= lEchelon.first -> {
+                echelon.number <= lEchelon -> {
                     logger.debug("Swiping down the echelons")
-                    lEchelon.second.swipeToRandomly(hEchelon.second)
+                    lEchelonRegion.swipeTo(hEchelonRegion)
                 }
-                echelon.number >= hEchelon.first -> {
+                echelon.number >= hEchelon -> {
                     logger.debug("Swiping up the echelons")
-                    hEchelon.second.swipeToRandomly(lEchelon.second)
+                    hEchelonRegion.swipeTo(lEchelonRegion)
                 }
             }
             delay(300)
         }
-        eRegion.findOrNull("echelons/echelon${echelon.number}.png")?.clickRandomly()
-        yield()
     }
 
     /**

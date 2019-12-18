@@ -46,12 +46,6 @@
       </HBox>
       <HBox alignment="CENTER_LEFT" spacing="10.0">
          <children>
-            <Label prefWidth="220.0" text="SikuliX scan rate:" />
-            <Spinner fx:id="scanRateSpinner" editable="true" />
-         </children>
-      </HBox>
-      <HBox alignment="CENTER_LEFT" spacing="10.0">
-         <children>
             <Label prefWidth="220.0" text="Mouse delay:" />
             <Spinner fx:id="mouseDelaySpinner" editable="true" />
          </children>

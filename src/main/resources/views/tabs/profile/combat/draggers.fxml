@@ -2,14 +2,11 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
-<?import javafx.scene.control.Spinner?>
-<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<?import org.controlsfx.control.Rating?>
+<?import org.controlsfx.control.PrefixSelectionComboBox?>
 
 <!--
   ~ GPLv3 License
@@ -37,31 +34,12 @@
             <HBox alignment="CENTER_LEFT" spacing="5.0">
                <children>
                   <Label text="Name:" />
-                  <TextField fx:id="doll1NameTextField" />
-                  <Spinner fx:id="doll1IndexSpinner" editable="true" prefWidth="75.0" />
-               </children>
-            </HBox>
-            <HBox alignment="CENTER_LEFT" spacing="5.0">
-               <children>
-                  <Label text="Stars:" />
-                  <Rating fx:id="doll1StarsRating" prefWidth="100.0" rating="0.0" scaleX="0.7" scaleY="0.7" scaleZ="0.7" />
-               </children>
-            </HBox>
-            <HBox alignment="CENTER_LEFT" spacing="5.0">
-               <children>
-                  <Label text="Level:" />
-                  <Spinner fx:id="doll1LevelSpinner" editable="true" prefWidth="75.0" />
-                  <Label text="Type:">
-                     <HBox.margin>
-                        <Insets left="15.0" />
-                     </HBox.margin>
-                  </Label>
-                  <ComboBox fx:id="doll1TypeComboBox" prefWidth="75.0" />
+                  <PrefixSelectionComboBox fx:id="doll1NameComboBox" prefWidth="210.0" />
                </children>
             </HBox>
          </children>
       </VBox>
-      <HBox alignment="CENTER" spacing="5.0">
+      <HBox alignment="CENTER" spacing="10.0">
          <children>
             <Separator HBox.hgrow="ALWAYS" />
             <Button fx:id="swapButton" mnemonicParsing="false" text="↑Swap↓" />
@@ -73,26 +51,7 @@
             <HBox alignment="CENTER_LEFT" spacing="5.0">
                <children>
                   <Label text="Name:" />
-                  <TextField fx:id="doll2NameTextField" />
-                  <Spinner fx:id="doll2IndexSpinner" editable="true" prefWidth="75.0" />
-               </children>
-            </HBox>
-            <HBox alignment="CENTER_LEFT" spacing="5.0">
-               <children>
-                  <Label text="Stars:" />
-                  <Rating fx:id="doll2StarsRating" prefWidth="100.0" rating="0.0" scaleX="0.7" scaleY="0.7" scaleZ="0.7" />
-               </children>
-            </HBox>
-            <HBox alignment="CENTER_LEFT" spacing="5.0">
-               <children>
-                  <Label text="Level:" />
-                  <Spinner fx:id="doll2LevelSpinner" editable="true" prefWidth="75.0" />
-                  <Label text="Type:">
-                     <HBox.margin>
-                        <Insets left="15.0" />
-                     </HBox.margin>
-                  </Label>
-                  <ComboBox fx:id="doll2TypeComboBox" prefWidth="75.0" />
+                  <PrefixSelectionComboBox fx:id="doll2NameComboBox" prefWidth="210.0" />
                </children>
             </HBox>
          </children>

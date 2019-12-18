@@ -59,22 +59,15 @@ dependencies {
     implementation("ch.qos.logback", "logback-classic", "1.2.3")
     implementation("org.controlsfx", "controlsfx", "8.40.14")
     implementation("org.reflections", "reflections", "0.9.11")
-    implementation("com.github.vidstige", "jadb", "v1.1.0")
 
-    compile("net.sourceforge.tess4j", "tess4j", "4.4.0") {
+    implementation("net.sourceforge.tess4j", "tess4j", "4.4.0") {
         exclude("org.ghost4j")
         exclude("org.apache.pdfbox")
         exclude("org.jboss")
     }
 
     implementation("com.waicool20:waicoolUtils")
-
-    compileOnly("com.sikulix", "sikulixapi", "1.1.3-SNAPSHOT") {
-        exclude("com.sikulix")
-        exclude("com.github.vidstige")
-        exclude("com.github.tulskiy")
-        exclude("com.melloware")
-    }
+    implementation("com.waicool20.cvauto:android")
 }
 
 tasks {
@@ -90,6 +83,8 @@ tasks {
         kotlinOptions {
             jvmTarget = JavaVersion.VERSION_1_8.toString()
             freeCompilerArgs = listOf(
+                    "-Xuse-experimental=kotlin.Experimental",
+                    "-Xuse-experimental=kotlin.time.ExperimentalTime",
                     "-Xuse-experimental=kotlinx.coroutines.FlowPreview",
                     "-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi",
                     "-Xuse-experimental=kotlinx.coroutines.ObsoleteCoroutinesApi"

@@ -21,8 +21,9 @@ package com.waicool20.wai2k.script
 
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
-import com.waicool20.wai2k.android.AdbServer
-import com.waicool20.wai2k.android.AndroidDevice
+import com.waicool20.cvauto.android.ADB
+import com.waicool20.cvauto.android.AndroidDevice
+import com.waicool20.cvauto.core.Region
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.game.GameState
@@ -33,19 +34,23 @@ import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.*
 import org.reflections.Reflections
-import org.sikuli.basics.Settings
 import java.time.Instant
 import kotlin.coroutines.CoroutineContext
+import kotlin.math.roundToLong
 import kotlin.reflect.full.primaryConstructor
 
 class ScriptRunner(
         wai2KConfig: Wai2KConfig = Wai2KConfig(),
-        wai2KProfile: Wai2KProfile = Wai2KProfile(),
-        private var adbServer: AdbServer
+        wai2KProfile: Wai2KProfile = Wai2KProfile()
 ) : CoroutineScope {
+    companion object {
+        const val NORMAL_RES = 480
+        const val HIGH_RES = 720
+    }
     private var scriptJob: Job? = null
     override val coroutineContext: CoroutineContext
-        get() = scriptJob?.takeIf { it.isActive }?.let { it + Dispatchers.Default } ?: Dispatchers.Default
+        get() = scriptJob?.takeIf { it.isActive }?.let { it + Dispatchers.Default }
+                ?: Dispatchers.Default
 
     private val logger = loggerFor<ScriptRunner>()
     private var currentDevice: AndroidDevice? = null
@@ -100,17 +105,13 @@ class ScriptRunner(
             }
         }
         currentConfig.scriptConfig.apply {
-            Settings.MinSimilarity = defaultSimilarityThreshold
-            Settings.WaitScanRate = sikulixScanRate.toFloat()
-            Settings.MoveMouseDelay = mouseDelay.toFloat()
-            Settings.DelayValue = mouseDelay
-            Settings.ObserveScanRate = sikulixScanRate.toFloat()
-            Settings.AutoWaitTimeout = 1f
-            Settings.RepeatWaitTime = 0
+            Region.DEFAULT_MATCHER.settings.matchDimension = NORMAL_RES
+            Region.DEFAULT_MATCHER.settings.defaultThreshold = defaultSimilarityThreshold
+            currentDevice?.input?.touchInterface?.settings?.postTapDelay = (mouseDelay * 1000).roundToLong()
         }
 
-        currentDevice = adbServer.listDevices(true).find { it.adbSerial == currentConfig.lastDeviceSerial }
-        val region = currentDevice?.screen ?: run {
+        currentDevice = ADB.getDevices().find { it.serial == currentConfig.lastDeviceSerial }
+        val region = currentDevice?.screens?.firstOrNull() ?: run {
             logger.info("Could not start due to invalid device")
             return
         }

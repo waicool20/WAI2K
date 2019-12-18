@@ -19,7 +19,10 @@
 
 package com.waicool20.wai2k.script
 
-import com.waicool20.wai2k.android.AndroidRegion
+import com.waicool20.cvauto.android.AndroidRegion
+import com.waicool20.cvauto.core.asCachedRegion
+import com.waicool20.cvauto.core.template.FileTemplate
+import com.waicool20.wai2k.android.ProcessManager
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.game.GFL
@@ -31,7 +34,10 @@ import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withTimeoutOrNull
 import java.text.DecimalFormat
@@ -65,19 +71,20 @@ class Navigator(
      *
      * @return Current [GameLocation]
      */
-    suspend fun identifyCurrentLocation(retries: Int = 3): GameLocation {
+    suspend fun identifyCurrentLocation(retries: Int = 5): GameLocation {
         logger.info("Identifying current location")
         val locations = locations.entries.sortedBy { it.value.isIntermediate }
                 .map { it.value }.asFlow()
         repeat(retries) { i ->
             checkLogistics(true)
+            val r = region.asCachedRegion()
             try {
                 return locations.flatMapMerge { loc ->
-                    flow { emit(loc.takeIf { loc.isInRegion(region) }) }
-                }.filterNotNull().first()
+                    { loc.takeIf { it.isInRegion(r) } }.asFlow()
+                }.filterNotNull().first().also { logger.info("At ${it.id}") }
             } catch (e: NoSuchElementException) {
                 logger.warn("Could not find location after ${i + 1} attempts, retries remaining: ${retries - i - 1}")
-                delay(1000)
+                delay(1000L * (i + 1))
             }
         }
         logger.warn("Current location could not be identified")
@@ -104,10 +111,10 @@ class Navigator(
                 logger.info("Already at ${dest.id}")
                 return
             }
-            logger.debug("Found solution: CURRENT->${path.joinToString("->") { "${it.dest.id}" }}")
+            logger.debug("Found solution: CURRENT(${cLocation.id})->${path.formatted()}")
             for ((srcLoc, destLoc, link) in path) {
-                if (gameState.currentGameLocation.isIntermediate && destLoc.isInRegion(region)) {
-                    logger.info("At ${destLoc.id}")
+                if (srcLoc.isIntermediate && destLoc.isInRegion(region)) {
+                    logger.info("At ${destLoc.id} | Intermediate(${srcLoc.id})")
                     continue
                 }
                 logger.info("Going to ${destLoc.id}")
@@ -124,10 +131,10 @@ class Navigator(
                         ?.average()?.roundToLong() ?: config.gameRestartConfig.averageDelay
                 for (cycle in 0..Integer.MAX_VALUE) {
                     if (cycle % 5 == 0) {
-                        link.asset.getSubRegionFor(region).let {
+                        link.asset.getSubRegionFor(region).apply {
                             // Shrink region slightly to 90% of defined size
-                            it.grow((it.w * -0.1).roundToInt(), (it.h * -0.1).roundToInt())
-                        }.clickRandomly()
+                            grow((width * -0.1).roundToInt(), (height * -0.1).roundToInt())
+                        }.click()
                         // Wait around average transition delay if not an intermediate location
                         // since it cant transition immediately
                         if (!srcLoc.isIntermediate) {
@@ -195,7 +202,7 @@ class Navigator(
                     logger.info("At destination $destination")
                     return
                 } else {
-                    logger.info("At ${destLoc.id}")
+                    logger.info("At ${destLoc.id} | ${path.dropWhile { it.dest != destLoc }.formatted()}")
                 }
             }
         }
@@ -247,17 +254,20 @@ class Navigator(
                 gameState.echelons.mapNotNull { it.logisticsSupportAssignment }
                         .none { Duration.between(Instant.now(), it.eta).seconds <= 15 }) return false
         var logisticsArrived = false
-        while (true) {
-            if (region.has("navigator/logistics_arrived.png")) {
-                logger.info("An echelon has arrived from logistics")
-                region.clickRandomly()
-                delay(500)
+        loop@ while (true) {
+            when {
+                region.has(FileTemplate("navigator/logistics_arrived.png")) -> {
+                    logger.info("An echelon has arrived from logistics")
+                    region.click()
+                }
+                Ocr.forConfig(config).doOCRAndTrim(region.subRegion(575, 425, 1000, 100)).contains("Repeat") -> {
+                    // Even if the logistics arrived didnt show up, its possible
+                    // that it was clicked through by some other function
+                    logger.info("An echelon has arrived from logistics, but already at repeat dialog for some reason...")
+                }
+                else -> break@loop
             }
-
-            // Even if the logistics arrived didnt show up, its possible
-            // that it was clicked through by some other function
-            val repeatDialogRegion = region.subRegion(575, 425, 1000, 100)
-            if (!Ocr.forConfig(config).doOCRAndTrim(repeatDialogRegion).contains("Repeat")) break
+            delay(500)
 
             logisticsArrived = true
 
@@ -288,7 +298,7 @@ class Navigator(
                 "ok.png"
             } else "cancel.png"
 
-            region.waitSuspending(image, 10)?.clickRandomly()
+            region.waitHas(FileTemplate(image), 10000)?.click()
             scriptStats.logisticsSupportReceived++
 
             // Mark game state dirty, needs updating
@@ -313,18 +323,24 @@ class Navigator(
             transitionDelays.clear()
             scriptStats.gameRestarts++
             logger.info("Game will now restart")
-            region.androidScreen.device.processManager.apply {
+            ProcessManager(region.device).apply {
                 kill(GFL.pkgName)
                 delay(200)
                 start(GFL.pkgName, GFL.mainActivity)
             }
             logger.info("Game restarted, waiting for login screen")
-            region.waitSuspending("login.png", 3600)
+            region.subRegion(677, 965, 240, 83)
+                    .waitHas(FileTemplate("login.png"), 5 * 60 * 1000)
             logger.info("Logging in")
-            region.subRegion(630, 400, 900, 300).clickRandomly()
+            region.subRegion(630, 400, 900, 300).click()
             while (locations[LocationId.HOME]?.isInRegion(region) == false) delay(100)
             gameState.currentGameLocation = locations[LocationId.HOME]!!
             logger.info("Logged in")
         }
     }
+
+    private fun List<GameLocation.GameLocationLink>?.formatted(): String {
+        return this?.joinToString("->") { "${it.dest.id}" } ?: ""
+    }
+
 }

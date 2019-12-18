@@ -19,11 +19,12 @@
 
 package com.waicool20.wai2k.script.modules
 
-import com.waicool20.wai2k.android.AndroidRegion
+import com.waicool20.cvauto.android.AndroidRegion
+import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.game.DollFilterRegions
-import com.waicool20.wai2k.game.DollType
+import com.waicool20.wai2k.game.TDoll
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.cancelAndYield
@@ -67,30 +68,28 @@ abstract class ScriptModule(
      * @param type Doll type, null if you don't care (Default)
      * @param reset Resets filters first before applying the filters
      */
-    protected suspend fun applyDollFilters(stars: Int? = null, type: DollType? = null, reset: Boolean = false) {
+    protected suspend fun applyDollFilters(stars: Int? = null, type: TDoll.Type? = null, reset: Boolean = false) {
         if (stars == null && type == null && !reset) return
-        region.mouseDelay(0.0) {
-            dollFilterRegions.filter.clickRandomly()
+        dollFilterRegions.filter.click()
+        delay(500)
+
+        if (reset) {
+            logger.info("Resetting filters")
+            dollFilterRegions.reset.click(); yield()
+            dollFilterRegions.filter.click()
             delay(500)
-
-            if (reset) {
-                logger.info("Resetting filters")
-                dollFilterRegions.reset.clickRandomly(); yield()
-                dollFilterRegions.filter.clickRandomly()
-                delay(500)
-            }
-            if (stars != null) {
-                logger.info("Applying $stars stars filter")
-                dollFilterRegions.starRegions[stars]?.clickRandomly(); yield()
-            }
-            if (type != null) {
-                logger.info("Applying $type doll type filter")
-                dollFilterRegions.typeRegions[type]?.clickRandomly(); yield()
-            }
-
-            logger.info("Confirming filters")
-            dollFilterRegions.confirm.clickRandomly(); yield()
         }
+        if (stars != null) {
+            logger.info("Applying $stars stars filter")
+            dollFilterRegions.starRegions[stars]?.click(); yield()
+        }
+        if (type != null) {
+            logger.info("Applying $type doll type filter")
+            dollFilterRegions.typeRegions[type]?.click(); yield()
+        }
+
+        logger.info("Confirming filters")
+        dollFilterRegions.confirm.click(); yield()
     }
 
     /**
@@ -100,24 +99,36 @@ abstract class ScriptModule(
      */
     protected suspend fun clickChapter(chapter: Int) {
         // Region containing all chapters
-        val cRegion = region.subRegion(407, 146, 283, 934)
+        val cRegion = region.subRegion(395, 146, 283, 934)
         // Top 1/4 part of lsRegion
-        val upperSwipeRegion = cRegion.subRegion(cRegion.w / 2 - 15, 0, 30, cRegion.h / 4)
+        val upperSwipeRegion = cRegion.subRegionAs<AndroidRegion>(
+                cRegion.width / 2 - 15,
+                0,
+                30,
+                cRegion.height / 4
+        )
         // Lower 1/4 part of lsRegion
-        val lowerSwipeRegion = cRegion.subRegion(cRegion.w / 2 - 15, cRegion.h / 4 + cRegion.h / 2, 30, cRegion.h / 4)
+        val lowerSwipeRegion = cRegion.subRegionAs<AndroidRegion>(
+                cRegion.width / 2 - 15,
+                cRegion.height / 4 + cRegion.height / 2,
+                30,
+                cRegion.height / 4
+        )
         var retries = 0
-        while (cRegion.doesntHave("chapters/$chapter.png", CHAPTER_SIMILARITY)) {
+        while (cRegion.doesntHave(FileTemplate("chapters/$chapter.png", CHAPTER_SIMILARITY))) {
             navigator.checkLogistics()
-            val chapters = (CHAPTER_MIN..CHAPTER_MAX).filterAsync { cRegion.has("chapters/$it.png", CHAPTER_SIMILARITY) }
+            val chapters = (CHAPTER_MIN..CHAPTER_MAX).filterAsync {
+                cRegion.has(FileTemplate("chapters/$it.png", CHAPTER_SIMILARITY))
+            }
             logger.debug("Visible chapters: $chapters")
             when {
                 chapter <= chapters.min() ?: CHAPTER_MAX / 2 -> {
                     logger.debug("Swiping down the chapters")
-                    upperSwipeRegion.swipeToRandomly(lowerSwipeRegion)
+                    upperSwipeRegion.swipeTo(lowerSwipeRegion)
                 }
                 chapter >= chapters.max() ?: CHAPTER_MAX / 2 + 1 -> {
                     logger.debug("Swiping up the chapters")
-                    lowerSwipeRegion.swipeToRandomly(upperSwipeRegion)
+                    lowerSwipeRegion.swipeTo(upperSwipeRegion)
                 }
             }
             delay(300)
@@ -127,7 +138,10 @@ abstract class ScriptModule(
             }
         }
         navigator.checkLogistics()
-        cRegion.subRegion(0, 0, 195, cRegion.h)
-                .clickUntilGone("chapters/$chapter.png", 20, 0.96)
+        delay(200)
+        cRegion.subRegion(0, 0, 195, cRegion.height).clickTemplateWhile(
+                template = FileTemplate("chapters/$chapter.png"),
+                timeout = 20
+        ) { has(it) }
     }
 }

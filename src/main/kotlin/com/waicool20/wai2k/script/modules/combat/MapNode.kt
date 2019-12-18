@@ -17,9 +17,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.waicool20.wai2k.android
+package com.waicool20.wai2k.script.modules.combat
 
-import org.sikuli.script.Match
+import com.fasterxml.jackson.annotation.JsonInclude
+import java.awt.Rectangle
 
-@Suppress("DELEGATED_MEMBER_HIDES_SUPERTYPE_OVERRIDE")
-class AndroidMatch(match: Match, screen: AndroidScreen) : Match(match), ISikuliRegion by AndroidRegion(match, screen)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+data class MapNode(val type: Type = Type.Normal) {
+    enum class Type { Normal, CommandPost, Heliport }
+
+    val x: Int = -1
+    val y: Int = -1
+    val width: Int = -1
+    val height: Int = -1
+
+    val rect by lazy { Rectangle(x, y, width, height) }
+}

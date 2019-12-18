@@ -19,8 +19,13 @@
 
 package com.waicool20.wai2k.views
 
-import com.waicool20.wai2k.android.AndroidDevice
+import com.waicool20.cvauto.android.ADB
+import com.waicool20.cvauto.android.AndroidDevice
+import com.waicool20.cvauto.core.Region
+import com.waicool20.cvauto.core.template.FileTemplate
+import com.waicool20.cvauto.util.asGrayF32
 import com.waicool20.wai2k.config.Wai2KContext
+import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.useCharFilter
 import com.waicool20.waicoolutils.javafx.CoroutineScopeView
@@ -35,11 +40,11 @@ import javafx.stage.FileChooser
 import kotlinx.coroutines.*
 import kotlinx.coroutines.javafx.JavaFx
 import net.sourceforge.tess4j.ITesseract
-import org.sikuli.script.ImagePath
-import org.sikuli.script.Pattern
 import tornadofx.*
 import java.nio.file.Files
 import java.nio.file.Paths
+import kotlin.time.ExperimentalTime
+import kotlin.time.measureTimedValue
 
 class DebugView : CoroutineScopeView() {
     override val root: VBox by fxml("/views/debug.fxml")
@@ -93,12 +98,11 @@ class DebugView : CoroutineScopeView() {
 
     fun updateOCRUi(serial: String = wai2KContext.wai2KConfig.lastDeviceSerial) {
         val device = async(Dispatchers.IO) {
-            wai2KContext.adbServer.listDevices().find { it.adbSerial == serial }
-                    .also { lastAndroidDevice = it }
+            ADB.getDevices().find { it.serial == serial }.also { lastAndroidDevice = it }
         }
         launch(Dispatchers.IO) {
             fun updateImageView() = launch(Dispatchers.IO) {
-                val image = device.await()!!.takeScreenshot().let {
+                val image = device.await()!!.screens[0].capture().let {
                     if (wSpinner.value > 0 && hSpinner.value > 0) {
                         it.getSubimage(xSpinner.value, ySpinner.value, wSpinner.value, hSpinner.value)
                     } else it
@@ -164,25 +168,32 @@ class DebugView : CoroutineScopeView() {
         }
     }
 
+    @UseExperimental(ExperimentalTime::class)
     private fun testPath() {
         launch(Dispatchers.IO) {
             wai2KContext.apply {
                 val path = Paths.get(pathField.text)
                 if (Files.exists(path)) {
                     logger.info("Finding $path")
-                    ImagePath.add(path.parent.toString())
-                    val device = wai2KContext.adbServer.listDevices(true).find { it.adbSerial == wai2KConfig.lastDeviceSerial }
+                    val device = ADB.getDevices().find { it.serial == wai2KConfig.lastDeviceSerial }
                     if (device == null) {
                         logger.warn("Could not find device!")
                         return@launch
                     }
-                    // Set similarity to 0.1f to make sikulix report the similarity value down to 0.6
-                    device.screen.findAllOrEmpty(Pattern(path.fileName.toString()).similar(0.6f))
-                            .takeIf { it.isNotEmpty() }
+                    val image = device.screens[0].capture()
+                            .getSubimage(xSpinner.value, ySpinner.value, wSpinner.value, hSpinner.value)
+                            .asGrayF32()
+                    Region.DEFAULT_MATCHER.settings.matchDimension = ScriptRunner.NORMAL_RES
+                    // Set similarity to 0.6f to make sikulix report the similarity value down to 0.6
+                    val (results, duration) = measureTimedValue {
+                        device.screens[0].matcher.findBest(FileTemplate(path, 0.6), image, 20)
+                    }
+                    results.takeIf { it.isNotEmpty() }
+                            ?.sortedBy { it.score }
                             ?.forEach {
                                 logger.info("Found ${path.fileName}: $it")
                             } ?: run { logger.warn("Could not find the asset anywhere") }
-                    ImagePath.remove(path.parent.toString())
+                    logger.info("Took ${duration.inMilliseconds} ms")
                 } else {
                     logger.warn("That asset doesn't exist!")
                 }
@@ -204,7 +215,7 @@ class DebugView : CoroutineScopeView() {
     private fun doOCR() {
         launch(Dispatchers.IO) {
             lastAndroidDevice?.let {
-                val image = it.takeScreenshot().let { bi ->
+                val image = it.screens[0].capture().let { bi ->
                     if (wSpinner.value > 0 && hSpinner.value > 0) {
                         bi.getSubimage(xSpinner.value, ySpinner.value, wSpinner.value, hSpinner.value)
                     } else bi
