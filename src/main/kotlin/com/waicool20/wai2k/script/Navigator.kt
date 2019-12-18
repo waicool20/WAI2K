@@ -71,7 +71,7 @@ class Navigator(
      *
      * @return Current [GameLocation]
      */
-    suspend fun identifyCurrentLocation(retries: Int = 3): GameLocation {
+    suspend fun identifyCurrentLocation(retries: Int = 5): GameLocation {
         logger.info("Identifying current location")
         val locations = locations.entries.sortedBy { it.value.isIntermediate }
                 .map { it.value }.asFlow()
@@ -84,7 +84,7 @@ class Navigator(
                 }.filterNotNull().first().also { logger.info("At ${it.id}") }
             } catch (e: NoSuchElementException) {
                 logger.warn("Could not find location after ${i + 1} attempts, retries remaining: ${retries - i - 1}")
-                delay(1000)
+                delay(1000L * (i + 1))
             }
         }
         logger.warn("Current location could not be identified")
@@ -254,17 +254,20 @@ class Navigator(
                 gameState.echelons.mapNotNull { it.logisticsSupportAssignment }
                         .none { Duration.between(Instant.now(), it.eta).seconds <= 15 }) return false
         var logisticsArrived = false
-        while (true) {
-            if (region.has(FileTemplate("navigator/logistics_arrived.png"))) {
-                logger.info("An echelon has arrived from logistics")
-                region.click()
-                delay(500)
+        loop@ while (true) {
+            when {
+                region.has(FileTemplate("navigator/logistics_arrived.png")) -> {
+                    logger.info("An echelon has arrived from logistics")
+                    region.click()
+                }
+                Ocr.forConfig(config).doOCRAndTrim(region.subRegion(575, 425, 1000, 100)).contains("Repeat") -> {
+                    // Even if the logistics arrived didnt show up, its possible
+                    // that it was clicked through by some other function
+                    logger.info("An echelon has arrived from logistics, but already at repeat dialog for some reason...")
+                }
+                else -> break@loop
             }
-
-            // Even if the logistics arrived didnt show up, its possible
-            // that it was clicked through by some other function
-            val repeatDialogRegion = region.subRegion(575, 425, 1000, 100)
-            if (!Ocr.forConfig(config).doOCRAndTrim(repeatDialogRegion).contains("Repeat")) break
+            delay(500)
 
             logisticsArrived = true
 
