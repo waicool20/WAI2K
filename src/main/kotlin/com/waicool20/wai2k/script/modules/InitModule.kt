@@ -142,7 +142,7 @@ class InitModule(
                 .map {
                     async {
                         // Echelon section on the right without the word "Echelon"
-                        Ocr.forConfig(config).doOCRAndTrim(it.getSubimage(0, 25, 82, 100))
+                        Ocr.forConfig(config).doOCRAndTrim(it.getSubimage(10, 25, 65, 100))
                     } to async { readRepairTimers(it) }
                 }.map { it.first.await().toInt() to it.second.await() }
 
@@ -165,7 +165,7 @@ class InitModule(
     private suspend fun readRepairTimers(image: BufferedImage): Map<Int, Duration> {
         return (0 until 5).mapAsync { entry ->
             // Single repair entry without the "Repairing" or "Standby"
-            Ocr.forConfig(config).doOCRAndTrim(image.getSubimage(112 + 145 * entry, 38, 125, 78))
+            Ocr.forConfig(config).doOCRAndTrim(image.getSubimage(115 + 145 * entry, 38, 122, 75))
                     .takeIf { it.contains("Repairing") }
                     ?.let { timer ->
                         Regex("(\\d\\d):(\\d\\d):(\\d\\d)").find(timer)?.groupValues?.let {
