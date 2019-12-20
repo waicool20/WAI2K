@@ -129,7 +129,7 @@ class LogisticsSupportModule(
                 ?.region?.click()
 
         region.waitHas(FileTemplate("logistics/formation.png"), 10000)
-        clickEchelon(echelon)
+        if (!clickEchelon(echelon)) return
         // Click ok button
         delay(300)
 
@@ -197,24 +197,31 @@ class LogisticsSupportModule(
      * Clicks on the echelon when in the dispatch screen
      *
      * @param echelon Echelon to click
+     * @return true if clicked succesfully
      */
-    private suspend fun clickEchelon(echelon: Echelon) {
+    private suspend fun clickEchelon(echelon: Echelon): Boolean {
         logger.debug("Clicking the echelon")
         val eRegion = region.subRegion(162, 40, 170, region.height - 140)
+        delay(100)
 
         while (isActive) {
-            delay(100)
             val echelons = eRegion.findBest(FileTemplate("echelons/echelon.png"), 8)
                     .map { it.region }
                     .map { it.copyAs<AndroidRegion>(it.x + 93, it.y - 40, 45, 100) }
                     .mapAsync { Ocr.forConfig(config, true).doOCRAndTrim(it).toInt() to it }
                     .toMap()
             logger.debug("Visible echelons: ${echelons.keys}")
-            if (echelon.number in echelons.keys) {
-                echelons[echelon.number]?.click()
-                break
+            when {
+                echelons.keys.isEmpty() -> {
+                    logger.info("No echelons available...")
+                    return false
+                }
+                echelon.number in echelons.keys -> {
+                    logger.info("Found echelon!")
+                    echelons[echelon.number]?.click()
+                    return true
+                }
             }
-            if (echelons.keys.isEmpty()) continue
             val lEchelon = echelons.keys.min() ?: echelons.keys.firstOrNull() ?: continue
             val hEchelon = echelons.keys.max() ?: echelons.keys.lastOrNull() ?: continue
             val lEchelonRegion = echelons[lEchelon] ?: continue
@@ -231,6 +238,7 @@ class LogisticsSupportModule(
             }
             delay(300)
         }
+        return false
     }
 
     /**
