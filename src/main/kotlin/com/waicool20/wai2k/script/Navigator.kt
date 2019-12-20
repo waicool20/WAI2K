@@ -333,7 +333,10 @@ class Navigator(
                     .waitHas(FileTemplate("login.png"), 5 * 60 * 1000)
             logger.info("Logging in")
             region.subRegion(630, 400, 900, 300).click()
-            while (locations[LocationId.HOME]?.isInRegion(region) == false) delay(100)
+            while (locations[LocationId.HOME]?.isInRegion(region) == false) {
+                checkLogistics()
+                delay(100)
+            }
             gameState.currentGameLocation = locations[LocationId.HOME]!!
             logger.info("Logged in")
         }
