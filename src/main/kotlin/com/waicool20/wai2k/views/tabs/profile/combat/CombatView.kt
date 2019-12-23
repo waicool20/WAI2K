@@ -35,7 +35,6 @@ class CombatView : AbstractProfileView() {
     private val enabledCheckBox: CheckBox by fxid()
     private val mapComboBox: ComboBox<String> by fxid()
     private val repairThresholdSpinner: Spinner<Int> by fxid()
-    private val repairCheckFrequencySpinner: Spinner<Int> by fxid()
 
     override fun setValues() {
         mapComboBox.cellFactory = NoneSelectableCellFactory(Regex("--.+?--"))
@@ -50,7 +49,6 @@ class CombatView : AbstractProfileView() {
             }
         }
         repairThresholdSpinner.valueFactory = SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100)
-        repairCheckFrequencySpinner.valueFactory = SpinnerValueFactory.IntegerSpinnerValueFactory(1, Int.MAX_VALUE)
     }
 
     override fun createBindings() {
@@ -58,7 +56,6 @@ class CombatView : AbstractProfileView() {
             enabledCheckBox.bind(enabledProperty)
             mapComboBox.bind(mapProperty)
             repairThresholdSpinner.bind(repairThresholdProperty)
-            repairCheckFrequencySpinner.bind(repairCheckFrequencyProperty)
         }
     }
 }
