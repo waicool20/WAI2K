@@ -293,10 +293,7 @@ abstract class MapRunner(
     protected suspend fun handleBattleResults() = coroutineScope {
         logger.info("Battle ended, clicking through battle results")
         val combatMenu = GameLocation.mappings(config)[LocationId.COMBAT_MENU]!!
-        val clickLocation = mapRunnerRegions.battleEndClick.randomPoint()
-        val clickJob = launch {
-            while (isActive) region.device.input.touchInterface?.tap(0, clickLocation.x, clickLocation.y)
-        }
+        val clickJob = launch { while (isActive) mapRunnerRegions.battleEndClick.click() }
         while (isActive) {
             if (combatMenu.isInRegion(region)) break
         }
@@ -402,10 +399,7 @@ abstract class MapRunner(
     private fun isInBattle() = mapRunnerRegions.pauseButton.has(FileTemplate("combat/battle/pause.png", 0.9))
 
     private suspend fun endTurn() {
-        do {
-            repeat(Random.nextInt(2, 3)) { mapRunnerRegions.endBattle.click() }
-            delay(250)
-        } while (region.has(FileTemplate("combat/battle/terminate.png")))
+        mapRunnerRegions.endBattle.clickWhile { has(FileTemplate("combat/battle/end.png")) }
     }
 
     /**
