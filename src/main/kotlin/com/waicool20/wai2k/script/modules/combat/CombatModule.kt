@@ -196,7 +196,7 @@ class CombatModule(
         // Temporary convenience class for storing doll regions
         class DollRegions(nameImage: BufferedImage, hpImage: BufferedImage) {
             val tdollOcr = async {
-                val ocr = Ocr.forConfig(config).doOCRAndTrim(nameImage.binarizeImage(0.9))
+                val ocr = Ocr.forConfig(config).doOCRAndTrim(nameImage.binarizeImage(0.72))
                 val tdoll = TDoll.lookup(config, ocr)
                 ocr to tdoll
             }
