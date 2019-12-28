@@ -47,7 +47,7 @@ data class Wai2KProfile(
         val factory: Factory = Factory(),
         val stop: Stop = Stop()
 ) {
-    data class DollCriteria(var name: String)
+    data class DollCriteria(var id: String = "Gr G11")
 
     class Logistics(
             enabled: Boolean = false,
@@ -70,12 +70,9 @@ data class Wai2KProfile(
 
     class Combat(
             enabled: Boolean = false,
-            map: String = "4-3E",
+            map: String = "0-2",
             repairThreshold: Int = 40,
-            draggers: MutableList<DollCriteria> = mutableListOf(
-                    DollCriteria("WA2000"),
-                    DollCriteria("FAL")
-            )
+            draggers: MutableList<DollCriteria> = mutableListOf(DollCriteria(), DollCriteria())
     ) {
         val enabledProperty = enabled.toProperty()
         val mapProperty = map.toProperty()

@@ -7,7 +7,8 @@
   {
     "name": "M1911",
     "stars": 2,
-    "type": "HG"
+    "type": "HG",
+    "moddable": true
   },
   {
     "name": "M9",
@@ -172,7 +173,8 @@
   {
     "name": "M14",
     "stars": 3,
-    "type": "RF"
+    "type": "RF",
+    "moddable": true
   },
   {
     "name": "M21",
@@ -257,7 +259,8 @@
   {
     "name": "M4A1",
     "stars": 4,
-    "type": "AR"
+    "type": "AR",
+    "moddable": true
   },
   {
     "name": "M4 SOPMOD II",
@@ -267,7 +270,8 @@
   {
     "name": "ST AR-15",
     "stars": 4,
-    "type": "AR"
+    "type": "AR",
+    "moddable": true
   },
   {
     "name": "AK-47",
@@ -297,7 +301,8 @@
   {
     "name": "Gr G36",
     "stars": 4,
-    "type": "AR"
+    "type": "AR",
+    "moddable": true
   },
   {
     "name": "416",

@@ -141,7 +141,7 @@ class CombatModule(
             var switchDoll: Region<AndroidDevice>? = null
             region.matcher.settings.matchDimension = ScriptRunner.HIGH_RES
             val tdolls = profile.combat.draggers
-                    .map { TDoll.lookup(config, it.name) ?: error("Invalid doll: ${it.name}") }
+                    .map { TDoll.lookup(config, it.id) ?: error("Invalid doll: ${it.id}") }
                     // Distinct filter types that way we dont set filters twice for same filter
                     .distinctBy { it.type.ordinal * 10 + it.stars }
             for ((i, tdoll) in tdolls.withIndex()) {
@@ -172,7 +172,7 @@ class CombatModule(
         // Check if dolls were switched correctly, might not be the case if one of them leveled
         // up and the positions got switched
         val echelon1Members = gameState.echelons[0].members.map { it.name }
-        wasCancelled = profile.combat.draggers.none { it.name in echelon1Members }
+        wasCancelled = profile.combat.draggers.none { it.id in echelon1Members }
     }
 
     /**
@@ -232,7 +232,7 @@ class CombatModule(
             // Checking if the ocr results were gibberish
             // Skip check if game state hasnt been initialized yet
             val member2 = members.getOrNull(1)?.tdollOcr?.await()?.second?.name
-            if (profile.combat.draggers.none { it.name == member2 }) {
+            if (member2 == null || profile.combat.draggers.none { it.id.contains(member2) }) {
                 logger.info("Update repair status ocr failed after $i attempts, retries remaining: ${retries - i}")
                 if (i == retries) {
                     logger.warn("Could not update repair status after $retries attempts")

@@ -28,23 +28,28 @@ import com.waicool20.waicoolutils.distanceTo
 data class TDoll(
         val name: String,
         val stars: Int,
-        val type: Type
+        val type: Type,
+        private val moddable: Boolean = false
 ) {
+    var id: String = name
+        private set
+
     companion object {
         private val list: MutableList<TDoll> = ArrayList()
 
         fun listAll(config: Wai2KConfig): List<TDoll> = synchronized(list) {
             if (list.isEmpty()) {
-                list += jacksonObjectMapper().readValue<List<TDoll>>(
-                        config.assetsDirectory.resolve("tdolls.json").toFile()
-                )
+                list += jacksonObjectMapper().readValue<List<TDoll>>(config.assetsDirectory.resolve("tdolls.json").toFile())
+                list += list.filter { it.moddable }.map { it.copy(stars = it.stars + 1).apply { id = "$name+" } }
             }
             return list
         }
 
         fun lookup(config: Wai2KConfig, name: String?): TDoll? {
             if (name == null) return null
-            return listAll(config).find { it.name.distanceTo(name, Ocr.OCR_DISTANCE_MAP) < config.scriptConfig.ocrThreshold }
+            return listAll(config).find {
+                it.id == name || it.name.distanceTo(name, Ocr.OCR_DISTANCE_MAP) < config.scriptConfig.ocrThreshold
+            }
         }
     }
 

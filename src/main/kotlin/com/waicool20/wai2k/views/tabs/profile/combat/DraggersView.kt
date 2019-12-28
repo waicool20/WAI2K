@@ -23,8 +23,6 @@ import com.waicool20.wai2k.game.TDoll
 import com.waicool20.wai2k.views.tabs.profile.AbstractProfileView
 import com.waicool20.waicoolutils.javafx.addListener
 import javafx.scene.control.Button
-import javafx.scene.control.Spinner
-import javafx.scene.control.SpinnerValueFactory.IntegerSpinnerValueFactory
 import javafx.scene.layout.VBox
 import javafx.util.StringConverter
 import org.controlsfx.control.PrefixSelectionComboBox
@@ -43,7 +41,7 @@ class DraggersView : AbstractProfileView() {
 
     override fun setValues() {
         val converter = object : StringConverter<TDoll>() {
-            override fun toString(td: TDoll) = td.name
+            override fun toString(td: TDoll) = td.id
             override fun fromString(s: String) = TDoll.lookup(context.wai2KConfig, s)
         }
         val dolls = TDoll.listAll(context.wai2KConfig).sortedBy { it.name }
@@ -60,15 +58,15 @@ class DraggersView : AbstractProfileView() {
             val doll1 = draggers[0]!!
             val doll2 = draggers[1]!!
 
-            doll1NameComboBox.selectionModel.select(TDoll.lookup(context.wai2KConfig, doll1.name))
-            doll2NameComboBox.selectionModel.select(TDoll.lookup(context.wai2KConfig, doll2.name))
+            doll1NameComboBox.selectionModel.select(TDoll.lookup(context.wai2KConfig, doll1.id))
+            doll2NameComboBox.selectionModel.select(TDoll.lookup(context.wai2KConfig, doll2.id))
         }
         with(context.currentProfile.combat) {
             doll1NameComboBox.selectionModel.selectedItemProperty().addListener("Doll1NameListener") { tdoll ->
-                draggers[0].name = tdoll.name
+                draggers[0].id = tdoll.id
             }
             doll2NameComboBox.selectionModel.selectedItemProperty().addListener("Doll2NameListener") { tdoll ->
-                draggers[1].name = tdoll.name
+                draggers[1].id = tdoll.id
             }
         }
     }
