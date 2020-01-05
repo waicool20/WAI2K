@@ -33,7 +33,6 @@ import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.*
 import java.awt.Point
-import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
 
 class FactoryModule(
@@ -170,14 +169,23 @@ class FactoryModule(
 
         logger.info("Disassembling 2 star T-dolls")
         while (isActive) {
-            region.subRegion(483, 200, 1557, 565)
-                    .waitHas(FileTemplate("factory/select.png"), 10000)?.click()
+            logger.info("Start T-doll selection")
+            val sTemp = FileTemplate("factory/select.png")
+            val dRegion = region.subRegion(483, 200, 1557, 565)
+            dRegion.waitHas(sTemp, 10000)?.click()
             delay(750)
 
             // Find the old doll count
-            val (currentCount, _) = getCurrentDollCount()
-            oldCount?.let { scriptStats.dollsUsedForDisassembly += it - currentCount }
-            oldCount = currentCount
+            try {
+                withTimeout(5000) {
+                    val (currentCount, _) = getCurrentDollCount()
+                    oldCount?.let { scriptStats.dollsUsedForDisassembly += it - currentCount }
+                    oldCount = currentCount
+                }
+            } catch (e: TimeoutCancellationException) {
+                logger.warn("Timed out on doll count, cancelling disassemble")
+                return
+            }
 
             // Click smart select button
             logger.info("Using smart select")
@@ -193,9 +201,11 @@ class FactoryModule(
             }
             logger.info("Confirm doll selections")
             // Click ok
-            okButton.click(); delay(500)
+            okButton.click()
+            dRegion.waitHas(sTemp, 10000)
+            logger.info("Disassembling selected T-dolls")
             // Click disassemble button
-            region.subRegion(1749, 839, 247, 95).click(); delay(500)
+            region.subRegion(1749, 839, 247, 95).click(); delay(750)
             // Update stats
             scriptStats.disassemblesDone += 1
         }
@@ -252,17 +262,20 @@ class FactoryModule(
         if (!gameState.dollOverflow) logger.info("The base now has space for new dolls")
     }
 
-    private tailrec fun getCurrentDollCount(): Pair<Int, Int> {
+    private tailrec suspend fun getCurrentDollCount(): Pair<Int, Int> {
+        logger.info("Updating doll count")
         val dollCountRegion = region.subRegion(1750, 750, 300, 150)
         var ocrResult = ""
         while(isActive) {
             ocrResult = Ocr.forConfig(config).doOCRAndTrim(dollCountRegion)
-            if (ocrResult.contains("capacity", true)) break
+            if (ocrResult.contains("capacity", true)) break else yield()
         }
+        logger.info("Doll count ocr: $ocrResult")
         return Regex("(\\d+)/(\\d+)").find(ocrResult)?.groupValues?.let {
             val count = it[1].toInt()
             val total = it[2].toInt()
             gameState.dollOverflow = count >= total
+            logger.info("Count: $count | Total: $total")
             count to total
         } ?: getCurrentDollCount()
     }
