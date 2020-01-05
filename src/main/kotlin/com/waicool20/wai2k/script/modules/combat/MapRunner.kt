@@ -290,14 +290,21 @@ abstract class MapRunner(
     /**
      * Clicks through the battle results and waits for the game to return to the combat menu
      */
-    protected suspend fun handleBattleResults() = coroutineScope {
+    protected suspend fun handleBattleResults(): Unit = coroutineScope {
         logger.info("Battle ended, clicking through battle results")
         val combatMenu = GameLocation.mappings(config)[LocationId.COMBAT_MENU]!!
-        val clickJob = launch { while (isActive) mapRunnerRegions.battleEndClick.click() }
-        while (isActive) {
-            if (combatMenu.isInRegion(region)) break
+        try {
+            withTimeout(10000) {
+                while (!combatMenu.isInRegion(region)) {
+                    mapRunnerRegions.battleEndClick.click(); yield()
+                }
+            }
+        } catch (e: TimeoutCancellationException) {
+            logger.info("Timed out waiting for combat menu")
+            endTurn()
+            handleBattleResults()
+            return@coroutineScope
         }
-        clickJob.cancel()
         logger.info("Back at combat menu")
         scriptStats.sortiesDone += 1
         _battles = 1
