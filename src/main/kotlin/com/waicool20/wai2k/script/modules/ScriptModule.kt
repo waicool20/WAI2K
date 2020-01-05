@@ -71,7 +71,8 @@ abstract class ScriptModule(
     protected suspend fun applyDollFilters(stars: Int? = null, type: TDoll.Type? = null, reset: Boolean = false) {
         if (stars == null && type == null && !reset) return
         dollFilterRegions.filter.click()
-        delay(500)
+        region.subRegion(1188, 214, 258, 252)
+                .waitHas(FileTemplate("doll-list/filtermenu.png"), 5000)
 
         if (reset) {
             logger.info("Resetting filters")
