@@ -186,7 +186,12 @@ class DebugView : CoroutineScopeView() {
                     Region.DEFAULT_MATCHER.settings.matchDimension = ScriptRunner.NORMAL_RES
                     // Set similarity to 0.6f to make sikulix report the similarity value down to 0.6
                     val (results, duration) = measureTimedValue {
-                        device.screens[0].matcher.findBest(FileTemplate(path, 0.6), image, 20)
+                        try {
+                            device.screens[0].matcher.findBest(FileTemplate(path, 0.6), image, 20)
+                        } catch (e: ArrayIndexOutOfBoundsException) {
+                            val max = e.localizedMessage.takeLastWhile { it.isDigit() }.toInt() - 1
+                            device.screens[0].matcher.findBest(FileTemplate(path, 0.6), image, max)
+                        }
                     }
                     results.takeIf { it.isNotEmpty() }
                             ?.sortedBy { it.score }
