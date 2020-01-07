@@ -15,8 +15,8 @@
       {
         "asset": {
           "imageName": "home0",
-          "x": 1338,
-          "y": 564,
+          "x": 1339,
+          "y": 665,
           "width": 60,
           "height": 60
         }
@@ -28,7 +28,7 @@
         "asset": {
           "imageName": "",
           "x": 1328,
-          "y": 547,
+          "y": 646,
           "width": 375,
           "height": 161
         }
@@ -48,7 +48,7 @@
         "asset": {
           "imageName": "",
           "x": 1720,
-          "y": 546,
+          "y": 645,
           "width": 286,
           "height": 162
         }
@@ -58,7 +58,7 @@
         "asset": {
           "imageName": "",
           "x": 1730,
-          "y": 371,
+          "y": 470,
           "width": 273,
           "height": 143
         }
@@ -68,7 +68,7 @@
         "asset": {
           "imageName": "",
           "x": 1204,
-          "y": 546,
+          "y": 645,
           "width": 109,
           "height": 162
         }
@@ -78,7 +78,7 @@
         "asset": {
           "imageName": "",
           "x": 1371,
-          "y": 370,
+          "y": 470,
           "width": 354,
           "height": 144
         }
@@ -125,7 +125,7 @@
         "asset": {
           "imageName": "",
           "x": 1328,
-          "y": 547,
+          "y": 646,
           "width": 375,
           "height": 161
         }
@@ -135,7 +135,7 @@
         "asset": {
           "imageName": "",
           "x": 1720,
-          "y": 546,
+          "y": 645,
           "width": 286,
           "height": 162
         }
@@ -145,7 +145,7 @@
         "asset": {
           "imageName": "",
           "x": 1730,
-          "y": 371,
+          "y": 470,
           "width": 273,
           "height": 143
         }
@@ -155,7 +155,7 @@
         "asset": {
           "imageName": "",
           "x": 1371,
-          "y": 370,
+          "y": 470,
           "width": 354,
           "height": 144
         }
@@ -631,7 +631,7 @@
         "asset": {
           "imageName": "",
           "x": 131,
-          "y": 296,
+          "y": 164,
           "width": 257,
           "height": 118
         }
@@ -641,7 +641,7 @@
         "asset": {
           "imageName": "",
           "x": 131,
-          "y": 429,
+          "y": 296,
           "width": 257,
           "height": 118
         }
@@ -705,7 +705,7 @@
         "asset": {
           "imageName": "",
           "x": 131,
-          "y": 429,
+          "y": 296,
           "width": 257,
           "height": 118
         }
@@ -752,7 +752,7 @@
         "asset": {
           "imageName": "",
           "x": 131,
-          "y": 296,
+          "y": 164,
           "width": 257,
           "height": 118
         }
