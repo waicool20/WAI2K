@@ -91,7 +91,7 @@ class InitModule(
                             },
                             async {
                                 // Logistics number ie. 1-1
-                                Ocr.forConfig(config).doOCRAndTrim(it.getSubimage(165, 30, 66, 33))
+                                Ocr.forConfig(config).doOCRAndTrim(it.getSubimage(165, 30, 84, 33))
                             },
                             async {
                                 // Timer xx:xx:xx
@@ -101,7 +101,7 @@ class InitModule(
                 }
                 .map { "${it[0].await()} ${it[1].await()} ${it[2].await()}" }
                 .mapNotNull {
-                    Regex("(\\d) (\\d)\\s?[-—]\\s?(\\d) (\\d\\d):(\\d\\d):(\\d\\d)").matchEntire(it)?.destructured
+                    Regex("(\\d) (\\d\\d?)\\s?[-—]\\s?(\\d) (\\d\\d):(\\d\\d):(\\d\\d)").matchEntire(it)?.destructured
                 }
         // Clear existing timers
         gameState.echelons.forEach { it.logisticsSupportAssignment = null }
