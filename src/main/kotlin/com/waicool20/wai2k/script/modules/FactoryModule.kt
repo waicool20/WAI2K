@@ -71,9 +71,16 @@ class FactoryModule(
             selectCharacterButton.click(); delay(1000)
 
             // Find the old doll count
-            val (currentCount, _) = getCurrentDollCount()
-            oldCount?.let { scriptStats.dollsUsedForEnhancement += it - currentCount }
-            oldCount = currentCount
+            try {
+                withTimeout(5000) {
+                    val (currentCount, _) = getCurrentDollCount()
+                    oldCount?.let { scriptStats.dollsUsedForEnhancement += it - currentCount }
+                    oldCount = currentCount
+                }
+            } catch (e: TimeoutCancellationException) {
+                logger.warn("Timed out on doll count, cancelling enhancement")
+                return
+            }
 
             logger.info("Selecting highest level T-doll for enhancement")
             // Randomly select a doll on the screen for enhancement
@@ -202,7 +209,7 @@ class FactoryModule(
             logger.info("Confirm doll selections")
             // Click ok
             okButton.click()
-            dRegion.waitHas(sTemp, 10000)
+            dRegion.waitHas(sTemp, 3000)
             logger.info("Disassembling selected T-dolls")
             // Click disassemble button
             region.subRegion(1749, 839, 247, 95).click(); delay(750)
