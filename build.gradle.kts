@@ -43,7 +43,7 @@ dependencies {
     val versions = object {
         val Kotlin by lazy { plugins.getPlugin(KotlinPluginWrapper::class).kotlinPluginVersion }
         val KotlinCoroutines = "1.3.0"
-        val Jackson = "2.9.9"
+        val Jackson = "2.10.1"
     }
 
     implementation("org.jetbrains.kotlin", "kotlin-stdlib-jdk8", versions.Kotlin)
