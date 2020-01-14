@@ -42,7 +42,7 @@ import georegression.struct.homography.Homography2D_F64
 import kotlinx.coroutines.*
 import org.reflections.Reflections
 import java.awt.Color
-import java.awt.image.BufferedImage
+import java.text.DecimalFormat
 import javax.imageio.ImageIO
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.abs
@@ -155,6 +155,21 @@ abstract class MapRunner(
             val rationNeedsSupply = async {
                 val image = screenshot.getSubimage(645, 860, 218, 1).binarizeImage()
                 image.countColor(Color.WHITE) != image.width
+            }
+            if (!isCorpseDraggingMap) {
+                val formatter = DecimalFormat("##.#")
+                repeat(5) { mIndex ->
+                    val hpImage = screenshot.getSubimage(373 + mIndex * 272, 778, 217, 1).binarizeImage()
+                    val hp = hpImage.countColor(Color.WHITE) / hpImage.width.toDouble() * 100
+                    logger.info("Member ${mIndex + 1} HP: ${formatter.format(hp)} %")
+                    if (hp < profile.combat.repairThreshold) {
+                        logger.info("Repairing member ${mIndex + 1}")
+                        region.subRegion(360 + mIndex * 272, 286, 246, 323).click()
+                        region.subRegion(1360, 702, 290, 117)
+                                .waitHas(FileTemplate("ok.png"), 3000)?.click()
+                    }
+                }
+                delay(500)
             }
             mapRunnerRegions.deploy.click()
             delay(300)
@@ -326,7 +341,7 @@ abstract class MapRunner(
             logger.debug("Estimation seems off, will try again after zoom | diff=$mapDiff, max=$maxMapDiff | sideDiff=$sideDiff, max=$maxSideDiff")
             region.pinch(
                     Random.nextInt(500, 700),
-                    Random.nextInt(20, 50),
+                    Random.nextInt(300, 400),
                     0.0,
                     500
             )
@@ -407,6 +422,7 @@ abstract class MapRunner(
     private fun isInBattle() = mapRunnerRegions.pauseButton.has(FileTemplate("combat/battle/pause.png", 0.9))
 
     private suspend fun endTurn() {
+        delay(200)
         mapRunnerRegions.endBattle.clickWhile { has(FileTemplate("combat/battle/end.png")) }
     }
 
