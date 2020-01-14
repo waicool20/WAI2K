@@ -18,13 +18,13 @@
  */
 
 package com.waicool20.wai2k.script.modules.combat.maps
-/*
 
-import com.waicool20.wai2k.android.AndroidRegion
+import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.script.modules.combat.MapRunner
+import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.yield
 
@@ -37,13 +37,12 @@ class Map6_6(
     private val logger = loggerFor<Map6_6>()
     override val isCorpseDraggingMap = false
 
-    private val commandPostDeployment = COMMAND_POST at region.subRegion(239, 335, 60, 60)
-
     override suspend fun execute() {
-        deployEchelons(commandPostDeployment)
-        mapRunnerRegions.startOperation.clickRandomly(); yield()
+        nodes[10].findRegion()
+        val rEchelons = deployEchelons(nodes[0])
+        mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
-        resupplyEchelons(commandPostDeployment)
+        resupplyEchelons(rEchelons)
         planPath()
         waitForTurnEnd(5)
         handleBattleResults()
@@ -51,16 +50,15 @@ class Map6_6(
 
     private suspend fun planPath() {
         logger.info("Entering planning mode")
-        mapRunnerRegions.planningMode.clickRandomly(); yield()
+        mapRunnerRegions.planningMode.click(); yield()
 
-        logger.info("Selecting node 1")
-        region.subRegion(1132, 351, 60, 60)
-                .clickRandomly(); yield()
-        logger.info("Selecting node 2")
-        region.subRegion(1275, 667, 60, 60)
-                .clickRandomly(); yield()
+        logger.info("Selecting ${nodes[3]}")
+        nodes[3].findRegion().click()
+
+        logger.info("Selecting ${nodes[10]}")
+        nodes[10].findRegion().click(); yield()
 
         logger.info("Executing plan")
-        mapRunnerRegions.executePlan.clickRandomly(); yield()
+        mapRunnerRegions.executePlan.click()
     }
-}*/
+}
