@@ -23,10 +23,12 @@ import com.waicool20.cvauto.android.ADB
 import com.waicool20.cvauto.android.AndroidDevice
 import com.waicool20.cvauto.core.Region
 import com.waicool20.cvauto.core.template.FileTemplate
+import com.waicool20.cvauto.util.asBufferedImage
 import com.waicool20.cvauto.util.asGrayF32
 import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.Ocr
+import com.waicool20.wai2k.util.extractNodes
 import com.waicool20.wai2k.util.useCharFilter
 import com.waicool20.waicoolutils.javafx.CoroutineScopeView
 import com.waicool20.waicoolutils.javafx.addListener
@@ -60,6 +62,7 @@ class DebugView : CoroutineScopeView() {
     private val ocrImageView: ImageView by fxid()
     private val OCRButton: Button by fxid()
     private val resetOCRButton: Button by fxid()
+    private val filterNodeCheckBox: CheckBox by fxid()
 
     private val useLSTMCheckBox: CheckBox by fxid()
     private val filterCheckBox: CheckBox by fxid()
@@ -102,10 +105,13 @@ class DebugView : CoroutineScopeView() {
         }
         launch(Dispatchers.IO) {
             fun updateImageView() = launch(Dispatchers.IO) {
-                val image = device.await()!!.screens[0].capture().let {
+                var image = device.await()!!.screens[0].capture().let {
                     if (wSpinner.value > 0 && hSpinner.value > 0) {
                         it.getSubimage(xSpinner.value, ySpinner.value, wSpinner.value, hSpinner.value)
                     } else it
+                }
+                if (filterNodeCheckBox.isSelected) {
+                    image = image.extractNodes().asBufferedImage()
                 }
                 withContext(Dispatchers.JavaFx) {
                     ocrImageView.image = SwingFXUtils.toFXImage(image, null)

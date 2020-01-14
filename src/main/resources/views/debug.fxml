@@ -68,10 +68,11 @@
             <ImageView fx:id="ocrImageView" fitHeight="200.0" fitWidth="400.0" pickOnBounds="true" preserveRatio="true" />
          </children>
       </HBox>
-      <HBox spacing="5.0">
+      <HBox alignment="CENTER_LEFT" spacing="5.0">
          <children>
             <Button fx:id="OCRButton" mnemonicParsing="false" text="OCR" />
             <Button fx:id="resetOCRButton" mnemonicParsing="false" text="Reset" />
+            <CheckBox fx:id="filterNodeCheckBox" mnemonicParsing="false" text="Filter Nodes" />
          </children>
       </HBox>
       <Separator prefWidth="200.0" />

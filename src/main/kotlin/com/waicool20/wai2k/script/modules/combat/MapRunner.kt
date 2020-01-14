@@ -33,6 +33,7 @@ import com.waicool20.wai2k.game.MapRunnerRegions
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.doOCRAndTrim
+import com.waicool20.wai2k.util.extractNodes
 import com.waicool20.waicoolutils.binarizeImage
 import com.waicool20.waicoolutils.countColor
 import com.waicool20.waicoolutils.logging.loggerFor
@@ -313,7 +314,7 @@ abstract class MapRunner(
 
     protected suspend fun MapNode.findRegion(): AndroidRegion {
         val window = mapRunnerRegions.window
-        val H = mapH ?: fullMap.homographyMultiSample(window.capture().extractNodes())
+        val H = mapH ?: fullMap.homographyMultiSample(window.capture().extractNodes(false))
         // Rect that is relative to the window
         val rect = H.transformRect(rect)
         logger.debug("$this estimated to be at Rect(x=${rect.x}, y=${rect.y}, width=${rect.width}, height=${rect.height})")
@@ -407,17 +408,6 @@ abstract class MapRunner(
 
     private suspend fun endTurn() {
         mapRunnerRegions.endBattle.clickWhile { has(FileTemplate("combat/battle/end.png")) }
-    }
-
-    /**
-     * Returns a masked image where nodes and path lines are located
-     */
-    private fun BufferedImage.extractNodes(): GrayF32 {
-        val hsv = asPlanar().asHsv()
-        val whiteNodes = hsv.clone().apply { hsvFilter(satRange = 0..10, valRange = 200..255) }.getBand(2)
-        val redNodes = hsv.clone().apply { hsvFilter(hueRange = arrayOf(0..10, 350..360), satRange = arrayOf(20..100)) }.getBand(2)
-        val blueNodes = hsv.apply { hsvFilter(hueRange = 200..210, satRange = 20..100) }.getBand(2)
-        return whiteNodes + redNodes + blueNodes
     }
 
     /**
