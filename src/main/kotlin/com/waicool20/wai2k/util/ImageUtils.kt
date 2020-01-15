@@ -32,7 +32,7 @@ import java.awt.image.BufferedImage
 fun BufferedImage.extractNodes(includeWhite: Boolean = true): GrayF32 {
     val hsv = asPlanar().asHsv()
     val redNodes = hsv.clone().apply { hsvFilter(hueRange = arrayOf(0..10, 350..360), satRange = arrayOf(20..100)) }.getBand(2)
-    val blueNodes = hsv.apply { hsvFilter(hueRange = 200..210, satRange = 20..100) }.getBand(2)
+    val blueNodes = hsv.apply { hsvFilter(hueRange = 190..210, satRange = 20..100) }.getBand(2)
     return if (includeWhite) {
         val whiteNodes = hsv.clone().apply { hsvFilter(satRange = 0..1, valRange = 210..255) }.getBand(2)
         whiteNodes + redNodes + blueNodes
