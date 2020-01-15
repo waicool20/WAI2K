@@ -41,10 +41,7 @@ import com.waicool20.waicoolutils.binarizeImage
 import com.waicool20.waicoolutils.countColor
 import com.waicool20.waicoolutils.filterAsync
 import com.waicool20.waicoolutils.logging.loggerFor
-import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.yield
+import kotlinx.coroutines.*
 import java.awt.Color
 import java.awt.image.BufferedImage
 import java.text.DecimalFormat
@@ -374,10 +371,18 @@ class CombatModule(
                         .click()
             }
             else -> {
-                region.subRegion(1020, 880, 675, 140).randomPoint().let {
-                    region.device.input.touchInterface?.swipe(
-                            ITouchInterface.Swipe(0, it.x, it.y, it.x, it.y - 650), 1000
-                    )
+                val mapNameR = region.subRegion(1100, 350, 250, 680)
+                val mapName = map.dropLastWhile { it.isLetter() }
+                withTimeout(10000) {
+                    while (isActive) {
+                        region.subRegion(1020, 880, 675, 140).randomPoint().let {
+                            region.device.input.touchInterface?.swipe(
+                                    ITouchInterface.Swipe(0, it.x, it.y, it.x, it.y - 650), 1000
+                            )
+                        }
+                        if (Ocr.forConfig(config).doOCRAndTrim(mapNameR).contains(mapName)) break
+                        yield()
+                    }
                 }
                 navigator.checkLogistics()
                 region.subRegion(925, 472 + 176 * (mapNum - 4), 440, 130)

@@ -24,7 +24,8 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.core.template.FileTemplate
-import com.waicool20.cvauto.util.*
+import com.waicool20.cvauto.util.homography
+import com.waicool20.cvauto.util.transformRect
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.game.GameLocation
@@ -79,6 +80,7 @@ abstract class MapRunner(
          */
         private const val maxMapDiff = 80.0
         private const val maxSideDiff = 5.0
+        private const val minNodeThreshold = 0.20
 
         val list = Reflections("com.waicool20.wai2k.script.modules.combat.maps")
                 .getSubTypesOf(MapRunner::class.java)
@@ -330,24 +332,28 @@ abstract class MapRunner(
     protected suspend fun MapNode.findRegion(): AndroidRegion {
         val window = mapRunnerRegions.window
         val H = mapH ?: fullMap.homographyMultiSample(window.capture().extractNodes(false))
+
+        suspend fun retry(): AndroidRegion {
+            if (Random.nextBoolean()) {
+                logger.info("Zoom out")
+                region.pinch(
+                        Random.nextInt(500, 700),
+                        Random.nextInt(300, 400),
+                        0.0,
+                        500
+                )
+                delay(1000)
+            }
+            mapH = null
+            return findRegion()
+        }
+
         // Rect that is relative to the window
         val rect = H.transformRect(rect)
         logger.debug("$this estimated to be at Rect(x=${rect.x}, y=${rect.y}, width=${rect.width}, height=${rect.height})")
-        // Difference from reference values in map.json and estimated rect values
-        val mapDiff = (rect.width.toDouble() - width).pow(2) + (rect.height.toDouble() - height).pow(2)
-        // Difference between rect width and height, should be roughly square (1:1)
-        val sideDiff = (rect.width.toDouble() - rect.height).pow(2)
-        if (mapDiff > maxMapDiff.pow(2) || sideDiff > maxSideDiff.pow(2)) {
-            logger.debug("Estimation seems off, will try again after zoom | diff=$mapDiff, max=$maxMapDiff | sideDiff=$sideDiff, max=$maxSideDiff")
-            region.pinch(
-                    Random.nextInt(500, 700),
-                    Random.nextInt(300, 400),
-                    0.0,
-                    500
-            )
-            delay(1500)
-            mapH = null
-            return findRegion()
+        if (rect.width <= 0 || rect.height <= 0) {
+            logger.debug("Estimate failed basic dimension test, will retry")
+            return retry()
         }
         val clickRegion = window.copyAs<AndroidRegion>(
                 window.x + rect.x,
@@ -355,6 +361,18 @@ abstract class MapRunner(
                 rect.width,
                 rect.height
         )
+        // Difference from reference values in map.json and estimated rect values
+        val mapDiff = (rect.width.toDouble() - width).pow(2) + (rect.height.toDouble() - height).pow(2)
+        if (mapDiff > maxMapDiff.pow(2)) {
+            logger.info("Estimate failed map difference test, will retry | diff=$mapDiff, max=$maxMapDiff")
+            return retry()
+        }
+        // Difference between rect width and height, should be roughly square (1:1)
+        val sideDiff = (rect.width.toDouble() - rect.height).pow(2)
+        if (sideDiff > maxSideDiff.pow(2)) {
+            logger.debug("Estimate failed side difference test, will retry | diff=$sideDiff, max=$maxSideDiff")
+            return retry()
+        }
         if (!window.contains(clickRegion)) {
             logger.info("Node $this not in map window")
             val center = region.subRegion(
@@ -400,6 +418,15 @@ abstract class MapRunner(
             delay(200)
             return findRegion()
         }
+
+        // Find ratio of white to non white ones, it's probably a node
+        // if its vaguely the right color ¯\_(ツ)_/¯
+        val clickRegionImage = clickRegion.capture().extractNodes(true)
+        val nodePixelRatio = clickRegionImage.data.count { it > 10f } / clickRegionImage.data.size.toDouble()
+        if (nodePixelRatio < minNodeThreshold) {
+            logger.debug("Estimate failed node pixel test, will retry | ratio=$nodePixelRatio, min=$minNodeThreshold")
+            return retry()
+        }
         return clickRegion
     }
 
@@ -422,14 +449,15 @@ abstract class MapRunner(
     private fun isInBattle() = mapRunnerRegions.pauseButton.has(FileTemplate("combat/battle/pause.png", 0.9))
 
     private suspend fun endTurn() {
-        delay(200)
         mapRunnerRegions.endBattle.clickWhile { has(FileTemplate("combat/battle/end.png")) }
+        delay(200)
     }
 
     /**
      * Calculates multiple homography matrices and then takes an element wise average
      */
     private suspend fun GrayF32.homographyMultiSample(other: GrayF32): Homography2D_F64 {
+        // Does this really make it more reliable?
         return coroutineScope {
             val hDeferred = List(hSamples) { async { homography(other) } }
             val h = hDeferred.map { it.await() }
