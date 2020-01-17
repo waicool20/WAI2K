@@ -80,7 +80,7 @@ abstract class MapRunner(
          */
         private const val maxMapDiff = 80.0
         private const val maxSideDiff = 5.0
-        private const val minNodeThreshold = 0.20
+        private const val minNodeThreshold = 0.12
 
         val list = Reflections("com.waicool20.wai2k.script.modules.combat.maps")
                 .getSubTypesOf(MapRunner::class.java)
@@ -107,7 +107,7 @@ abstract class MapRunner(
     }
 
     private val _fullMap = async(Dispatchers.IO) {
-        ImageIO.read(config.assetsDirectory.resolve("$PREFIX/map.png").toFile()).extractNodes()
+        ImageIO.read(config.assetsDirectory.resolve("$PREFIX/map.png").toFile()).extractNodes(false)
     }
 
     /**
@@ -314,7 +314,8 @@ abstract class MapRunner(
         try {
             withTimeout(10000) {
                 while (!combatMenu.isInRegion(region)) {
-                    mapRunnerRegions.battleEndClick.click(); yield()
+                    mapRunnerRegions.battleEndClick.click()
+                    endTurn()
                 }
             }
         } catch (e: TimeoutCancellationException) {
@@ -355,7 +356,7 @@ abstract class MapRunner(
             logger.debug("Estimate failed basic dimension test, will retry")
             return retry()
         }
-        val clickRegion = window.copyAs<AndroidRegion>(
+        val roi = window.copyAs<AndroidRegion>(
                 window.x + rect.x,
                 window.y + rect.y,
                 rect.width,
@@ -373,7 +374,7 @@ abstract class MapRunner(
             logger.debug("Estimate failed side difference test, will retry | diff=$sideDiff, max=$maxSideDiff")
             return retry()
         }
-        if (!window.contains(clickRegion)) {
+        if (!window.contains(roi)) {
             logger.info("Node $this not in map window")
             val center = region.subRegion(
                     (region.width - 5) / 2,
@@ -383,15 +384,15 @@ abstract class MapRunner(
             // Add some randomness
             center.translate(Random.nextInt(-50, 50), Random.nextInt(-50, 50))
             when {
-                clickRegion.y < window.y -> {
-                    val dist = max(window.y - clickRegion.y, minScroll)
+                roi.y < window.y -> {
+                    val dist = max(window.y - roi.y, minScroll)
                     val from = center.copyAs<AndroidRegion>().apply { translate(0, -dist) }
                     val to = center.copyAs<AndroidRegion>().apply { translate(0, dist) }
                     logger.info("Scroll up $dist px")
                     from.swipeTo(to)
                 }
-                clickRegion.y > window.y + window.height -> {
-                    val dist = max(clickRegion.y - (window.y + window.height), minScroll)
+                roi.y > window.y + window.height -> {
+                    val dist = max(roi.y - (window.y + window.height), minScroll)
                     val from = center.copyAs<AndroidRegion>().apply { translate(0, dist) }
                     val to = center.copyAs<AndroidRegion>().apply { translate(0, -dist) }
                     logger.info("Scroll down $dist px")
@@ -399,15 +400,15 @@ abstract class MapRunner(
                 }
             }
             when {
-                clickRegion.x < window.x -> {
-                    val dist = max(window.x - clickRegion.x, minScroll)
+                roi.x < window.x -> {
+                    val dist = max(window.x - roi.x, minScroll)
                     val from = center.copyAs<AndroidRegion>().apply { translate(-dist, 0) }
                     val to = center.copyAs<AndroidRegion>().apply { translate(dist, 0) }
                     logger.info("Scroll left $dist px")
                     from.swipeTo(to)
                 }
-                clickRegion.x > window.x + window.width -> {
-                    val dist = max(clickRegion.x - (window.x + window.width), minScroll)
+                roi.x > window.x + window.width -> {
+                    val dist = max(roi.x - (window.x + window.width), minScroll)
                     val from = center.copyAs<AndroidRegion>().apply { translate(dist, 0) }
                     val to = center.copyAs<AndroidRegion>().apply { translate(-dist, 0) }
                     logger.info("Scroll right $dist px")
@@ -421,13 +422,22 @@ abstract class MapRunner(
 
         // Find ratio of white to non white ones, it's probably a node
         // if its vaguely the right color ¯\_(ツ)_/¯
-        val clickRegionImage = clickRegion.capture().extractNodes(true)
-        val nodePixelRatio = clickRegionImage.data.count { it > 10f } / clickRegionImage.data.size.toDouble()
-        if (nodePixelRatio < minNodeThreshold) {
-            logger.debug("Estimate failed node pixel test, will retry | ratio=$nodePixelRatio, min=$minNodeThreshold")
-            return retry()
+        loop@ while (isActive) {
+            val clickRegionImage = roi.capture().extractNodes(true)
+            val nodePixelRatio = clickRegionImage.data.count { it > 10f } / clickRegionImage.data.size.toDouble()
+            when {
+                nodePixelRatio <= 0 -> {
+                    delay(200)
+                    continue@loop
+                }
+                nodePixelRatio < minNodeThreshold -> {
+                    logger.debug("Estimate failed node pixel test, will retry | ratio=$nodePixelRatio, min=$minNodeThreshold")
+                    return retry()
+                }
+                else -> break@loop
+            }
         }
-        return clickRegion
+        return roi
     }
 
     private suspend fun clickThroughBattle() {
