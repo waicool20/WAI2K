@@ -473,7 +473,7 @@ abstract class MapRunner(
             region.device.input.touchInterface?.tap(0, l.x, l.y); yield()
         }
         // If the clicks above managed to halt battle plan just cancel the dialog
-        delay(400)
+        delay(1000)
         region.subRegion(761, 674, 283, 144)
                 .findBest(FileTemplate("combat/battle/cancel.png"))?.region?.click()
     }
