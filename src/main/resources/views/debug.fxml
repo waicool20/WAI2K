@@ -32,7 +32,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
     <children>
       <HBox alignment="CENTER_LEFT" spacing="5.0">
          <children>
@@ -63,9 +63,9 @@
         </HBox>
       <Separator prefWidth="200.0" />
       <Label text="On-Screen OCR Testing:" />
-      <HBox alignment="CENTER">
+      <HBox alignment="CENTER" VBox.vgrow="ALWAYS">
          <children>
-            <ImageView fx:id="ocrImageView" fitHeight="200.0" fitWidth="400.0" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id="ocrImageView" fitHeight="300.0" fitWidth="600.0" pickOnBounds="true" preserveRatio="true" HBox.hgrow="ALWAYS" />
          </children>
       </HBox>
       <HBox alignment="CENTER_LEFT" spacing="5.0">
