@@ -33,10 +33,20 @@ fun BufferedImage.extractNodes(includeWhite: Boolean = true): GrayF32 {
     val hsv = asPlanar().asHsv()
     val redNodes = hsv.clone().apply { hsvFilter(hueRange = arrayOf(0..10, 350..360), satRange = arrayOf(20..100)) }.getBand(2)
     val blueNodes = hsv.apply { hsvFilter(hueRange = 190..210, satRange = 20..100) }.getBand(2)
-    return if (includeWhite) {
+    val img = if (includeWhite) {
         val whiteNodes = hsv.clone().apply { hsvFilter(satRange = 0..1, valRange = 210..255) }.getBand(2)
         whiteNodes + redNodes + blueNodes
     } else {
         redNodes + blueNodes
     }
+
+    for (y in 0 until height) {
+        var index = img.startIndex + y * img.stride
+        for (x in 0 until width) {
+            img.data[index] = if (img.data[index] >= 175) 255f else 0f
+            index++
+        }
+    }
+
+    return img
 }
