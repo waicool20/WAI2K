@@ -419,8 +419,30 @@ abstract class MapRunner(
             delay(200)
             return findRegion()
         }
+        val targets = mutableListOf<Pair<Int, Int>>()
 
-        // Find ratio of white to non white ones, it's probably a node
+        while (isActive) {
+            val img = roi.capture().extractNodes(true)
+            for (y in 0 until img.height) {
+                var index = img.startIndex + y * img.stride
+                for (x in 0 until img.width) {
+                    if (img.data[index++] >= 175) targets += x to y
+                }
+            }
+            yield()
+            if (targets.isEmpty()) {
+                logger.debug("No targets found, retry")
+                if (Random.nextBoolean()) continue else return retry()
+            }
+            logger.debug("${targets.size} target candidates for node $this")
+            val target = targets.random().let { (cX, cY) ->
+                roi.subRegionAs<AndroidRegion>(cX, cY, 1, 1)
+            }
+            logger.debug("Node target: (x=${target.x},y=${target.y})")
+            return target
+        }
+        error("Could not find node")
+/*        // Find ratio of white to non white ones, it's probably a node
         // if its vaguely the right color ¯\_(ツ)_/¯
         loop@ while (isActive) {
             val clickRegionImage = roi.capture().extractNodes(true)
@@ -437,7 +459,7 @@ abstract class MapRunner(
                 else -> break@loop
             }
         }
-        return roi
+        return roi*/
     }
 
     private suspend fun clickThroughBattle() {
