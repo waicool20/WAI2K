@@ -332,7 +332,14 @@ abstract class MapRunner(
 
     protected suspend fun MapNode.findRegion(): AndroidRegion {
         val window = mapRunnerRegions.window
-        val H = mapH ?: fullMap.homographyMultiSample(window.capture().extractNodes(false))
+        var h: Homography2D_F64? = null
+        while (h == null) {
+            h = try {
+                mapH ?: fullMap.homography(window.capture().extractNodes(false))
+            } catch (e: IllegalStateException) {
+                continue
+            }
+        }
 
         suspend fun retry(): AndroidRegion {
             if (Random.nextBoolean()) {
@@ -350,7 +357,7 @@ abstract class MapRunner(
         }
 
         // Rect that is relative to the window
-        val rect = H.transformRect(rect)
+        val rect = h.transformRect(rect)
         logger.debug("$this estimated to be at Rect(x=${rect.x}, y=${rect.y}, width=${rect.width}, height=${rect.height})")
         if (rect.width <= 0 || rect.height <= 0) {
             logger.debug("Estimate failed basic dimension test, will retry")
@@ -483,23 +490,5 @@ abstract class MapRunner(
     private suspend fun endTurn() {
         mapRunnerRegions.endBattle.clickWhile { has(FileTemplate("combat/battle/end.png")) }
         delay(200)
-    }
-
-    /**
-     * Calculates multiple homography matrices and then takes an element wise average
-     */
-    private suspend fun GrayF32.homographyMultiSample(other: GrayF32): Homography2D_F64 {
-        // Does this really make it more reliable?
-        return coroutineScope {
-            val hDeferred = List(hSamples) { async { homography(other) } }
-            val h = hDeferred.map { it.await() }
-            val result = Homography2D_F64()
-            for (r in 0 until 3) {
-                for (c in 0 until 3) {
-                    result.set(r, c, h.map { it.get(r, c) }.average())
-                }
-            }
-            result
-        }
     }
 }
