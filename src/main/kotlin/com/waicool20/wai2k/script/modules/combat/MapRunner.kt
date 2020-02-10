@@ -312,7 +312,7 @@ abstract class MapRunner(
         logger.info("Battle ended, clicking through battle results")
         val combatMenu = GameLocation.mappings(config)[LocationId.COMBAT_MENU]!!
         try {
-            withTimeout(10000) {
+            withTimeout(15000) {
                 while (!combatMenu.isInRegion(region)) {
                     mapRunnerRegions.battleEndClick.click()
                     endTurn()
