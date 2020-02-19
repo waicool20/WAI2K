@@ -265,7 +265,8 @@
   {
     "name": "M4 SOPMOD II",
     "stars": 4,
-    "type": "AR"
+    "type": "AR",
+    "moddable": true
   },
   {
     "name": "ST AR-15",
@@ -482,7 +483,8 @@
   {
     "name": "UMP45",
     "stars": 4,
-    "type": "SMG"
+    "type": "SMG",
+    "moddable": true
   },
   {
     "name": "Gr G36C",
