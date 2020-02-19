@@ -19,8 +19,8 @@
 
 package com.waicool20.wai2k.script
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.waicool20.cvauto.android.AndroidDevice
-import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.core.Region
 
 /**
@@ -32,6 +32,7 @@ import com.waicool20.cvauto.core.Region
  * @param width Width of the asset
  * @param height Height of the asset
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class Asset(
         val imageName: String,
         val x: Int,
