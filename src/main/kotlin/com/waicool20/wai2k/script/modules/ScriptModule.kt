@@ -27,7 +27,9 @@ import com.waicool20.wai2k.game.DollFilterRegions
 import com.waicool20.wai2k.game.TDoll
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
+import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.cancelAndYield
+import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.waicoolutils.filterAsync
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.CoroutineScope
@@ -82,7 +84,16 @@ abstract class ScriptModule(
         }
         if (stars != null) {
             logger.info("Applying $stars stars filter")
-            dollFilterRegions.starRegions[stars]?.click(); yield()
+            val unlockedStars = dollFilterRegions.starRegions[6]?.let {
+                Ocr.forConfig(config).doOCRAndTrim(it.subRegion(126, 70, 119, 39))
+            }
+            if (unlockedStars?.contains("6") == true) {
+                logger.info("6 star filter is unlocked")
+                dollFilterRegions.starRegions[stars]?.click(); yield()
+            } else {
+                logger.info("6 star filter isn't unlocked")
+                dollFilterRegions.starRegions[stars + 1]?.click(); yield()
+            }
         }
         if (type != null) {
             logger.info("Applying $type doll type filter")

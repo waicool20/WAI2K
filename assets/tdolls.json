@@ -249,7 +249,8 @@
   {
     "name": "NTW-20",
     "stars": 5,
-    "type": "RF"
+    "type": "RF",
+    "moddable": true
   },
   {
     "name": "M16A1",
