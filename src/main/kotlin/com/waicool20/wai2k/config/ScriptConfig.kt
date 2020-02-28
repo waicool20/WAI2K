@@ -30,7 +30,9 @@ class ScriptConfig(
         defaultSimilarityThreshold: Double = 0.9,
         mapRunnerSimilarityThreshold: Double = 0.85,
         ocrThreshold: Double = 0.9,
-        fastScreenshotMode: Boolean = false
+        fastScreenshotMode: Boolean = false,
+        minPostBattleClick: Int = 7,
+        maxPostBattleClick: Int = 9
 ) {
     val loopDelayProperty = loopDelay.toProperty()
     val baseNavigationDelayProperty = baseNavigationDelay.toProperty()
@@ -39,6 +41,8 @@ class ScriptConfig(
     val mapRunnerSimilarityThresholdProperty = mapRunnerSimilarityThreshold.toProperty()
     val ocrThresholdProperty = ocrThreshold.toProperty()
     val fastScreenshotModeProperty = fastScreenshotMode.toProperty()
+    val minPostBattleClickProperty = minPostBattleClick.toProperty()
+    val maxPostBattleClickProperty = maxPostBattleClick.toProperty()
 
     var loopDelay by loopDelayProperty
     var baseNavigationDelay by baseNavigationDelayProperty
@@ -47,4 +51,6 @@ class ScriptConfig(
     var mapRunnerSimilarityThreshold by mapRunnerSimilarityThresholdProperty
     var ocrThreshold by ocrThresholdProperty
     var fastScreenshotMode by fastScreenshotModeProperty
+    var minPostBattleClick by minPostBattleClickProperty
+    var maxPostBattleClick by maxPostBattleClickProperty
 }

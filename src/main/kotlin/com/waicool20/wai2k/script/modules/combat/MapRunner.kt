@@ -476,7 +476,7 @@ abstract class MapRunner(
         logger.info("Battle ${_battles++} complete, clicking through battle results")
         delay(400)
         val l = mapRunnerRegions.battleEndClick.randomPoint()
-        repeat(Random.nextInt(7, 9)) {
+        repeat(Random.nextInt(config.scriptConfig.minPostBattleClick, config.scriptConfig.maxPostBattleClick)) {
             region.device.input.touchInterface?.tap(0, l.x, l.y); yield()
         }
         // If the clicks above managed to halt battle plan just cancel the dialog
