@@ -34,6 +34,7 @@ import com.waicool20.wai2k.game.TDoll
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.script.modules.ScriptModule
+import com.waicool20.wai2k.script.modules.combat.maps.EventMapRunner
 import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.wai2k.util.doOCRAndTrim
@@ -74,7 +75,11 @@ class CombatModule(
         if (gameState.echelons[0].hasRepairs()) return
         // Also Return if its a corpse dragging map and echelon 2 has repairs
         if (mapRunner.isCorpseDraggingMap && gameState.echelons[1].hasRepairs()) return
-        runCombatCycle()
+        if (MapRunner.eventMaps.contains(profile.combat.map)) {
+            runEventCombatCycle()
+        } else {
+            runCombatCycle()
+        }
     }
 
     /**
@@ -115,6 +120,22 @@ class CombatModule(
         logger.info("Sortie complete")
         // Back to combat menu or home, check logistics
         navigator.checkLogistics()
+    }
+
+    private suspend fun runEventCombatCycle() {
+        checkRepairs()
+        // Cancel further execution if any of the dolls needed to repair but were not able to
+        wasCancelled = gameState.echelons.any { it.needsRepairs() }
+        if (wasCancelled) return
+        navigator.navigateTo(LocationId.EVENT)
+
+        (mapRunner as EventMapRunner).enterMap()
+        if (checkNeedsEnhancement()) return
+        executeMapRunner()
+
+        gameState.currentGameLocation = GameLocation.mappings(config)[LocationId.EVENT]
+                ?: error("Bad locations.json file")
+        logger.info("Sortie complete")
     }
 
     //<editor-fold desc="Doll Switching">
@@ -410,15 +431,7 @@ class CombatModule(
                     .findBest(FileTemplate("combat/battle/normal.png"))?.region?.click() ?: continue
             delay(200)
 
-            region.subRegion(1185, 696, 278, 95)
-                    .findBest(FileTemplate("combat/enhancement.png"))?.region?.apply {
-                logger.info("T-doll limit reached, cancelling sortie")
-                click()
-                gameState.dollOverflow = true
-                gameState.currentGameLocation = GameLocation.mappings(config)[LocationId.TDOLL_ENHANCEMENT]
-                        ?: error("Bad locations.json file")
-                return
-            }
+            if (checkNeedsEnhancement()) return
 
             // Wait for start operation button to appear first before handing off control to
             // map specific files
@@ -430,6 +443,22 @@ class CombatModule(
 
         // Set location to battle
         gameState.currentGameLocation = GameLocation(LocationId.BATTLE)
+    }
+
+    /**
+     * Checks if the enhancement dialog popped up
+     */
+    private fun checkNeedsEnhancement(): Boolean {
+        region.subRegion(1185, 696, 278, 95)
+                .findBest(FileTemplate("combat/enhancement.png"))?.region?.apply {
+            logger.info("T-doll limit reached, cancelling sortie")
+            click()
+            gameState.dollOverflow = true
+            gameState.currentGameLocation = GameLocation.mappings(config)[LocationId.TDOLL_ENHANCEMENT]
+                    ?: error("Bad locations.json file")
+            return true
+        }
+        return false
     }
 
     /**

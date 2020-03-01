@@ -17,28 +17,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.waicool20.wai2k.game
+package com.waicool20.wai2k.script.modules.combat.maps
 
-enum class LocationId {
-    HOME,
-    HOME_STATUS,
-    FORMATION,
-    FACTORY_MENU,
-    TDOLL_PRODUCTION,
-    DUMMY_LINK,
-    TDOLL_ENHANCEMENT,
-    TDOLL_DISASSEMBLY,
-    EQUIPMENT_PRODUCTION,
-    COMBAT_MENU,
-    COMBAT_SETTINGS,
-    COMBAT,
-    LOGISTICS_SUPPORT,
-    REPAIR,
-    RESEARCH_MENU,
-    DORMITORIES,
-    BATTLE,
-    PROFILE,
-    FAIRY_DETAILS,
-    EVENT,
-    UNKNOWN
+import com.waicool20.cvauto.android.AndroidRegion
+import com.waicool20.wai2k.config.Wai2KConfig
+import com.waicool20.wai2k.config.Wai2KProfile
+import com.waicool20.wai2k.script.ScriptRunner
+import com.waicool20.wai2k.script.modules.combat.MapRunner
+
+abstract class EventMapRunner(
+        scriptRunner: ScriptRunner,
+        region: AndroidRegion,
+        config: Wai2KConfig,
+        profile: Wai2KProfile
+) : MapRunner(scriptRunner, region, config, profile) {
+    abstract suspend fun enterMap()
 }

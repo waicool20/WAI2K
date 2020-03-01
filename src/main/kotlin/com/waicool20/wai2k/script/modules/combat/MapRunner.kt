@@ -19,7 +19,6 @@
 
 package com.waicool20.wai2k.script.modules.combat
 
-import boofcv.struct.image.GrayF32
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.waicool20.cvauto.android.AndroidRegion
@@ -32,6 +31,7 @@ import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.game.MapRunnerRegions
 import com.waicool20.wai2k.script.ScriptRunner
+import com.waicool20.wai2k.script.modules.combat.maps.EventMapRunner
 import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.wai2k.util.extractNodes
@@ -84,11 +84,19 @@ abstract class MapRunner(
 
         val list = Reflections("com.waicool20.wai2k.script.modules.combat.maps")
                 .getSubTypesOf(MapRunner::class.java)
+                .filterNot { it == EventMapRunner::class.java }
                 .mapNotNull { cls ->
                     Regex("Map(\\d_\\d\\w?)").matchEntire(cls.simpleName)?.let {
                         it.groupValues[1].replace("_", "-") to cls.kotlin
+                    } ?: Regex("Event(\\w+)").matchEntire(cls.simpleName)?.let {
+                        it.groupValues[1] to cls.kotlin
                     }
                 }.toMap()
+
+        val normalMaps by lazy { list.filter { it.key.matches(Regex("\\d+-\\d+")) } }
+        val emergencyMaps by lazy { list.filter { it.key.endsWith("e", true) } }
+        val nightMaps by lazy { list.filter { it.key.endsWith("n", true) } }
+        val eventMaps by lazy { list.filterNot { it.key.matches(Regex("\\d-\\d\\w?")) } }
     }
 
     override val coroutineContext: CoroutineContext
@@ -100,14 +108,17 @@ abstract class MapRunner(
     /**
      * A property that contains the asset prefix of the map
      */
-    val PREFIX = "combat/maps/${javaClass.simpleName.replace("_", "-").drop(3)}"
+    val PREFIX = "combat/maps/${javaClass.simpleName.replace("_", "-").replace("Map", "")}"
+
+    open protected val extractBlueNodes: Boolean = true
+    protected open val extractWhiteNodes: Boolean = false
 
     private val _nodes = async(Dispatchers.IO) {
         mapper.readValue<List<MapNode>>(config.assetsDirectory.resolve("$PREFIX/map.json").toFile())
     }
 
     private val _fullMap = async(Dispatchers.IO) {
-        ImageIO.read(config.assetsDirectory.resolve("$PREFIX/map.png").toFile()).extractNodes(false)
+        ImageIO.read(config.assetsDirectory.resolve("$PREFIX/map.png").toFile()).extractNodes(extractBlueNodes, extractWhiteNodes)
     }
 
     /**
@@ -310,10 +321,15 @@ abstract class MapRunner(
      */
     protected suspend fun handleBattleResults(): Unit = coroutineScope {
         logger.info("Battle ended, clicking through battle results")
-        val combatMenu = GameLocation.mappings(config)[LocationId.COMBAT_MENU]!!
+        val location = if (this is EventMapRunner) {
+            GameLocation.mappings(config)[LocationId.EVENT]
+        } else {
+            GameLocation.mappings(config)[LocationId.COMBAT_MENU]
+        }
+        checkNotNull(location)
         try {
             withTimeout(15000) {
-                while (!combatMenu.isInRegion(region)) {
+                while (!location.isInRegion(region)) {
                     mapRunnerRegions.battleEndClick.click()
                     endTurn()
                 }
@@ -335,7 +351,7 @@ abstract class MapRunner(
         var h: Homography2D_F64? = null
         while (h == null) {
             h = try {
-                mapH ?: fullMap.homography(window.capture().extractNodes(false))
+                mapH ?: fullMap.homography(window.capture().extractNodes(extractBlueNodes, extractWhiteNodes))
             } catch (e: IllegalStateException) {
                 continue
             }

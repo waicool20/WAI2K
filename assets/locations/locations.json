@@ -98,6 +98,16 @@
           "width": 1823,
           "height": 78
         }
+      },
+      {
+        "dest": "event",
+        "asset": {
+          "imageName": "",
+          "x": 1536,
+          "y": 733,
+          "width": 469,
+          "height": 151
+        }
       }
     ]
   },
@@ -168,6 +178,16 @@
           "y": 368,
           "width": 354,
           "height": 144
+        }
+      },
+      {
+        "dest": "event",
+        "asset": {
+          "imageName": "",
+          "x": 1536,
+          "y": 733,
+          "width": 469,
+          "height": 151
         }
       }
     ]
@@ -914,6 +934,33 @@
           "y": 364,
           "width": 139,
           "height": 321
+        }
+      }
+    ]
+  },
+  {
+    "id": "event",
+    "isIntermediate": false,
+    "landmarks": [
+      {
+        "asset": {
+          "imageName": "event",
+          "x": 120,
+          "y": 670,
+          "width": 60,
+          "height": 60
+        }
+      }
+    ],
+    "links": [
+      {
+        "dest": "home",
+        "asset": {
+          "imageName": "",
+          "x": 133,
+          "y": 120,
+          "width": 715,
+          "height": 927
         }
       }
     ]
