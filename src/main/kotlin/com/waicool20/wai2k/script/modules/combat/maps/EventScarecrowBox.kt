@@ -41,7 +41,7 @@ class EventScarecrowBox(
         region.subRegion(1240, 357, 63, 41).click()
         delay(500)
         region.subRegion(1762, 880, 231, 111).click()
-        delay(3000)
+        delay(4000)
     }
 
     override suspend fun execute() {
