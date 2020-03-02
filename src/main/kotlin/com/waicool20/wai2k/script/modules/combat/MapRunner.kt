@@ -321,9 +321,11 @@ abstract class MapRunner(
      */
     protected suspend fun handleBattleResults(): Unit = coroutineScope {
         logger.info("Battle ended, clicking through battle results")
-        val location = if (this is EventMapRunner) {
+        val location = if (this@MapRunner is EventMapRunner) {
+            logger.info("Waiting for event menu")
             GameLocation.mappings(config)[LocationId.EVENT]
         } else {
+            logger.info("Waiting for combat menu")
             GameLocation.mappings(config)[LocationId.COMBAT_MENU]
         }
         checkNotNull(location)
@@ -335,12 +337,12 @@ abstract class MapRunner(
                 }
             }
         } catch (e: TimeoutCancellationException) {
-            logger.info("Timed out waiting for combat menu")
+            logger.info("Timed out waiting to exit battle")
             endTurn()
             handleBattleResults()
             return@coroutineScope
         }
-        logger.info("Back at combat menu")
+        logger.info("Left battle screen")
         scriptStats.sortiesDone += 1
         _battles = 1
         mapH = null

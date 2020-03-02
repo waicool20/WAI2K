@@ -46,7 +46,7 @@ class EventScarecrowBox(
 
     override suspend fun execute() {
         region.subRegionAs<AndroidRegion>(1100, 362, 10, 10)
-                .swipeTo(region.subRegionAs<AndroidRegion>(1100, 362 + 400, 10, 10))
+                .swipeTo(region.subRegionAs(1100, 362 + 400, 10, 10))
         val rEchelons = deployEchelons(nodes[0])
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
