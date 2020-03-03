@@ -957,10 +957,10 @@
         "dest": "home",
         "asset": {
           "imageName": "",
-          "x": 133,
-          "y": 120,
-          "width": 715,
-          "height": 927
+          "x": 120,
+          "y": 0,
+          "width": 205,
+          "height": 130
         }
       }
     ]
