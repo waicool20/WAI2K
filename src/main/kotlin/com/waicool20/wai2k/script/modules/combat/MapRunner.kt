@@ -348,6 +348,16 @@ abstract class MapRunner(
         mapH = null
     }
 
+    protected suspend fun terminateMission() {
+        mapRunnerRegions.terminateMenu.click(); delay(100)
+        mapRunnerRegions.terminate.click(); delay(1000)
+
+        logger.info("Left battle screen")
+        scriptStats.sortiesDone += 1
+        _battles = 1
+        mapH = null
+    }
+
     protected suspend fun MapNode.findRegion(): AndroidRegion {
         val window = mapRunnerRegions.window
         var h: Homography2D_F64? = null
