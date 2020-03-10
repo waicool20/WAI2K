@@ -19,6 +19,7 @@
 
 package com.waicool20.wai2k.script.modules.combat
 
+import boofcv.struct.image.GrayF32
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.waicool20.cvauto.android.AndroidRegion
@@ -43,6 +44,7 @@ import georegression.struct.homography.Homography2D_F64
 import kotlinx.coroutines.*
 import org.reflections.Reflections
 import java.awt.Color
+import java.nio.file.Files
 import java.text.DecimalFormat
 import javax.imageio.ImageIO
 import kotlin.coroutines.CoroutineContext
@@ -114,11 +116,21 @@ abstract class MapRunner(
     protected open val extractWhiteNodes: Boolean = false
 
     private val _nodes = async(Dispatchers.IO) {
-        mapper.readValue<List<MapNode>>(config.assetsDirectory.resolve("$PREFIX/map.json").toFile())
+        val path = config.assetsDirectory.resolve("$PREFIX/map.json")
+        if (Files.exists(path)) {
+            mapper.readValue<List<MapNode>>(path.toFile())
+        } else {
+            emptyList()
+        }
     }
 
     private val _fullMap = async(Dispatchers.IO) {
-        ImageIO.read(config.assetsDirectory.resolve("$PREFIX/map.png").toFile()).extractNodes(extractBlueNodes, extractWhiteNodes)
+        val path = config.assetsDirectory.resolve("$PREFIX/map.png")
+        if (Files.exists(path)) {
+            ImageIO.read(path.toFile()).extractNodes(extractBlueNodes, extractWhiteNodes)
+        } else {
+            GrayF32()
+        }
     }
 
     /**
