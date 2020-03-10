@@ -66,4 +66,19 @@ class MapRunnerRegions(region: AndroidRegion) {
      * Match window
      */
     val window = region.subRegion(455, 151, 1281, 929)
+
+    /**
+     * Button to open terminate mission menu
+     */
+    val terminateMenu = region.subRegion(398, 12, 156, 111)
+
+    /**
+     * Terminate mission button
+     */
+    val terminate = region.subRegion(1189, 694, 237, 88)
+
+    /**
+     * Restart mission button
+     */
+    val restart = region.subRegion(737, 694, 237, 88)
 }
