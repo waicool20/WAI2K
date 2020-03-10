@@ -85,6 +85,7 @@ class FactoryModule(
             logger.info("Selecting highest level T-doll for enhancement")
             // Randomly select a doll on the screen for enhancement
             while (isActive) {
+                region.matcher.settings.matchDimension = ScriptRunner.HIGH_RES
                 val doll = // Map lock region to doll region
                         // Prioritize higher level dolls
                         region.findBest(FileTemplate("doll-list/lock.png"), 20)
@@ -93,6 +94,7 @@ class FactoryModule(
                                 // Map lock region to doll region
                                 .map { region.subRegion(it.x - 7, it.y, 244, it.height) }
                                 .minBy { it.y * 10 + it.x }
+                region.matcher.settings.matchDimension = ScriptRunner.NORMAL_RES
                 if (doll == null) {
                     if (region.findBest(FileTemplate("doll-list/logistics.png"), 20).size >= 12) {
                         logger.info("All dolls are unavailable, checking down the list")
