@@ -62,6 +62,7 @@ abstract class MapRunner(
 ) : CoroutineScope {
     private val logger = loggerFor<MapRunner>()
     private var _battles = 1
+
     /**
      * Map homography cache
      */
@@ -69,14 +70,17 @@ abstract class MapRunner(
 
     companion object {
         private val mapper = jacksonObjectMapper()
+
         /**
          * How many homography samples to take
          */
         private const val hSamples = 1
+
         /**
          * Minimum scroll in pixels, because sometimes smaller scrolls dont register properly
          */
         private const val minScroll = 75
+
         /**
          * Difference theresholds
          */
@@ -112,8 +116,9 @@ abstract class MapRunner(
      */
     val PREFIX = "combat/maps/${javaClass.simpleName.replace("_", "-").replace("Map", "")}"
 
-    open protected val extractBlueNodes: Boolean = true
+    protected open val extractBlueNodes: Boolean = true
     protected open val extractWhiteNodes: Boolean = false
+    protected open val extractYellowNodes: Boolean = true
 
     private val _nodes = async(Dispatchers.IO) {
         val path = config.assetsDirectory.resolve("$PREFIX/map.json")
@@ -127,7 +132,7 @@ abstract class MapRunner(
     private val _fullMap = async(Dispatchers.IO) {
         val path = config.assetsDirectory.resolve("$PREFIX/map.png")
         if (Files.exists(path)) {
-            ImageIO.read(path.toFile()).extractNodes(extractBlueNodes, extractWhiteNodes)
+            ImageIO.read(path.toFile()).extractNodes(extractBlueNodes, extractWhiteNodes, extractYellowNodes)
         } else {
             GrayF32()
         }
@@ -375,7 +380,8 @@ abstract class MapRunner(
         var h: Homography2D_F64? = null
         while (h == null) {
             h = try {
-                mapH ?: fullMap.homography(window.capture().extractNodes(extractBlueNodes, extractWhiteNodes))
+                mapH
+                        ?: fullMap.homography(window.capture().extractNodes(extractBlueNodes, extractWhiteNodes, extractYellowNodes))
             } catch (e: IllegalStateException) {
                 continue
             }
@@ -469,7 +475,7 @@ abstract class MapRunner(
         val targets = mutableListOf<Pair<Int, Int>>()
 
         while (isActive) {
-            val img = roi.capture().extractNodes(true)
+            val img = roi.capture().extractNodes()
             for (y in 0 until img.height) {
                 var index = img.startIndex + y * img.stride
                 for (x in 0 until img.width) {
