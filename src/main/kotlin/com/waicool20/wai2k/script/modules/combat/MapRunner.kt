@@ -268,7 +268,7 @@ abstract class MapRunner(
      *
      * @param battles Amount of battles expected in this turn
      */
-    protected suspend fun waitForTurnEnd(battles: Int) {
+    protected suspend fun waitForTurnEnd(battles: Int, endTurn: Boolean = true) {
         logger.info("Waiting for turn to end, expected battles: $battles")
         var battlesPassed = 0
         while (isActive && battlesPassed < battles) {
@@ -280,7 +280,7 @@ abstract class MapRunner(
         }
         region.waitHas(FileTemplate("combat/battle/terminate.png"), 10000)
         logger.info("Turn ended")
-        endTurn()
+        if (endTurn) endTurn()
     }
 
     /**
@@ -291,7 +291,7 @@ abstract class MapRunner(
      * @param turn Turn number
      * @param points No of action points
      */
-    protected suspend fun waitForTurnAndPoints(turn: Int, points: Int) {
+    protected suspend fun waitForTurnAndPoints(turn: Int, points: Int, endTurn: Boolean = true) {
         logger.info("Waiting for turn $turn and action points $points")
         val ocr = Ocr.forConfig(config, digitsOnly = true)
         var currentTurn = 0
@@ -318,13 +318,13 @@ abstract class MapRunner(
             if (isInBattle()) clickThroughBattle()
             if (region.has(FileTemplate("combat/battle/terminate.png"))) break
         }
-        endTurn()
+        if (endTurn) endTurn()
     }
 
     /**
      * Waits for the assets to appear and assumes that the turn is complete
      */
-    protected suspend fun waitForTurnAssets(vararg assets: String) {
+    protected suspend fun waitForTurnAssets(endTurn: Boolean = true, vararg assets: String) {
         logger.info("Waiting for ${assets.size} assets to appear")
         while (assets.any { region.doesntHave(FileTemplate(it, 0.98)) }) {
             if (isInBattle()) clickThroughBattle()
@@ -332,7 +332,7 @@ abstract class MapRunner(
         }
         logger.info("All assets are now on screen")
         region.waitHas(FileTemplate("combat/battle/terminate.png"), 10000)
-        endTurn()
+        if (endTurn) endTurn()
     }
 
     /**
