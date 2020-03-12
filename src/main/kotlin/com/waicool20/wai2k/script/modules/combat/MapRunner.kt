@@ -188,7 +188,9 @@ abstract class MapRunner(
             }
             if (!isCorpseDraggingMap) {
                 val formatter = DecimalFormat("##.#")
-                repeat(5) { mIndex ->
+                for (mIndex in 0..5) {
+                    val hpText = Ocr.forConfig(config).doOCR(screenshot.getSubimage(404 + mIndex * 272, 751, 40, 22))
+                    if (!hpText.contains("hp", true)) continue
                     val hpImage = screenshot.getSubimage(373 + mIndex * 272, 778, 217, 1).binarizeImage()
                     val hp = hpImage.countColor(Color.WHITE) / hpImage.width.toDouble() * 100
                     logger.info("Member ${mIndex + 1} HP: ${formatter.format(hp)} %")
