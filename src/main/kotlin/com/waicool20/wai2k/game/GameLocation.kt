@@ -19,25 +19,17 @@
 
 package com.waicool20.wai2k.game
 
-import boofcv.struct.image.GrayF32
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.waicool20.cvauto.android.AndroidDevice
-import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.core.Region
 import com.waicool20.cvauto.core.template.FileTemplate
-import com.waicool20.cvauto.util.asGrayF32
-import com.waicool20.cvauto.util.matching.ITemplateMatcher
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.script.Asset
 import com.waicool20.waicoolutils.logging.loggerFor
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import java.awt.image.BufferedImage
 import java.util.*
-import kotlin.time.ExperimentalTime
-import kotlin.time.measureTimedValue
 
 /**
  * Represents a location in the game
@@ -52,6 +44,7 @@ data class GameLocation(val id: LocationId, val isIntermediate: Boolean = false)
      * then the game location is on screen
      */
     val landmarks: List<Landmark> = emptyList()
+
     /**
      * List of available links to other destinations
      */
@@ -63,6 +56,7 @@ data class GameLocation(val id: LocationId, val isIntermediate: Boolean = false)
      * @param dest Destination of this link
      * @param asset The corresponding asset that should be clicked to get to [dest]
      */
+    @JsonIgnoreProperties(ignoreUnknown = true)
     class Link(val dest: LocationId, asset: Asset) {
         val asset = asset.apply { prefix = "locations/links/" }
         override fun toString() = "Link(dest=$dest)"
@@ -81,6 +75,7 @@ data class GameLocation(val id: LocationId, val isIntermediate: Boolean = false)
         private var locations: Map<LocationId, GameLocation> = emptyMap()
         private val mapper = jacksonObjectMapper().enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
         private var loaderLogger = loggerFor<Loader>()
+
         /**
          * Reads the locations list file with the assets directory read from the configuration
          *

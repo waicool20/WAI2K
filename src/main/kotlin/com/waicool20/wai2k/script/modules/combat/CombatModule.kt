@@ -63,10 +63,6 @@ class CombatModule(
 
     private var wasCancelled = false
 
-    companion object {
-        private val dollSwitchingCache = mutableMapOf<DollCriteria, AndroidRegion>()
-    }
-
     override suspend fun execute() {
         if (!profile.combat.enabled) return
         // Return if the base doll limit is already reached
@@ -94,7 +90,6 @@ class CombatModule(
             // Check if there was a bad switch
             if (wasCancelled) {
                 logger.info("Bad switch, maybe the doll positions got shifted, cancelling this run")
-                dollSwitchingCache.clear()
                 return
             }
         }
