@@ -161,12 +161,13 @@ class CombatModule(
                 applyFilters(tdoll, i == 1)
                 switchDoll = region.findBest(FileTemplate("doll-list/echelon2-captain.png"))?.region
 
-                if (switchDoll == null) {
-                    // TODO maybe implement scrolling instead of this
-                    // Toggle descending/ascending and search again
-                    region.subRegion(1771, 672, 247, 87).click()
-                    delay(750)
-                    switchDoll = region.findBest(FileTemplate("doll-list/echelon2-captain.png"))?.region
+                for (j in 1..10) {
+                    if (switchDoll == null) {
+                        val r = region.subRegionAs<AndroidRegion>(1210, 1038, 500, 20)
+                        r.swipeTo(r.copyAs(y = r.y - 880))
+                        delay(750)
+                        switchDoll = region.findBest(FileTemplate("doll-list/echelon2-captain.png"))?.region
+                    } else break
                 }
 
                 if (switchDoll != null) {
