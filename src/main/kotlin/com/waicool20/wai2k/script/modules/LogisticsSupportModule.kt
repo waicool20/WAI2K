@@ -207,8 +207,11 @@ class LogisticsSupportModule(
         while (isActive) {
             val echelons = eRegion.findBest(FileTemplate("echelons/echelon.png"), 8)
                     .map { it.region }
-                    .map { it.copyAs<AndroidRegion>(it.x + 93, it.y - 40, 45, 100) }
-                    .mapAsync { Ocr.forConfig(config, true).doOCRAndTrim(it).toInt() to it }
+                    .map { it.copyAs<AndroidRegion>(it.x + 93, it.y - 40, 60, 100) }
+                    .mapAsync {
+                        Ocr.forConfig(config, true).doOCRAndTrim(it)
+                                .replace("18", "10").toInt() to it
+                    }
                     .toMap()
             logger.debug("Visible echelons: ${echelons.keys}")
             when {
