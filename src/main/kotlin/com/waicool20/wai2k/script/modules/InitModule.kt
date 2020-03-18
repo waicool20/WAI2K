@@ -101,7 +101,7 @@ class InitModule(
                 }
                 .map { "${it[0].await()} ${it[1].await()} ${it[2].await()}" }
                 .mapNotNull {
-                    Regex("(\\d) (\\d\\d?)\\s?[-—]\\s?(\\d) (\\d\\d):(\\d\\d):(\\d\\d)").matchEntire(it)?.destructured
+                    Regex("(\\d+) (\\d\\d?)\\s?[-—]\\s?(\\d) (\\d\\d):(\\d\\d):(\\d\\d)").matchEntire(it)?.destructured
                 }
         // Clear existing timers
         gameState.echelons.forEach { it.logisticsSupportAssignment = null }
