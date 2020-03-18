@@ -34,6 +34,7 @@ import com.waicool20.waicoolutils.filterAsync
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.yield
 import kotlin.coroutines.CoroutineContext
 
@@ -73,8 +74,13 @@ abstract class ScriptModule(
     protected suspend fun applyDollFilters(stars: Int? = null, type: TDoll.Type? = null, reset: Boolean = false) {
         if (stars == null && type == null && !reset) return
         dollFilterRegions.filter.click()
-        region.subRegion(1188, 214, 258, 252)
-                .waitHas(FileTemplate("doll-list/filtermenu.png"), 5000)
+        withTimeoutOrNull(5000) {
+            val checkRegion = region.subRegion(920, 168, 110, 39)
+            while(true) {
+                if (Ocr.forConfig(config).doOCRAndTrim(checkRegion).contains("Rarity")) break
+                yield()
+            }
+        }
 
         if (reset) {
             logger.info("Resetting filters")
