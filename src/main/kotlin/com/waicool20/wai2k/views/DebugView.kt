@@ -189,7 +189,7 @@ class DebugView : CoroutineScopeView() {
                     val image = device.screens[0].capture()
                             .getSubimage(xSpinner.value, ySpinner.value, wSpinner.value, hSpinner.value)
                             .asGrayF32()
-                    Region.DEFAULT_MATCHER.settings.matchDimension = ScriptRunner.NORMAL_RES
+                    Region.DEFAULT_MATCHER.settings.matchDimension = ScriptRunner.HIGH_RES
                     // Set similarity to 0.6f to make sikulix report the similarity value down to 0.6
                     val (results, duration) = measureTimedValue {
                         try {
@@ -199,6 +199,7 @@ class DebugView : CoroutineScopeView() {
                             device.screens[0].matcher.findBest(FileTemplate(path, 0.6), image, max)
                         }
                     }
+                    Region.DEFAULT_MATCHER.settings.matchDimension = ScriptRunner.NORMAL_RES
                     results.takeIf { it.isNotEmpty() }
                             ?.sortedBy { it.score }
                             ?.forEach {
