@@ -25,9 +25,9 @@ import com.waicool20.cvauto.core.Region
 import com.waicool20.cvauto.core.asCachedRegion
 import com.waicool20.cvauto.core.input.ITouchInterface
 import com.waicool20.cvauto.core.template.FileTemplate
+import com.waicool20.cvauto.core.template.ImageTemplate
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
-import com.waicool20.wai2k.config.Wai2KProfile.DollCriteria
 import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.game.TDoll
@@ -161,12 +161,27 @@ class CombatModule(
                 applyFilters(tdoll, i == 1)
                 switchDoll = region.findBest(FileTemplate("doll-list/echelon2-captain.png"))?.region
 
-                for (j in 1..10) {
+                val r1 = region.subRegionAs<AndroidRegion>(1210, 1038, 500, 20)
+                val r2 = r1.copyAs<AndroidRegion>(y = r1.y - 750)
+                val checkRegion = region.subRegion(185, 360, 60, 60)
+
+                var scrollDown = true
+                var checkImg: BufferedImage
+                
+                while (isActive) {
+                    switchDoll = region.findBest(FileTemplate("doll-list/echelon2-captain.png", 0.85))?.region
                     if (switchDoll == null) {
-                        val r = region.subRegionAs<AndroidRegion>(1210, 1038, 500, 20)
-                        r.swipeTo(r.copyAs(y = r.y - 880))
-                        delay(750)
-                        switchDoll = region.findBest(FileTemplate("doll-list/echelon2-captain.png"))?.region
+                        checkImg = checkRegion.capture()
+                        if (scrollDown) {
+                            r1.swipeTo(r2)
+                        } else {
+                            r2.swipeTo(r1)
+                        }
+                        delay(2000)
+                        if (checkRegion.has(ImageTemplate(checkImg))) {
+                            logger.info("Reached ${if (scrollDown) "bottom" else "top"} of the list")
+                            scrollDown = !scrollDown
+                        }
                     } else break
                 }
 
