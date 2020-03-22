@@ -176,21 +176,36 @@ abstract class MapRunner(
     protected suspend fun deployEchelons(vararg nodes: MapNode): Array<MapNode> = coroutineScope {
         val needsResupply = nodes.filterIndexed { i, node ->
             logger.info("Deploying echelon ${i + 1} to $node")
-            node.findRegion().click(); delay(750)
+            node.findRegion().click()
+            // Wait for echelon popup
+            val r = region.subRegion(421, 915, 145, 28)
+            while (!Ocr.forConfig(config).doOCRAndTrim(r).contains("echelon", true)) delay(100)
             val screenshot = region.capture()
+            val formatter = DecimalFormat("##.#")
+
+            fun hasMember(mIndex: Int): Boolean {
+                val hpText = Ocr.forConfig(config).doOCR(screenshot.getSubimage(404 + mIndex * 272, 751, 40, 22))
+                return hpText.contains("hp", true)
+            }
+
+            val hasMember2 = hasMember(1)
             val ammoNeedsSupply = async {
+                if (!hasMember2) return@async false
                 val image = screenshot.getSubimage(645, 820, 218, 1).binarizeImage()
+                val ammoCount = image.countColor(Color.WHITE) / image.width.toDouble() * 100
+                logger.info("Second member ammo: ${formatter.format(ammoCount)} %")
                 image.countColor(Color.WHITE) != image.width
             }
             val rationNeedsSupply = async {
+                if (!hasMember2) return@async false
                 val image = screenshot.getSubimage(645, 860, 218, 1).binarizeImage()
+                val rationCount = image.countColor(Color.WHITE) / image.width.toDouble() * 100
+                logger.info("Second member rations: ${formatter.format(rationCount)} %")
                 image.countColor(Color.WHITE) != image.width
             }
             if (!isCorpseDraggingMap) {
-                val formatter = DecimalFormat("##.#")
                 for (mIndex in 0..5) {
-                    val hpText = Ocr.forConfig(config).doOCR(screenshot.getSubimage(404 + mIndex * 272, 751, 40, 22))
-                    if (!hpText.contains("hp", true)) continue
+                    if (!hasMember(mIndex)) continue
                     val hpImage = screenshot.getSubimage(373 + mIndex * 272, 778, 217, 1).binarizeImage()
                     val hp = hpImage.countColor(Color.WHITE) / hpImage.width.toDouble() * 100
                     logger.info("Member ${mIndex + 1} HP: ${formatter.format(hp)} %")
