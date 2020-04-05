@@ -72,7 +72,11 @@
          <children>
             <Button fx:id="OCRButton" mnemonicParsing="false" text="OCR" />
             <Button fx:id="resetOCRButton" mnemonicParsing="false" text="Reset" />
-            <CheckBox fx:id="filterNodeCheckBox" mnemonicParsing="false" text="Filter Nodes" />
+            <Separator orientation="VERTICAL" />
+            <Label text="Filter Nodes:" />
+            <CheckBox fx:id="filterBlueCheckBox" mnemonicParsing="false" text="Blue" />
+            <CheckBox fx:id="filterWhiteCheckBox" mnemonicParsing="false" text="White" />
+            <CheckBox fx:id="filterYellowCheckBox" mnemonicParsing="false" text="Yellow" />
          </children>
       </HBox>
       <Separator prefWidth="200.0" />

@@ -62,7 +62,9 @@ class DebugView : CoroutineScopeView() {
     private val ocrImageView: ImageView by fxid()
     private val OCRButton: Button by fxid()
     private val resetOCRButton: Button by fxid()
-    private val filterNodeCheckBox: CheckBox by fxid()
+    private val filterBlueCheckBox: CheckBox by fxid()
+    private val filterWhiteCheckBox: CheckBox by fxid()
+    private val filterYellowCheckBox: CheckBox by fxid()
 
     private val useLSTMCheckBox: CheckBox by fxid()
     private val filterCheckBox: CheckBox by fxid()
@@ -110,8 +112,12 @@ class DebugView : CoroutineScopeView() {
                         it.getSubimage(xSpinner.value, ySpinner.value, wSpinner.value, hSpinner.value)
                     } else it
                 }
-                if (filterNodeCheckBox.isSelected) {
-                    image = image.extractNodes().asBufferedImage()
+                if (filterBlueCheckBox.isSelected || filterWhiteCheckBox.isSelected || filterYellowCheckBox.isSelected) {
+                    image = image.extractNodes(
+                            includeBlue = filterBlueCheckBox.isSelected,
+                            includeWhite = filterWhiteCheckBox.isSelected,
+                            includeYellow = filterYellowCheckBox.isSelected
+                    ).asBufferedImage()
                 }
                 withContext(Dispatchers.JavaFx) {
                     ocrImageView.image = SwingFXUtils.toFXImage(image, null)
