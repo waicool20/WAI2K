@@ -254,6 +254,33 @@ abstract class MapRunner(
         }
     }
 
+    @JvmName("retreatEchelonsArray")
+    protected suspend fun retreatEchelons(nodes: Array<MapNode>) = retreatEchelons(*nodes)
+
+    /**
+     * Retreats an echelon at the given nodes, skips normal type nodes
+     *
+     * @param nodes Nodes to retreat
+     */
+    protected suspend fun retreatEchelons(vararg nodes: MapNode) {
+        for (node in nodes.distinct()) {
+            if (node.type == MapNode.Type.Normal) continue
+            logger.info("Retreat echelon at $node")
+            // Clicking twice, first to highlight the echelon, the second time to enter the deployment menu
+            logger.info("Selecting echelon")
+            node.findRegion().apply {
+                click(); yield()
+                click(); delay(300)
+            }
+            logger.info("Retreating")
+            mapRunnerRegions.retreat.click()
+            delay(1000)
+            region.subRegion(1115, 696, 250, 95).click()
+            logger.info("Retreat complete")
+            delay(750)
+        }
+    }
+
     /**
      * Waits for the G&K splash animation that appears at the beginning of the turn to appear
      * and waits for it to disappear

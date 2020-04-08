@@ -81,4 +81,9 @@ class MapRunnerRegions(region: AndroidRegion) {
      * Restart mission button
      */
     val restart = region.subRegion(737, 694, 237, 88)
+
+    /**
+     * Retreat button
+     */
+    val retreat = region.subRegion(1471, 908, 250, 96)
 }
