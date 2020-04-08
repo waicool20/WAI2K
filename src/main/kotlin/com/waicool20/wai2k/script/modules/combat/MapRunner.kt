@@ -270,7 +270,7 @@ abstract class MapRunner(
             logger.info("Selecting echelon")
             node.findRegion().apply {
                 click(); yield()
-                click(); delay(300)
+                click(); delay(750)
             }
             logger.info("Retreating")
             mapRunnerRegions.retreat.click()

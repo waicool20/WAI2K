@@ -19,14 +19,13 @@
 
 package com.waicool20.wai2k.script.modules.combat.maps
 
-import com.sun.org.apache.xpath.internal.operations.And
 import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.script.modules.combat.MapRunner
-import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.waicoolutils.logging.loggerFor
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
 import kotlin.random.Random
 
@@ -38,6 +37,7 @@ class Map8_1N(
 ) : MapRunner(scriptRunner, region, config, profile) {
     private val logger = loggerFor<Map8_1N>()
     override val isCorpseDraggingMap = true
+
     // Too much blue in this map
     override val extractBlueNodes = false
     override val extractYellowNodes = false
@@ -45,12 +45,15 @@ class Map8_1N(
     override suspend fun execute() {
         if (scriptRunner.scriptStats.sortiesDone == 0) {
             logger.info("Zoom out")
-            region.pinch(
-                    Random.nextInt(500, 700),
-                    Random.nextInt(300, 400),
-                    0.0,
-                    500
-            )
+            repeat(2) {
+                region.pinch(
+                        Random.nextInt(500, 700),
+                        Random.nextInt(300, 400),
+                        0.0,
+                        500
+                )
+            }
+            delay(1000)
         }
         val r = region.subRegionAs<AndroidRegion>(1058, 224, 100, 22)
         r.swipeTo(r.copy(y = r.y + 600))
