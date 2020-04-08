@@ -121,11 +121,12 @@ abstract class MapRunner(
     protected open val extractYellowNodes: Boolean = true
 
     private val _nodes = async(Dispatchers.IO) {
-        val path = config.assetsDirectory.resolve("$PREFIX/map.json")
-        if (Files.exists(path)) {
-            mapper.readValue<List<MapNode>>(path.toFile())
-        } else {
-            emptyList()
+        val relPath = config.assetsDirectory.resolve("$PREFIX/map.json")
+        val absPath = config.assetsDirectory.resolve("$PREFIX/map-abs.json")
+        when {
+            Files.exists(relPath) -> mapper.readValue<List<MapNode.RelativeMapNode>>(relPath.toFile())
+            Files.exists(absPath) -> mapper.readValue<List<MapNode.AbsoluteMapNode>>(absPath.toFile())
+            else -> emptyList()
         }
     }
 
@@ -393,6 +394,7 @@ abstract class MapRunner(
     }
 
     protected suspend fun MapNode.findRegion(): AndroidRegion {
+        if (this is MapNode.AbsoluteMapNode) return region.subRegionAs(x, y, width, height)
         val window = mapRunnerRegions.window
         var h: Homography2D_F64? = null
         while (h == null) {
