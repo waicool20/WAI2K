@@ -28,6 +28,7 @@ class FactoryView : AbstractProfileView() {
     private val enableEnhancementCheckBox: CheckBox by fxid()
     private val enableDisassemblyCheckBox: CheckBox by fxid()
     private val alwaysDisassembleAfterEnhanceCheckBox: CheckBox by fxid()
+    private val enableEquipDisassemblyCheckBox: CheckBox by fxid()
 
     override fun setValues() = Unit
 
@@ -41,6 +42,7 @@ class FactoryView : AbstractProfileView() {
             enableEnhancementCheckBox.bind(enhancement.enabledProperty)
             enableDisassemblyCheckBox.bind(disassembly.enabledProperty)
             alwaysDisassembleAfterEnhanceCheckBox.bind(alwaysDisassembleAfterEnhanceProperty)
+            enableEquipDisassemblyCheckBox.bind(equipDisassembly.enabledProperty)
         }
     }
 }

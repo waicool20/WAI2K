@@ -127,6 +127,19 @@
                                                 <Label fx:id="dollsUsedForDisassemblyLabel" />
                                              </children>
                                           </HBox>
+                                          <Separator prefWidth="200.0" />
+                                          <HBox spacing="5.0">
+                                             <children>
+                                                <Label text="Equipment disassembles done:" />
+                                                <Label fx:id="equipDisassemblesDoneLabel" />
+                                             </children>
+                                          </HBox>
+                                          <HBox spacing="5.0">
+                                             <children>
+                                                <Label text="Equipment used for disassembly:" />
+                                                <Label fx:id="equipsUsedForDisassemblyLabel" />
+                                             </children>
+                                          </HBox>
                                        </children>
                                        <HBox.margin>
                                           <Insets left="10.0" />

@@ -27,6 +27,8 @@ data class ScriptStats(
         var dollsUsedForEnhancement: Int = 0,
         var disassemblesDone: Int = 0,
         var dollsUsedForDisassembly: Int = 0,
+        var equipDisassemblesDone: Int = 0,
+        var equipsUsedForDisassembly: Int = 0,
         var repairs: Int = 0,
         var gameRestarts: Int = 0
 ) {
@@ -38,6 +40,8 @@ data class ScriptStats(
         dollsUsedForEnhancement = 0
         disassemblesDone = 0
         dollsUsedForDisassembly = 0
+        equipDisassemblesDone = 0
+        equipsUsedForDisassembly = 0
         repairs = 0
         gameRestarts = 0
     }

@@ -46,6 +46,7 @@ class FactoryModule(
 
     override suspend fun execute() {
         checkDollOverflow()
+        checkEquipOverflow()
     }
 
     private suspend fun checkDollOverflow() {
@@ -54,6 +55,11 @@ class FactoryModule(
         // Bypass overflow check if always disassemble
         if (!profile.factory.alwaysDisassembleAfterEnhance && !gameState.dollOverflow) return
         if (profile.factory.disassembly.enabled) disassembleDolls()
+    }
+
+    private suspend fun checkEquipOverflow() {
+        if (!gameState.equipOverflow) return
+        if (profile.factory.equipDisassembly.enabled) disassembleEquip()
     }
 
     /**
@@ -271,21 +277,147 @@ class FactoryModule(
         if (!gameState.dollOverflow) logger.info("The base now has space for new dolls")
     }
 
+    private suspend fun disassembleEquip() {
+        logger.info("Equipment limit reached, will try to disassemble")
+        navigator.navigateTo(LocationId.TDOLL_DISASSEMBLY)
+
+        var oldCount: Int? = null
+        logger.info("Disassembling 2 star equipment")
+        logger.info("Start equipment selection")
+        val sTemp = FileTemplate("factory/select-equip.png")
+        val dRegion = region.subRegion(483, 200, 1557, 565)
+        dRegion.waitHas(sTemp, 10000)?.click()
+        delay(750)
+
+        // Find the old equip count
+        try {
+            withTimeout(5000) {
+                val (currentCount, _) = getCurrentEquipCount()
+                oldCount?.let { scriptStats.equipsUsedForDisassembly += it - currentCount }
+                oldCount = currentCount
+            }
+        } catch (e: TimeoutCancellationException) {
+            logger.warn("Timed out on equipment count, cancelling disassemble")
+            return
+        }
+        // Click smart select button
+        logger.info("Using smart select")
+        region.subRegion(1772, 894, 237, 163).click()
+        delay(400)
+
+        // Confirm doll selection
+        val okButton = region.subRegion(1768, 889, 250, 170)
+                .findBest(FileTemplate("factory/ok-equip.png"))?.region
+        logger.info("Confirm equipment selections")
+        // Click ok
+        okButton?.click()
+        dRegion.waitHas(sTemp, 3000)
+        logger.info("Disassembling selected equipment")
+        // Click disassemble button
+        region.subRegion(1749, 839, 247, 95).click(); delay(750)
+        // Update stats
+        scriptStats.equipDisassemblesDone += 1
+
+        // Wait for menu to settle
+        region.subRegion(483, 200, 1557, 565)
+                .waitHas(FileTemplate("factory/select-equip.png"), 10000)?.let {
+                    it.click()
+                    delay(750)
+                }
+
+        logger.info("Disassembling 3 star equipment")
+        logger.info("Applying filters")
+        // Filter button
+        region.subRegion(1767, 347, 257, 162).click(); yield()
+        // 3 star
+        region.subRegion(1460, 213, 257, 117).click(); yield()
+        // Confirm
+        region.subRegion(1320, 979, 413, 83).click(); yield()
+        delay(750)
+
+        val (currentCount, _) = getCurrentEquipCount()
+        oldCount?.let { scriptStats.equipsUsedForDisassembly += it - currentCount }
+
+        while (isActive) {
+            region.matcher.settings.matchDimension = ScriptRunner.HIGH_RES
+            val equips = region.findBest(FileTemplate("factory/equip-3star.png"), 12)
+                    .map { it.region }
+                    .also { logger.info("Found ${it.size} that can be disassembled") }
+                    .map { region.subRegion(it.x - 106, it.y - 3, 247, 436) }
+            region.matcher.settings.matchDimension = ScriptRunner.NORMAL_RES
+            if (equips.isEmpty()) {
+                // Click cacnel if no equips could be used for disassembly
+                region.subRegion(120, 0, 205, 144).click()
+                break
+            }
+            // Select all equips
+            equips.sortedBy { it.y * 10 + it.x }.forEach { it.click() }
+            scriptStats.equipsUsedForDisassembly += equips.size
+            logger.info("Confirm equipment selections")
+            // Click ok
+            region.subRegion(1768, 889, 250, 170)
+                    .findBest(FileTemplate("factory/ok-equip.png"))?.region?.click(); delay(500)
+            logger.info("Disassembling selected equipment")
+            // Click disassemble button
+            region.subRegion(1749, 839, 247, 95).click(); delay(500)
+            // Click confirm
+            region.subRegion(1100, 865, 324, 161)
+                    .findBest(FileTemplate("ok.png"))?.region?.click(); delay(200)
+            // Update stats
+            scriptStats.equipDisassemblesDone += 1
+            // Can break if disassembled count is less than 12
+            if (equips.size < 12) {
+                logger.info("No more 3 star equipment to disassemble!")
+                break
+            } else {
+                logger.info("Still more 3 star equipment to disassemble")
+            }
+            // Wait for menu to settle
+            region.subRegion(483, 200, 1557, 565)
+                    .waitHas(FileTemplate("factory/select-equip.png"), 10000)?.let {
+                        it.click()
+                        delay(750)
+                    }
+        }
+        if (!gameState.equipOverflow) logger.info("The base now has space for new equipment")
+    }
+
+    private val countRegex = Regex("(\\d+)/(\\d+)")
+
     private tailrec suspend fun getCurrentDollCount(): Pair<Int, Int> {
         logger.info("Updating doll count")
         val dollCountRegion = region.subRegion(1750, 750, 300, 150)
         var ocrResult = ""
-        while(isActive) {
+        while (isActive) {
             ocrResult = Ocr.forConfig(config).doOCRAndTrim(dollCountRegion)
             if (ocrResult.contains("capacity", true)) break else yield()
         }
         logger.info("Doll count ocr: $ocrResult")
-        return Regex("(\\d+)/(\\d+)").find(ocrResult)?.groupValues?.let {
+        return countRegex.find(ocrResult)?.groupValues?.let {
             val count = it[1].toInt()
             val total = it[2].toInt()
             gameState.dollOverflow = count >= total
             logger.info("Count: $count | Total: $total")
             count to total
         } ?: getCurrentDollCount()
+    }
+
+    private tailrec suspend fun getCurrentEquipCount(): Pair<Int, Int> {
+        logger.info("Updatin equipment count")
+        val equipCountRegion = region.subRegion(1790, 815, 220, 60)
+        var ocrResult = ""
+        while (isActive) {
+            ocrResult = Ocr.forConfig(config).doOCRAndTrim(equipCountRegion.copy(y = 763))
+            if (ocrResult.contains("equip", true)) break else yield()
+        }
+        ocrResult = Ocr.forConfig(config).doOCRAndTrim(equipCountRegion)
+        logger.info("Equipment count ocr: $ocrResult")
+        return countRegex.find(ocrResult)?.groupValues?.let {
+            val count = it[1].toInt()
+            val total = it[2].toInt()
+            gameState.equipOverflow = count >= total
+            logger.info("Count: $count | Total: $total")
+            count to total
+        } ?: getCurrentEquipCount()
     }
 }

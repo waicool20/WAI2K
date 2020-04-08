@@ -67,6 +67,8 @@ class CombatModule(
         if (!profile.combat.enabled) return
         // Return if the base doll limit is already reached
         if (gameState.dollOverflow) return
+        // Return if the equip limit is already reached
+        if (gameState.equipOverflow) return
         // Return if echelon 1 has repairs
         if (gameState.echelons[0].hasRepairs()) return
         // Also Return if its a corpse dragging map and echelon 2 has repairs
@@ -460,12 +462,20 @@ class CombatModule(
      * Checks if the enhancement dialog popped up
      */
     private fun checkNeedsEnhancement(): Boolean {
-        region.subRegion(1185, 696, 278, 95)
-                .findBest(FileTemplate("combat/enhancement.png"))?.region?.apply {
+        val r = region.subRegion(1185, 696, 278, 95)
+        r.findBest(FileTemplate("combat/tdoll-enhance.png"))?.region?.apply {
             logger.info("T-doll limit reached, cancelling sortie")
             click()
             gameState.dollOverflow = true
             gameState.currentGameLocation = GameLocation.mappings(config)[LocationId.TDOLL_ENHANCEMENT]
+                    ?: error("Bad locations.json file")
+            return true
+        }
+        r.findBest(FileTemplate("combat/equip-enhance.png"))?.region?.apply {
+            logger.info("Equipment limit reached, cancelling sortie")
+            click()
+            gameState.equipOverflow = true
+            gameState.currentGameLocation = GameLocation.mappings(config)[LocationId.RESEARCH_MENU]
                     ?: error("Bad locations.json file")
             return true
         }
