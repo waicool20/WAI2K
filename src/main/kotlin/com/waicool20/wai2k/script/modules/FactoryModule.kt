@@ -346,7 +346,7 @@ class FactoryModule(
                     .map { region.subRegion(it.x - 106, it.y - 3, 247, 436) }
             region.matcher.settings.matchDimension = ScriptRunner.NORMAL_RES
             if (equips.isEmpty()) {
-                // Click cacnel if no equips could be used for disassembly
+                // Click cancel if no equips could be used for disassembly
                 region.subRegion(120, 0, 205, 144).click()
                 break
             }
@@ -403,7 +403,7 @@ class FactoryModule(
     }
 
     private tailrec suspend fun getCurrentEquipCount(): Pair<Int, Int> {
-        logger.info("Updatin equipment count")
+        logger.info("Updating equipment count")
         val equipCountRegion = region.subRegion(1790, 815, 220, 60)
         var ocrResult = ""
         while (isActive) {
