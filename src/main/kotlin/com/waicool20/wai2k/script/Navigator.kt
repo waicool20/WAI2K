@@ -296,7 +296,7 @@ class Navigator(
                 // Increment sent stats if we are continuing
                 scriptStats.logisticsSupportSent++
                 "ok.png"
-            } else "cancel.png"
+            } else "cancel-logi.png"
 
             region.waitHas(FileTemplate(image), 10000)?.click()
             scriptStats.logisticsSupportReceived++
