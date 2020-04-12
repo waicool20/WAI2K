@@ -177,10 +177,7 @@ abstract class MapRunner(
     protected suspend fun deployEchelons(vararg nodes: MapNode): Array<MapNode> = coroutineScope {
         val needsResupply = nodes.filterIndexed { i, node ->
             logger.info("Deploying echelon ${i + 1} to $node")
-            node.findRegion().click()
-            // Wait for echelon popup
-            val r = region.subRegion(421, 915, 145, 28)
-            while (!Ocr.forConfig(config).doOCRAndTrim(r).contains("echelon", true)) delay(100)
+            openEchelon(node)
             val screenshot = region.capture()
             val formatter = DecimalFormat("##.#")
 
@@ -243,10 +240,7 @@ abstract class MapRunner(
             logger.info("Resupplying echelon at $node")
             // Clicking twice, first to highlight the echelon, the second time to enter the deployment menu
             logger.info("Selecting echelon")
-            node.findRegion().apply {
-                click(); yield()
-                click(); delay(300)
-            }
+            openEchelon(node)
             logger.info("Resupplying")
             mapRunnerRegions.resupply.click()
             logger.info("Resupply complete")
@@ -268,10 +262,7 @@ abstract class MapRunner(
             logger.info("Retreat echelon at $node")
             // Clicking twice, first to highlight the echelon, the second time to enter the deployment menu
             logger.info("Selecting echelon")
-            node.findRegion().apply {
-                click(); yield()
-                click(); delay(750)
-            }
+            openEchelon(node)
             logger.info("Retreating")
             mapRunnerRegions.retreat.click()
             delay(1000)
@@ -578,6 +569,14 @@ abstract class MapRunner(
     }
 
     private fun isInBattle() = mapRunnerRegions.pauseButton.has(FileTemplate("combat/battle/pause.png", 0.9))
+
+    private suspend fun openEchelon(node: MapNode) {
+        val r = region.subRegion(421, 915, 145, 28)
+        while (!Ocr.forConfig(config).doOCRAndTrim(r).contains("echelon", true)) {
+            node.findRegion().click()
+            delay(1000)
+        }
+    }
 
     private suspend fun endTurn() {
         mapRunnerRegions.endBattle.clickWhile { has(FileTemplate("combat/battle/end.png")) }

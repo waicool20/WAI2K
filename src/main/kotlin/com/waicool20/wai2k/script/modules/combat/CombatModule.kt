@@ -175,9 +175,9 @@ class CombatModule(
                     if (switchDoll == null) {
                         checkImg = checkRegion.capture()
                         if (scrollDown) {
-                            r1.swipeTo(r2)
+                            r1.swipeTo(r2, 500)
                         } else {
-                            r2.swipeTo(r1)
+                            r2.swipeTo(r1, 500)
                         }
                         delay(2000)
                         if (checkRegion.has(ImageTemplate(checkImg))) {
