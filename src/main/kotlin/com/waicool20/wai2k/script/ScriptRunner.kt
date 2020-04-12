@@ -160,7 +160,6 @@ class ScriptRunner(
             if (e is CancellationException) return
             logger.warn("Fault detected, restarting game")
             e.printStackTrace()
-            // TODO Add max restarts here later
             if (currentConfig.gameRestartConfig.enabled) {
                 restartGame()
             } else {
@@ -182,6 +181,10 @@ class ScriptRunner(
      * This assumes that automatic login is enabled and no updates are required
      */
     suspend fun restartGame() {
+        if (scriptStats.gameRestarts >= currentConfig.gameRestartConfig.maxRestarts) {
+            logger.info("Maximum of restarts reached, terminating script instead")
+            coroutineContext.cancelAndYield()
+        }
         val device = requireNotNull(currentDevice)
         val region = device.screens.first()
         gameState.requiresRestart = false

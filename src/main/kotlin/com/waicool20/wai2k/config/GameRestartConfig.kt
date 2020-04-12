@@ -26,13 +26,16 @@ import tornadofx.*
 class GameRestartConfig(
         enabled: Boolean = false,
         averageDelay: Long = 1600,
-        delayCoefficientThreshold: Double = 1.5
+        delayCoefficientThreshold: Double = 1.5,
+        maxRestarts: Int = 15
 ) {
     val enabledProperty = enabled.toProperty()
     val averageDelayProperty = averageDelay.toProperty()
     val delayCoefficientThresholdProperty = delayCoefficientThreshold.toProperty()
+    val maxRestartsProperty = maxRestarts.toProperty()
 
     var enabled by enabledProperty
     var averageDelay by averageDelayProperty
     val delayCoefficientThreshold by delayCoefficientThresholdProperty
+    val maxRestarts by maxRestartsProperty
 }

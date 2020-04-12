@@ -24,6 +24,7 @@ import com.waicool20.waicoolutils.javafx.LongSpinnerValueFactory
 import com.waicool20.waicoolutils.javafx.bind
 import javafx.scene.control.CheckBox
 import javafx.scene.control.Spinner
+import javafx.scene.control.SpinnerValueFactory.IntegerSpinnerValueFactory
 import javafx.scene.control.SpinnerValueFactory.DoubleSpinnerValueFactory
 import javafx.scene.layout.VBox
 import tornadofx.*
@@ -33,6 +34,7 @@ class GameRestartPrefView : View() {
     private val enabledCheckBox: CheckBox by fxid()
     private val averageDelaySpinner: Spinner<Long> by fxid()
     private val delayCoefficientThresholdSpinner: Spinner<Double> by fxid()
+    private val maxRestartsSpinner: Spinner<Int> by fxid()
 
     private val context: Wai2KContext by inject()
 
@@ -40,10 +42,12 @@ class GameRestartPrefView : View() {
         super.onDock()
         averageDelaySpinner.valueFactory = LongSpinnerValueFactory(0, 9999)
         delayCoefficientThresholdSpinner.valueFactory = DoubleSpinnerValueFactory(1.0, 10.0, 1.0, 0.1)
+        maxRestartsSpinner.valueFactory = IntegerSpinnerValueFactory(1, Int.MAX_VALUE)
         with(context.wai2KConfig.gameRestartConfig) {
             enabledCheckBox.bind(enabledProperty)
             averageDelaySpinner.bind(averageDelayProperty)
             delayCoefficientThresholdSpinner.bind(delayCoefficientThresholdProperty)
+            maxRestartsSpinner.bind(maxRestartsProperty)
         }
     }
 }

@@ -44,5 +44,11 @@
             <Spinner fx:id="delayCoefficientThresholdSpinner" editable="true" prefWidth="100.0" />
          </children>
       </HBox>
+      <HBox alignment="CENTER_LEFT" spacing="10.0">
+         <children>
+            <Label text="Max restarts:" />
+            <Spinner fx:id="maxRestartsSpinner" editable="true" prefHeight="26.0" prefWidth="195.0" />
+         </children>
+      </HBox>
    </children>
 </VBox>
