@@ -378,8 +378,8 @@ class CombatModule(
     private suspend fun clickCombatMap(map: String) {
         logger.info("Choosing combat map $map")
         navigator.checkLogistics()
-        // Only needed when script first starts as we are unsure what map mode the game is in
-        if (scriptStats.sortiesDone == 0) {
+        // Only needed when script first starts/just restarted as we are unsure what map mode the game is in
+        if (scriptRunner.justRestarted) {
             when {
                 map.endsWith("e", true) -> {
                     logger.info("Selecting emergency map")
