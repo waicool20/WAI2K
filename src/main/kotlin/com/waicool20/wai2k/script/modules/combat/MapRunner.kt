@@ -575,10 +575,12 @@ abstract class MapRunner(
 
     private suspend fun openEchelon(node: MapNode) {
         val r = region.subRegion(421, 915, 145, 28)
-        while (!Ocr.forConfig(config).doOCRAndTrim(r).contains("echelon", true)) {
-            node.findRegion().click()
-            delay(1000)
-        }
+        withTimeoutOrNull(10000) {
+            while (!Ocr.forConfig(config).doOCRAndTrim(r).contains("echelon", true)) {
+                node.findRegion().click()
+                delay(1000)
+            }
+        } ?: error("Timed out while trying to select echelon")
     }
 
     private suspend fun endTurn() {
