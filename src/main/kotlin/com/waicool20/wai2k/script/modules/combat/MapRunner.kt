@@ -119,6 +119,7 @@ abstract class MapRunner(
     protected open val extractBlueNodes: Boolean = true
     protected open val extractWhiteNodes: Boolean = false
     protected open val extractYellowNodes: Boolean = true
+    protected open val battleTimeout = 30000L // make this a user config?
 
     private val _nodes = async(Dispatchers.IO) {
         val relPath = config.assetsDirectory.resolve("$PREFIX/map.json")
@@ -305,13 +306,15 @@ abstract class MapRunner(
     protected suspend fun waitForTurnEnd(battles: Int, endTurn: Boolean = true) {
         logger.info("Waiting for turn to end, expected battles: $battles")
         var battlesPassed = 0
-        while (isActive && battlesPassed < battles) {
-            if (isInBattle()) {
-                clickThroughBattle()
-                battlesPassed++
+        withTimeoutOrNull(battles * battleTimeout) {
+            while (isActive && battlesPassed < battles) {
+                if (isInBattle()) {
+                    clickThroughBattle()
+                    battlesPassed++
+                }
+                yield()
             }
-            yield()
-        }
+        } ?: error("Timed out waiting for battles!")
         region.waitHas(FileTemplate("combat/battle/terminate.png"), 10000)
         logger.info("Turn ended")
         if (endTurn) endTurn()
