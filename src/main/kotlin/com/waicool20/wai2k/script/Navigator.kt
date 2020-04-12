@@ -22,14 +22,11 @@ package com.waicool20.wai2k.script
 import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.core.asCachedRegion
 import com.waicool20.cvauto.core.template.FileTemplate
-import com.waicool20.wai2k.android.ProcessManager
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
-import com.waicool20.wai2k.game.GFL
 import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.util.Ocr
-import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.CoroutineScope
@@ -87,8 +84,7 @@ class Navigator(
                 delay(1000L * (i + 1))
             }
         }
-        logger.warn("Current location could not be identified")
-        coroutineContext.cancelAndYield()
+        error("Current location could not be identified")
     }
 
     /**
@@ -103,10 +99,7 @@ class Navigator(
             val cLocation = gameState.currentGameLocation.takeIf { it.isInRegion(region) }
                     ?: identifyCurrentLocation()
             val path = cLocation.shortestPathTo(dest)
-            if (path == null) {
-                logger.warn("No known solution from $cLocation to $dest")
-                coroutineContext.cancelAndYield()
-            }
+                    ?: error("No known solution from $cLocation to $dest")
             if (path.isEmpty()) {
                 logger.info("Already at ${dest.id}")
                 return
@@ -318,28 +311,9 @@ class Navigator(
      */
     suspend fun checkRequiresRestart() {
         if (config.gameRestartConfig.enabled && gameState.requiresRestart) {
-            gameState.requiresRestart = false
+            scriptRunner.restartGame()
             restartCounter = 0
             transitionDelays.clear()
-            scriptStats.gameRestarts++
-            logger.info("Game will now restart")
-            ProcessManager(region.device).apply {
-                kill(GFL.pkgName)
-                delay(200)
-                start(GFL.pkgName, GFL.mainActivity)
-            }
-            logger.info("Game restarted, waiting for login screen")
-            region.subRegion(672, 960, 250, 93)
-                    .waitHas(FileTemplate("login.png", 0.8), 5 * 60 * 1000)
-                    ?: logger.warn("Timed out on login!")
-            logger.info("Logging in")
-            region.subRegion(630, 400, 900, 300).click()
-            while (locations[LocationId.HOME]?.isInRegion(region) == false) {
-                checkLogistics()
-                delay(100)
-            }
-            gameState.currentGameLocation = locations[LocationId.HOME]!!
-            logger.info("Logged in")
         }
     }
 

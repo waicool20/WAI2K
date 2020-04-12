@@ -28,7 +28,6 @@ import com.waicool20.wai2k.game.TDoll
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.Ocr
-import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.waicoolutils.filterAsync
 import com.waicool20.waicoolutils.logging.loggerFor
@@ -76,7 +75,7 @@ abstract class ScriptModule(
         dollFilterRegions.filter.click()
         withTimeoutOrNull(5000) {
             val checkRegion = region.subRegion(920, 168, 110, 39)
-            while(true) {
+            while (true) {
                 if (Ocr.forConfig(config).doOCRAndTrim(checkRegion).contains("Rarity")) break
                 yield()
             }
@@ -150,10 +149,7 @@ abstract class ScriptModule(
                 }
             }
             delay(300)
-            if (retries++ >= 3) {
-                logger.error("Failed to find and click chapter")
-                coroutineContext.cancelAndYield()
-            }
+            if (retries++ >= 3) error("Failed to find and click chapter")
         }
         navigator.checkLogistics()
         delay(200)
