@@ -69,6 +69,8 @@ class ScriptRunner(
     val isRunning get() = scriptJob?.isActive == true
     val gameState = GameState()
     val scriptStats = ScriptStats()
+    var justRestarted = false
+        private set
     var lastStartTime: Instant? = null
         private set
 
@@ -88,6 +90,7 @@ class ScriptRunner(
         lastStartTime = Instant.now()
         scriptStats.reset()
         gameState.reset()
+        justRestarted = true
         scriptJob = launch {
             reload(true)
             while (isActive) {
@@ -155,6 +158,7 @@ class ScriptRunner(
         if (modules.isEmpty()) coroutineContext.cancelAndYield()
         try {
             modules.forEach { it.execute() }
+            justRestarted = false
         } catch (e: Exception) {
             // Ignore if script was ordered to be killed
             if (e is CancellationException) return
@@ -230,5 +234,6 @@ class ScriptRunner(
             }
         }
         logger.info("Finished logging in")
+        justRestarted = true
     }
 }

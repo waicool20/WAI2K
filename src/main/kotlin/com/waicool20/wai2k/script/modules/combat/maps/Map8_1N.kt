@@ -43,7 +43,7 @@ class Map8_1N(
     override val extractYellowNodes = false
 
     override suspend fun execute() {
-        if (scriptRunner.scriptStats.sortiesDone == 0) {
+        if (scriptRunner.justRestarted) {
             logger.info("Zoom out")
             repeat(2) {
                 region.pinch(
