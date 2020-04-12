@@ -43,7 +43,7 @@ class Map8_1N(
     override val extractYellowNodes = false
 
     override suspend fun execute() {
-        if (scriptRunner.justRestarted) {
+        if (gameState.requiresMapInit) {
             logger.info("Zoom out")
             repeat(2) {
                 region.pinch(
@@ -53,6 +53,7 @@ class Map8_1N(
                         500
                 )
             }
+            gameState.requiresMapInit = false
             delay(1000)
         }
         val r = region.subRegionAs<AndroidRegion>(1058, 224, 100, 22)

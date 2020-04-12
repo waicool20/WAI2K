@@ -119,7 +119,7 @@ abstract class MapRunner(
     protected open val extractBlueNodes: Boolean = true
     protected open val extractWhiteNodes: Boolean = false
     protected open val extractYellowNodes: Boolean = true
-    protected open val battleTimeout = 30000L // make this a user config?
+    protected open val battleTimeout = 45000L // make this a user config?
 
     private val _nodes = async(Dispatchers.IO) {
         val relPath = config.assetsDirectory.resolve("$PREFIX/map.json")
@@ -178,7 +178,7 @@ abstract class MapRunner(
     protected suspend fun deployEchelons(vararg nodes: MapNode): Array<MapNode> = coroutineScope {
         val needsResupply = nodes.filterIndexed { i, node ->
             logger.info("Deploying echelon ${i + 1} to $node")
-            openEchelon(node)
+            openEchelon(node, singleClick = true)
             val screenshot = region.capture()
             val formatter = DecimalFormat("##.#")
 
@@ -239,7 +239,6 @@ abstract class MapRunner(
         for (node in nodes.distinct()) {
             if (node.type == MapNode.Type.Normal) continue
             logger.info("Resupplying echelon at $node")
-            // Clicking twice, first to highlight the echelon, the second time to enter the deployment menu
             logger.info("Selecting echelon")
             openEchelon(node)
             logger.info("Resupplying")
@@ -261,7 +260,6 @@ abstract class MapRunner(
         for (node in nodes.distinct()) {
             if (node.type == MapNode.Type.Normal) continue
             logger.info("Retreat echelon at $node")
-            // Clicking twice, first to highlight the echelon, the second time to enter the deployment menu
             logger.info("Selecting echelon")
             openEchelon(node)
             logger.info("Retreating")
@@ -405,7 +403,7 @@ abstract class MapRunner(
     }
 
     protected suspend fun terminateMission() {
-        mapRunnerRegions.terminateMenu.click(); delay(100)
+        mapRunnerRegions.terminateMenu.click(); delay(250)
         mapRunnerRegions.terminate.click(); delay(1000)
 
         logger.info("Left battle screen")
@@ -573,14 +571,12 @@ abstract class MapRunner(
 
     private fun isInBattle() = mapRunnerRegions.pauseButton.has(FileTemplate("combat/battle/pause.png", 0.9))
 
-    private suspend fun openEchelon(node: MapNode) {
-        val r = region.subRegion(421, 915, 145, 28)
-        withTimeoutOrNull(10000) {
-            while (!Ocr.forConfig(config).doOCRAndTrim(r).contains("echelon", true)) {
-                node.findRegion().click()
-                delay(1000)
+    private suspend fun openEchelon(node: MapNode, singleClick: Boolean = false) {
+        node.findRegion().apply {
+            repeat(if (singleClick) 1 else 2) {
+                click(); delay(750)
             }
-        } ?: error("Timed out while trying to select echelon")
+        }
     }
 
     private suspend fun endTurn() {

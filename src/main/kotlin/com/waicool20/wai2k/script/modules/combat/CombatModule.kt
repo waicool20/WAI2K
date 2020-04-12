@@ -64,6 +64,7 @@ class CombatModule(
     private var wasCancelled = false
 
     override suspend fun execute() {
+        if (scriptRunner.justRestarted) gameState.requiresMapInit = true
         if (!profile.combat.enabled) return
         // Return if the base doll limit is already reached
         if (gameState.dollOverflow) return

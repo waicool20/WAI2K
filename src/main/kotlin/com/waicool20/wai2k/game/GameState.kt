@@ -22,6 +22,7 @@ package com.waicool20.wai2k.game
 class GameState {
     var requiresUpdate: Boolean = true
     var requiresRestart: Boolean = false
+    var requiresMapInit: Boolean = true
 
     var dollOverflow: Boolean = false
     var equipOverflow: Boolean = false
