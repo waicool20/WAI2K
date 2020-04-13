@@ -172,8 +172,11 @@ class CombatModule(
                 var checkImg: BufferedImage
 
                 withTimeoutOrNull(90_000) {
+                    val r = region.subRegion(167, 146, 1542, 934)
                     while (isActive) {
-                        switchDoll = region.findBest(FileTemplate("doll-list/echelon2-captain.png", 0.85))?.region
+                        // Trying this to improve search reliability, maybe put this upstream in cvauto
+                        switchDoll = r.findBest(FileTemplate("doll-list/echelon2-captain.png", 0.85), 5)
+                                .maxBy { it.score }?.region
                         if (switchDoll == null) {
                             checkImg = checkRegion.capture()
                             if (scrollDown) {
