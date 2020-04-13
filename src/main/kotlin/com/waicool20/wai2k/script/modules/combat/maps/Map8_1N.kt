@@ -47,7 +47,7 @@ class Map8_1N(
             logger.info("Zoom out")
             repeat(2) {
                 region.pinch(
-                        Random.nextInt(500, 700),
+                        Random.nextInt(700, 800),
                         Random.nextInt(300, 400),
                         0.0,
                         500
