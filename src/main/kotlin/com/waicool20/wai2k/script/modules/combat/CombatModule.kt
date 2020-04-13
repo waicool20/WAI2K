@@ -170,26 +170,28 @@ class CombatModule(
 
                 var scrollDown = true
                 var checkImg: BufferedImage
-                
-                while (isActive) {
-                    switchDoll = region.findBest(FileTemplate("doll-list/echelon2-captain.png", 0.85))?.region
-                    if (switchDoll == null) {
-                        checkImg = checkRegion.capture()
-                        if (scrollDown) {
-                            r1.swipeTo(r2, 500)
-                        } else {
-                            r2.swipeTo(r1, 500)
-                        }
-                        delay(2000)
-                        if (checkRegion.has(ImageTemplate(checkImg))) {
-                            logger.info("Reached ${if (scrollDown) "bottom" else "top"} of the list")
-                            scrollDown = !scrollDown
-                        }
-                    } else break
-                }
+
+                withTimeoutOrNull(90_000) {
+                    while (isActive) {
+                        switchDoll = region.findBest(FileTemplate("doll-list/echelon2-captain.png", 0.85))?.region
+                        if (switchDoll == null) {
+                            checkImg = checkRegion.capture()
+                            if (scrollDown) {
+                                r1.swipeTo(r2, 500)
+                            } else {
+                                r2.swipeTo(r1, 500)
+                            }
+                            delay(2000)
+                            if (checkRegion.has(ImageTemplate(checkImg))) {
+                                logger.info("Reached ${if (scrollDown) "bottom" else "top"} of the list")
+                                scrollDown = !scrollDown
+                            }
+                        } else break
+                    }
+                } ?: error("Timed out finding a replacement dragging doll")
 
                 if (switchDoll != null) {
-                    switchDoll.copy(width = 142).click()
+                    switchDoll?.copy(width = 142)?.click()
                     break
                 }
             }
