@@ -29,6 +29,7 @@ import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.Ocr
+import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.*
@@ -335,7 +336,7 @@ class FactoryModule(
         region.subRegion(1320, 979, 413, 83).click(); yield()
         delay(750)
 
-        val (currentCount, _) = getCurrentEquipCount()
+        val (currentCount, total) = getCurrentEquipCount()
         oldCount?.let { scriptStats.equipsUsedForDisassembly += it - currentCount }
 
         while (isActive) {
@@ -348,7 +349,12 @@ class FactoryModule(
             if (equips.isEmpty()) {
                 // Click cancel if no equips could be used for disassembly
                 region.subRegion(120, 0, 205, 144).click()
-                break
+                if (currentCount >= total) {
+                    // This condition may be reached if a lot of 4* equipment dropped and filled up all the slots
+                    // Maybe add 4* to equipment disassemble?
+                    logger.info("Equipment capacity reached but could not disassemble anymore equipment, stopping script")
+                    coroutineContext.cancelAndYield()
+                } else break
             }
             // Select all equips
             equips.sortedBy { it.y * 10 + it.x }.forEach { it.click() }
