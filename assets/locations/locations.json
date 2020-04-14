@@ -663,8 +663,8 @@
         "asset": {
           "imageName": "",
           "x": 131,
-          "y-revert-after-event": 164,
-          "y": 296,
+          "y": 164,
+          "y-restore-during-event": 296,
           "width": 257,
           "height": 118
         }
@@ -674,8 +674,8 @@
         "asset": {
           "imageName": "",
           "x": 131,
-          "y-revert-after-event": 296,
-          "y": 428,
+          "y": 296,
+          "y-restore-during-event": 428,
           "width": 257,
           "height": 118
         }
@@ -739,8 +739,8 @@
         "asset": {
           "imageName": "",
           "x": 131,
-          "y-revert-after-event": 296,
-          "y": 428,
+          "y": 296,
+          "y-restore-during-event": 428,
           "width": 257,
           "height": 118
         }
@@ -787,8 +787,8 @@
         "asset": {
           "imageName": "",
           "x": 131,
-          "y-revert-after-event": 164,
-          "y": 296,
+          "y": 164,
+          "y-restore-during-event": 296,
           "width": 257,
           "height": 118
         }
