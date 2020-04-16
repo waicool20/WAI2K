@@ -212,6 +212,7 @@ class ScriptRunner(
             if (region.subRegion(396, 244, 80, 80).has(FileTemplate("home-popup.png"))) {
                 repeat(2) { region.subRegion(2017, 151, 129, 733).click() }
             }
+            region.subRegion(900, 720, 350, 185).findBest(FileTemplate("close.png"))?.region?.click()
             val r = region.subRegion(1800, 780, 170, 75)
             when {
                 Ocr.forConfig(currentConfig).doOCRAndTrim(r).contains("resume", true) -> {

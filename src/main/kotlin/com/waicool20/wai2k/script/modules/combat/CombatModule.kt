@@ -151,7 +151,7 @@ class CombatModule(
             val startTime = System.currentTimeMillis()
             logger.info("Switching doll 2 of echelon 1")
             // Doll 2 region ( excludes stuff below name/type )
-            region.subRegion(630, 201, 247, 554).click(); yield()
+            region.subRegion(635, 206, 237, 544).click(); yield()
             region.waitHas(FileTemplate("doll-list/lock.png"), 5000)
 
             var switchDoll: Region<AndroidDevice>? = null
