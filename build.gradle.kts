@@ -107,3 +107,10 @@ task("versioning") {
     """.trimMargin()
     Files.write(file, content.toByteArray())
 }
+
+task<Zip>("packAssets") {
+    archiveFileName.set("assets.zip")
+    destinationDirectory.set(file("$buildDir"))
+
+    from("$projectDir/assets")
+}
