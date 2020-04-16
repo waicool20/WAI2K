@@ -29,7 +29,7 @@ extensive testing has been done in Linux.
 
 Prerequisites:
 
-* [Java JDK 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
+* [Java JDK 8 ( Get the Full Version! )](https://bell-sw.com/pages/java-8u252/)
 * [Assets Directory](https://github.com/waicool20/WAI2K/tree/master/assets)
 * Emulator, must be 2160x1080 resolution
 
