@@ -25,7 +25,7 @@ import java.nio.file.Paths
 
 plugins {
     java
-    kotlin("jvm") version "1.3.50"
+    kotlin("jvm") version "1.3.71"
     id("com.github.johnrengelman.shadow") version "5.0.0"
 }
 
@@ -42,7 +42,7 @@ repositories {
 dependencies {
     val versions = object {
         val Kotlin by lazy { plugins.getPlugin(KotlinPluginWrapper::class).kotlinPluginVersion }
-        val KotlinCoroutines = "1.3.0"
+        val KotlinCoroutines = "1.3.5"
         val Jackson = "2.10.1"
     }
 
@@ -92,8 +92,8 @@ tasks {
         }
     }
     withType<ShadowJar> {
-        archiveClassifier.value(null)
-        archiveVersion.value(null)
+        archiveClassifier.value(null as String?)
+        archiveVersion.value(null as String?)
         exclude("tessdata/")
     }
 }
