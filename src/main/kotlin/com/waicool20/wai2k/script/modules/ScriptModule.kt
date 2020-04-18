@@ -154,7 +154,7 @@ abstract class ScriptModule(
         navigator.checkLogistics()
         delay(200)
         cRegion.subRegion(0, 0, 195, cRegion.height).clickTemplateWhile(
-                template = FileTemplate("chapters/$chapter.png"),
+                template = FileTemplate("chapters/$chapter.png", CHAPTER_SIMILARITY),
                 timeout = 20
         ) { has(it) }
     }
