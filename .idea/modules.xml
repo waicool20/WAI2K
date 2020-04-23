@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/CVAuto/modules/android/cvauto.modules.android.main.iml" filepath="$PROJECT_DIR$/.idea/modules/CVAuto/modules/android/cvauto.modules.android.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/CVAuto/modules/android/cvauto.modules.android.test.iml" filepath="$PROJECT_DIR$/.idea/modules/CVAuto/modules/android/cvauto.modules.android.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/CVAuto/modules/core/cvauto.modules.core.main.iml" filepath="$PROJECT_DIR$/.idea/modules/CVAuto/modules/core/cvauto.modules.core.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/CVAuto/modules/core/cvauto.modules.core.test.iml" filepath="$PROJECT_DIR$/.idea/modules/CVAuto/modules/core/cvauto.modules.core.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/CVAuto/modules/desktop/cvauto.modules.desktop.main.iml" filepath="$PROJECT_DIR$/.idea/modules/CVAuto/modules/desktop/cvauto.modules.desktop.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/CVAuto/modules/desktop/cvauto.modules.desktop.test.iml" filepath="$PROJECT_DIR$/.idea/modules/CVAuto/modules/desktop/cvauto.modules.desktop.test.iml" />
+    </modules>
+  </component>
+</project>
