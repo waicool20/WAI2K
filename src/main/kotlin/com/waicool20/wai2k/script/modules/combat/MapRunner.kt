@@ -403,7 +403,7 @@ abstract class MapRunner(
     }
 
     protected suspend fun terminateMission() {
-        mapRunnerRegions.terminateMenu.click(); delay(250)
+        mapRunnerRegions.terminateMenu.click(); delay(500)
         mapRunnerRegions.terminate.click(); delay(1000)
 
         logger.info("Left battle screen")
@@ -561,7 +561,8 @@ abstract class MapRunner(
         delay(400)
         val l = mapRunnerRegions.battleEndClick.randomPoint()
         repeat(Random.nextInt(config.scriptConfig.minPostBattleClick, config.scriptConfig.maxPostBattleClick)) {
-            region.device.input.touchInterface?.tap(0, l.x, l.y); yield()
+            region.device.input.touchInterface?.tap(0, l.x, l.y)
+            delay(Random.nextLong(40, 60))
         }
         // If the clicks above managed to halt battle plan just cancel the dialog
         delay(1000)

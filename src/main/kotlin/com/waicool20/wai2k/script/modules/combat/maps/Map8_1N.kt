@@ -52,6 +52,7 @@ class Map8_1N(
                         0.0,
                         500
                 )
+                delay(200)
             }
             gameState.requiresMapInit = false
             delay(1000)

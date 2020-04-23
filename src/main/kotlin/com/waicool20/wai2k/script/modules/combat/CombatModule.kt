@@ -327,14 +327,9 @@ class CombatModule(
 
                 // Select all T-Dolls
                 logger.info("Selecting dolls that need repairing")
-                region.device.input.touchInterface?.settings?.apply {
-                    val oldDelay = postTapDelay
-                    postTapDelay = 0
-                    repairRegions.take(repairSlots.size).sortedBy { it.y * 10 + it.x }.forEach {
-                        it.click(); yield()
-                        scriptStats.repairs++
-                    }
-                    postTapDelay = oldDelay
+                repairRegions.take(repairSlots.size).sortedBy { it.y * 10 + it.x }.forEach {
+                    it.click(); yield()
+                    scriptStats.repairs++
                 }
 
                 // Click ok
@@ -495,12 +490,7 @@ class CombatModule(
     private suspend fun executeMapRunner() {
         // Set similarity to slightly lower threshold for discrepancies because of zoom level
         region.matcher.settings.defaultThreshold = config.scriptConfig.mapRunnerSimilarityThreshold
-        region.device.input.touchInterface?.settings?.apply {
-            val oldDelay = postTapDelay
-            postTapDelay = 0
-            mapRunner.execute()
-            postTapDelay = oldDelay
-        }
+        mapRunner.execute()
         // Restore script threshold
         region.matcher.settings.defaultThreshold = config.scriptConfig.defaultSimilarityThreshold
     }
