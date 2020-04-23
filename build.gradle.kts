@@ -25,7 +25,7 @@ import java.nio.file.Paths
 
 plugins {
     java
-    kotlin("jvm") version "1.3.71"
+    kotlin("jvm") version "1.3.72"
     id("com.github.johnrengelman.shadow") version "5.0.0"
 }
 
@@ -92,8 +92,8 @@ tasks {
         }
     }
     withType<ShadowJar> {
-        archiveClassifier.value(null as String?)
-        archiveVersion.value(null as String?)
+        archiveClassifier.value("")
+        archiveVersion.value("")
         exclude("tessdata/")
     }
 }

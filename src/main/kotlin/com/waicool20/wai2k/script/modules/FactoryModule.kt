@@ -411,7 +411,7 @@ class FactoryModule(
     private tailrec suspend fun getCurrentEquipCount(): Pair<Int, Int> {
         logger.info("Updating equipment count")
         val equipCountRegion = region.subRegion(1790, 815, 220, 60)
-        var ocrResult = ""
+        var ocrResult: String
         while (isActive) {
             ocrResult = Ocr.forConfig(config).doOCRAndTrim(equipCountRegion.copy(y = 763))
             if (ocrResult.contains("equip", true)) break else yield()

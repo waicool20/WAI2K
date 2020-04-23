@@ -180,7 +180,7 @@ class DebugView : CoroutineScopeView() {
         }
     }
 
-    @UseExperimental(ExperimentalTime::class)
+    @OptIn(ExperimentalTime::class)
     private fun testPath() {
         launch(Dispatchers.IO) {
             wai2KContext.apply {
