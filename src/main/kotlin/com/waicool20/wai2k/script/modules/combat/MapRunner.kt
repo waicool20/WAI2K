@@ -267,7 +267,7 @@ abstract class MapRunner(
             delay(1000)
             region.subRegion(1115, 696, 250, 95).click()
             logger.info("Retreat complete")
-            delay(750)
+            delay(1000)
         }
     }
 
@@ -398,8 +398,8 @@ abstract class MapRunner(
     }
 
     protected suspend fun terminateMission() {
-        mapRunnerRegions.terminateMenu.click(); delay(500)
-        mapRunnerRegions.terminate.click(); delay(1000)
+        mapRunnerRegions.terminateMenu.click(); delay(700)
+        mapRunnerRegions.terminate.click(); delay(5000)
 
         logger.info("Left battle screen")
         scriptStats.sortiesDone += 1
@@ -570,13 +570,13 @@ abstract class MapRunner(
     private suspend fun openEchelon(node: MapNode, singleClick: Boolean = false) {
         node.findRegion().apply {
             repeat(if (singleClick) 1 else 2) {
-                click(); delay(750)
+                click(); delay(1500)
             }
         }
     }
 
     private suspend fun endTurn() {
-        mapRunnerRegions.endBattle.clickWhile { has(FileTemplate("combat/battle/end.png")) }
+        mapRunnerRegions.endBattle.clickWhile { has(FileTemplate("combat/battle/end.png", 0.8)) }
         delay(200)
     }
 }

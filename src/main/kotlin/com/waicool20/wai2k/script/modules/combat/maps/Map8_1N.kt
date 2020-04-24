@@ -59,6 +59,7 @@ class Map8_1N(
         }
         val r = region.subRegionAs<AndroidRegion>(1058, 224, 100, 22)
         r.swipeTo(r.copy(y = r.y + 600))
+        delay(500)
 
         nodes[1].findRegion()
         val rEchelons = deployEchelons(nodes[3], nodes[0])

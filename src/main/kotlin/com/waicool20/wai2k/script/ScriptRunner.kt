@@ -222,8 +222,8 @@ class ScriptRunner(
                     delay(2500)
                     region.waitHas(FileTemplate("combat/battle/terminate.png"), 30000)
                     val mapRunnerRegions = MapRunnerRegions(region)
-                    mapRunnerRegions.terminateMenu.click(); delay(500)
-                    mapRunnerRegions.terminate.click(); delay(1000)
+                    mapRunnerRegions.terminateMenu.click(); delay(700)
+                    mapRunnerRegions.terminate.click(); delay(5000)
                     logger.info("Terminated the battle")
                     gameState.currentGameLocation = locations[LocationId.COMBAT_MENU]!!
                     break@loop

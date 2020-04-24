@@ -152,7 +152,7 @@ abstract class ScriptModule(
             if (retries++ >= 3) error("Failed to find and click chapter")
         }
         navigator.checkLogistics()
-        delay(200)
+        delay(2000)
         cRegion.subRegion(0, 0, 195, cRegion.height).clickTemplateWhile(
                 template = FileTemplate("chapters/$chapter.png", CHAPTER_SIMILARITY),
                 timeout = 20
