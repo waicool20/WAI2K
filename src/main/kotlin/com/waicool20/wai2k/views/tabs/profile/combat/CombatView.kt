@@ -39,15 +39,16 @@ class CombatView : AbstractProfileView() {
     override fun setValues() {
         mapComboBox.cellFactory = NoneSelectableCellFactory(Regex("--.+?--"))
         if (mapComboBox.items.isEmpty()) {
+            val comparator = compareBy(String::length).then(naturalOrder())
             mapComboBox.items.apply {
                 add("-- Normal --")
-                addAll(MapRunner.normalMaps.keys.sortedWith(naturalOrder()))
+                addAll(MapRunner.normalMaps.keys.sortedWith(comparator))
                 add("-- Emergency --")
-                addAll(MapRunner.emergencyMaps.keys.sortedWith(naturalOrder()))
+                addAll(MapRunner.emergencyMaps.keys.sortedWith(comparator))
                 add("-- Night Battle --")
-                addAll(MapRunner.nightMaps.keys.sortedWith(naturalOrder()))
+                addAll(MapRunner.nightMaps.keys.sortedWith(comparator))
                 add("-- Event --")
-                addAll(MapRunner.eventMaps.keys.sortedWith(naturalOrder()))
+                addAll(MapRunner.eventMaps.keys.sortedWith(comparator))
             }
         }
         repairThresholdSpinner.valueFactory = SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100)
