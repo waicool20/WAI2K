@@ -383,15 +383,15 @@ class CombatModule(
             when {
                 map.endsWith("e", true) -> {
                     logger.info("Selecting emergency map")
-                    region.subRegion(1709, 265, 125, 25).click()
+                    region.subRegion(1700, 265, 142, 50).click()
                 }
                 map.endsWith("n", true) -> {
                     logger.info("Selecting night map")
-                    region.subRegion(1871, 265, 142, 25).click()
+                    region.subRegion(1871, 265, 142, 50).click()
                 }
                 else -> {
                     // Normal map
-                    region.subRegion(1558, 265, 84, 25).click()
+                    region.subRegion(1528, 265, 142, 50).click()
                 }
             }
             // Wait for it to settle
@@ -402,8 +402,7 @@ class CombatModule(
         // Swipe up if map is > 4
         when (val mapNum = map.drop(2).take(1).toInt()) {
             in 1..4 -> {
-                region.subRegion(925, 355 + 176 * (mapNum - 1), 440, 130)
-                        .click()
+                region.subRegion(925, 377 + 177 * (mapNum - 1), 440, 130).click()
             }
             else -> {
                 val mapNameR = region.subRegion(1100, 350, 250, 680)
@@ -420,8 +419,7 @@ class CombatModule(
                     }
                 }
                 navigator.checkLogistics()
-                region.subRegion(925, 472 + 176 * (mapNum - 4), 440, 130)
-                        .click()
+                region.subRegion(925, 472 + 177 * (mapNum - 4), 440, 130).click()
             }
         }
     }
