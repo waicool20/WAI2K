@@ -383,23 +383,18 @@ abstract class MapRunner(
             GameLocation.mappings(config)[LocationId.COMBAT_MENU]
         }
         checkNotNull(location)
-        try {
-            withTimeout(15000) {
-                while (!location.isInRegion(region)) {
-                    mapRunnerRegions.battleEndClick.click()
-                    endTurn()
-                }
+
+        withTimeoutOrNull(60000) {
+            while (!location.isInRegion(region)) {
+                mapRunnerRegions.battleEndClick.click()
+                endTurn()
             }
-        } catch (e: TimeoutCancellationException) {
-            logger.info("Timed out waiting to exit battle")
-            endTurn()
-            handleBattleResults()
-            return@coroutineScope
+        } ?: run {
+            scriptStats.sortiesDone += 1
+            _battles = 1
+            mapH = null
+            error("Timed out waiting to exit battle")
         }
-        logger.info("Left battle screen")
-        scriptStats.sortiesDone += 1
-        _battles = 1
-        mapH = null
     }
 
     protected suspend fun terminateMission() {
