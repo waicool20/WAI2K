@@ -44,6 +44,7 @@ import georegression.struct.homography.Homography2D_F64
 import kotlinx.coroutines.*
 import org.reflections.Reflections
 import java.awt.Color
+import java.lang.reflect.Modifier
 import java.nio.file.Files
 import java.text.DecimalFormat
 import javax.imageio.ImageIO
@@ -52,6 +53,7 @@ import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.pow
 import kotlin.random.Random
+import kotlin.reflect.KClass
 
 
 abstract class MapRunner(
@@ -88,21 +90,34 @@ abstract class MapRunner(
         private const val maxSideDiff = 5.0
         private const val minNodeThreshold = 0.12
 
-        val list = Reflections("com.waicool20.wai2k.script.modules.combat.maps")
-                .getSubTypesOf(MapRunner::class.java)
-                .filterNot { it == EventMapRunner::class.java }
-                .mapNotNull { cls ->
-                    Regex("Map(\\d_\\d\\w?)").matchEntire(cls.simpleName)?.let {
-                        it.groupValues[1].replace("_", "-") to cls.kotlin
-                    } ?: Regex("Event(\\w+)").matchEntire(cls.simpleName)?.let {
-                        it.groupValues[1] to cls.kotlin
-                    }
-                }.toMap()
+        val normalMaps = mutableMapOf<String, KClass<out MapRunner>>()
+        val emergencyMaps = mutableMapOf<String, KClass<out MapRunner>>()
+        val nightMaps = mutableMapOf<String, KClass<out MapRunner>>()
+        val eventMaps = mutableMapOf<String, KClass<out MapRunner>>()
 
-        val normalMaps by lazy { list.filter { it.key.matches(Regex("\\d+-\\d+")) } }
-        val emergencyMaps by lazy { list.filter { it.key.endsWith("e", true) } }
-        val nightMaps by lazy { list.filter { it.key.endsWith("n", true) } }
-        val eventMaps by lazy { list.filterNot { it.key.matches(Regex("\\d-\\d\\w?")) } }
+        val list get() = normalMaps + emergencyMaps + nightMaps + eventMaps
+
+        init {
+            val mapClasses = Reflections("com.waicool20.wai2k.script.modules.combat.maps")
+                    .getSubTypesOf(MapRunner::class.java)
+            for (mapClass in mapClasses) {
+                if (Modifier.isAbstract(mapClass.modifiers)) continue
+                if (mapClass == EventMapRunner::class.java) {
+                    Regex("Event(\\w+)").matchEntire(mapClass.simpleName)?.let {
+                       eventMaps[it.groupValues[1]] = mapClass.kotlin
+                    }
+                } else {
+                    Regex("Map(\\d{1,2}_\\d)(\\w?)").matchEntire(mapClass.simpleName)?.let {
+                        val name = it.groupValues[1].replace("_", "-")
+                        when(it.groupValues.getOrNull(2)) {
+                            "e", "E" -> emergencyMaps["${name}E"] = mapClass.kotlin
+                            "n", "N" -> nightMaps["${name}N"] = mapClass.kotlin
+                            else -> normalMaps[name] = mapClass.kotlin
+                        }
+                    }
+                }
+            }
+        }
     }
 
     override val coroutineContext: CoroutineContext

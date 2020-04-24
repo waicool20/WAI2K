@@ -41,13 +41,13 @@ class CombatView : AbstractProfileView() {
         if (mapComboBox.items.isEmpty()) {
             mapComboBox.items.apply {
                 add("-- Normal --")
-                addAll(MapRunner.normalMaps.keys.sorted())
+                addAll(MapRunner.normalMaps.keys.sortedWith(naturalOrder()))
                 add("-- Emergency --")
-                addAll(MapRunner.emergencyMaps.keys.sorted())
+                addAll(MapRunner.emergencyMaps.keys.sortedWith(naturalOrder()))
                 add("-- Night Battle --")
-                addAll(MapRunner.nightMaps.keys.sorted())
+                addAll(MapRunner.nightMaps.keys.sortedWith(naturalOrder()))
                 add("-- Event --")
-                addAll(MapRunner.eventMaps.keys.sorted())
+                addAll(MapRunner.eventMaps.keys.sortedWith(naturalOrder()))
             }
         }
         repairThresholdSpinner.valueFactory = SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100)
