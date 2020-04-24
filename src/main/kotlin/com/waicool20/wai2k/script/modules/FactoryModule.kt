@@ -388,7 +388,7 @@ class FactoryModule(
         if (!gameState.equipOverflow) logger.info("The base now has space for new equipment")
     }
 
-    private val countRegex = Regex("(\\d+)/(\\d+)")
+    private val countRegex = Regex("(\\d+)\\s*?/\\s*?(\\d+)")
 
     private tailrec suspend fun getCurrentDollCount(): Pair<Int, Int> {
         logger.info("Updating doll count")
