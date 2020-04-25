@@ -40,6 +40,7 @@ import org.controlsfx.glyphfont.FontAwesome
 import org.controlsfx.glyphfont.Glyph
 import tornadofx.*
 import java.awt.image.BufferedImage
+import java.lang.Exception
 import javax.imageio.ImageIO
 
 class DeviceTabView : CoroutineScopeView(), Binder {
@@ -70,6 +71,11 @@ class DeviceTabView : CoroutineScopeView(), Binder {
         reloadDevicesButton.graphic = Glyph("FontAwesome", FontAwesome.Glyph.REFRESH)
         reloadDevicesButton.setOnAction {
             refreshDeviceLists()
+            if (renderJob?.isActive == false) {
+                deviceComboBox.selectedItem?.let {
+                    renderJob = createNewRenderJob(it)
+                }
+            }
         }
         deviceComboBox.converter = object : StringConverter<AndroidDevice>() {
             override fun toString(device: AndroidDevice) = device.properties.name
@@ -160,20 +166,25 @@ class DeviceTabView : CoroutineScopeView(), Binder {
         return launch(Dispatchers.IO + CoroutineName("Device Tab Render Job")) {
             var lastCaptureTime = System.currentTimeMillis()
             while (isActive) {
-                if (owningTab?.isSelected == true) {
-                    val image = if (realtimePreviewCheckbox.isSelected && device.screens[0].fastCaptureMode) {
-                        device.screens[0].capture()
-                    } else {
-                        device.screens[0].getLastScreenCapture()?.takeIf {
-                            System.currentTimeMillis() - lastCaptureTime < 3000
-                        } ?: run {
-                            lastCaptureTime = System.currentTimeMillis()
+                try {
+                    if (owningTab?.isSelected == true) {
+                        val image = if (realtimePreviewCheckbox.isSelected && device.screens[0].fastCaptureMode) {
                             device.screens[0].capture()
+                        } else {
+                            device.screens[0].getLastScreenCapture()?.takeIf {
+                                System.currentTimeMillis() - lastCaptureTime < 3000
+                            } ?: run {
+                                lastCaptureTime = System.currentTimeMillis()
+                                device.screens[0].capture()
+                            }
+                        }
+                        withContext(Dispatchers.Main) {
+                            deviceView.image = SwingFXUtils.toFXImage(image, null)
                         }
                     }
-                    withContext(Dispatchers.Main) {
-                        deviceView.image = SwingFXUtils.toFXImage(image, null)
-                    }
+                } catch (e: Exception) {
+                    logger.warn("Failed to get frame for device $device")
+                    break
                 }
             }
         }
