@@ -206,8 +206,6 @@ class CombatModule(
 
         updateEchelonRepairStatus(1)
 
-        // Check if dolls were switched correctly, might not be the case if one of them leveled
-        // up and the positions got switched
         val echelon1Members = gameState.echelons[0].members.map { it.name }
         wasCancelled = profile.combat.draggers.none { TDoll.lookup(config, it.id)?.name in echelon1Members }
     }

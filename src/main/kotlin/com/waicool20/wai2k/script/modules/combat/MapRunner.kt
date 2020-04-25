@@ -104,12 +104,12 @@ abstract class MapRunner(
                 if (Modifier.isAbstract(mapClass.modifiers)) continue
                 if (mapClass == EventMapRunner::class.java) {
                     Regex("Event(\\w+)").matchEntire(mapClass.simpleName)?.let {
-                       eventMaps[it.groupValues[1]] = mapClass.kotlin
+                        eventMaps[it.groupValues[1]] = mapClass.kotlin
                     }
                 } else {
                     Regex("Map(\\d{1,2}_\\d)(\\w?)").matchEntire(mapClass.simpleName)?.let {
                         val name = it.groupValues[1].replace("_", "-")
-                        when(it.groupValues.getOrNull(2)) {
+                        when (it.groupValues.getOrNull(2)) {
                             "e", "E" -> emergencyMaps["${name}E"] = mapClass.kotlin
                             "n", "N" -> nightMaps["${name}N"] = mapClass.kotlin
                             else -> normalMaps[name] = mapClass.kotlin
@@ -399,16 +399,19 @@ abstract class MapRunner(
         }
         checkNotNull(location)
 
-        withTimeoutOrNull(60000) {
-            while (!location.isInRegion(region)) {
-                mapRunnerRegions.battleEndClick.click()
-                endTurn()
+        try {
+            withTimeout(60000) {
+                while (!location.isInRegion(region)) {
+                    mapRunnerRegions.battleEndClick.click()
+                    endTurn()
+                }
             }
-        } ?: run {
+        } catch (e: TimeoutCancellationException) {
+            error("Timed out waiting to exit battle")
+        } finally {
             scriptStats.sortiesDone += 1
             _battles = 1
             mapH = null
-            error("Timed out waiting to exit battle")
         }
     }
 

@@ -109,6 +109,7 @@ class LogisticsSupportModule(
     private suspend fun dispatchEchelon(echelon: Echelon, nextMission: LogisticsSupport) {
         logger.info("Next mission for $echelon is ${nextMission.number}")
         clickLogisticSupportChapter(nextMission)
+        delay(500)
         val missionIndex = (nextMission.number - 1) % 4
 
         if (missionRunning(missionIndex)) {
