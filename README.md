@@ -1,5 +1,17 @@
 # WAI2K
 
+# Get the feat/11-5 branch
+
+**Currently adding and/or readding more maps for testing
+
+# 11-5
+- Currently uses 2 draggers
+- 3rd echelon is a dummy to save rsc
+* [566 base exp (0-2 is 490, 8-1n is 500)] (https://www.youtube.com/watch?v=fl_q5ckPl0w)
+- 2x 9000 hp beans to kill in 11 seconds for the DPS check, use buffs and good faries
+
+---
+
 A Girls Frontline automation tool
 
 ---
