@@ -53,9 +53,8 @@ class Map11_5(
         resupplyEchelons(rEchelons + nodes[0])
         retreatEchelons(nodes[0])
         planPath()
-        waitForTurnEnd(5, false)
         // Wait for team to move all the way
-        delay(1200)
+        waitForTurnAndPoints(1, 0 , false)
         retreatEchelons(nodes[0])       
         terminateMission()
     }
