@@ -32,8 +32,7 @@ import com.waicool20.wai2k.game.CombatMap
 import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.game.TDoll
-import com.waicool20.wai2k.script.Navigator
-import com.waicool20.wai2k.script.ScriptRunner
+import com.waicool20.wai2k.script.*
 import com.waicool20.wai2k.script.modules.ScriptModule
 import com.waicool20.wai2k.script.modules.combat.maps.EventMapRunner
 import com.waicool20.wai2k.util.Ocr
@@ -60,11 +59,11 @@ class CombatModule(
 
     private val map by lazy {
         MapRunner.list.keys.find { it.name == profile.combat.map }
+                ?: throw UnsupportedMapException(profile.combat.map)
     }
 
     private val mapRunner by lazy {
-        MapRunner.list[map]?.primaryConstructor?.call(scriptRunner, region, config, profile)
-                ?: error("Unsupported map")
+        MapRunner.list[map]!!.primaryConstructor!!.call(scriptRunner, region, config, profile)
     }
 
     private var wasCancelled = false
@@ -118,8 +117,7 @@ class CombatModule(
         executeMapRunner()
 
         // Set game location back to combat menu now that battle has ended
-        gameState.currentGameLocation = GameLocation.mappings(config)[LocationId.COMBAT_MENU]
-                ?: error("Bad locations.json file")
+        gameState.currentGameLocation = GameLocation.find(config, LocationId.COMBAT_MENU)
         logger.info("Sortie complete")
         // Back to combat menu or home, check logistics
         navigator.checkLogistics()
@@ -136,8 +134,7 @@ class CombatModule(
         if (checkNeedsEnhancement()) return
         executeMapRunner()
 
-        gameState.currentGameLocation = GameLocation.mappings(config)[LocationId.EVENT]
-                ?: error("Bad locations.json file")
+        gameState.currentGameLocation = GameLocation.find(config, LocationId.EVENT)
         logger.info("Sortie complete")
     }
 
@@ -162,7 +159,7 @@ class CombatModule(
             var switchDoll: Region<AndroidDevice>? = null
             region.matcher.settings.matchDimension = ScriptRunner.HIGH_RES
             val tdolls = profile.combat.draggers
-                    .map { TDoll.lookup(config, it.id) ?: error("Invalid doll: ${it.id}") }
+                    .map { TDoll.lookup(config, it.id) ?: throw InvalidDollException(it.id) }
                     // Distinct filter types that way we dont set filters twice for same filter
                     .distinctBy { it.type.ordinal * 10 + it.stars }
             for ((i, tdoll) in tdolls.withIndex()) {
@@ -176,34 +173,38 @@ class CombatModule(
                 var scrollDown = true
                 var checkImg: BufferedImage
 
-                withTimeoutOrNull(90_000) {
-                    val r = region.subRegion(167, 146, 1542, 934)
-                    while (isActive) {
-                        // Trying this to improve search reliability, maybe put this upstream in cvauto
-                        switchDoll = r.findBest(FileTemplate("doll-list/echelon2-captain.png", 0.85), 5)
-                                .maxBy { it.score }?.region
-                        if (switchDoll == null) {
-                            checkImg = checkRegion.capture()
-                            if (scrollDown) {
-                                r1.swipeTo(r2, 500)
-                            } else {
-                                r2.swipeTo(r1, 500)
-                            }
-                            delay(2000)
-                            if (checkRegion.has(ImageTemplate(checkImg))) {
-                                logger.info("Reached ${if (scrollDown) "bottom" else "top"} of the list")
-                                scrollDown = !scrollDown
-                            }
-                        } else break
+                try {
+                    withTimeout(90_000) {
+                        val r = region.subRegion(167, 146, 1542, 934)
+                        while (isActive) {
+                            // Trying this to improve search reliability, maybe put this upstream in cvauto
+                            switchDoll = r.findBest(FileTemplate("doll-list/echelon2-captain.png", 0.85), 5)
+                                    .maxBy { it.score }?.region
+                            if (switchDoll == null) {
+                                checkImg = checkRegion.capture()
+                                if (scrollDown) {
+                                    r1.swipeTo(r2, 500)
+                                } else {
+                                    r2.swipeTo(r1, 500)
+                                }
+                                delay(2000)
+                                if (checkRegion.has(ImageTemplate(checkImg))) {
+                                    logger.info("Reached ${if (scrollDown) "bottom" else "top"} of the list")
+                                    scrollDown = !scrollDown
+                                }
+                            } else break
+                        }
                     }
-                } ?: error("Timed out finding a replacement dragging doll")
+                } catch (e: TimeoutCancellationException) {
+                    throw ScriptTimeOutException("Finding replacement dragging doll", e)
+                }
 
                 if (switchDoll != null) {
                     switchDoll?.copy(width = 142)?.click()
                     break
                 }
             }
-            if (switchDoll == null) error("Could not find replacement dragging doll")
+            if (switchDoll == null) throw ReplacementDollNotFoundException()
             region.matcher.settings.matchDimension = ScriptRunner.NORMAL_RES
             logger.info("Switching dolls took ${System.currentTimeMillis() - startTime} ms")
             delay(400)
@@ -468,16 +469,14 @@ class CombatModule(
             logger.info("T-doll limit reached, cancelling sortie")
             click()
             gameState.dollOverflow = true
-            gameState.currentGameLocation = GameLocation.mappings(config)[LocationId.TDOLL_ENHANCEMENT]
-                    ?: error("Bad locations.json file")
+            gameState.currentGameLocation = GameLocation.find(config, LocationId.TDOLL_ENHANCEMENT)
             return true
         }
         r.findBest(FileTemplate("combat/equip-enhance.png"))?.region?.apply {
             logger.info("Equipment limit reached, cancelling sortie")
             click()
             gameState.equipOverflow = true
-            gameState.currentGameLocation = GameLocation.mappings(config)[LocationId.RESEARCH_MENU]
-                    ?: error("Bad locations.json file")
+            gameState.currentGameLocation = GameLocation.find(config, LocationId.RESEARCH_MENU)
             return true
         }
         return false

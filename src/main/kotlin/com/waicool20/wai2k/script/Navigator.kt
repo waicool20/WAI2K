@@ -84,7 +84,7 @@ class Navigator(
                 delay(1000L * (i + 1))
             }
         }
-        error("Current location could not be identified")
+        throw UnknownLocationException()
     }
 
     /**
@@ -94,12 +94,11 @@ class Navigator(
      */
     suspend fun navigateTo(destination: LocationId, retries: Int = 3) {
         retry@ for (r in 0 until retries) {
-            val dest = locations[destination] ?: error("Invalid destination: $destination")
+            val dest = locations[destination] ?: throw InvalidDestinationException(destination)
             logger.info("Navigating to ${dest.id}")
             val cLocation = gameState.currentGameLocation.takeIf { it.isInRegion(region) }
                     ?: identifyCurrentLocation()
             val path = cLocation.shortestPathTo(dest)
-                    ?: error("No known solution from $cLocation to $dest")
             if (path.isEmpty()) {
                 logger.info("Already at ${dest.id}")
                 return
@@ -283,7 +282,10 @@ class Navigator(
                     logger.info("Stopping this logistics support")
                     false
                 }
-                else -> error("Got an invalid ReceivalMode for some reason")
+                null -> {
+                    logger.info("Defaulting to continue")
+                    true
+                }
             }
             val image = if (cont) {
                 // Increment sent stats if we are continuing

@@ -32,7 +32,9 @@ import com.waicool20.wai2k.game.CombatMap
 import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.game.MapRunnerRegions
+import com.waicool20.wai2k.script.NodeNotFoundException
 import com.waicool20.wai2k.script.ScriptRunner
+import com.waicool20.wai2k.script.ScriptTimeOutException
 import com.waicool20.wai2k.script.modules.combat.maps.EventMapRunner
 import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.doOCRAndTrim
@@ -309,15 +311,19 @@ abstract class MapRunner(
     protected suspend fun waitForTurnEnd(battles: Int, endTurn: Boolean = true) {
         logger.info("Waiting for turn to end, expected battles: $battles")
         var battlesPassed = 0
-        withTimeoutOrNull(battles * battleTimeout) {
-            while (isActive && battlesPassed < battles) {
-                if (isInBattle()) {
-                    clickThroughBattle()
-                    battlesPassed++
+        try {
+            withTimeout(battles * battleTimeout) {
+                while (isActive && battlesPassed < battles) {
+                    if (isInBattle()) {
+                        clickThroughBattle()
+                        battlesPassed++
+                    }
+                    yield()
                 }
-                yield()
             }
-        } ?: error("Timed out waiting for battles!")
+        } catch (e: TimeoutCancellationException) {
+            throw ScriptTimeOutException("Waiting for battles", e)
+        }
         region.waitHas(FileTemplate("combat/battle/terminate.png"), 10000)
         logger.info("Turn ended")
         if (endTurn) endTurn()
@@ -397,7 +403,7 @@ abstract class MapRunner(
                 }
             }
         } catch (e: TimeoutCancellationException) {
-            error("Timed out waiting to exit battle")
+            throw ScriptTimeOutException("Waiting to exit battle", e)
         } finally {
             scriptStats.sortiesDone += 1
             _battles = 1
@@ -535,25 +541,7 @@ abstract class MapRunner(
             logger.debug("Node target: (x=${target.x},y=${target.y})")
             return target
         }
-        error("Could not find node")
-/*        // Find ratio of white to non white ones, it's probably a node
-        // if its vaguely the right color ¯\_(ツ)_/¯
-        loop@ while (isActive) {
-            val clickRegionImage = roi.capture().extractNodes(true)
-            val nodePixelRatio = clickRegionImage.data.count { it > 10f } / clickRegionImage.data.size.toDouble()
-            when {
-                nodePixelRatio <= 0 -> {
-                    delay(200)
-                    continue@loop
-                }
-                nodePixelRatio < minNodeThreshold -> {
-                    logger.debug("Estimate failed node pixel test, will retry | ratio=$nodePixelRatio, min=$minNodeThreshold")
-                    return retry()
-                }
-                else -> break@loop
-            }
-        }
-        return roi*/
+        throw NodeNotFoundException(this)
     }
 
     private suspend fun clickThroughBattle() {

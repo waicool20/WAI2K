@@ -159,9 +159,7 @@ class ScriptRunner(
         try {
             modules.forEach { it.execute() }
             justRestarted = false
-        } catch (e: Exception) {
-            // Ignore if script was ordered to be killed
-            if (e is CancellationException) return
+        } catch (e: ScriptException) {
             logger.warn("Fault detected, restarting game")
             e.printStackTrace()
             if (currentConfig.gameRestartConfig.enabled) {

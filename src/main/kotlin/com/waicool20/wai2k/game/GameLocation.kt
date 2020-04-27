@@ -28,6 +28,8 @@ import com.waicool20.cvauto.core.Region
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.script.Asset
+import com.waicool20.wai2k.script.InvalidLocationsJsonFileException
+import com.waicool20.wai2k.script.PathFindingException
 import com.waicool20.waicoolutils.logging.loggerFor
 import java.util.*
 
@@ -91,6 +93,10 @@ data class GameLocation(val id: LocationId, val isIntermediate: Boolean = false)
                 }
             } else locations
         }
+
+        fun find(wai2KConfig: Wai2KConfig, location: LocationId): GameLocation {
+            return mappings(wai2KConfig)[location] ?: throw InvalidLocationsJsonFileException()
+        }
     }
 
     /**
@@ -118,7 +124,7 @@ data class GameLocation(val id: LocationId, val isIntermediate: Boolean = false)
      * @param dest Destination
      * @return List of [GameLocationLink], null if no path solution is found
      */
-    fun shortestPathTo(dest: GameLocation): List<GameLocationLink>? {
+    fun shortestPathTo(dest: GameLocation): List<GameLocationLink> {
         if (this == dest) return emptyList()
 
         val visitedNodes = mutableSetOf<GameLocation>()
@@ -152,6 +158,6 @@ data class GameLocation(val id: LocationId, val isIntermediate: Boolean = false)
                 return list.reversed()
             }
         }
-        return null
+        throw PathFindingException(this, dest)
     }
 }

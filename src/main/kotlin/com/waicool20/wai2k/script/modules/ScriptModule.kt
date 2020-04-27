@@ -25,6 +25,7 @@ import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.game.DollFilterRegions
 import com.waicool20.wai2k.game.TDoll
+import com.waicool20.wai2k.script.ChapterClickFailedException
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.Ocr
@@ -149,7 +150,7 @@ abstract class ScriptModule(
                 }
             }
             delay(300)
-            if (retries++ >= 3) error("Failed to find and click chapter")
+            if (retries++ >= 3) throw ChapterClickFailedException(chapter)
         }
         navigator.checkLogistics()
         delay(2000)

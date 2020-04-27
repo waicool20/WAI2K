@@ -19,6 +19,8 @@
 
 package com.waicool20.wai2k.game
 
+import com.waicool20.wai2k.script.InvalidMapNameException
+
 sealed class CombatMap(val name: String) {
     enum class Type {
         NORMAL, EMERGENCY, NIGHT
@@ -35,7 +37,7 @@ sealed class CombatMap(val name: String) {
         val type: Type
 
         init {
-            matches = regex.matchEntire(name)?.groupValues ?: error("Invalid map: $name!")
+            matches = regex.matchEntire(name)?.groupValues ?: throw InvalidMapNameException(name)
             chapter = matches[1].toInt()
             number = matches[2].toInt()
             type = when (matches.getOrNull(3)) {
