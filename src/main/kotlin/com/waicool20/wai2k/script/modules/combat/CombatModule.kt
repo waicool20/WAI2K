@@ -28,6 +28,7 @@ import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.cvauto.core.template.ImageTemplate
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
+import com.waicool20.wai2k.game.CombatMap
 import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.game.TDoll
@@ -56,9 +57,14 @@ class CombatModule(
         navigator: Navigator
 ) : ScriptModule(scriptRunner, region, config, profile, navigator) {
     private val logger = loggerFor<CombatModule>()
+
+    private val map by lazy {
+        MapRunner.list.keys.find { it.name == profile.combat.map }
+    }
+
     private val mapRunner by lazy {
-        MapRunner.list[profile.combat.map]?.primaryConstructor
-                ?.call(scriptRunner, region, config, profile) ?: error("Unsupported map")
+        MapRunner.list[map]?.primaryConstructor?.call(scriptRunner, region, config, profile)
+                ?: error("Unsupported map")
     }
 
     private var wasCancelled = false
@@ -74,10 +80,9 @@ class CombatModule(
         if (gameState.echelons[0].hasRepairs()) return
         // Also Return if its a corpse dragging map and echelon 2 has repairs
         if (mapRunner.isCorpseDraggingMap && gameState.echelons[1].hasRepairs()) return
-        if (MapRunner.eventMaps.contains(profile.combat.map)) {
-            runEventCombatCycle()
-        } else {
-            runCombatCycle()
+        when (map) {
+            is CombatMap.EventMap -> runEventCombatCycle()
+            is CombatMap.StoryMap -> runCombatCycle()
         }
     }
 
@@ -101,9 +106,9 @@ class CombatModule(
         wasCancelled = gameState.echelons.any { it.needsRepairs() }
         if (wasCancelled) return
 
-        val map = profile.combat.map
         navigator.navigateTo(LocationId.COMBAT)
-        clickCombatChapter(map.replace(Regex("-\\d\\w?"), "").toInt())
+        val map = map as CombatMap.StoryMap
+        clickCombatChapter(map)
         clickCombatMap(map)
         enterBattle(map)
         // Cancel further execution if not in battle, maybe due to doll/equip overflow
@@ -354,9 +359,10 @@ class CombatModule(
     //<editor-fold desc="Map Selection and Combat">
 
     /**
-     * Clicks the given combat map chapter
+     * Clicks the given story map chapter
      */
-    private suspend fun clickCombatChapter(chapter: Int) {
+    private suspend fun clickCombatChapter(map: CombatMap.StoryMap) {
+        val chapter = map.chapter
         logger.info("Choosing combat chapter $chapter")
         if (region.doesntHave(FileTemplate("locations/landmarks/combat_menu.png"))) {
             logger.info("Chapter menu not on screen!")
@@ -369,27 +375,25 @@ class CombatModule(
     }
 
     /**
-     * Clicks the map given the map name, it will switch the combat type depending on the suffix
-     * of the given map string, 'N' for night battle and 'E for emergency battles
-     * else it is assumed to be a normal map
+     * Clicks the story map
      */
-    private suspend fun clickCombatMap(map: String) {
+    private suspend fun clickCombatMap(map: CombatMap.StoryMap) {
         logger.info("Choosing combat map $map")
         navigator.checkLogistics()
         // Only needed when script first starts/just restarted as we are unsure what map mode the game is in
         if (scriptRunner.justRestarted) {
-            when {
-                map.endsWith("e", true) -> {
+            when (map.type) {
+                CombatMap.Type.NORMAL -> {
+                    // Normal map
+                    region.subRegion(1528, 265, 142, 50).click()
+                }
+                CombatMap.Type.EMERGENCY -> {
                     logger.info("Selecting emergency map")
                     region.subRegion(1700, 265, 142, 50).click()
                 }
-                map.endsWith("n", true) -> {
+                CombatMap.Type.NIGHT -> {
                     logger.info("Selecting night map")
                     region.subRegion(1871, 265, 142, 50).click()
-                }
-                else -> {
-                    // Normal map
-                    region.subRegion(1528, 265, 142, 50).click()
                 }
             }
             // Wait for it to settle
@@ -398,13 +402,13 @@ class CombatModule(
         navigator.checkLogistics()
 
         // Swipe up if map is > 4
-        when (val mapNum = map.replace(Regex("\\d+-"),"").take(1).toInt()) {
+        when (map.number) {
             in 1..4 -> {
-                region.subRegion(925, 377 + 177 * (mapNum - 1), 440, 130).click()
+                region.subRegion(925, 377 + 177 * (map.number - 1), 440, 130).click()
             }
             else -> {
                 val mapNameR = region.subRegion(1100, 350, 250, 680)
-                val mapName = map.dropLastWhile { it.isLetter() }
+                val mapName = "${map.chapter}-${map.number}" // map.name might have suffix
                 withTimeout(10000) {
                     while (isActive) {
                         region.subRegion(1020, 880, 675, 140).randomPoint().let {
@@ -417,7 +421,7 @@ class CombatModule(
                     }
                 }
                 navigator.checkLogistics()
-                region.subRegion(925, 472 + 177 * (mapNum - 4), 440, 130).click()
+                region.subRegion(925, 472 + 177 * (map.number - 4), 440, 130).click()
             }
         }
     }
@@ -425,7 +429,7 @@ class CombatModule(
     /**
      * Enters the map and waits for the start button to appear
      */
-    private suspend fun enterBattle(map: String) {
+    private suspend fun enterBattle(map: CombatMap.StoryMap) {
         // Enter battle, use higher similarity threshold to exclude possibly disabled
         // button which will be slightly transparent
         var loops = 0

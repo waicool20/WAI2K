@@ -28,6 +28,7 @@ import com.waicool20.cvauto.util.homography
 import com.waicool20.cvauto.util.transformRect
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
+import com.waicool20.wai2k.game.CombatMap
 import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.game.MapRunnerRegions
@@ -90,12 +91,7 @@ abstract class MapRunner(
         private const val maxSideDiff = 5.0
         private const val minNodeThreshold = 0.12
 
-        val normalMaps = mutableMapOf<String, KClass<out MapRunner>>()
-        val emergencyMaps = mutableMapOf<String, KClass<out MapRunner>>()
-        val nightMaps = mutableMapOf<String, KClass<out MapRunner>>()
-        val eventMaps = mutableMapOf<String, KClass<out MapRunner>>()
-
-        val list get() = normalMaps + emergencyMaps + nightMaps + eventMaps
+        val list = mutableMapOf<CombatMap, KClass<out MapRunner>>()
 
         init {
             val mapClasses = Reflections("com.waicool20.wai2k.script.modules.combat.maps")
@@ -103,18 +99,12 @@ abstract class MapRunner(
             for (mapClass in mapClasses) {
                 if (Modifier.isAbstract(mapClass.modifiers)) continue
                 if (mapClass == EventMapRunner::class.java) {
-                    Regex("Event(\\w+)").matchEntire(mapClass.simpleName)?.let {
-                        eventMaps[it.groupValues[1]] = mapClass.kotlin
-                    }
+                    val name = mapClass.simpleName.replaceFirst("Event", "")
+                    list[CombatMap.EventMap(name)] = mapClass.kotlin
                 } else {
-                    Regex("Map(\\d{1,2}_\\d)(\\w?)").matchEntire(mapClass.simpleName)?.let {
-                        val name = it.groupValues[1].replace("_", "-")
-                        when (it.groupValues.getOrNull(2)) {
-                            "e", "E" -> emergencyMaps["${name}E"] = mapClass.kotlin
-                            "n", "N" -> nightMaps["${name}N"] = mapClass.kotlin
-                            else -> normalMaps[name] = mapClass.kotlin
-                        }
-                    }
+                    val name = mapClass.simpleName.replaceFirst("Map", "")
+                            .replace("_", "-")
+                    list[CombatMap.StoryMap(name)] = mapClass.kotlin
                 }
             }
         }

@@ -19,6 +19,7 @@
 
 package com.waicool20.wai2k.views.tabs.profile.combat
 
+import com.waicool20.wai2k.game.CombatMap
 import com.waicool20.wai2k.script.modules.combat.MapRunner
 import com.waicool20.wai2k.views.tabs.profile.AbstractProfileView
 import com.waicool20.waicoolutils.javafx.bind
@@ -40,15 +41,17 @@ class CombatView : AbstractProfileView() {
         mapComboBox.cellFactory = NoneSelectableCellFactory(Regex("--.+?--"))
         if (mapComboBox.items.isEmpty()) {
             val comparator = compareBy(String::length).then(naturalOrder())
+            val storyMaps = MapRunner.list.keys.filterIsInstance<CombatMap.StoryMap>()
+            val eventMaps = MapRunner.list.keys.filterIsInstance<CombatMap.EventMap>()
             mapComboBox.items.apply {
                 add("-- Normal --")
-                addAll(MapRunner.normalMaps.keys.sortedWith(comparator))
+                addAll(storyMaps.filter { it.type == CombatMap.Type.NORMAL }.map { it.name }.sortedWith(comparator))
                 add("-- Emergency --")
-                addAll(MapRunner.emergencyMaps.keys.sortedWith(comparator))
+                addAll(storyMaps.filter { it.type == CombatMap.Type.EMERGENCY }.map { it.name }.sortedWith(comparator))
                 add("-- Night Battle --")
-                addAll(MapRunner.nightMaps.keys.sortedWith(comparator))
+                addAll(storyMaps.filter { it.type == CombatMap.Type.NIGHT }.map { it.name }.sortedWith(comparator))
                 add("-- Event --")
-                addAll(MapRunner.eventMaps.keys.sortedWith(comparator))
+                addAll(eventMaps.map { it.toString() }.sortedWith(comparator))
             }
         }
         repairThresholdSpinner.valueFactory = SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100)
