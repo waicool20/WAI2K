@@ -32,10 +32,13 @@ sealed class MapNode(
 ) {
     enum class Type { Normal, CommandPost, Heliport }
 
-    class RelativeMapNode(x: Int, y: Int, width: Int, height: Int): MapNode(x, y, width, height)
-    class AbsoluteMapNode(x: Int, y: Int, width: Int, height: Int): MapNode(x, y, width, height)
+    class RelativeMapNode(x: Int, y: Int, width: Int, height: Int) : MapNode(x, y, width, height) {
+        override fun toString() = "RelativeMapNode(x=$x, y=$y, width=$width, height=$height, type=$type)"
+    }
+
+    class AbsoluteMapNode(x: Int, y: Int, width: Int, height: Int) : MapNode(x, y, width, height) {
+        override fun toString() = "AbsoluteMapNode(x=$x, y=$y, width=$width, height=$height, type=$type)"
+    }
 
     val rect by lazy { Rectangle(x, y, width, height) }
-
-    override fun toString() = "MapNode(type=$type)"
 }
