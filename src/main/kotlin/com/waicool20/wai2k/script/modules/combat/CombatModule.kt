@@ -103,7 +103,7 @@ class CombatModule(
 
         val map = profile.combat.map
         navigator.navigateTo(LocationId.COMBAT)
-        clickCombatChapter(map.take(1).toInt())
+        clickCombatChapter(map.replace(Regex("-\\d\\w?"), "").toInt())
         clickCombatMap(map)
         enterBattle(map)
         // Cancel further execution if not in battle, maybe due to doll/equip overflow
@@ -398,7 +398,7 @@ class CombatModule(
         navigator.checkLogistics()
 
         // Swipe up if map is > 4
-        when (val mapNum = map.drop(2).take(1).toInt()) {
+        when (val mapNum = map.replace(Regex("\\d+-"),"").take(1).toInt()) {
             in 1..4 -> {
                 region.subRegion(925, 377 + 177 * (mapNum - 1), 440, 130).click()
             }

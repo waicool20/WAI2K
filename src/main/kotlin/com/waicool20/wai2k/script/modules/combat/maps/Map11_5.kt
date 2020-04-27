@@ -25,34 +25,50 @@ import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.script.modules.combat.MapRunner
 import com.waicool20.waicoolutils.logging.loggerFor
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
+import kotlin.random.Random
 
-class Map5_6(
+class Map11_5(
         scriptRunner: ScriptRunner,
         region: AndroidRegion,
         config: Wai2KConfig,
         profile: Wai2KProfile
 ) : MapRunner(scriptRunner, region, config, profile) {
-    private val logger = loggerFor<Map5_6>()
+    private val logger = loggerFor<Map11_5>()
     override val isCorpseDraggingMap = true
 
+    // Too much blue in this map
+    override val extractBlueNodes = false
+    override val extractYellowNodes = false
+
     override suspend fun execute() {
-        nodes[0].findRegion()
-        val rEchelons = deployEchelons(nodes[1], nodes[2])
+
+        // No need to zoom
+        val rEchelons = deployEchelons(nodes[1], nodes[0])
+        // Dummy do not supply
+        deployEchelons(nodes[2])
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
-        resupplyEchelons(rEchelons + nodes[2])
+        resupplyEchelons(rEchelons + nodes[0])
+        retreatEchelons(nodes[0])
         planPath()
-        waitForTurnEnd(2)
-        handleBattleResults()
+        // Wait for team to move all the way
+        waitForTurnAndPoints(1, 0 , false)
+        retreatEchelons(nodes[0])       
+        terminateMission()
     }
 
     private suspend fun planPath() {
-        logger.info("Selecting echelon at command post")
-        nodes[1].findRegion().click()
 
         logger.info("Entering planning mode")
         mapRunnerRegions.planningMode.click(); yield()
+
+        logger.info("Selecting echelon at ${nodes[1]}")
+        nodes[1].findRegion().click()
+
+        logger.info("Selecting ${nodes[3]}")
+        nodes[3].findRegion().click()
 
         logger.info("Selecting ${nodes[0]}")
         nodes[0].findRegion().click(); yield()
@@ -60,4 +76,5 @@ class Map5_6(
         logger.info("Executing plan")
         mapRunnerRegions.executePlan.click()
     }
+
 }
