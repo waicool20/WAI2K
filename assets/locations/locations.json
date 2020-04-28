@@ -16,7 +16,7 @@
         "asset": {
           "imageName": "home0",
           "x": 1776,
-          "y-revert-after-event": 664,
+          "y-normal": 664,
           "y": 563,
           "width": 60,
           "height": 60
@@ -29,7 +29,7 @@
         "asset": {
           "imageName": "",
           "x": 1328,
-          "y-revert-after-event": 646,
+          "y-normal": 646,
           "y": 544,
           "width": 375,
           "height": 161
@@ -50,7 +50,7 @@
         "asset": {
           "imageName": "",
           "x": 1720,
-          "y-revert-after-event": 645,
+          "y-normal": 645,
           "y": 543,
           "width": 286,
           "height": 162
@@ -61,7 +61,7 @@
         "asset": {
           "imageName": "",
           "x": 1730,
-          "y-revert-after-event": 470,
+          "y-normal": 470,
           "y": 368,
           "width": 273,
           "height": 143
@@ -72,7 +72,7 @@
         "asset": {
           "imageName": "",
           "x": 1204,
-          "y-revert-after-event": 645,
+          "y-normal": 645,
           "y": 543,
           "width": 109,
           "height": 162
@@ -83,7 +83,7 @@
         "asset": {
           "imageName": "",
           "x": 1371,
-          "y-revert-after-event": 470,
+          "y-normal": 470,
           "y": 368,
           "width": 354,
           "height": 144
@@ -100,8 +100,8 @@
         }
       },
       {
-        "dest-event": 0,
-        "dest": "unknown",
+        "dest": "event",
+        "dest-normal": "unknown",
         "asset": {
           "imageName": "",
           "x": 1536,
@@ -142,7 +142,7 @@
         "asset": {
           "imageName": "",
           "x": 1328,
-          "y-revert-after-event": 646,
+          "y-normal": 646,
           "y": 544,
           "width": 375,
           "height": 161
@@ -153,7 +153,7 @@
         "asset": {
           "imageName": "",
           "x": 1720,
-          "y-revert-after-event": 645,
+          "y-normal": 645,
           "y": 543,
           "width": 286,
           "height": 162
@@ -164,7 +164,7 @@
         "asset": {
           "imageName": "",
           "x": 1730,
-          "y-revert-after-event": 470,
+          "y-normal": 470,
           "y": 368,
           "width": 273,
           "height": 143
@@ -175,15 +175,15 @@
         "asset": {
           "imageName": "",
           "x": 1371,
-          "y-revert-after-event": 470,
+          "y-normal": 470,
           "y": 368,
           "width": 354,
           "height": 144
         }
       },
       {
-        "dest-event": 0,
-        "dest": "unknown",
+        "dest": "event",
+        "dest-normal": "unknown",
         "asset": {
           "imageName": "",
           "x": 1536,
@@ -663,8 +663,8 @@
         "asset": {
           "imageName": "",
           "x": 131,
-          "y": 164,
-          "y-restore-during-event": 296,
+          "y-normal": 164,
+          "y": 296,
           "width": 257,
           "height": 118
         }
@@ -674,8 +674,8 @@
         "asset": {
           "imageName": "",
           "x": 131,
-          "y": 296,
-          "y-restore-during-event": 428,
+          "y-normal": 296,
+          "y": 428,
           "width": 257,
           "height": 118
         }
@@ -739,8 +739,8 @@
         "asset": {
           "imageName": "",
           "x": 131,
-          "y": 296,
-          "y-restore-during-event": 428,
+          "y-normal": 296,
+          "y": 428,
           "width": 257,
           "height": 118
         }
@@ -787,8 +787,8 @@
         "asset": {
           "imageName": "",
           "x": 131,
-          "y": 164,
-          "y-restore-during-event": 296,
+          "y-normal": 164,
+          "y": 296,
           "width": 257,
           "height": 118
         }
@@ -947,8 +947,8 @@
       {
         "asset": {
           "imageName": "event",
-          "x": 160,
-          "y": 517,
+          "x": 359,
+          "y": 520,
           "width": 60,
           "height": 60
         }
