@@ -51,7 +51,7 @@ class CombatView : AbstractProfileView() {
                 add("-- Night Battle --")
                 addAll(storyMaps.filter { it.type == CombatMap.Type.NIGHT }.map { it.name }.sortedWith(comparator))
                 add("-- Event --")
-                addAll(eventMaps.map { it.toString() }.sortedWith(comparator))
+                addAll(eventMaps.map { it.name }.sortedWith(comparator))
             }
         }
         repairThresholdSpinner.valueFactory = SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100)
