@@ -29,6 +29,7 @@ import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.game.LogisticsSupport
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
+import com.waicool20.wai2k.script.ScriptTimeOutException
 import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.wai2k.util.formatted
@@ -205,6 +206,7 @@ class LogisticsSupportModule(
         val eRegion = region.subRegion(162, 40, 170, region.height - 140)
         delay(100)
 
+        val start = System.currentTimeMillis()
         while (isActive) {
             val echelons = eRegion.findBest(FileTemplate("echelons/echelon.png"), 8)
                     .map { it.region }
@@ -241,6 +243,11 @@ class LogisticsSupportModule(
                 }
             }
             delay(300)
+            if (System.currentTimeMillis() - start > 45000) {
+                gameState.requiresUpdate = true
+                logger.warn("Failed to find echelon for logistics, maybe ocr failed?")
+                break
+            }
         }
         return false
     }
