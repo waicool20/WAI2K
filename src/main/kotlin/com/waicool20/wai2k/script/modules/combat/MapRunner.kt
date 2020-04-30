@@ -569,6 +569,9 @@ abstract class MapRunner(
                 click(); delay(1500)
             }
         }
+        if (node.type == MapNode.Type.HeavyHeliport && gameState.requiresMapInit) {
+            mapRunnerRegions.chooseEchelon.click()
+        }
     }
 
     private suspend fun endTurn() {

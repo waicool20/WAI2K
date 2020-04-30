@@ -86,4 +86,9 @@ class MapRunnerRegions(region: AndroidRegion) {
      * Retreat button
      */
     val retreat = region.subRegion(1471, 908, 250, 96)
+
+    /**
+     * Choose echelon button on heavy heliport
+     */
+    val chooseEchelon = region.subRegion(835, 86, 372, 101)
 }

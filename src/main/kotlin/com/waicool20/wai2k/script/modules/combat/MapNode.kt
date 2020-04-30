@@ -30,7 +30,7 @@ sealed class MapNode(
         val height: Int,
         val type: Type = Type.Normal
 ) {
-    enum class Type { Normal, CommandPost, Heliport }
+    enum class Type { Normal, CommandPost, Heliport, HeavyHeliport }
 
     class RelativeMapNode(x: Int, y: Int, width: Int, height: Int) : MapNode(x, y, width, height) {
         override fun toString() = "RelativeMapNode(x=$x, y=$y, width=$width, height=$height, type=$type)"
