@@ -43,7 +43,7 @@ dependencies {
     val versions = object {
         val Kotlin by lazy { plugins.getPlugin(KotlinPluginWrapper::class).kotlinPluginVersion }
         val KotlinCoroutines = "1.3.5"
-        val Jackson = "2.10.1"
+        val Jackson = "2.11.0"
     }
 
     implementation("org.jetbrains.kotlin", "kotlin-stdlib-jdk8", versions.Kotlin)
@@ -58,9 +58,9 @@ dependencies {
     implementation("com.fasterxml.jackson.datatype", "jackson-datatype-jsr310", versions.Jackson)
     implementation("ch.qos.logback", "logback-classic", "1.2.3")
     implementation("org.controlsfx", "controlsfx", "8.40.14")
-    implementation("org.reflections", "reflections", "0.9.11")
+    implementation("org.reflections", "reflections", "0.9.12")
 
-    implementation("net.sourceforge.tess4j", "tess4j", "4.4.0") {
+    implementation("net.sourceforge.tess4j", "tess4j", "4.5.1") {
         exclude("org.ghost4j")
         exclude("org.apache.pdfbox")
         exclude("org.jboss")
