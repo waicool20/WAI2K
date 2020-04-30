@@ -198,7 +198,7 @@ data class Wai2KProfile(
                     printDebugInfo()
                 }
             } catch (e: Exception) {
-                loaderLogger.warn("Error occurred while loading the profile: ${e.message}")
+                loaderLogger.warn("Error occurred while loading the profile:", e)
                 loaderLogger.info("Using default profile")
                 Wai2KProfile().apply { save() }
             }

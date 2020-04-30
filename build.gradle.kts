@@ -43,7 +43,7 @@ dependencies {
     val versions = object {
         val Kotlin by lazy { plugins.getPlugin(KotlinPluginWrapper::class).kotlinPluginVersion }
         val KotlinCoroutines = "1.3.5"
-        val Jackson = "2.11.0"
+        val Jackson = "2.10.1" // Higher version break loading javafx compatibility
     }
 
     implementation("org.jetbrains.kotlin", "kotlin-stdlib-jdk8", versions.Kotlin)
