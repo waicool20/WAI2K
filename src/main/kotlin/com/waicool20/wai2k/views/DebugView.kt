@@ -75,6 +75,7 @@ class DebugView : CoroutineScopeView() {
     private val allowedCharsTextField: TextField by fxid()
 
     private var lastAndroidDevice: AndroidDevice? = null
+    private var lastJob: Job? = null
 
     private val wai2KContext: Wai2KContext by inject()
 
@@ -91,23 +92,52 @@ class DebugView : CoroutineScopeView() {
         testButton.setOnAction { testPath() }
         assetOCRButton.setOnAction { doAssetOCR() }
         OCRButton.setOnAction { doOCR() }
-        resetOCRButton.setOnAction { updateOCRUi() }
+        resetOCRButton.setOnAction { createNewRenderJob() }
     }
 
     private fun uiSetup() {
         filterOptionsVBox.disableWhen { filterCheckBox.selectedProperty().not() }
-        updateOCRUi()
+        createNewRenderJob()
         wai2KContext.wai2KConfig.lastDeviceSerialProperty
-                .addListener("DebugViewDeviceListener") { _ -> updateOCRUi() }
+                .addListener("DebugViewDeviceListener") { _ -> createNewRenderJob() }
     }
 
-    fun updateOCRUi(serial: String = wai2KContext.wai2KConfig.lastDeviceSerial) {
-        val device = async(Dispatchers.IO) {
-            ADB.getDevices().find { it.serial == serial }.also { lastAndroidDevice = it }
-        }
-        launch(Dispatchers.IO) {
-            fun updateImageView() = launch(Dispatchers.IO) {
-                var image = device.await()!!.screens[0].capture().let {
+    private fun createNewRenderJob(serial: String = wai2KContext.wai2KConfig.lastDeviceSerial) {
+        val device = ADB.getDevices().find { it.serial == serial }
+                .also { lastAndroidDevice = it } ?: return
+        lastJob?.cancel()
+        lastJob = launch(Dispatchers.IO) {
+            withContext(Dispatchers.JavaFx) {
+                val maxWidth = device.properties.displayWidth
+                val maxHeight = device.properties.displayHeight
+                xSpinner.valueFactory = IntegerSpinnerValueFactory(0, maxWidth, 0)
+                ySpinner.valueFactory = IntegerSpinnerValueFactory(0, maxHeight, 0)
+                wSpinner.valueFactory = IntegerSpinnerValueFactory(0, maxWidth, maxWidth)
+                hSpinner.valueFactory = IntegerSpinnerValueFactory(0, maxHeight, maxHeight)
+
+                xSpinner.valueProperty().addListener("DebugViewXSpinner") { newVal ->
+                    if (newVal + wSpinner.value > maxWidth) {
+                        wSpinner.valueFactory.value = maxWidth - newVal
+                    }
+                }
+                ySpinner.valueProperty().addListener("DebugViewYSpinner") { newVal ->
+                    if (newVal + hSpinner.value > maxHeight) {
+                        hSpinner.valueFactory.value = maxHeight - newVal
+                    }
+                }
+                wSpinner.valueProperty().addListener("DebugViewWSpinner") { newVal ->
+                    if (newVal + xSpinner.value > maxWidth) {
+                        wSpinner.valueFactory.value = maxWidth - xSpinner.value
+                    }
+                }
+                hSpinner.valueProperty().addListener("DebugViewHSpinner") { newVal ->
+                    if (newVal + ySpinner.value > maxHeight) {
+                        hSpinner.valueFactory.value = maxHeight - ySpinner.value
+                    }
+                }
+            }
+            while (isActive) {
+                var image = device.screens[0].capture().let {
                     if (wSpinner.value > 0 && hSpinner.value > 0) {
                         it.getSubimage(xSpinner.value, ySpinner.value, wSpinner.value, hSpinner.value)
                     } else it
@@ -122,45 +152,6 @@ class DebugView : CoroutineScopeView() {
                 withContext(Dispatchers.JavaFx) {
                     ocrImageView.image = SwingFXUtils.toFXImage(image, null)
                 }
-            }
-            withContext(Dispatchers.JavaFx) {
-                device.await()?.let {
-                    val maxWidth = it.properties.displayWidth
-                    val maxHeight = it.properties.displayHeight
-                    xSpinner.valueFactory = IntegerSpinnerValueFactory(0, maxWidth, 0)
-                    ySpinner.valueFactory = IntegerSpinnerValueFactory(0, maxHeight, 0)
-                    wSpinner.valueFactory = IntegerSpinnerValueFactory(0, maxWidth, maxWidth)
-                    hSpinner.valueFactory = IntegerSpinnerValueFactory(0, maxHeight, maxHeight)
-
-                    xSpinner.valueProperty().addListener("DebugViewXSpinner") { newVal ->
-                        if (newVal + wSpinner.value > maxWidth) {
-                            wSpinner.valueFactory.value = maxWidth - newVal
-                        }
-                        updateImageView()
-                    }
-                    ySpinner.valueProperty().addListener("DebugViewYSpinner") { newVal ->
-                        if (newVal + hSpinner.value > maxHeight) {
-                            hSpinner.valueFactory.value = maxHeight - newVal
-                        }
-                        updateImageView()
-                    }
-                    wSpinner.valueProperty().addListener("DebugViewWSpinner") { newVal ->
-                        if (newVal + xSpinner.value > maxWidth) {
-                            wSpinner.valueFactory.value = maxWidth - xSpinner.value
-                        }
-                        updateImageView()
-                    }
-                    hSpinner.valueProperty().addListener("DebugViewHSpinner") { newVal ->
-                        if (newVal + ySpinner.value > maxHeight) {
-                            hSpinner.valueFactory.value = maxHeight - ySpinner.value
-                        }
-                        updateImageView()
-                    }
-                }
-            }
-            while (isActive) {
-                updateImageView()
-                delay(1000)
             }
         }
     }
@@ -196,7 +187,7 @@ class DebugView : CoroutineScopeView() {
                             .getSubimage(xSpinner.value, ySpinner.value, wSpinner.value, hSpinner.value)
                             .asGrayF32()
                     Region.DEFAULT_MATCHER.settings.matchDimension = ScriptRunner.HIGH_RES
-                    // Set similarity to 0.6f to make sikulix report the similarity value down to 0.6
+                    // Set similarity to 0.6f to make cvauto report the similarity value down to 0.6
                     val (results, duration) = measureTimedValue {
                         try {
                             device.screens[0].matcher.findBest(FileTemplate(path, 0.6), image, 20)

@@ -519,9 +519,9 @@ abstract class MapRunner(
             delay(200)
             return findRegion()
         }
-        val targets = mutableListOf<Pair<Int, Int>>()
 
         while (isActive) {
+            val targets = mutableListOf<Pair<Int, Int>>()
             val img = roi.capture().extractNodes()
             for (y in 0 until img.height) {
                 var index = img.startIndex + y * img.stride
@@ -536,7 +536,7 @@ abstract class MapRunner(
             }
             logger.debug("${targets.size} target candidates for node $this")
             val target = targets.random().let { (cX, cY) ->
-                roi.subRegionAs<AndroidRegion>(cX, cY, 1, 1)
+                region.subRegionAs<AndroidRegion>(roi.x + cX, roi.y + cY, 5, 5)
             }
             logger.debug("Node target: (x=${target.x},y=${target.y})")
             return target
@@ -549,11 +549,11 @@ abstract class MapRunner(
         // Wait until it disappears
         while (isActive && isInBattle()) yield()
         logger.info("Battle ${_battles++} complete, clicking through battle results")
-        delay(400)
+        delay(Random.nextLong(400, 600))
         val l = mapRunnerRegions.battleEndClick.randomPoint()
         repeat(Random.nextInt(config.scriptConfig.minPostBattleClick, config.scriptConfig.maxPostBattleClick)) {
-            region.device.input.touchInterface?.tap(0, l.x, l.y)
-            delay(Random.nextLong(40, 60))
+            region.subRegion(l.x, l.y, 20, 20).click()
+            delay(Random.nextLong(150, 250))
         }
         // If the clicks above managed to halt battle plan just cancel the dialog
         delay(1000)
@@ -564,10 +564,9 @@ abstract class MapRunner(
     private fun isInBattle() = mapRunnerRegions.pauseButton.has(FileTemplate("combat/battle/pause.png", 0.9))
 
     private suspend fun openEchelon(node: MapNode, singleClick: Boolean = false) {
-        node.findRegion().apply {
-            repeat(if (singleClick) 1 else 2) {
-                click(); delay(1500)
-            }
+        val r = node.findRegion()
+        repeat(if (singleClick) 1 else 2) {
+            r.click(); delay(1500)
         }
         if (node.type == MapNode.Type.HeavyHeliport && gameState.requiresMapInit) {
             mapRunnerRegions.chooseEchelon.click()

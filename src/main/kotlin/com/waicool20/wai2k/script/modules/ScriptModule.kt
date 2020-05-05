@@ -95,19 +95,22 @@ abstract class ScriptModule(
             }
             if (unlockedStars?.contains("6") == true) {
                 logger.info("6 star filter is unlocked")
-                dollFilterRegions.starRegions[stars]?.click(); yield()
+                dollFilterRegions.starRegions[stars]?.click()
             } else {
                 logger.info("6 star filter isn't unlocked")
-                dollFilterRegions.starRegions[stars + 1]?.click(); yield()
+                dollFilterRegions.starRegions[stars + 1]?.click()
             }
+            delay(100)
         }
         if (type != null) {
             logger.info("Applying $type doll type filter")
-            dollFilterRegions.typeRegions[type]?.click(); yield()
+            dollFilterRegions.typeRegions[type]?.click()
+            delay(100)
         }
 
         logger.info("Confirming filters")
-        dollFilterRegions.confirm.click(); yield()
+        dollFilterRegions.confirm.click()
+        delay(100)
     }
 
     /**
