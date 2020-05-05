@@ -332,16 +332,17 @@ class CombatModule(
                 // Select all T-Dolls
                 logger.info("Selecting dolls that need repairing")
                 repairRegions.take(repairSlots.size).sortedBy { it.y * 10 + it.x }.forEach {
-                    it.click(); yield()
+                    it.click()
+                    delay(100)
                     scriptStats.repairs++
                 }
 
                 // Click ok
-                region.subRegion(1888, 749, 250, 158).click(); delay(100)
+                region.subRegion(1888, 749, 250, 158).click(); delay(400)
                 // Use quick repair
-                region.subRegion(545, 713, 99, 96).click(); yield()
+                region.subRegion(545, 713, 99, 96).click(); delay(100)
                 // Click ok
-                region.subRegion(1381, 710, 250, 96).click(); yield()
+                region.subRegion(1381, 710, 250, 96).click()
                 // Click close
                 region.waitHas(FileTemplate("close.png"), 15000)?.click()
                 // If dolls that needed repair is equal or less than the repair slot count then
