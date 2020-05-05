@@ -91,4 +91,9 @@ class MapRunnerRegions(region: AndroidRegion) {
      * Choose echelon button on heavy heliport
      */
     val chooseEchelon = region.subRegion(835, 86, 372, 101)
+
+    /**
+     * Select Operation button to return to combat menu
+     */
+    val selectOperation = region.subRegion(12, 15, 190, 110)
 }
