@@ -31,5 +31,12 @@
     "y": 606,
     "width": 56,
     "height": 56
-  }
+  },
+  {
+    "type": "CommandPost",
+    "x": 1436,
+    "y": 345,
+    "width": 56,
+    "height": 56
+  }  
 ]

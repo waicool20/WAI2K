@@ -40,6 +40,7 @@ class Map4_6(
 
     override suspend fun execute() {
         if (gameState.requiresMapInit) {
+            logger.info("Zoom out")
             repeat(2) {
                 region.pinch(
                         Random.nextInt(700, 800),
@@ -49,26 +50,31 @@ class Map4_6(
                 )
                 delay(200)
             }
-            logger.info("Resetting map")
-            delay(1000)
-            mapRunnerRegions.selectOperation.click(); yield()
+            //pan down
+            val r = region.subRegionAs<AndroidRegion>(998, 624, 100, 30)
+            r.swipeTo(r.copy(y = r.y - 400))
+            delay(500)
+            deployEchelons(nodes[5])
             gameState.requiresMapInit = false           
         }
         else{
             nodes[0].findRegion()
             deployEchelons(nodes[0])
-            // pan up
-            val r = region.subRegionAs<AndroidRegion>(1058, 224, 100, 22)
-            r.swipeTo(r.copy(y = r.y + 800))
-            delay(500)
-            val rEchelons = deployEchelons(nodes[1])
-            mapRunnerRegions.startOperation.click(); yield()
-            waitForGNKSplash()
-            resupplyEchelons(rEchelons)
-            planPath()
-            waitForTurnEnd(4)
-            handleBattleResults()
+        }   
+         // pan up
+        val r = region.subRegionAs<AndroidRegion>(1058, 224, 100, 22)
+        repeat(2) {
+            r.swipeTo(r.copy(y = r.y + 450))
+            delay(200)
         }
+
+        val rEchelons = deployEchelons(nodes[1])
+        mapRunnerRegions.startOperation.click(); yield()
+        waitForGNKSplash()
+        resupplyEchelons(rEchelons)
+        planPath()
+        waitForTurnEnd(4)
+        handleBattleResults()        
     }
 
     private suspend fun planPath() {
