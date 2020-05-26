@@ -16,8 +16,8 @@
         "asset": {
           "imageName": "home0",
           "x": 1776,
-          "y-normal": 664,
-          "y": 563,
+          "y": 664,
+          "y-": 563,
           "width": 60,
           "height": 60
         }
@@ -29,8 +29,8 @@
         "asset": {
           "imageName": "",
           "x": 1328,
-          "y-normal": 646,
-          "y": 544,
+          "y": 646,
+          "y-": 544,
           "width": 375,
           "height": 161
         }
@@ -50,8 +50,8 @@
         "asset": {
           "imageName": "",
           "x": 1720,
-          "y-normal": 645,
-          "y": 543,
+          "y": 645,
+          "y-": 543,
           "width": 286,
           "height": 162
         }
@@ -61,8 +61,8 @@
         "asset": {
           "imageName": "",
           "x": 1730,
-          "y-normal": 470,
-          "y": 368,
+          "y": 470,
+          "y-": 368,
           "width": 273,
           "height": 143
         }
@@ -72,8 +72,8 @@
         "asset": {
           "imageName": "",
           "x": 1204,
-          "y-normal": 645,
-          "y": 543,
+          "y": 645,
+          "y-": 543,
           "width": 109,
           "height": 162
         }
@@ -83,8 +83,8 @@
         "asset": {
           "imageName": "",
           "x": 1371,
-          "y-normal": 470,
-          "y": 368,
+          "y": 470,
+          "y-": 368,
           "width": 354,
           "height": 144
         }
@@ -100,8 +100,8 @@
         }
       },
       {
-        "dest": "event",
-        "dest-normal": "unknown",
+        "dest-": "event",
+        "dest": "unknown",
         "asset": {
           "imageName": "",
           "x": 1536,
@@ -142,8 +142,8 @@
         "asset": {
           "imageName": "",
           "x": 1328,
-          "y-normal": 646,
-          "y": 544,
+          "y": 646,
+          "y-": 544,
           "width": 375,
           "height": 161
         }
@@ -153,8 +153,8 @@
         "asset": {
           "imageName": "",
           "x": 1720,
-          "y-normal": 645,
-          "y": 543,
+          "y": 645,
+          "y-": 543,
           "width": 286,
           "height": 162
         }
@@ -164,8 +164,8 @@
         "asset": {
           "imageName": "",
           "x": 1730,
-          "y-normal": 470,
-          "y": 368,
+          "y": 470,
+          "y-": 368,
           "width": 273,
           "height": 143
         }
@@ -175,15 +175,15 @@
         "asset": {
           "imageName": "",
           "x": 1371,
-          "y-normal": 470,
-          "y": 368,
+          "y": 470,
+          "y-": 368,
           "width": 354,
           "height": 144
         }
       },
       {
-        "dest": "event",
-        "dest-normal": "unknown",
+        "dest-": "event",
+        "dest": "unknown",
         "asset": {
           "imageName": "",
           "x": 1536,
@@ -663,8 +663,8 @@
         "asset": {
           "imageName": "",
           "x": 131,
-          "y-normal": 164,
-          "y": 296,
+          "y": 164,
+          "y-": 296,
           "width": 257,
           "height": 118
         }
@@ -674,8 +674,8 @@
         "asset": {
           "imageName": "",
           "x": 131,
-          "y-normal": 296,
-          "y": 428,
+          "y": 296,
+          "y-": 428,
           "width": 257,
           "height": 118
         }
@@ -739,8 +739,8 @@
         "asset": {
           "imageName": "",
           "x": 131,
-          "y-normal": 296,
-          "y": 428,
+          "y": 296,
+          "y-": 428,
           "width": 257,
           "height": 118
         }
@@ -787,8 +787,8 @@
         "asset": {
           "imageName": "",
           "x": 131,
-          "y-normal": 164,
-          "y": 296,
+          "y": 164,
+          "y-": 296,
           "width": 257,
           "height": 118
         }
