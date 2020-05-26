@@ -53,21 +53,49 @@ class Map10_4E(
                 delay(200)
             }
 
-            delay(1000)
+            delay(500)
         }
 
+        val r = region.subRegionAs<AndroidRegion>(1058, 224, 100, 22)
+        r.swipeTo(r.copy(y = r.y - 1000))
+        delay(500)
+        repeat(1) {
+            region.pinch(
+                    Random.nextInt(700, 800),
+                    Random.nextInt(300, 400),
+                    0.0,
+                    500
+            )
+            delay(1000)
+        }
+        deployEchelons(nodes[0], nodes[1])
 
-
-        val rEchelons = deployEchelons(nodes[0], nodes[1])
         //Heavyports are configured now
+
+        delay(500)
+
+        r.swipeTo(r.copy(y = r.y + 900))
+        delay(500)
+        repeat(1) {
+            region.pinch(
+                    Random.nextInt(700, 800),
+                    Random.nextInt(300, 400),
+                    0.0,
+                    500
+            )
+            delay(500)
+        }
+        delay(1000)
+        val rEchelons=deployEchelons(nodes[2])
         gameState.requiresMapInit=false
+
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
         //need to do something on empty supplies...selection doesn't work as intended
-        resupplyEchelons(rEchelons + nodes[0])
+        resupplyEchelons(rEchelons + nodes[2])
         delay(1000)
         //lose focus of combat echelon
-        nodes[2].findRegion().click()
+        nodes[3].findRegion().click()
         //resupplyEchelons(nodes[0])
         planPath()
         waitForTurnAndPoints(2,4,false)
@@ -84,28 +112,31 @@ class Map10_4E(
             delay(200)
         }
         //Map gets moved a little so use another node to retreat
-        nodes[4].findRegion().click()
-        gameState.requiresMapInit = false
+        nodes[7].findRegion().click()
         delay(1000)
-        retreatEchelons(nodes[4])
+        retreatEchelons(nodes[7])
         terminateMission()
     }
 
     private suspend fun planPath() {
-        logger.info("Selecting echelon at ${nodes[0]}")
-        nodes[0].findRegion().click()
+        logger.info("Selecting echelon at ${nodes[2]}")
+        nodes[2].findRegion().click()
 
         logger.info("Entering planning mode")
         mapRunnerRegions.planningMode.click(); yield()
 
-        logger.info("Selecting ${nodes[2]}")
-        nodes[2].findRegion().click()
-
         logger.info("Selecting ${nodes[3]}")
-        nodes[3].findRegion().click(); yield()
+        nodes[3].findRegion().click()
 
-        logger.info("Selecting ${nodes[0]}")
-        nodes[0].findRegion().click(); yield()
+        logger.info("Selecting ${nodes[4]}")
+        nodes[4].findRegion().click(); yield()
+
+        logger.info("Selecting ${nodes[5]}")
+        nodes[5].findRegion().click(); yield()
+
+        logger.info("Selecting ${nodes[6]}")
+        nodes[6].findRegion().click(); yield()
+
 
         logger.info("Executing plan")
         mapRunnerRegions.executePlan.click()
