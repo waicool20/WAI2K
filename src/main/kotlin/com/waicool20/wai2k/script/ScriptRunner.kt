@@ -35,6 +35,7 @@ import com.waicool20.wai2k.script.modules.StopModule
 import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.wai2k.util.doOCRAndTrim
+import com.waicool20.waicoolutils.distanceTo
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.*
 import org.reflections.Reflections
@@ -213,9 +214,9 @@ class ScriptRunner(
             region.subRegion(900, 720, 350, 185).findBest(FileTemplate("close.png"))?.region?.click()
             val r = region.subRegion(1800, 780, 170, 75)
             when {
-                Ocr.forConfig(currentConfig).doOCRAndTrim(r).contains("resume", true) -> {
+                Ocr.forConfig(currentConfig).doOCRAndTrim(r).distanceTo("RESUME") <= 3 -> {
                     logger.info("Detected ongoing battle, terminating it first")
-                    r.click()
+                    r.clickWhile { locations[LocationId.HOME]!!.isInRegion(region) }
                     region.waitHas(FileTemplate("combat/battle/terminate.png"), 5000)
                     delay(2500)
                     region.waitHas(FileTemplate("combat/battle/terminate.png"), 30000)
