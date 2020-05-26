@@ -25,7 +25,9 @@ import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.script.modules.combat.MapRunner
 import com.waicool20.waicoolutils.logging.loggerFor
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
+import kotlin.random.Random
 
 class Map5_6(
         scriptRunner: ScriptRunner,
@@ -34,27 +36,56 @@ class Map5_6(
         profile: Wai2KProfile
 ) : MapRunner(scriptRunner, region, config, profile) {
     private val logger = loggerFor<Map5_6>()
-    override val isCorpseDraggingMap = true
+    override val isCorpseDraggingMap = false
+    override val extractBlueNodes = false
+    override val extractYellowNodes = false
 
     override suspend fun execute() {
-        nodes[0].findRegion()
-        val rEchelons = deployEchelons(nodes[1], nodes[2])
+        if (gameState.requiresMapInit) {
+            logger.info("Zoom out")
+            repeat(2) {
+                region.pinch(
+                        Random.nextInt(700, 800),
+                        Random.nextInt(300, 400),
+                        0.0,
+                        500
+                )
+                delay(200)
+            }
+            //pan down
+            val r = region.subRegionAs<AndroidRegion>(998, 624, 100, 30)
+            r.swipeTo(r.copy(y = r.y - 400))
+            delay(500)
+            deployEchelons(nodes[3])
+            gameState.requiresMapInit = false           
+        }
+        else{
+            deployEchelons(nodes[0])
+        }   
+        // pan up
+        val r = region.subRegionAs<AndroidRegion>(1058, 224, 100, 22)
+        repeat(2) {
+            r.swipeTo(r.copy(y = r.y + 460))
+            delay(200)
+        }
+
+        val rEchelons = deployEchelons(nodes[1])
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
-        resupplyEchelons(rEchelons + nodes[2])
+        resupplyEchelons(rEchelons)
         planPath()
         waitForTurnEnd(2)
-        handleBattleResults()
+        handleBattleResults()      
     }
 
     private suspend fun planPath() {
-        logger.info("Selecting echelon at command post")
+        logger.info("Selecting echelon at ${nodes[1]}")
         nodes[1].findRegion().click()
 
         logger.info("Entering planning mode")
         mapRunnerRegions.planningMode.click(); yield()
 
-        logger.info("Selecting ${nodes[0]}")
+        logger.info("Selecting ${nodes[2]}")
         nodes[0].findRegion().click(); yield()
 
         logger.info("Executing plan")

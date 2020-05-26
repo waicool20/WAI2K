@@ -1,0 +1,30 @@
+[
+  {
+    "type": "CommandPost",
+    "x": 1429,
+    "y": 515,
+    "width": 60,
+    "height": 60
+  },
+  {
+    "type": "Heliport",
+    "x": 1460,
+    "y": 635,
+    "width": 48,
+    "height": 48
+  },
+  {
+    "type": "CommandPost",
+    "x": 700,
+    "y": 660,
+    "width": 65,
+    "height": 65
+  },
+  {
+    "type": "CommandPost",
+    "x": 1430,
+    "y": 401,
+    "width": 60
+    "height": 60
+  }  
+]
