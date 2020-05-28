@@ -65,7 +65,7 @@ class Map5_6(
         // pan up
         val r = region.subRegionAs<AndroidRegion>(1058, 224, 100, 22)
         repeat(2) {
-            r.swipeTo(r.copy(y = r.y + 460))
+            r.swipeTo(r.copy(y = r.y + 490))
             delay(200)
         }
 
@@ -79,14 +79,14 @@ class Map5_6(
     }
 
     private suspend fun planPath() {
-        logger.info("Selecting echelon at ${nodes[1]}")
-        nodes[1].findRegion().click()
-
         logger.info("Entering planning mode")
         mapRunnerRegions.planningMode.click(); yield()
 
+        logger.info("Selecting echelon at ${nodes[1]}")
+        nodes[1].findRegion().click()
+        
         logger.info("Selecting ${nodes[2]}")
-        nodes[0].findRegion().click(); yield()
+        nodes[2].findRegion().click(); yield()
 
         logger.info("Executing plan")
         mapRunnerRegions.executePlan.click()

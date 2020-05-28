@@ -17,14 +17,14 @@
     "type": "CommandPost",
     "x": 700,
     "y": 660,
-    "width": 65,
-    "height": 65
+    "width": 60,
+    "height": 60
   },
   {
     "type": "CommandPost",
     "x": 1430,
     "y": 401,
-    "width": 60
+    "width": 60,
     "height": 60
   }  
 ]
