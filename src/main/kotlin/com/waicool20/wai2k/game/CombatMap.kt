@@ -28,7 +28,7 @@ sealed class CombatMap(val name: String) {
 
     class StoryMap(name: String) : CombatMap(name) {
         companion object {
-            private val regex = Regex("(\\d{1,2})-(\\d)([eEnN]?)")
+            private val regex = Regex("(\\d{1,2})-(\\d)([eEnN]?)-?(.*)?")
         }
 
         private val matches: List<String>

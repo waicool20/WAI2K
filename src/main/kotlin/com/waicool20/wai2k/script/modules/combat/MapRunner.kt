@@ -128,6 +128,9 @@ abstract class MapRunner(
     protected open val extractYellowNodes: Boolean = true
     protected open val battleTimeout = 45000L // make this a user config?
 
+    protected var onEnterBattleListener: suspend () -> Unit = {}
+    protected var onFinishBattleListener: suspend () -> Unit = {}
+
     private val _nodes = async(Dispatchers.IO) {
         val relPath = config.assetsDirectory.resolve("$PREFIX/map.json")
         val absPath = config.assetsDirectory.resolve("$PREFIX/map-abs.json")
@@ -546,6 +549,7 @@ abstract class MapRunner(
 
     private suspend fun clickThroughBattle() {
         logger.info("Entered battle $_battles")
+        onEnterBattleListener()
         // Wait until it disappears
         while (isActive && isInBattle()) yield()
         logger.info("Battle ${_battles++} complete, clicking through battle results")
@@ -559,6 +563,7 @@ abstract class MapRunner(
         delay(1000)
         region.subRegion(761, 674, 283, 144)
                 .findBest(FileTemplate("combat/battle/cancel.png"))?.region?.click()
+        onFinishBattleListener()
     }
 
     private fun isInBattle() = mapRunnerRegions.pauseButton.has(FileTemplate("combat/battle/pause.png", 0.9))
