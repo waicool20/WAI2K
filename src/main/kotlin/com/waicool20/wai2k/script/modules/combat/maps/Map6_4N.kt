@@ -109,6 +109,8 @@ class Map6_4N(
         logger.info("Swapping")
         r.click()
         delay(2000)
+        //Click elsewhere to lose focus on combat team
+        region.subRegionAs<AndroidRegion>(500,700,1000,250).click()
     }
 
 }
