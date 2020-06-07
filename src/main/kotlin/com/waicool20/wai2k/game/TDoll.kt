@@ -49,7 +49,7 @@ data class TDoll(
         fun listAll(config: Wai2KConfig): List<TDoll> = synchronized(list) {
             if (list.isEmpty()) {
                 list += jacksonObjectMapper().readValue<List<TDoll>>(config.assetsDirectory.resolve("tdolls.json").toFile())
-                list += list.filter { it.moddable }.map { it.copy(stars = it.stars + 1).apply { id = "$name+" } }
+                list += list.filter { it.moddable }.map { it.copy(stars = (it.stars + 1).coerceAtLeast(4)).apply { id = "$name+" } }
             }
             return list
         }
