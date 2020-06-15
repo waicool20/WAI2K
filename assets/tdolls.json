@@ -2,7 +2,8 @@
   {
     "name": "SAA",
     "stars": 4,
-    "type": "HG"
+    "type": "HG",
+    "moddable": true
   },
   {
     "name": "M1911",
@@ -13,6 +14,11 @@
   {
     "name": "M9",
     "stars": 3,
+    "type": "HG"
+  },
+  {
+    "name": "Python",
+    "stars": 5,
     "type": "HG"
   },
   {
@@ -239,7 +245,8 @@
   {
     "name": "FF FN49",
     "stars": 2,
-    "type": "RF"
+    "type": "RF",
+    "moddable": true
   },
   {
     "name": "VM59",
@@ -276,6 +283,11 @@
     "moddable": true
   },
   {
+    "name": "AK-47U",
+    "stars": 5,
+    "type": "SMG"
+  },
+  {
     "name": "AK-47",
     "stars": 3,
     "type": "AR"
@@ -298,7 +310,8 @@
   {
     "name": "Gr G3",
     "stars": 2,
-    "type": "AR"
+    "type": "AR",
+    "moddable": true
   },
   {
     "name": "Gr G36",
@@ -414,7 +427,8 @@
   {
     "name": "Bren",
     "stars": 3,
-    "type": "MG"
+    "type": "MG",
+    "moddable": true
   },
   {
     "name": "FF FNP9",
@@ -434,7 +448,8 @@
   {
     "name": "IDW",
     "stars": 2,
-    "type": "SMG"
+    "type": "SMG",
+    "moddable": true
   },
   {
     "name": "Type64",
@@ -913,6 +928,11 @@
     "type": "SG"
   },
   {
+    "name": "T65",
+    "stars": 3,
+    "type": "AR"
+  },
+  {
     "name": "USAS-12",
     "stars": 4,
     "type": "SG"
@@ -941,6 +961,11 @@
     "name": "K2",
     "stars": 5,
     "type": "AR"
+  },
+  {
+    "name": "MG23",
+    "stars": 3,
+    "type": "MG"
   },
   {
     "name": "Zas M21",
@@ -1028,9 +1053,29 @@
     "type": "AR"
   },
   {
+    "name": "Cx4 Storm",
+    "stars": 4,
+    "type": "SMG"
+  },
+  {
+    "name": "Model L",
+    "stars": 3,
+    "type": "AR"
+  },
+  {
     "name": "XM8",
     "stars": 4,
     "type": "AR"
+  },
+  {
+    "name": "SM-1",
+    "stars": 3,
+    "type": "RF"
+  },
+  {
+    "name": "T77",
+    "stars": 3,
+    "type": "SMG"
   },
   {
     "name": "MP-443",
@@ -1038,14 +1083,49 @@
     "type": "HG"
   },
   {
+    "name": "A-91",
+    "stars": 4,
+    "type": "AR"
+  },
+  {
+    "name": "Mk 12",
+    "stars": 4,
+    "type": "RF"
+  },
+  {
     "name": "GSh-18",
     "stars": 3,
     "type": "HG"
   },
   {
+    "name": "M870",
+    "stars": 5,
+    "type": "SG"
+  },
+  {
     "name": "TAC-50",
     "stars": 5,
     "type": "RF"
+  },
+  {
+    "name": "OBR",
+    "stars": 3,
+    "type": "RF"
+  },
+  {
+    "name": "M82A1",
+    "stars": 5,
+    "type": "RF"
+  },
+  {
+    "name": "MP-448",
+    "stars": 3,
+    "type": "HG"
+  },
+  {
+    "name": "JS 9",
+    "stars": 5,
+    "type": "SMG"
   },
   {
     "name": "100 Shiki",
@@ -1056,6 +1136,16 @@
     "name": "Px4 Storm",
     "stars": 5,
     "type": "HG"
+  },
+  {
+    "name": "Mk46",
+    "stars": 4,
+    "type": "MG"
+  },
+  {
+    "name": "RT-20",
+    "stars": 3,
+    "type": "RF"
   },
   {
     "name": "SPR A3G",
@@ -1078,9 +1168,19 @@
     "type": "MG"
   },
   {
+    "name": "Type03",
+    "stars": 3,
+    "type": "AR"
+  },
+  {
     "name": "64 Shiki",
     "stars": 5,
     "type": "AR"
+  },
+  {
+    "name": "TEC-9",
+    "stars": 3,
+    "type": "HG"
   },
   {
     "name": "P90",
@@ -1103,9 +1203,44 @@
     "type": "MG"
   },
   {
+    "name": "Falcon",
+    "stars": 3,
+    "type": "RF"
+  },
+  {
     "name": "M200",
     "stars": 5,
     "type": "RF"
+  },
+  {
+    "name": "PA-15",
+    "stars": 5,
+    "type": "HG"
+  },
+  {
+    "name": "QBU-88",
+    "stars": 5,
+    "type": "RF"
+  },
+  {
+    "name": "R93",
+    "stars": 5,
+    "type": "RF"
+  },
+  {
+    "name": "4 Shiki",
+    "stars": 4,
+    "type": "RF"
+  },
+  {
+    "name": "Gr P30",
+    "stars": 4,
+    "type": "HG"
+  },
+  {
+    "name": "ADS",
+    "stars": 5,
+    "type": "AR"
   },
   {
     "name": "Noel",
@@ -1146,5 +1281,15 @@
     "name": "Dana Zane",
     "stars": 1,
     "type": "SG"
+  },
+  {
+    "name": "El Clear",
+    "stars": 1,
+    "type": "HG"
+  },
+  {
+    "name": "El Fail",
+    "stars": 1,
+    "type": "HG"
   }
 ]

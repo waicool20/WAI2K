@@ -216,7 +216,7 @@ class ScriptRunner(
             when {
                 Ocr.forConfig(currentConfig).doOCRAndTrim(r).distanceTo("RESUME") <= 3 -> {
                     logger.info("Detected ongoing battle, terminating it first")
-                    r.clickWhile { locations[LocationId.HOME]!!.isInRegion(region) }
+                    r.clickWhile { Ocr.forConfig(currentConfig).doOCRAndTrim(r).distanceTo("RESUME") <= 3 }
                     region.waitHas(FileTemplate("combat/battle/terminate.png"), 5000)
                     delay(2500)
                     region.waitHas(FileTemplate("combat/battle/terminate.png"), 30000)
