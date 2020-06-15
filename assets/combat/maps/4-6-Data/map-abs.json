@@ -1,0 +1,61 @@
+[
+  {
+    "type": "CommandPost",
+    "x": 1436,
+    "y": 518,
+    "width": 60,
+    "height": 60
+  },
+  {
+	"type": "Heliport",
+    "x": 1483,
+    "y": 600,
+    "width": 46,
+    "height": 46
+  },
+  {
+    "x": 1263,
+    "y": 981,
+    "width": 34,
+    "height": 34
+  },
+  {
+    "x": 1403,
+    "y": 1030,
+    "width": 34,
+    "height": 34
+  },
+  {
+    "type": "CommandPost",
+    "x": 662,
+    "y": 606,
+    "width": 56,
+    "height": 56
+  },
+  {
+    "type": "CommandPost",
+    "x": 1436,
+    "y": 345,
+    "width": 56,
+    "height": 56
+  },
+  {
+    "type": "Heliport",
+    "x": 1483,
+    "y": 610,
+    "width": 30,
+    "height": 30
+  },
+  {
+    "x": 1400,
+    "y": 1040,
+    "width": 30,
+    "height": 30
+  },
+  {
+    "x": 1260,
+    "y": 990,
+    "width": 30,
+    "height": 30
+  }
+]
