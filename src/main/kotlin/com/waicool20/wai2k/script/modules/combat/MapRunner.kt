@@ -160,7 +160,7 @@ abstract class MapRunner(
     /**
      * Set this to true to exit waitFor- Functions early
      */
-    protected var isWaitInterrupted=false
+    protected var interruptWaitFlag = false
 
     /**
      * Container class that contains commonly used regions
@@ -350,7 +350,7 @@ abstract class MapRunner(
         val ocr = Ocr.forConfig(config, digitsOnly = true)
         var currentTurn = 0
         var currentPoints = 0
-        while (isActive && (currentTurn != turn || currentPoints != points)&&!isWaitInterrupted) {
+        while (isActive && (currentTurn != turn || currentPoints != points) && !interruptWaitFlag) {
             if (isInBattle()) clickThroughBattle()
             val screenshot = region.capture()
             val newTurn = ocr.doOCRAndTrim(screenshot.getSubimage(748, 53, 86, 72))
@@ -366,7 +366,7 @@ abstract class MapRunner(
             }
             yield()
         }
-        if(!isWaitInterrupted)
+        if (!interruptWaitFlag)
             logger.info("Reached required turns and action points!")
         else
             logger.info("Aborting Wait...")

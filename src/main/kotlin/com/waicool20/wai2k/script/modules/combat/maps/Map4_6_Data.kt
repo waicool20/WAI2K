@@ -20,21 +20,13 @@
 package com.waicool20.wai2k.script.modules.combat.maps
 
 import com.waicool20.cvauto.android.AndroidRegion
-import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.script.modules.combat.MapRunner
-import com.waicool20.wai2k.util.Ocr
-import com.waicool20.wai2k.util.doOCRAndTrim
-import com.waicool20.waicoolutils.binarizeImage
 import com.waicool20.waicoolutils.logging.loggerFor
-import com.waicool20.waicoolutils.pad
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.yield
-import java.awt.Color
-import kotlin.math.abs
 import kotlin.random.Random
 
 class Map4_6_Data(
@@ -45,10 +37,9 @@ class Map4_6_Data(
 ) : MapRunner(scriptRunner, region, config, profile) {
     private val logger = loggerFor<Map4_6>()
     override val isCorpseDraggingMap = false
+
     //Allow interruption of waiting for turn if necessary
-    private var combatComplete=false
-
-
+    private var combatComplete = false
 
     override suspend fun execute() {
         if (gameState.requiresMapInit) {
@@ -68,8 +59,7 @@ class Map4_6_Data(
             delay(500)
             deployEchelons(nodes[5])
             gameState.requiresMapInit = false
-        }
-        else{
+        } else {
             nodes[0].findRegion()
             deployEchelons(nodes[0])
         }
@@ -83,26 +73,26 @@ class Map4_6_Data(
         val rEchelons = deployEchelons(nodes[1])
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
-        onEnterBattleListener={
-            isWaitInterrupted=true
+        onEnterBattleListener = {
+            interruptWaitFlag = true
             logger.info("Postmortem: battle detected")
             mapRunnerRegions.pauseButton.click()
             delay(1000)
             mapRunnerRegions.retreatCombat.click()
         }
-        onFinishBattleListener={
-            combatComplete=true
+        onFinishBattleListener = {
+            combatComplete = true
         }
         planPath()
-        waitForTurnAndPoints(1,0,false)
-        if(isWaitInterrupted){
-            while(!combatComplete)
+        waitForTurnAndPoints(1, 0, false)
+        if (interruptWaitFlag) {
+            while (!combatComplete)
                 delay(1000)
         }
 
         delay(2000)
 
-        isWaitInterrupted=false
+        interruptWaitFlag = false
         terminateMission()
 
     }
@@ -119,21 +109,19 @@ class Map4_6_Data(
         logger.info("Selecting ${nodes[6]}")
         nodes[6].findRegion().click(); yield()
 
-        if(Random.nextInt(0,100)%2==0){
+        if (Random.nextBoolean()) {
             logger.info("Selecting ${nodes[7]}")
             nodes[7].findRegion().click(); yield()
 
             logger.info("Selecting ${nodes[8]}")
             nodes[8].findRegion().click(); yield()
-        }
-        else{
+        } else {
             logger.info("Selecting ${nodes[8]}")
             nodes[8].findRegion().click(); yield()
 
             logger.info("Selecting ${nodes[7]}")
             nodes[7].findRegion().click(); yield()
         }
-
 
         logger.info("Executing plan")
         mapRunnerRegions.executePlan.click()
