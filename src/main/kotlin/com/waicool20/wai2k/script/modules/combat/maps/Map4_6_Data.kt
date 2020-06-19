@@ -97,7 +97,7 @@ class Map4_6_Data(
         waitForTurnAndPoints(1,0,false)
         if(isWaitInterrupted){
             while(!combatComplete)
-            delay(1000)
+                delay(1000)
         }
 
         delay(2000)
