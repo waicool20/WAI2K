@@ -96,4 +96,9 @@ class MapRunnerRegions(region: AndroidRegion) {
      * Select Operation button to return to combat menu
      */
     val selectOperation = region.subRegion(12, 15, 190, 110)
+
+    /**
+     * Retreat from Combat
+     */
+    val retreatCombat=  region.subRegion(620, 20, 190, 60)
 }
