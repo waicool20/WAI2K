@@ -73,28 +73,27 @@ class Map4_6_Data(
         val rEchelons = deployEchelons(nodes[1])
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
-        onEnterBattleListener = {
-            interruptWaitFlag = true
-            logger.info("Postmortem: battle detected")
-            mapRunnerRegions.pauseButton.click()
-            delay(1000)
-            mapRunnerRegions.retreatCombat.click()
-        }
-        onFinishBattleListener = {
-            combatComplete = true
-        }
         planPath()
         waitForTurnAndPoints(1, 0, false)
         if (interruptWaitFlag) {
-            while (!combatComplete)
-                delay(1000)
+            while (!combatComplete) delay(1000)
         }
-
         delay(2000)
 
         interruptWaitFlag = false
         terminateMission()
+    }
 
+    override suspend fun onEnterBattleListener() {
+        interruptWaitFlag = true
+        logger.info("Postmortem: battle detected")
+        mapRunnerRegions.pauseButton.click()
+        delay(1000)
+        mapRunnerRegions.retreatCombat.click()
+    }
+
+    override suspend fun onFinishBattleListener() {
+        combatComplete = true
     }
 
     private suspend fun planPath() {

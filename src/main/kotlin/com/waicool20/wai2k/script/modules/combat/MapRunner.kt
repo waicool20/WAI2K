@@ -128,9 +128,6 @@ abstract class MapRunner(
     protected open val extractYellowNodes: Boolean = true
     protected open val battleTimeout = 45000L // make this a user config?
 
-    protected var onEnterBattleListener: suspend () -> Unit = {}
-    protected var onFinishBattleListener: suspend () -> Unit = {}
-
     private val _nodes = async(Dispatchers.IO) {
         val relPath = config.assetsDirectory.resolve("$PREFIX/map.json")
         val absPath = config.assetsDirectory.resolve("$PREFIX/map-abs.json")
@@ -182,6 +179,16 @@ abstract class MapRunner(
      * Main execution function that is executed when map is entered
      */
     abstract suspend fun execute()
+
+    /**
+     * Executes when entering a battle
+     */
+    protected open suspend fun onEnterBattleListener() = Unit
+
+    /**
+     * Executes when finishing a battle
+     */
+    protected open suspend fun onFinishBattleListener() = Unit
 
     /**
      * Deploys the given echelons to the given locations using click regions
