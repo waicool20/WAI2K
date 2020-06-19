@@ -45,21 +45,20 @@ class Map0_2_EX(
         if (gameState.requiresMapInit) {
             logger.info("Zoom out")
             region.pinch(
-                        Random.nextInt(900, 1000),
-                        Random.nextInt(300, 400),
-                        0.0,
-                        500
+                    Random.nextInt(900, 1000),
+                    Random.nextInt(300, 400),
+                    0.0,
+                    500
             )
             gameState.requiresMapInit = false
-            }
-        else{
+        } else {
             region.pinch(
                     Random.nextInt(444, 555),
                     Random.nextInt(222, 333),
                     0.0,
                     300
             )
-            }
+        }
         delay(800) //Wait to settle
         val rEchelons = deployEchelons(nodes[0], nodes[1])
         mapRunnerRegions.startOperation.click(); yield()
