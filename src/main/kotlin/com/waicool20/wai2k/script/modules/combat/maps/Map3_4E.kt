@@ -19,7 +19,6 @@
 
 package com.waicool20.wai2k.script.modules.combat.maps
 
-
 import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
@@ -30,13 +29,13 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
 import kotlin.random.Random
 
-class Map3_6(
+class Map3_4E(
         scriptRunner: ScriptRunner,
         region: AndroidRegion,
         config: Wai2KConfig,
         profile: Wai2KProfile
 ) : MapRunner(scriptRunner, region, config, profile) {
-    private val logger = loggerFor<Map3_6>()
+    private val logger = loggerFor<Map3_4E>()
     override val isCorpseDraggingMap = false
     override val extractBlueNodes = false
     override val extractYellowNodes = false
@@ -57,8 +56,7 @@ class Map3_6(
         waitForGNKSplash()
         resupplyEchelons(rEchelons)
         planPath()
-        //Possible to get ambushed, so battle count unreliable
-        waitForTurnAndPoints(1, 1)
+        waitForTurnEnd(2)
         handleBattleResults()
     }
 
@@ -68,6 +66,9 @@ class Map3_6(
 
         logger.info("Selecting echelon at ${nodes[0]}")
         nodes[0].findRegion().click()
+
+        logger.info("Selecting ${nodes[3]}")
+        nodes[3].findRegion().click()
 
         logger.info("Selecting ${nodes[2]}")
         nodes[2].findRegion().click(); yield()
