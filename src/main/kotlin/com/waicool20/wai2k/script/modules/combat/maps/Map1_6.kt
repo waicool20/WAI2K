@@ -18,16 +18,17 @@
  */
 
 package com.waicool20.wai2k.script.modules.combat.maps
-/*
 
-import com.waicool20.wai2k.android.AndroidRegion
+
+import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.script.modules.combat.MapRunner
 import com.waicool20.waicoolutils.logging.loggerFor
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
-
+import kotlin.random.Random
 
 class Map1_6(
         scriptRunner: ScriptRunner,
@@ -36,39 +37,55 @@ class Map1_6(
         profile: Wai2KProfile
 ) : MapRunner(scriptRunner, region, config, profile) {
     private val logger = loggerFor<Map1_6>()
-    override val isCorpseDraggingMap: Boolean = false
-
-    private val commandPostDeployment = COMMAND_POST at region.subRegion(418, 487, 103, 113)
+    override val isCorpseDraggingMap = false
+    override val extractBlueNodes = false
+    override val extractYellowNodes = false
 
     override suspend fun execute() {
-        deployEchelons(commandPostDeployment)
-        mapRunnerRegions.startOperation.clickRandomly(); yield()
+        logger.info("Zoom out")
+        region.pinch(
+                Random.nextInt(700, 800),
+                Random.nextInt(250, 340),
+                0.0,
+                500
+        )
+        //Map to settle
+        delay(1000)
+
+        deployEchelons(nodes[0])
+        mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
-        resupplyEchelons(commandPostDeployment)
-        planPath()
-        waitForTurnAssets("$PREFIX/turn-end.png")
+        resupplyEchelons(nodes[0]) //Force resupply so echelons with no doll in slot 2 can run
+        planPathFirst()
+        waitForTurnAssets(false, 0.96,"combat/battle/plan.png")
+        delay(1000)
+        mapRunnerRegions.endBattle.click(); yield()
+        waitForTurnAndPoints(3,3, false) //SF may be on the Heliport
+        resupplyEchelons(nodes[2]) // might be >5 battles
+        planPathSecond()
+        waitForTurnAssets(true, 0.96,"combat/battle/plan.png")
         handleBattleResults()
     }
 
-    private suspend fun planPath() {
+    private suspend fun planPathFirst() {
         logger.info("Entering planning mode")
-        mapRunnerRegions.planningMode.clickRandomly(); yield()
+        mapRunnerRegions.planningMode.click(); yield()
 
-        //Pan down
-        region.subRegion(950, 900, 240, 100).let {
-            it.swipeToRandomly(it.offset(0, -500), 750); yield()
-            it.swipeToRandomly(it.offset(0, -700), 750); yield()
-        }
-
-        logger.info("Selecting node 1")
-        region.subRegion(727, 489, 60, 60)
-                .clickRandomly(); yield()
-
-        logger.info("Selecting node 2")
-        region.subRegion(1314, 370, 60, 60)
-                .clickRandomly(); yield()
+        logger.info("Selecting ${nodes[1]}")
+        nodes[1].findRegion().click()
 
         logger.info("Executing plan")
-        mapRunnerRegions.executePlan.clickRandomly(); yield()
+        mapRunnerRegions.executePlan.click()
     }
-}*/
+
+    private suspend fun planPathSecond() {
+        logger.info("Entering planning mode")
+        mapRunnerRegions.planningMode.click(); yield()
+
+        logger.info("Selecting ${nodes[3]}")
+        nodes[3].findRegion().click()
+
+        logger.info("Executing plan")
+        mapRunnerRegions.executePlan.click()
+    }
+}
