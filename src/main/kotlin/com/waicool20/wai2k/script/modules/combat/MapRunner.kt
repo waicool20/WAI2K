@@ -388,9 +388,9 @@ abstract class MapRunner(
     /**
      * Waits for the assets to appear and assumes that the turn is complete
      */
-    protected suspend fun waitForTurnAssets(endTurn: Boolean = true, vararg assets: String) {
+    protected suspend fun waitForTurnAssets(endTurn: Boolean = true, threshold: Double = 0.98, vararg assets: String) {
         logger.info("Waiting for ${assets.size} assets to appear")
-        while (assets.any { region.doesntHave(FileTemplate(it, 0.98)) }) {
+        while (assets.any { region.doesntHave(FileTemplate(it, threshold)) }) {
             if (isInBattle()) clickThroughBattle()
             yield()
         }
