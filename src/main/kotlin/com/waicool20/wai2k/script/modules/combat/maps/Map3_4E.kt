@@ -19,7 +19,6 @@
 
 package com.waicool20.wai2k.script.modules.combat.maps
 
-
 import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
@@ -30,13 +29,13 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
 import kotlin.random.Random
 
-class Map1_6(
+class Map3_4E(
         scriptRunner: ScriptRunner,
         region: AndroidRegion,
         config: Wai2KConfig,
         profile: Wai2KProfile
 ) : MapRunner(scriptRunner, region, config, profile) {
-    private val logger = loggerFor<Map1_6>()
+    private val logger = loggerFor<Map3_4E>()
     override val isCorpseDraggingMap = false
     override val extractBlueNodes = false
     override val extractYellowNodes = false
@@ -52,38 +51,27 @@ class Map1_6(
         //Map to settle
         delay(1000)
 
-        deployEchelons(nodes[0])
+        val rEchelons = deployEchelons(nodes[0],nodes[1])
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
-        resupplyEchelons(nodes[0]) //Force resupply so echelons with no doll in slot 2 can run
-        planPathFirst()
-        waitForTurnAssets(false, 0.96,"combat/battle/plan.png")
-        delay(1000)
-        mapRunnerRegions.endBattle.click(); yield()
-        waitForTurnAndPoints(3,3, false) //SF may be on the Heliport
-        resupplyEchelons(nodes[2]) // might be >5 battles
-        planPathSecond()
-        waitForTurnAssets(true, 0.96,"combat/battle/plan.png")
+        resupplyEchelons(rEchelons)
+        planPath()
+        waitForTurnEnd(2)
         handleBattleResults()
     }
 
-    private suspend fun planPathFirst() {
+    private suspend fun planPath() {
         logger.info("Entering planning mode")
         mapRunnerRegions.planningMode.click(); yield()
 
-        logger.info("Selecting ${nodes[1]}")
-        nodes[1].findRegion().click()
-
-        logger.info("Executing plan")
-        mapRunnerRegions.executePlan.click()
-    }
-
-    private suspend fun planPathSecond() {
-        logger.info("Entering planning mode")
-        mapRunnerRegions.planningMode.click(); yield()
+        logger.info("Selecting echelon at ${nodes[0]}")
+        nodes[0].findRegion().click()
 
         logger.info("Selecting ${nodes[3]}")
         nodes[3].findRegion().click()
+
+        logger.info("Selecting ${nodes[2]}")
+        nodes[2].findRegion().click(); yield()
 
         logger.info("Executing plan")
         mapRunnerRegions.executePlan.click()
