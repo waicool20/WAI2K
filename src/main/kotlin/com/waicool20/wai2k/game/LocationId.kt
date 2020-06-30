@@ -40,5 +40,6 @@ enum class LocationId {
     PROFILE,
     FAIRY_DETAILS,
     EVENT,
+    DATA_ROOM,
     UNKNOWN
 }

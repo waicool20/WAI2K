@@ -182,6 +182,16 @@
         }
       },
       {
+        "dest": "data_room",
+        "asset": {
+          "imageName": "",
+          "x": 105,
+          "y": 225,
+          "width": 121,
+          "height": 121
+        }
+      },
+      {
         "dest-": "event",
         "dest": "unknown",
         "asset": {
@@ -936,6 +946,33 @@
           "y": 364,
           "width": 139,
           "height": 321
+        }
+      }
+    ]
+  },
+  {
+    "id": "data_room",
+    "isIntermediate": false,
+    "landmarks": [
+      {
+        "asset": {
+          "imageName": "data_room",
+          "x": 608,
+          "y": 30,
+          "width": 60,
+          "height": 60
+        }
+      }
+    ],
+    "links": [
+      {
+        "dest": "home",
+        "asset": {
+          "imageName": "",
+          "x": 120,
+          "y": 5,
+          "width": 140,
+          "height": 122
         }
       }
     ]
