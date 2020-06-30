@@ -44,6 +44,7 @@ import java.time.LocalTime
 data class Wai2KProfile(
         val logistics: Logistics = Logistics(),
         val combat: Combat = Combat(),
+        val combatReport: CombatReport = CombatReport(),
         val factory: Factory = Factory(),
         val stop: Stop = Stop()
 ) {
@@ -83,6 +84,18 @@ data class Wai2KProfile(
         val map by mapProperty
         val repairThreshold by repairThresholdProperty
         val draggers by draggersProperty
+    }
+
+    class CombatReport(enabled: Boolean = false, type: Type = Type.SPECIAL) {
+        enum class Type {
+            NORMAL, SPECIAL
+        }
+
+        val enabledProperty = enabled.toProperty()
+        val typeProperty = type.toProperty()
+
+        val enabled by enabledProperty
+        val type by typeProperty
     }
 
     class Factory(

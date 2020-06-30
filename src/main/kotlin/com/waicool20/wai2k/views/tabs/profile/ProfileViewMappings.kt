@@ -33,6 +33,7 @@ object ProfileViewMappings {
             ViewNode("Assignments", AssignmentsView::class, LogisticsView::class),
             ViewNode("Combat", CombatView::class),
             ViewNode("Draggers", DraggersView::class, CombatView::class),
+            ViewNode("Combat Report", CombatReportView::class),
             ViewNode("Factory", FactoryView::class),
             ViewNode("Stop", StopView::class),
             ViewNode("Time", TimeStopView::class, StopView::class)
