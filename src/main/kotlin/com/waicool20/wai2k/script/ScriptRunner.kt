@@ -50,7 +50,7 @@ class ScriptRunner(
 ) : CoroutineScope {
     companion object {
         const val NORMAL_RES = 480
-        const val HIGH_RES = 720
+        const val HIGH_RES = 1080
     }
 
     private var scriptJob: Job? = null
