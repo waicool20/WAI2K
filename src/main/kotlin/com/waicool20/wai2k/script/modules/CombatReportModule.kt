@@ -27,6 +27,8 @@ import com.waicool20.wai2k.config.Wai2KProfile.CombatReport
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
+import com.waicool20.wai2k.util.Ocr
+import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.wai2k.util.formatted
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
@@ -67,20 +69,30 @@ class CombatReportModule(
         // Click work button
         region.subRegion(1510, 568, 277, 86).click(); delay(500)
         // Select type
-        when (profile.combatReport.type) {
+        val reportRegion = when (profile.combatReport.type) {
             CombatReport.Type.NORMAL -> {
                 logger.info("Selecting normal combat reports")
                 region.subRegion(583, 399, 465, 148).click()
+                region.subRegion(842, 474, 115, 48)
             }
             CombatReport.Type.SPECIAL -> {
                 logger.info("Selecting special combat reports")
                 region.subRegion(1160, 399, 465, 148).click()
+                region.subRegion(1420, 474, 115, 48)
             }
             else -> error("No such combat report type!")
         }
         delay(500)
+        val reports = Ocr.forConfig(config).doOCRAndTrim(reportRegion)
+                .takeWhile { it.isDigit() || it != '/' }
+                .toIntOrNull()
+        if (reports != null) {
+            logger.info("Writing $reports reports")
+            scriptStats.combatReportsWritten += reports
+        } else {
+            logger.warn("Could not determine amount of reports to write")
+        }
         logger.info("Confirming selection")
-        // Click ok
         region.subRegion(1144, 749, 268, 103).click()
         lastCheck = Instant.now()
         logger.info("Next check is in one hour (${lastCheck.formatted()})")

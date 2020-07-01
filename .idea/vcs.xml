@@ -3,8 +3,6 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/CVAuto" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/CVAuto/BoofCV" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/CVAuto/BoofCV/data" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/waicoolUtils" vcs="Git" />
   </component>
 </project>

@@ -150,6 +150,12 @@
                               <Separator prefWidth="200.0" />
                               <HBox>
                                  <children>
+                                    <Label text="Combat reports written:" />
+                                    <Label fx:id="combatReportsWrittenLabel" />
+                                 </children>
+                              </HBox>
+                              <HBox>
+                                 <children>
                                     <Label text="Game restarts:" />
                                     <Label fx:id="gameRestartsLabel" />
                                  </children>
