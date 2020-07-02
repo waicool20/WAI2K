@@ -70,7 +70,7 @@ class Map4_6_Data(
             delay(200)
         }
 
-        val rEchelons = deployEchelons(nodes[1])
+        deployEchelons(nodes[1])
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
         planPath()

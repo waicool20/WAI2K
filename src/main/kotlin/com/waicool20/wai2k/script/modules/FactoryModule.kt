@@ -247,7 +247,10 @@ class FactoryModule(
                 break
             }
             // Select all the dolls
-            dolls.sortedBy { it.y * 10 + it.x }.forEach { it.click() }
+            dolls.sortedBy { it.y * 10 + it.x }.forEach {
+                it.click()
+                delay(250)
+            }
             scriptStats.dollsUsedForDisassembly += dolls.size
             logger.info("Confirm doll selections")
             // Click ok
@@ -357,7 +360,10 @@ class FactoryModule(
                 } else break
             }
             // Select all equips
-            equips.sortedBy { it.y * 10 + it.x }.forEach { it.click() }
+            equips.sortedBy { it.y * 10 + it.x }.forEach {
+                it.click()
+                delay(250)
+            }
             scriptStats.equipsUsedForDisassembly += equips.size
             logger.info("Confirm equipment selections")
             // Click ok
