@@ -335,7 +335,7 @@ class FactoryModule(
         region.subRegion(1767, 347, 257, 162).click(); yield()
         // 3 star
         region.subRegion(1460, 213, 257, 117).click(); yield()
-        if (profile.factory.equipDisassemble4Star) {
+        if (profile.factory.equipDisassembly.disassemble4Star) {
             // 4 star
             logger.info("4 star disassembly is on")
             region.subRegion(1190, 213, 257, 117).click(); yield()
@@ -355,7 +355,7 @@ class FactoryModule(
                     .map { region.subRegion(it.x - 106, it.y - 3, 247, 436) }
                     .toMutableList()
             yield()
-            if (profile.factory.equipDisassemble4Star) {
+            if (profile.factory.equipDisassembly.disassemble4Star) {
                 equips += region.findBest(FileTemplate("factory/equip-4star.png"), 12)
                         .map { it.region }
                         .also { logger.info("Found ${it.size} 4*s that can be disassembled") }

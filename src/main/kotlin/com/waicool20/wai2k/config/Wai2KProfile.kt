@@ -102,8 +102,7 @@ data class Wai2KProfile(
             enhancement: Enhancement = Enhancement(),
             disassembly: Disassembly = Disassembly(),
             alwaysDisassembleAfterEnhance: Boolean = true,
-            equipDisassembly: EquipDisassembly = EquipDisassembly(),
-            equipDisassemble4Star: Boolean = false
+            equipDisassembly: EquipDisassembly = EquipDisassembly()
     ) {
         class Enhancement(
                 enabled: Boolean = true
@@ -132,18 +131,19 @@ data class Wai2KProfile(
         // Equipment ----------
 
         class EquipDisassembly(
-                enabled: Boolean = true
+                enabled: Boolean = true,
+                disassemble4Star: Boolean = false
         ) {
             val enabledProperty = enabled.toProperty()
+            val disassemble4StarProperty = disassemble4Star.toProperty()
 
             val enabled by enabledProperty
+            val disassemble4Star by disassemble4StarProperty
         }
 
         val equipDisassemblyProperty = equipDisassembly.toProperty()
-        val equipDisassemble4StarProperty = equipDisassemble4Star.toProperty()
 
         val equipDisassembly by equipDisassemblyProperty
-        val equipDisassemble4Star by equipDisassemble4StarProperty
     }
 
     class Stop(

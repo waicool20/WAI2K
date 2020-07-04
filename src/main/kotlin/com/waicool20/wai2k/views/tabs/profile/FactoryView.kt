@@ -48,7 +48,7 @@ class FactoryView : AbstractProfileView() {
             enableDisassemblyCheckBox.bind(disassembly.enabledProperty)
             alwaysDisassembleAfterEnhanceCheckBox.bind(alwaysDisassembleAfterEnhanceProperty)
             enableEquipDisassemblyCheckBox.bind(equipDisassembly.enabledProperty)
-            enableEquip4StarDisassemblyCheckBox.bind(equipDisassemble4StarProperty)
+            enableEquip4StarDisassemblyCheckBox.bind(equipDisassembly.disassemble4StarProperty)
         }
     }
 }
