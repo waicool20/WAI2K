@@ -131,11 +131,14 @@ data class Wai2KProfile(
         // Equipment ----------
 
         class EquipDisassembly(
-                enabled: Boolean = true
+                enabled: Boolean = true,
+                disassemble4Star: Boolean = false
         ) {
             val enabledProperty = enabled.toProperty()
+            val disassemble4StarProperty = disassemble4Star.toProperty()
 
             val enabled by enabledProperty
+            val disassemble4Star by disassemble4StarProperty
         }
 
         val equipDisassemblyProperty = equipDisassembly.toProperty()
