@@ -329,12 +329,17 @@ class FactoryModule(
                     delay(750)
                 }
 
-        logger.info("Disassembling 3 star equipment")
+        logger.info("Disassembling higher rarity equipment")
         logger.info("Applying filters")
         // Filter button
         region.subRegion(1767, 347, 257, 162).click(); yield()
         // 3 star
         region.subRegion(1460, 213, 257, 117).click(); yield()
+        if (profile.factory.equipDisassemble4Star){
+            // 4 star
+            logger.info("4 star disassembly is on")
+            region.subRegion(1190, 213 , 257, 117).click(); yield()
+            }
         // Confirm
         region.subRegion(1320, 979, 413, 83).click(); yield()
         delay(750)
@@ -346,15 +351,20 @@ class FactoryModule(
             region.matcher.settings.matchDimension = ScriptRunner.HIGH_RES
             val equips = region.findBest(FileTemplate("factory/equip-3star.png"), 12)
                     .map { it.region }
-                    .also { logger.info("Found ${it.size} that can be disassembled") }
-                    .map { region.subRegion(it.x - 106, it.y - 3, 247, 436) }
+                    .also { logger.info("Found ${it.size} 3*s that can be disassembled") }
+                    .map { region.subRegion(it.x - 106, it.y - 3, 247, 436) }.toMutableList(); yield()
+            if (profile.factory.equipDisassemble4Star){
+                equips += region.findBest(FileTemplate("factory/equip-4star.png"), 12)
+                        .map { it.region }
+                        .also { logger.info("Found ${it.size} 4*s that can be disassembled") }
+                        .map { region.subRegion(it.x - 106, it.y - 3, 247, 436) }
+            }
             region.matcher.settings.matchDimension = ScriptRunner.NORMAL_RES
             if (equips.isEmpty()) {
                 // Click cancel if no equips could be used for disassembly
                 region.subRegion(120, 0, 205, 144).click()
                 if (currentCount >= total) {
                     // This condition may be reached if a lot of 4* equipment dropped and filled up all the slots
-                    // Maybe add 4* to equipment disassemble?
                     logger.info("Equipment capacity reached but could not disassemble anymore equipment, stopping script")
                     coroutineContext.cancelAndYield()
                 } else break
@@ -379,10 +389,10 @@ class FactoryModule(
             scriptStats.equipDisassemblesDone += 1
             // Can break if disassembled count is less than 12
             if (equips.size < 12) {
-                logger.info("No more 3 star equipment to disassemble!")
+                logger.info("No more higher rarity equipment to disassemble!")
                 break
             } else {
-                logger.info("Still more 3 star equipment to disassemble")
+                logger.info("Still more higher rarity equipment to disassemble")
             }
             // Wait for menu to settle
             region.subRegion(483, 200, 1557, 565)
