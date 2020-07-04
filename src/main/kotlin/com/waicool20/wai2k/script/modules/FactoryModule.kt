@@ -167,9 +167,9 @@ class FactoryModule(
             // Click confirm if not enough T-dolls, got to get rid of the trash anyways :D
             region.subRegion(1095, 668, 290, 150)
                     .findBest(FileTemplate("ok.png"))?.region?.let {
-                logger.info("Not enough T-dolls for enhancement, but enhancing anyways")
-                it.click()
-            }
+                        logger.info("Not enough T-dolls for enhancement, but enhancing anyways")
+                        it.click()
+                    }
 
             region.waitHas(FileTemplate("close.png"), 30000)?.click()
         }
@@ -335,11 +335,11 @@ class FactoryModule(
         region.subRegion(1767, 347, 257, 162).click(); yield()
         // 3 star
         region.subRegion(1460, 213, 257, 117).click(); yield()
-        if (profile.factory.equipDisassemble4Star){
+        if (profile.factory.equipDisassemble4Star) {
             // 4 star
             logger.info("4 star disassembly is on")
-            region.subRegion(1190, 213 , 257, 117).click(); yield()
-            }
+            region.subRegion(1190, 213, 257, 117).click(); yield()
+        }
         // Confirm
         region.subRegion(1320, 979, 413, 83).click(); yield()
         delay(750)
@@ -352,8 +352,10 @@ class FactoryModule(
             val equips = region.findBest(FileTemplate("factory/equip-3star.png"), 12)
                     .map { it.region }
                     .also { logger.info("Found ${it.size} 3*s that can be disassembled") }
-                    .map { region.subRegion(it.x - 106, it.y - 3, 247, 436) }.toMutableList(); yield()
-            if (profile.factory.equipDisassemble4Star){
+                    .map { region.subRegion(it.x - 106, it.y - 3, 247, 436) }
+                    .toMutableList()
+            yield()
+            if (profile.factory.equipDisassemble4Star) {
                 equips += region.findBest(FileTemplate("factory/equip-4star.png"), 12)
                         .map { it.region }
                         .also { logger.info("Found ${it.size} 4*s that can be disassembled") }
@@ -364,7 +366,7 @@ class FactoryModule(
                 // Click cancel if no equips could be used for disassembly
                 region.subRegion(120, 0, 205, 144).click()
                 if (currentCount >= total) {
-                    // This condition may be reached if a lot of 4* equipment dropped and filled up all the slots
+                    // This doesn't really apply anymore since 4* equip disassembly is implemented, but ehh SPEQ are a thing too
                     logger.info("Equipment capacity reached but could not disassemble anymore equipment, stopping script")
                     coroutineContext.cancelAndYield()
                 } else break
