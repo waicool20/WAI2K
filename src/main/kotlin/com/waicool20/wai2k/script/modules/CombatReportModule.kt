@@ -48,6 +48,7 @@ class CombatReportModule(
 
     override suspend fun execute() {
         if (!profile.combat.enabled) return
+        if (!profile.combatReport.enabled) return
         if (ChronoUnit.SECONDS.between(lastCheck, Instant.now()) < 3600) return
         overworkKalina()
     }
