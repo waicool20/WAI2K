@@ -19,27 +19,74 @@
 
 package com.waicool20.wai2k.util
 
+import com.fasterxml.jackson.databind.annotation.JsonAppend
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.waicool20.wai2k.script.ScriptStats
 import com.waicool20.waicoolutils.logging.loggerFor
 import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
+import java.time.Instant
 
 
 object YuuBot {
     private val logger = loggerFor<YuuBot>()
     private val endpoint
         get() = System.getenv("WAI2K_ENDPOINT").takeUnless { it.isNullOrEmpty() }
-                ?: "https://yuu.waicool20.com/api/wai2k/user/"
+                ?: "https://yuu.waicool20.com/api/wai2k/user"
+
+    private val JSON_MEDIA_TYPE = "application/json".toMediaTypeOrNull()
 
     enum class ApiKeyStatus { VALID, INVALID, UNKNOWN }
 
+    @JsonAppend(attrs = [JsonAppend.Attr(value = "profileName")])
+    private class ScriptStatsMixin
+
+    fun postStats(apiKey: String, startTime: Instant, profileName: String, stats: ScriptStats) {
+        if (apiKey.isEmpty()) {
+            logger.warn("API key is empty, YuuBot reporting is disabled.")
+            return
+        }
+        logger.info("Posting stats to YuuBot...")
+        val body = jacksonObjectMapper()
+                .addMixIn(ScriptStats::class.java, ScriptStatsMixin::class.java)
+                .writer()
+                .withAttribute("profileName", profileName)
+                .writeValueAsString(stats)
+                .toRequestBody(JSON_MEDIA_TYPE)
+
+        val request = Request.Builder()
+                .url("$endpoint/$apiKey/stats/${startTime.toEpochMilli()}")
+                .post(body)
+                .build()
+
+        OkHttpClient().newCall(request).enqueue(object : Callback {
+            override fun onResponse(call: Call, response: Response) {
+                when (val code = response.code) {
+                    200 -> {
+                        logger.info("Posted stats to YuuBot, response was: $code")
+                    }
+                    else -> {
+                        logger.warn("Failed to post stats to YuuBot, response was: $code")
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call, e: IOException) {
+                logger.warn("Failed to post stats to YuuBot, maybe your internet is down?")
+            }
+        })
+    }
+
     fun testApiKey(apiKey: String, onComplete: (ApiKeyStatus) -> Unit) {
         if (apiKey.isEmpty()) {
-            logger.info("API key is empty, YuuBot reporting is disabled.")
+            logger.warn("API key is empty, YuuBot reporting is disabled.")
             onComplete(ApiKeyStatus.INVALID)
             return
         }
         logger.info("Testing API key: $apiKey")
-        OkHttpClient().newCall(Request.Builder().url(endpoint + apiKey).build()).enqueue(object : Callback {
+        OkHttpClient().newCall(Request.Builder().url("$endpoint/$apiKey").build()).enqueue(object : Callback {
             override fun onResponse(call: Call, response: Response) {
                 when (val code = response.code) {
                     200 -> {

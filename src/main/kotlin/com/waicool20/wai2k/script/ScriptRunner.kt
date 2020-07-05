@@ -33,6 +33,7 @@ import com.waicool20.wai2k.script.modules.InitModule
 import com.waicool20.wai2k.script.modules.ScriptModule
 import com.waicool20.wai2k.script.modules.StopModule
 import com.waicool20.wai2k.util.Ocr
+import com.waicool20.wai2k.util.YuuBot
 import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.waicoolutils.distanceTo
@@ -75,6 +76,8 @@ class ScriptRunner(
     var lastStartTime: Instant? = null
         private set
 
+    private var statsHash: Int = scriptStats.hashCode()
+
     init {
         // Turn off logging for reflections library
         (loggerFor<Reflections>() as Logger).level = Level.OFF
@@ -90,6 +93,7 @@ class ScriptRunner(
         gameState.requiresUpdate = true
         lastStartTime = Instant.now()
         scriptStats.reset()
+        statsHash = scriptStats.hashCode()
         gameState.reset()
         justRestarted = true
         scriptJob = launch {
@@ -157,6 +161,7 @@ class ScriptRunner(
     private suspend fun runScriptCycle() {
         reload()
         if (modules.isEmpty()) coroutineContext.cancelAndYield()
+        postStats()
         try {
             modules.forEach { it.execute() }
             justRestarted = false
@@ -235,5 +240,16 @@ class ScriptRunner(
         }
         logger.info("Finished logging in")
         justRestarted = true
+    }
+
+    private fun postStats() {
+        // Only post new stats if it has changed
+        val newHash = scriptStats.hashCode()
+        if (statsHash != newHash) {
+            statsHash = newHash
+            lastStartTime?.let { startTime ->
+                YuuBot.postStats(currentConfig.apiKey, startTime, currentProfile.name, scriptStats)
+            }
+        }
     }
 }
