@@ -19,15 +19,19 @@
 
 package com.waicool20.wai2k.views.tabs.preferences
 
-import com.waicool20.wai2k.views.ViewNode
+import com.waicool20.wai2k.config.Wai2KContext
+import javafx.scene.control.TextField
+import javafx.scene.layout.VBox
+import tornadofx.*
 
-object PreferencesViewMappings {
-    val list = listOf(
-            ViewNode("Console", ConsolePrefView::class),
-            ViewNode("Misc", MiscPrefView::class),
-            ViewNode("Paths", PathPrefView::class),
-            ViewNode("Script", ScriptPrefView::class),
-            ViewNode("Game Restart", GameRestartPrefView::class),
-            ViewNode("YuuBot", YuuBotView::class)
-    ).sortedBy { it.title }
+
+class YuuBotView : View() {
+    override val root: VBox by fxml("/views/tabs/preferences/yuubot.fxml")
+    private val apiKeyTextField: TextField by fxid()
+
+    private val context: Wai2KContext by inject()
+
+    override fun onDock() {
+        super.onDock()
+    }
 }
