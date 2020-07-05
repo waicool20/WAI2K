@@ -20,6 +20,9 @@
 package com.waicool20.wai2k.views.tabs.preferences
 
 import com.waicool20.wai2k.config.Wai2KContext
+import com.waicool20.wai2k.util.YuuBot
+import com.waicool20.waicoolutils.javafx.listen
+import com.waicool20.waicoolutils.javafx.listenDebounced
 import javafx.scene.control.TextField
 import javafx.scene.layout.VBox
 import tornadofx.*
@@ -33,5 +36,30 @@ class YuuBotView : View() {
 
     override fun onDock() {
         super.onDock()
+        apiKeyTextField.textProperty().apply {
+            listen { apiKeyTextField.style = "-fx-border-color: yellow; -fx-border-width: 2px" }
+            listenDebounced(1000, "ApiKeyTextFieldProperty") { newVal ->
+                testApiKey(newVal)
+            }
+        }
+
+        apiKeyTextField.text = context.wai2KConfig.apiKey
+    }
+
+    fun testApiKey(apiKey: String) {
+        apiKeyTextField.style = "-fx-border-color: yellow; -fx-border-width: 2px"
+        YuuBot.testApiKey(apiKey) { status ->
+            context.wai2KConfig.apiKey = when (status) {
+                YuuBot.ApiKeyStatus.VALID -> {
+                    apiKeyTextField.style = "-fx-border-color: lightgreen; -fx-border-width: 2px"
+                    apiKey
+                }
+                YuuBot.ApiKeyStatus.INVALID -> {
+                    apiKeyTextField.style = "-fx-border-color: red; -fx-border-width: 2px"
+                    ""
+                }
+                YuuBot.ApiKeyStatus.UNKNOWN -> apiKey
+            }
+        }
     }
 }

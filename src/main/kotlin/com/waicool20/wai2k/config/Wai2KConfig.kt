@@ -48,7 +48,8 @@ class Wai2KConfig(
         debugModeEnabled: Boolean = true,
         lastDeviceSerial: String = "",
         scriptConfig: ScriptConfig = ScriptConfig(),
-        gameRestartConfig: GameRestartConfig = GameRestartConfig()
+        gameRestartConfig: GameRestartConfig = GameRestartConfig(),
+        apiKey: String = ""
 ) {
     private val logger = loggerFor<Wai2K>()
 
@@ -66,6 +67,7 @@ class Wai2KConfig(
     val lastDeviceSerialProperty = lastDeviceSerial.toProperty()
     val scriptConfigProperty = scriptConfig.toProperty()
     val gameRestartConfigProperty = gameRestartConfig.toProperty()
+    val apiKeyProperty = apiKey.toProperty()
 
     var currentProfile by currentProfileProperty
     @get:JsonIgnore var assetsDirectory by assetsDirectoryProperty
@@ -76,6 +78,7 @@ class Wai2KConfig(
     var lastDeviceSerial by lastDeviceSerialProperty
     var scriptConfig by scriptConfigProperty
     var gameRestartConfig by gameRestartConfigProperty
+    var apiKey by apiKeyProperty
 
     //</editor-fold>
 
