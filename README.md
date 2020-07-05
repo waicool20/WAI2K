@@ -21,8 +21,9 @@ extensive testing has been done in Linux.
   - Corpse dragging
 - Auto enhancement
 - Auto disassembly
+- [Discord integration](https://github.com/waicool20/WAI2K/wiki/Discord-Integration)
 - Can run in background without taking over desktop mouse
-- Can run on phone (Provided you have a phone that is 2160x1080 resolution)
+- Can run on phone (Provided you have a phone that is 2160x1080 resolution, theoretically possible)
 - More to come
 
 # Setup
