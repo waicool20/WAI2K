@@ -21,6 +21,7 @@ package com.waicool20.wai2k.util
 
 import com.fasterxml.jackson.databind.annotation.JsonAppend
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.script.ScriptStats
 import com.waicool20.waicoolutils.logging.loggerFor
 import okhttp3.*
@@ -40,19 +41,32 @@ object YuuBot {
 
     enum class ApiKeyStatus { VALID, INVALID, UNKNOWN }
 
-    @JsonAppend(attrs = [JsonAppend.Attr(value = "profileName")])
+    @JsonAppend(attrs = [
+        JsonAppend.Attr(value = "profileName"),
+        JsonAppend.Attr(value = "map"),
+        JsonAppend.Attr(value = "dragger1"),
+        JsonAppend.Attr(value = "dragger2")
+    ])
     private class ScriptStatsMixin
 
-    fun postStats(apiKey: String, startTime: Instant, profileName: String, stats: ScriptStats) {
+    fun postStats(apiKey: String, startTime: Instant, profile: Wai2KProfile, stats: ScriptStats) {
         if (apiKey.isEmpty()) {
             logger.warn("API key is empty, YuuBot reporting is disabled.")
             return
         }
         logger.info("Posting stats to YuuBot...")
+
+        val attr = mutableMapOf("profileName" to profile.name)
+        if (profile.combat.enabled) {
+            attr["map"] = profile.combat.map
+            attr["dragger1"] = profile.combat.draggers[0].id
+            attr["dragger2"] = profile.combat.draggers[1].id
+        }
+
         val body = jacksonObjectMapper()
                 .addMixIn(ScriptStats::class.java, ScriptStatsMixin::class.java)
                 .writer()
-                .withAttribute("profileName", profileName)
+                .withAttributes(attr)
                 .writeValueAsString(stats)
                 .toRequestBody(JSON_MEDIA_TYPE)
 

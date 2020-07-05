@@ -248,7 +248,7 @@ class ScriptRunner(
         if (statsHash != newHash) {
             statsHash = newHash
             lastStartTime?.let { startTime ->
-                YuuBot.postStats(currentConfig.apiKey, startTime, currentProfile.name, scriptStats)
+                YuuBot.postStats(currentConfig.apiKey, startTime, currentProfile, scriptStats)
             }
         }
     }
