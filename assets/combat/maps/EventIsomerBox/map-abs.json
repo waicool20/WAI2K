@@ -1,0 +1,97 @@
+[
+  {
+    "type": "CommandPost",
+    "x": 648,
+    "y": 355,
+    "width": 29,
+    "height": 29
+  },
+  {
+    "type": "Heliport",
+    "x": 1382,
+    "y": 214,
+    "width": 26,
+    "height": 20
+  },
+  {
+    "x": 893,
+    "y": 642,
+    "width": 20,
+    "height": 20
+  },
+  {
+    "x": 890,
+    "y": 530,
+    "width": 20,
+    "height": 20
+  },
+  {
+    "x": 980,
+    "y": 600,
+    "width": 20,
+    "height": 20
+  },
+  {
+    "type": "CommandPost",
+    "x": 641,
+    "y": 236,
+    "width": 30,
+    "height": 30
+  },
+  {
+    "x": 809,
+    "y": 459,
+    "width": 20,
+    "height": 20
+  },
+  {
+    "x": 980,
+    "y": 673,
+    "width": 20,
+    "height": 20
+  },
+  {
+    "x": 1118,
+    "y": 758,
+    "width": 20,
+    "height": 20
+  },
+  {
+    "type": "CommandPost",
+    "x": 641,
+    "y": 312,
+    "width": 30,
+    "height": 30
+  },
+  {
+    "x": 809,
+    "y": 530,
+    "width": 20,
+    "height": 20
+  },
+  {
+    "x": 892,
+    "y": 602,
+    "width": 20,
+    "height": 20
+  },
+  {
+    "x": 1119,
+    "y": 765,
+    "width": 20,
+    "height": 20
+  },
+  {
+    "x": 1293,
+    "y": 905,
+    "width": 18,
+    "height": 18
+  },
+  {
+    "type": "CommandPost",
+    "x": 641,
+    "y": 528,
+    "width": 30,
+    "height": 30
+  }
+]
