@@ -70,8 +70,8 @@ class EventIsomerBox(
         }
         repeat(3) { right.swipeTo(left) }
         region.matcher.settings.matchDimension = ScriptRunner.HIGH_RES
-        region.subRegion(1306, 255, 853, 602)
-                .findBest(FileTemplate("$PREFIX/map-entrance.png"))
+        region.subRegion(1306, 420, 853, 100)
+                .findBest(FileTemplate("$PREFIX/map-entrance.png", 0.8))
                 ?.region?.click() ?: error("Couldn't find map")
         delay(500)
         logger.info("Entering map")
