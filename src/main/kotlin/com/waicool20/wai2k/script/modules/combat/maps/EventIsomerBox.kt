@@ -45,7 +45,9 @@ class EventIsomerBox(
 
     override suspend fun enterMap() {
         // The mission menu will change after restarts and some other stuff prob
-        region.pinch(
+        logger.info("enter manually sry")
+        region.waitHas(FileTemplate("combat/battle/plan.png"), 50000)
+/*        region.pinch(
                 Random.nextInt(800, 900),
                 Random.nextInt(100, 150),
                 0.0,
@@ -59,8 +61,8 @@ class EventIsomerBox(
                 entrance.click()
                 }
             else {
-                region.subRegionAs<AndroidRegion>(1900, 500, 30, 30)
-                        .swipeTo(region.subRegionAs<AndroidRegion>(1900+1200, 500, 30, 30))
+                region.subRegionAs<AndroidRegion>(1900-1200, 500, 30, 30)
+                        .swipeTo(region.subRegionAs<AndroidRegion>(1900, 500, 30, 30))
                 retries -= 1
             }
             if(retries <= 0) {
@@ -75,7 +77,7 @@ class EventIsomerBox(
         if(intelPointsLimited != null){
             logger.info("All intel points have been gained for today")
             intelPointsLimited.click()
-        }
+        }*/
     }
 
     override suspend fun execute() {
@@ -86,20 +88,22 @@ class EventIsomerBox(
                 0.0,
                 500
         )
-        deployEchelons(nodes[0])
+        delay(1500)
+        deployEchelons(nodes[0], nodes[1])
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
         resupplyEchelons(nodes[0])
         turn1a()
-        waitForTurnAndPoints(1,2)
-        turn1b()
-        // if planning mode button exists,  plan has ended
+        waitForTurnAndPoints(1,2, false)
+        turn1b(); delay(2000)
+        // planning pops up for a small amount of time
         // varying amount of battles and action points for next turn
-        waitForTurnAssets(false, 0.96, "combat/battle/plan.png")
+        waitForTurnAssets(false, 0.9, "combat/battle/end.png", "combat/battle/plan.png"); delay(500)
         turn2()
         // we may or may not get attacked, if dummy at the right gets attacked lose the S rank
         // maybe figure out how to retreat them early
-        waitForTurnAssets(false, 0.9, "combat/battle/end.png")
+        waitForTurnAssets(false, 0.9, "combat/battle/end.png", "combat/battle/plan.png")
+        delay(1000)
         // the flashing of this button makes it hard to get
         turn3()
         waitForTurnAssets(false, 0.96, "combat/battle/plan.png")
@@ -110,9 +114,6 @@ class EventIsomerBox(
 
     private suspend fun turn1a() {
         // Move team 1
-        logger.info("Selecting ${nodes[0]}")
-        nodes[0].findRegion().click()
-
         logger.info("Entering planning mode")
         mapRunnerRegions.planningMode.click(); yield()
 
@@ -154,7 +155,7 @@ class EventIsomerBox(
         nodes[7].findRegion().click()
 
         logger.info("Selecting ${nodes[8]}")
-        nodes[8].findRegion().click()
+        nodes[8].findRegion().click(); delay(2500)
 
         deployEchelons(nodes[9])
 
@@ -169,16 +170,22 @@ class EventIsomerBox(
         region.waitHas(FileTemplate("combat/battle/move.png"), 3000)?.click()
 
         logger.info("Executing plan")
-        mapRunnerRegions.executePlan.click()
+        mapRunnerRegions.executePlan.click(); delay(1000)
 
-        //no battles on the way back
-        region.waitHas(FileTemplate("combat/battle/move.png"), 5000)
-
-        logger.info("Ending turn")
-        mapRunnerRegions.endBattle.click(); delay(1000)
+        waitForTurnAssets(true, 0.96, "combat/battle/plan.png")
+        //sometimes it fails to cick end turn
+        mapRunnerRegions.endBattle.click();delay(2000)
     }
 
     private suspend fun turn3() {
+        logger.info("Zoom out")
+        region.pinch(
+                Random.nextInt(700, 800),
+                Random.nextInt(250, 350),
+                0.0,
+                500
+        )
+        delay(1800)
         swapRescueHostage(nodes[12], nodes[13])
 
         logger.info("Entering planning mode")
@@ -190,7 +197,7 @@ class EventIsomerBox(
         region.waitHas(FileTemplate("combat/battle/move.png"), 3000)?.click()
 
         logger.info("Executing plan")
-        mapRunnerRegions.executePlan.click()
+        mapRunnerRegions.executePlan.click(); delay(1000)
     }
 
     private suspend fun swapRescueHostage(team: MapNode, hostage: MapNode) {
@@ -205,6 +212,5 @@ class EventIsomerBox(
 
         logger.info("Rescuing Hostage at $team")
         region.waitHas(FileTemplate("combat/battle/rescue.png"), 3000)?.click(); delay(2000)
-
     }
 }
