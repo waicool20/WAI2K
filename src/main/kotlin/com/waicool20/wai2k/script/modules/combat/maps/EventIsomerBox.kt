@@ -19,18 +19,19 @@
 
 package com.waicool20.wai2k.script.modules.combat.maps
 
-import com.sun.media.jfxmedia.logging.Logger
 import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.core.template.FileTemplate
+import com.waicool20.cvauto.core.template.ImageTemplate
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.script.modules.combat.MapNode
+import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.yield
-import java.io.File
+import java.awt.image.BufferedImage
 import kotlin.random.Random
 
 class EventIsomerBox(
@@ -44,40 +45,38 @@ class EventIsomerBox(
     override val extractBlueNodes = false
 
     override suspend fun enterMap() {
-        // The mission menu will change after restarts and some other stuff prob
-        logger.info("enter manually sry")
-        region.waitHas(FileTemplate("combat/battle/plan.png"), 50000)
-/*        region.pinch(
+        // Delay needed after restart since it does some flash animations
+        if (gameState.requiresMapInit) delay(5000)
+        region.pinch(
                 Random.nextInt(800, 900),
                 Random.nextInt(100, 150),
                 0.0,
                 500
         )
-        // upon first entering to will scroll you to the right to the highest map you have unlocked?
-        var retries = 4
-        while(isActive) {
-            val entrance = region.waitHas(FileTemplate("$PREFIX/map-entrance.png"), 3000)
-            if (entrance != null) {
-                entrance.click()
-                }
-            else {
-                region.subRegionAs<AndroidRegion>(1900-1200, 500, 30, 30)
-                        .swipeTo(region.subRegionAs<AndroidRegion>(1900, 500, 30, 30))
-                retries -= 1
-            }
-            if(retries <= 0) {
-                logger.info("Left Search unsuccessful")
-                // maybe go right again
+        delay(500)
+        logger.info("Scroll to beginning")
+        val checkRegion = region.subRegion(550, 390, 600, 300)
+        var checkImg: BufferedImage
+        val left = region.subRegionAs<AndroidRegion>(567, 521, 40, 40)
+        val right = left.copyAs<AndroidRegion>(x = left.x + 1050)
+        while (isActive) {
+            checkImg = checkRegion.capture()
+            left.swipeTo(right)
+            delay(750)
+            if (checkRegion.has(ImageTemplate(checkImg))) {
+                logger.info("At beginning")
                 break
             }
         }
-        delay(1000)  // small animation
-        region.subRegionAs<AndroidRegion>(1835, 599, 232, 109).click() // Confirm start
-        val intelPointsLimited = region.waitHas(FileTemplate("ok.png"), 1000)
-        if(intelPointsLimited != null){
-            logger.info("All intel points have been gained for today")
-            intelPointsLimited.click()
-        }*/
+        repeat(3) { right.swipeTo(left) }
+        region.matcher.settings.matchDimension = ScriptRunner.HIGH_RES
+        region.subRegion(1306, 255, 853, 602)
+                .findBest(FileTemplate("$PREFIX/map-entrance.png"))
+                ?.region?.click() ?: error("Couldn't find map")
+        delay(500)
+        logger.info("Entering map")
+        region.subRegion(1835, 597, 232, 111).click()
+        coroutineContext.cancelAndYield()
     }
 
     override suspend fun execute() {
@@ -94,7 +93,7 @@ class EventIsomerBox(
         waitForGNKSplash()
         resupplyEchelons(nodes[0])
         turn1a()
-        waitForTurnAndPoints(1,2, false)
+        waitForTurnAndPoints(1, 2, false)
         turn1b(); delay(2000)
         // planning pops up for a small amount of time
         // varying amount of battles and action points for next turn
