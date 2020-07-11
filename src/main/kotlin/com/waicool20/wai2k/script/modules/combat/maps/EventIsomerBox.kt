@@ -94,6 +94,7 @@ class EventIsomerBox(
         waitForGNKSplash()
         resupplyEchelons(nodes[0])
         turn1a()
+        delay(1000)
         waitForTurnAndPoints(1, 2, false)
         turn1b(); delay(2000)
         // planning pops up for a small amount of time
@@ -104,9 +105,10 @@ class EventIsomerBox(
         // we may or may not get attacked, if dummy at the right gets attacked lose the S rank
         // maybe figure out how to retreat them early
         waitForTurnAssets(false, 0.9, "combat/battle/end.png", "combat/battle/plan.png")
-        delay(2000)
+        delay(4000)
         // the flashing of this button makes it hard to get
         turn3()
+        delay(2000)
         waitForTurnAssets(false, 0.9, "combat/battle/end.png", "combat/battle/plan.png")
         openEchelon(nodes[14])
         region.subRegionAs<AndroidRegion>(1170, 911, 376, 95).click() //Retrieval Complete
@@ -137,6 +139,7 @@ class EventIsomerBox(
         region.waitHas(FileTemplate("combat/battle/switch.png"), 3000)?.click(); delay(2000)
 
         deployEchelons(nodes[5])
+        delay(750)
         resupplyEchelons(nodes[5]) // they don't always need resupply
 
         logger.info("Entering planning mode")
@@ -159,6 +162,7 @@ class EventIsomerBox(
         nodes[8].findRegion().click(); delay(2500)
 
         deployEchelons(nodes[9])
+        delay(1000) // heli animation
 
         swapRescueHostage(nodes[10], nodes[11])
 
@@ -186,7 +190,7 @@ class EventIsomerBox(
                 0.0,
                 500
         )
-        delay(1800)
+        delay(2000)
         swapRescueHostage(nodes[12], nodes[13])
 
         logger.info("Entering planning mode")
