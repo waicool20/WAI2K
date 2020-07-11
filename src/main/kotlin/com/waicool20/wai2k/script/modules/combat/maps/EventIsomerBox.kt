@@ -34,6 +34,7 @@ import kotlinx.coroutines.yield
 import java.awt.image.BufferedImage
 import kotlin.random.Random
 
+
 class EventIsomerBox(
         scriptRunner: ScriptRunner,
         region: AndroidRegion,
@@ -76,7 +77,7 @@ class EventIsomerBox(
         delay(500)
         logger.info("Entering map")
         region.subRegion(1835, 597, 232, 111).click()
-        coroutineContext.cancelAndYield()
+        region.waitHas(FileTemplate("combat/battle/plan.png"), 5000)
     }
 
     override suspend fun execute() {
@@ -97,15 +98,16 @@ class EventIsomerBox(
         turn1b(); delay(2000)
         // planning pops up for a small amount of time
         // varying amount of battles and action points for next turn
-        waitForTurnAssets(false, 0.9, "combat/battle/end.png", "combat/battle/plan.png"); delay(500)
+        waitForTurnAssets(false, 0.9, "combat/battle/end.png", "combat/battle/plan.png")
+        delay(1500)
         turn2()
         // we may or may not get attacked, if dummy at the right gets attacked lose the S rank
         // maybe figure out how to retreat them early
         waitForTurnAssets(false, 0.9, "combat/battle/end.png", "combat/battle/plan.png")
-        delay(1000)
+        delay(2000)
         // the flashing of this button makes it hard to get
         turn3()
-        waitForTurnAssets(false, 0.96, "combat/battle/plan.png")
+        waitForTurnAssets(false, 0.9, "combat/battle/end.png", "combat/battle/plan.png")
         openEchelon(nodes[14])
         region.subRegionAs<AndroidRegion>(1170, 911, 376, 95).click() //Retrieval Complete
         handleBattleResults()
@@ -196,7 +198,7 @@ class EventIsomerBox(
         region.waitHas(FileTemplate("combat/battle/move.png"), 3000)?.click()
 
         logger.info("Executing plan")
-        mapRunnerRegions.executePlan.click(); delay(1000)
+        mapRunnerRegions.executePlan.click(); delay(2000)
     }
 
     private suspend fun swapRescueHostage(team: MapNode, hostage: MapNode) {
