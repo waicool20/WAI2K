@@ -583,7 +583,7 @@ abstract class MapRunner(
 
     private fun isInBattle() = mapRunnerRegions.pauseButton.has(FileTemplate("combat/battle/pause.png", 0.9))
 
-    private suspend fun openEchelon(node: MapNode, singleClick: Boolean = false) {
+    protected suspend fun openEchelon(node: MapNode, singleClick: Boolean = false) {
         val r = node.findRegion()
         repeat(if (singleClick) 1 else 2) {
             r.click(); delay(1500)
