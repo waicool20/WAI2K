@@ -108,10 +108,11 @@ class EventIsomerBox(
         delay(4000)
         // the flashing of this button makes it hard to get
         turn3()
-        delay(2000)
-        waitForTurnAssets(false, 0.9, "combat/battle/end.png", "combat/battle/plan.png")
+        delay(3000)
+        waitForTurnAssets(false, 0.8, "$PREFIX/echelon1-retrieve.png")
+        delay(1000)
         openEchelon(nodes[14])
-        region.subRegionAs<AndroidRegion>(1170, 911, 376, 95).click() //Retrieval Complete
+        region.subRegion(1170, 911, 376, 95).click() //Retrieval Complete
         handleBattleResults()
     }
 
