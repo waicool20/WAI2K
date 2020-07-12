@@ -26,7 +26,6 @@ import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.script.modules.combat.MapNode
-import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -47,7 +46,10 @@ class EventIsomerBox(
 
     override suspend fun enterMap() {
         // Delay needed after restart since it does some flash animations
-        if (gameState.requiresMapInit) delay(5000)
+        if (gameState.requiresMapInit) {
+            gameState.requiresMapInit = false
+            delay(5000)
+        }
         region.pinch(
                 Random.nextInt(800, 900),
                 Random.nextInt(100, 150),
