@@ -112,7 +112,7 @@ class EventIsomerBox(
         waitForTurnAssets(false, 0.8, "$PREFIX/echelon1-retrieve.png")
         delay(1000)
         openEchelon(nodes[14])
-        region.subRegion(1170, 911, 376, 95).click() //Retrieval Complete
+        region.subRegion(1070, 911, 376, 95).click() //Retrieval Complete
         handleBattleResults()
     }
 
@@ -141,7 +141,7 @@ class EventIsomerBox(
 
         deployEchelons(nodes[5])
         delay(750)
-        resupplyEchelons(nodes[5]) // they don't always need resupply
+        resupplyEchelons(nodes[5]); delay(750) // they don't always need resupply
 
         logger.info("Entering planning mode")
         mapRunnerRegions.planningMode.click(); yield()
