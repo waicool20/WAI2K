@@ -98,6 +98,7 @@ class ScriptRunner(
         justRestarted = true
         scriptJob = launch {
             reload(true)
+            postStats()
             while (isActive) {
                 runScriptCycle()
             }
@@ -161,7 +162,6 @@ class ScriptRunner(
     private suspend fun runScriptCycle() {
         reload()
         if (modules.isEmpty()) coroutineContext.cancelAndYield()
-        postStats()
         try {
             modules.forEach { it.execute() }
             justRestarted = false
@@ -175,6 +175,7 @@ class ScriptRunner(
                 coroutineContext.cancelAndYield()
             }
         }
+        postStats()
         if (isPaused) {
             logger.info("Script is now paused")
             while (isPaused) delay(currentConfig.scriptConfig.loopDelay * 1000L)
