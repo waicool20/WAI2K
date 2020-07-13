@@ -236,6 +236,7 @@ abstract class MapRunner(
                         region.subRegion(360 + mIndex * 272, 286, 246, 323).click()
                         region.subRegion(1360, 702, 290, 117)
                                 .waitHas(FileTemplate("ok.png"), 3000)?.click()
+                        scriptStats.repairs++
                     }
                 }
                 delay(500)
