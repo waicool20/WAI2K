@@ -80,6 +80,7 @@ class EventIsomerBox(
         logger.info("Entering map")
         region.subRegion(1835, 597, 232, 111).click()
         region.waitHas(FileTemplate("combat/battle/plan.png"), 5000)
+        delay(2500)
     }
 
     override suspend fun execute() {
@@ -95,6 +96,7 @@ class EventIsomerBox(
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
         resupplyEchelons(nodes[0])
+        delay(1000)
         turn1a()
         delay(1000)
         waitForTurnAndPoints(1, 2, false)
@@ -115,6 +117,7 @@ class EventIsomerBox(
         delay(1000)
         openEchelon(nodes[14])
         region.subRegion(1070, 911, 376, 95).click() //Retrieval Complete
+        delay(1000)
         handleBattleResults()
     }
 
