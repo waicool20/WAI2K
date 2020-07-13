@@ -23,6 +23,7 @@ import boofcv.struct.image.GrayF32
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.waicool20.cvauto.android.AndroidRegion
+import com.waicool20.cvauto.core.asCachedRegion
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.cvauto.util.homography
 import com.waicool20.cvauto.util.transformRect
@@ -352,31 +353,44 @@ abstract class MapRunner(
      * @param turn Turn number
      * @param points No of action points
      */
-    protected suspend fun waitForTurnAndPoints(turn: Int, points: Int, endTurn: Boolean = true) {
+    protected suspend fun waitForTurnAndPoints(turn: Int, points: Int, endTurn: Boolean = true) = coroutineScope {
         logger.info("Waiting for turn $turn and action points $points")
         val ocr = Ocr.forConfig(config, digitsOnly = true)
         var currentTurn = 0
         var currentPoints = 0
-        while (isActive && (currentTurn != turn || currentPoints != points) && !interruptWaitFlag) {
-            if (isInBattle()) clickThroughBattle()
-            val screenshot = region.capture()
-            val newTurn = ocr.doOCRAndTrim(screenshot.getSubimage(748, 53, 86, 72))
-                    .let { if (it.firstOrNull() == '8') it.replaceFirst("8", "0") else it }
-                    .toIntOrNull() ?: continue
-            val newPoints = ocr.doOCRAndTrim(screenshot.getSubimage(1730, 970, 135, 76).binarizeImage().pad(10, 10, Color.BLACK))
-                    .toIntOrNull() ?: continue
-            // Ignore point deltas larger than 10
-            if ((currentTurn != newTurn || currentPoints != newPoints) && abs(currentPoints - newPoints) < 10) {
-                logger.info("Current turn: $newTurn ($turn) | Current action points: $newPoints ($points)")
-                currentTurn = newTurn
-                currentPoints = newPoints
+        try {
+            withTimeout(120_000) {
+                while (isActive && !interruptWaitFlag) {
+                    delay(250)
+                    if (isInBattle()) clickThroughBattle()
+                    val screenshot = region.capture()
+                    val newTurn = ocr.doOCRAndTrim(screenshot.getSubimage(748, 53, 86, 72))
+                            .let { if (it.firstOrNull() == '8') it.replaceFirst("8", "0") else it }
+                            .toIntOrNull() ?: continue
+
+
+                    val newPoints = ocr.doOCRAndTrim(screenshot.getSubimage(1730, 970, 135, 76)
+                            .binarizeImage().pad(10, 10, Color.BLACK))
+                            .toIntOrNull() ?: continue
+
+
+                    // Ignore point deltas larger than 10
+                    if ((currentTurn != newTurn || currentPoints != newPoints) && abs(currentPoints - newPoints) < 10) {
+                        logger.info("Current turn: $newTurn ($turn) | Current action points: $newPoints ($points)")
+                        currentTurn = newTurn
+                        currentPoints = newPoints
+                    }
+                    if (currentTurn == turn && currentPoints == points) break
+                }
             }
-            yield()
+        } catch (e: TimeoutCancellationException) {
+            throw ScriptTimeOutException("Waiting for turn and points", e)
         }
-        if (!interruptWaitFlag)
+        if (!interruptWaitFlag) {
             logger.info("Reached required turns and action points!")
-        else
+        } else {
             logger.info("Aborting Wait...")
+        }
         delay(1000)
         while (isActive) {
             if (isInBattle()) clickThroughBattle()
@@ -389,10 +403,19 @@ abstract class MapRunner(
      * Waits for the assets to appear and assumes that the turn is complete
      */
     protected suspend fun waitForTurnAssets(endTurn: Boolean = true, threshold: Double = 0.98, vararg assets: String) {
-        logger.info("Waiting for ${assets.size} assets to appear")
-        while (assets.any { region.doesntHave(FileTemplate(it, threshold)) }) {
-            if (isInBattle()) clickThroughBattle()
-            yield()
+        logger.info("Waiting for ${assets.size} assets to appear:")
+        assets.forEach { logger.info("Waiting on: $it") }
+        try {
+            withTimeout(120_000) {
+                while (isActive) {
+                    if (isInBattle()) clickThroughBattle()
+                    val r = region.asCachedRegion()
+                    if (assets.all { r.has(FileTemplate(it, threshold)) }) break
+                    yield()
+                }
+            }
+        } catch (e: TimeoutCancellationException) {
+            throw ScriptTimeOutException("Waiting for assets", e)
         }
         logger.info("All assets are now on screen")
         region.waitHas(FileTemplate("combat/battle/terminate.png"), 10000)
