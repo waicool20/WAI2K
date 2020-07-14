@@ -57,27 +57,33 @@ class EventIsomerBox(
                 500
         )
         delay(500)
-        logger.info("Scroll to beginning")
-        val checkRegion = region.subRegion(550, 390, 600, 300)
-        var checkImg: BufferedImage
-        val left = region.subRegionAs<AndroidRegion>(567, 521, 40, 40)
-        val right = left.copyAs<AndroidRegion>(x = left.x + 1050)
-        while (isActive) {
-            checkImg = checkRegion.capture()
-            left.swipeTo(right)
-            delay(750)
-            if (checkRegion.has(ImageTemplate(checkImg))) {
-                logger.info("At beginning")
-                break
+        var entrance: AndroidRegion? = null
+        while(isActive) {
+            region.matcher.settings.matchDimension = ScriptRunner.HIGH_RES
+            entrance = region.subRegion(1306, 420, 853, 100)
+                    .findBest(FileTemplate("$PREFIX/map-entrance.png", 0.75))
+                    ?.region as? AndroidRegion
+            region.matcher.settings.matchDimension = ScriptRunner.NORMAL_RES
+            if (entrance != null) break
+            logger.info("Scroll to beginning")
+            val checkRegion = region.subRegion(550, 390, 600, 300)
+            var checkImg: BufferedImage
+            val left = region.subRegionAs<AndroidRegion>(567, 521, 40, 40)
+            val right = left.copyAs<AndroidRegion>(x = left.x + 1050)
+            while (isActive) {
+                checkImg = checkRegion.capture()
+                left.swipeTo(right)
+                delay(750)
+                if (checkRegion.has(ImageTemplate(checkImg))) {
+                    logger.info("At beginning")
+                    break
+                }
             }
+            repeat(3) { right.swipeTo(left) }
+            delay(500)
         }
-        repeat(3) { right.swipeTo(left) }
-        region.matcher.settings.matchDimension = ScriptRunner.HIGH_RES
-        region.subRegion(1306, 420, 853, 100)
-                .findBest(FileTemplate("$PREFIX/map-entrance.png", 0.75))
-                ?.region?.click() ?: error("Couldn't find map")
-        delay(500)
         logger.info("Entering map")
+        entrance?.click()
         region.subRegion(1835, 597, 232, 111).click()
         region.waitHas(FileTemplate("combat/battle/plan.png"), 5000)
         delay(2500)
