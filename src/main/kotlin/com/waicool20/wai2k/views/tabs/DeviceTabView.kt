@@ -52,6 +52,7 @@ class DeviceTabView : CoroutineScopeView(), Binder {
     private val displayLabel: Label by fxid()
     private val deviceComboBox: ComboBox<AndroidDevice> by fxid()
     private val reloadDevicesButton: Button by fxid()
+    private val touchesButton: Button by fxid()
     private val pointerButton: Button by fxid()
     private val takeScreenshotButton: Button by fxid()
     private val captureSeriesButton: Button by fxid()
@@ -115,6 +116,9 @@ class DeviceTabView : CoroutineScopeView(), Binder {
                 }
         )
         itemProp.addListener("AndroidDeviceSelection", ::setNewDevice)
+        touchesButton.action {
+            deviceComboBox.selectedItem?.toggleTouches()
+        }
         pointerButton.action {
             deviceComboBox.selectedItem?.togglePointerInfo()
         }

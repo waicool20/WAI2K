@@ -69,9 +69,10 @@
             <Label fx:id="manufacturerLabel" GridPane.columnIndex="1" GridPane.rowIndex="3" />
             <Label fx:id="modelLabel" GridPane.columnIndex="1" GridPane.rowIndex="4" />
             <Label fx:id="displayLabel" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-             <Button fx:id="pointerButton" mnemonicParsing="false" prefWidth="150.0" text="Toggle Pointer Info" GridPane.rowIndex="6" />
+             <Button fx:id="pointerButton" mnemonicParsing="false" prefWidth="150.0" text="Toggle Pointer Info" GridPane.columnIndex="1" GridPane.rowIndex="6" />
             <Button fx:id="takeScreenshotButton" mnemonicParsing="false" prefWidth="150.0" text="Take Screenshot" GridPane.rowIndex="7" />
             <Button fx:id="captureSeriesButton" mnemonicParsing="false" prefWidth="150.0" text="Capture Series Start" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+            <Button fx:id="touchesButton" mnemonicParsing="false" prefWidth="150.0" text="Toggle Touches" GridPane.rowIndex="6" />
          </children>
          <VBox.margin>
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
