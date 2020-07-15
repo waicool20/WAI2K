@@ -33,14 +33,13 @@ import javafx.scene.control.ComboBox
 import javafx.scene.control.Label
 import javafx.scene.image.ImageView
 import javafx.scene.layout.VBox
+import javafx.stage.DirectoryChooser
 import javafx.stage.FileChooser
 import javafx.util.StringConverter
 import kotlinx.coroutines.*
 import org.controlsfx.glyphfont.FontAwesome
 import org.controlsfx.glyphfont.Glyph
 import tornadofx.*
-import java.awt.image.BufferedImage
-import java.lang.Exception
 import javax.imageio.ImageIO
 
 class DeviceTabView : CoroutineScopeView(), Binder {
@@ -55,10 +54,12 @@ class DeviceTabView : CoroutineScopeView(), Binder {
     private val reloadDevicesButton: Button by fxid()
     private val pointerButton: Button by fxid()
     private val takeScreenshotButton: Button by fxid()
+    private val captureSeriesButton: Button by fxid()
 
     private val realtimePreviewCheckbox: CheckBox by fxid()
     private val deviceView: ImageView by fxid()
     private var renderJob: Job? = null
+    private var capturingJob: Job? = null
 
     private val context: Wai2KContext by inject()
 
@@ -126,6 +127,21 @@ class DeviceTabView : CoroutineScopeView(), Binder {
                         launch(Dispatchers.IO) { ImageIO.write(device.screens[0].capture(), "PNG", file) }
                     }
                 }
+            }
+        }
+        captureSeriesButton.action {
+            val device = deviceComboBox.selectedItem ?: return@action
+            if (capturingJob == null) {
+                val dir = DirectoryChooser().apply { title = "Save screenshots to?" }.showDialog(null)
+                captureSeriesButton.text = "Capture Series Stop"
+                capturingJob = launch(Dispatchers.IO) {
+                    while (isActive) {
+                        ImageIO.write(device.screens[0].capture(), "PNG", dir.resolve("${System.currentTimeMillis()}.png"))
+                    }
+                }
+            } else {
+                capturingJob?.cancel()
+                captureSeriesButton.text = "Capture Series Start"
             }
         }
         context.wai2KConfig.scriptConfig.fastScreenshotModeProperty.addListener("DeviceTabViewFSMListener") { newVal ->
