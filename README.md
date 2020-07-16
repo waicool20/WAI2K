@@ -21,6 +21,7 @@ extensive testing has been done in Linux.
   - Corpse dragging
 - Auto enhancement
 - Auto disassembly
+- Auto combat reports, make kalina work overtime!
 - [Discord integration](https://github.com/waicool20/WAI2K/wiki/Discord-Integration)
 - Can run in background without taking over desktop mouse
 - Can run on phone (Provided you have a phone that is 2160x1080 resolution, theoretically possible)
@@ -31,21 +32,10 @@ extensive testing has been done in Linux.
 Prerequisites:
 
 * [Java JDK 8 ( Get the Full Version! )](https://bell-sw.com/pages/java-8u252/)
-* [Assets Directory](https://github.com/waicool20/WAI2K/tree/master/assets)
+* [WAI2K-Launcher.jar](https://github.com/waicool20/WAI2K/releases/latest)
 * Emulator, must be 2160x1080 resolution
 
-Currently this project does not release under github due to the WIP nature. However you can find per-commit
-ready to use app on [AppVeyor](https://ci.appveyor.com/project/waicool20/wai2k) under the artifacts tab
-
-Start the app by running the jar file (Double click on windows)
-
-A new folder called `wai2k` will be generated beside the app, this is your configuration directory.
-Take the assets directory downloaded above and place it inside.
-
-You will also be prompted to download some extra files into `wai2k/tessdata`
-
-All in all your final configuration directory should look like this:  
-![Config Directory](screenshots/config-dir.png?raw=true)
+Start the app by running the launcher jar file (Double click on windows)
 
 It is recommended to use the Android Studio Emulator to run the game.
 
@@ -53,7 +43,7 @@ There is a certain difficulty in setting up the script due to the specificity th
 which is understandable, hopefully the articles below can help you.
 You can always join our discord community (Invite below) if you have any further questions.
 
-- Emulator setup (WIP)
+- [Emulator setup](https://github.com/waicool20/WAI2K/wiki#emulator-setup)
 
 # Build Instructions
 
