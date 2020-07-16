@@ -22,6 +22,7 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.nio.file.StandardOpenOption
 
 plugins {
     java
@@ -105,20 +106,26 @@ tasks {
 }
 
 task("deps-list") {
+    val file = Paths.get("$projectDir/build/dependencies.txt")
+    doFirst {
+        if (Files.notExists(file)) {
+            Files.createDirectories(file.parent)
+            Files.createFile(file)
+        }
+    }
     doLast {
         val deps = configurations.default.get().incoming.resolutionResult.allDependencies
                 .map { it.from.toString() }
                 .distinct()
                 .filterNot { it.startsWith("project") }
         val repos = project.repositories.mapNotNull { it as? MavenArtifactRepository }.map { it.url }
-        val file = project.buildDir.toPath().resolve("dependencies.txt")
         val output = StringBuilder()
         output.appendln("Repositories:")
         repos.forEach { output.appendln("- $it") }
         output.appendln()
         output.appendln("Dependencies:")
         deps.forEach { output.appendln("- $it") }
-        Files.write(file, output.toString().toByteArray())
+        Files.write(file, output.toString().toByteArray(), StandardOpenOption.TRUNCATE_EXISTING)
     }
 }
 
