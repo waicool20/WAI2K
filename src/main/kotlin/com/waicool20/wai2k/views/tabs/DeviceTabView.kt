@@ -40,6 +40,7 @@ import kotlinx.coroutines.*
 import org.controlsfx.glyphfont.FontAwesome
 import org.controlsfx.glyphfont.Glyph
 import tornadofx.*
+import java.io.File
 import javax.imageio.ImageIO
 
 class DeviceTabView : CoroutineScopeView(), Binder {
@@ -61,6 +62,7 @@ class DeviceTabView : CoroutineScopeView(), Binder {
     private val deviceView: ImageView by fxid()
     private var renderJob: Job? = null
     private var capturingJob: Job? = null
+    private var lastDir: File? = null
 
     private val context: Wai2KContext by inject()
 
@@ -136,15 +138,22 @@ class DeviceTabView : CoroutineScopeView(), Binder {
         captureSeriesButton.action {
             val device = deviceComboBox.selectedItem ?: return@action
             if (capturingJob == null) {
-                val dir = DirectoryChooser().apply { title = "Save screenshots to?" }.showDialog(null)
+                val dir = DirectoryChooser().apply {
+                    title = "Save screenshots to?"
+                    lastDir?.let { initialDirectory = it }
+                }.showDialog(null) ?: return@action
+                lastDir = dir
                 captureSeriesButton.text = "Capture Series Stop"
                 capturingJob = launch(Dispatchers.IO) {
                     while (isActive) {
-                        ImageIO.write(device.screens[0].capture(), "PNG", dir.resolve("${System.currentTimeMillis()}.png"))
+                        val out = dir.resolve("${System.currentTimeMillis()}.png")
+                        ImageIO.write(device.screens[0].capture(), "PNG", out)
+                        logger.info("Saved $out")
                     }
                 }
             } else {
                 capturingJob?.cancel()
+                capturingJob = null
                 captureSeriesButton.text = "Capture Series Start"
             }
         }
