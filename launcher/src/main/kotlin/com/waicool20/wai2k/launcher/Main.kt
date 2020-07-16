@@ -113,10 +113,12 @@ object Main {
         if (lastCreated.isAfter(lastUpdated)) {
             val assets = json.at("/assets")
             var downloaded = 0
-            label.text = "Downloading main files: $downloaded/${assets.size()}"
+            val total = assets.size() - 1
+            label.text = "Downloading main files: $downloaded/$total"
             assets.forEach {
                 val url = it["browser_download_url"].textValue()
                 val filename = it["name"].textValue()
+                if (filename.contains("Launcher")) return@forEach
                 val dest = appPath.resolve(filename)
                 println("[DOWNLOAD] $url")
 
@@ -125,7 +127,7 @@ object Main {
                     Files.write(dest, it.body!!.bytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
                 }
                 downloaded++
-                label.text = "Downloading main files: $downloaded/${assets.size()}"
+                label.text = "Downloading main files: $downloaded/$total"
             }
             Files.write(lastUpdatedPath, lastCreated.toString().toByteArray())
             thread {
