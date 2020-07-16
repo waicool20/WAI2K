@@ -17,8 +17,4 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-rootProject.name = "WAI2K"
-
-includeBuild("./launcher")
-includeBuild("./waicoolUtils")
-includeBuild("./CVAuto")
+rootProject.name = "WAI2K-Launcher"

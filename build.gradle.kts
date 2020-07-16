@@ -77,7 +77,10 @@ tasks {
         dependsOn("versioning")
         dependsOn("deps-list")
     }
-    build { finalizedBy("shadowJar") }
+    build {
+        finalizedBy("shadowJar")
+        finalizedBy(gradle.includedBuild("launcher").task(":build"))
+    }
     jar {
         enabled = false
         manifest {
