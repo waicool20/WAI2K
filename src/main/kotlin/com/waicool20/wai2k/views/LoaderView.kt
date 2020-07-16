@@ -29,19 +29,19 @@ import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.script.ScriptContext
 import com.waicool20.wai2k.script.ScriptRunner
-import com.waicool20.waicoolutils.SikuliXLoader
 import com.waicool20.waicoolutils.javafx.CoroutineScopeView
 import com.waicool20.waicoolutils.logging.LoggingEventBus
 import com.waicool20.waicoolutils.logging.loggerFor
 import javafx.application.Application
 import javafx.scene.control.Label
 import javafx.scene.layout.AnchorPane
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import okhttp3.*
 import tornadofx.*
+import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.util.concurrent.CountDownLatch
 
 class LoaderView : CoroutineScopeView() {
     override val root: AnchorPane by fxml("/views/loader.fxml")
@@ -60,12 +60,14 @@ class LoaderView : CoroutineScopeView() {
 
     override fun onDock() {
         super.onDock()
-        startStatusListener()
-        find<ConsoleView>()
-        parseVersion()
-        logger.info("Starting WAI2K ${context.versionInfo.version}")
-        logger.info("Config directory: ${Wai2K.CONFIG_DIR}")
-        startLoading()
+        launch(Dispatchers.IO) {
+            startStatusListener()
+            find<ConsoleView>()
+            parseVersion()
+            logger.info("Starting WAI2K ${context.versionInfo.version}")
+            logger.info("Config directory: ${Wai2K.CONFIG_DIR}")
+            startLoading()
+        }
     }
 
     private fun startStatusListener() {
@@ -85,9 +87,7 @@ class LoaderView : CoroutineScopeView() {
         loadWai2KProfile()
         loadScriptRunner()
         FileTemplate.checkPaths.add(wai2KConfig.assetsDirectory)
-        launch(Dispatchers.Default) {
-            closeAndShowMainApp()
-        }
+        closeAndShowMainApp()
     }
 
     private fun loadADB() {
@@ -99,7 +99,26 @@ class LoaderView : CoroutineScopeView() {
         wai2KConfig = Wai2KConfig.load()
         parseCommandLine()
         if (!wai2KConfig.isValid) {
-            find<InitialConfigurationView>().openModal(owner = currentWindow, block = true)
+            Files.createDirectories(wai2KConfig.ocrDirectory)
+            val client = OkHttpClient()
+            runBlocking {
+                coroutineScope {
+                    Wai2KConfig.requiredOcrFiles.forEach { file ->
+                        launch(Dispatchers.IO) {
+                            val url = "https://github.com/tesseract-ocr/tessdata/blob/master/$file?raw=true"
+                            logger.info("Downloading $file")
+                            val request = Request.Builder().url(url).build()
+                            val response = client.newCall(request).execute()
+                            val input = response.body!!.byteStream()
+                            val output = Files.newOutputStream(wai2KConfig.ocrDirectory.resolve(file))
+                            input.copyTo(output)
+                            input.close()
+                            output.close()
+                            logger.info("Done downloading: $file")
+                        }
+                    }
+                }
+            }
         }
     }
 
