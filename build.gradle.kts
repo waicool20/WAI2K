@@ -72,7 +72,10 @@ dependencies {
 }
 
 tasks {
-    processResources { dependsOn("versioning") }
+    processResources {
+        dependsOn("versioning")
+        dependsOn("deps-list")
+    }
     build { finalizedBy("shadowJar") }
     jar {
         enabled = false
@@ -95,7 +98,27 @@ tasks {
     withType<ShadowJar> {
         archiveClassifier.value("")
         archiveVersion.value("")
-        exclude("tessdata/")
+        dependencies {
+            include { it.moduleGroup.startsWith("com.waicool20") }
+        }
+    }
+}
+
+task("deps-list") {
+    doLast {
+        val deps = configurations.default.get().incoming.resolutionResult.allDependencies
+                .map { it.from.toString() }
+                .distinct()
+                .filterNot { it.startsWith("project") }
+        val repos = project.repositories.mapNotNull { it as? MavenArtifactRepository }.map { it.url }
+        val file = project.buildDir.toPath().resolve("dependencies.txt")
+        val output = StringBuilder()
+        output.appendln("Repositories:")
+        repos.forEach { output.appendln("- $it") }
+        output.appendln()
+        output.appendln("Dependencies:")
+        deps.forEach { output.appendln("- $it") }
+        Files.write(file, output.toString().toByteArray())
     }
 }
 
