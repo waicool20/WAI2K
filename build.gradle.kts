@@ -114,10 +114,14 @@ task("deps-list") {
         }
     }
     doLast {
-        val deps = configurations.default.get().incoming.resolutionResult.allDependencies
-                .map { it.from.toString() }
+        tailrec fun getDeps(deps: Set<DependencyResult>): List<DependencyResult> {
+            return if (deps.isNotEmpty()) deps.flatMap { it.from.dependencies } else getDeps(deps)
+        }
+
+        val deps = getDeps(configurations.default.get().incoming.resolutionResult.allDependencies)
+                .map { it.toString() }
                 .distinct()
-                .filterNot { it.startsWith("project") }
+                .filterNot { it.startsWith("project") || it.contains("->") }
         val repos = project.repositories.mapNotNull { it as? MavenArtifactRepository }.map { it.url }
         val output = StringBuilder()
         output.appendln("Repositories:")
