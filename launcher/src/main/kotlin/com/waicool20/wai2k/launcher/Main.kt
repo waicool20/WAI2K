@@ -35,6 +35,7 @@ import javax.swing.JFrame
 import javax.swing.JLabel
 import javax.swing.JPanel
 import kotlin.concurrent.thread
+import kotlin.system.exitProcess
 
 /*
  * GPLv3 License
@@ -235,5 +236,6 @@ object Main {
                 *args
         ).inheritIO().start()
         process.waitFor()
+        exitProcess(process.exitValue())
     }
 }
