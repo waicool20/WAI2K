@@ -306,7 +306,7 @@ abstract class MapRunner(
         logger.info("Waiting for G&K splash screen")
         val battleClicker = launch {
             while (isActive) {
-                if (isInBattle()) clickThroughBattle() else yield()
+                if (isInBattle()) clickThroughBattle() else delay(2000)
             }
         }
         // Wait for the G&K splash to appear within 10 seconds
