@@ -38,13 +38,9 @@ class Map11_5(
     private val logger = loggerFor<Map11_5>()
     override val isCorpseDraggingMap = true
 
-    // Too much blue in this map
-    override val extractBlueNodes = false
-    override val extractYellowNodes = false
-
     override suspend fun execute() {
-
         // No need to zoom
+        // Sometimes it's more zoomed in if the game restarts?
         val rEchelons = deployEchelons(nodes[1], nodes[0])
         // Dummy do not supply
         deployEchelons(nodes[2])
@@ -54,7 +50,8 @@ class Map11_5(
         retreatEchelons(nodes[0])
         planPath()
         // Wait for team to move all the way
-        waitForTurnAndPoints(1, 0 , false)
+        waitForTurnEnd(5, false); delay(1000)
+        waitForTurnAndPoints(1, 0 , false); delay(1000)
         retreatEchelons(nodes[0])       
         terminateMission()
     }
