@@ -63,9 +63,9 @@
         </HBox>
       <Separator prefWidth="200.0" />
       <Label text="On-Screen OCR Testing:" />
-      <HBox alignment="CENTER" VBox.vgrow="ALWAYS">
+      <HBox fx:id="container" alignment="CENTER" minHeight="300.0" minWidth="600.0" VBox.vgrow="ALWAYS">
          <children>
-            <ImageView fx:id="ocrImageView" fitHeight="300.0" fitWidth="600.0" pickOnBounds="true" preserveRatio="true" HBox.hgrow="ALWAYS" />
+            <ImageView fx:id="ocrImageView" fitHeight="${container.height}" fitWidth="${container.width}" pickOnBounds="true" preserveRatio="true" HBox.hgrow="ALWAYS" />
          </children>
       </HBox>
       <HBox alignment="CENTER_LEFT" spacing="5.0">
