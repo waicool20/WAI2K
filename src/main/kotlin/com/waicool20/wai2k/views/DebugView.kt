@@ -19,16 +19,17 @@
 
 package com.waicool20.wai2k.views
 
+import ai.djl.modality.cv.ImageFactory
 import com.waicool20.cvauto.android.ADB
 import com.waicool20.cvauto.android.AndroidDevice
 import com.waicool20.cvauto.core.Region
 import com.waicool20.cvauto.core.template.FileTemplate
-import com.waicool20.cvauto.util.asBufferedImage
 import com.waicool20.cvauto.util.asGrayF32
 import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.Ocr
-import com.waicool20.wai2k.util.extractNodes
+import com.waicool20.wai2k.util.ai.GFLModelLoader
+import com.waicool20.wai2k.util.ai.YoloTranslator
 import com.waicool20.wai2k.util.useCharFilter
 import com.waicool20.waicoolutils.javafx.CoroutineScopeView
 import com.waicool20.waicoolutils.javafx.addListener
@@ -43,6 +44,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.javafx.JavaFx
 import net.sourceforge.tess4j.ITesseract
 import tornadofx.*
+import java.awt.image.BufferedImage
 import java.nio.file.Files
 import java.nio.file.Paths
 import kotlin.time.ExperimentalTime
@@ -80,6 +82,15 @@ class DebugView : CoroutineScopeView() {
     private val wai2KContext: Wai2KContext by inject()
 
     private val logger = loggerFor<DebugView>()
+
+    private val predictor by lazy {
+        try {
+            val model = GFLModelLoader.loadModel(wai2KContext.wai2KConfig.assetsDirectory.resolve("gfl.pt"))
+            model.newPredictor(YoloTranslator(model, 0.4, 2160.0 to 1080.0))
+        } catch (e: Exception) {
+            null
+        }
+    }
 
     init {
         title = "WAI2K - Debugging tools"
@@ -137,20 +148,18 @@ class DebugView : CoroutineScopeView() {
                 }
             }
             while (isActive) {
-                var image = device.screens[0].capture().let {
-                    if (wSpinner.value > 0 && hSpinner.value > 0) {
-                        it.getSubimage(xSpinner.value, ySpinner.value, wSpinner.value, hSpinner.value)
-                    } else it
-                }
-                if (filterBlueCheckBox.isSelected || filterWhiteCheckBox.isSelected || filterYellowCheckBox.isSelected) {
-                    image = image.extractNodes(
-                        includeBlue = filterBlueCheckBox.isSelected,
-                        includeWhite = filterWhiteCheckBox.isSelected,
-                        includeYellow = filterYellowCheckBox.isSelected
-                    ).asBufferedImage()
-                }
-                withContext(Dispatchers.JavaFx) {
-                    ocrImageView.image = SwingFXUtils.toFXImage(image, null)
+                val predictor = this@DebugView.predictor
+                if (predictor == null) {
+                    withContext(Dispatchers.JavaFx) {
+                        ocrImageView.image = SwingFXUtils.toFXImage(device.screens[0].capture(), null)
+                    }
+                } else {
+                    val image = ImageFactory.getInstance().fromImage(device.screens[0].capture())
+                    val objects = predictor.predict(image)
+                    image.drawBoundingBoxes(objects)
+                    withContext(Dispatchers.JavaFx) {
+                        ocrImageView.image = SwingFXUtils.toFXImage(image.wrappedImage as BufferedImage, null)
+                    }
                 }
             }
         }
@@ -231,7 +240,6 @@ class DebugView : CoroutineScopeView() {
                 }
                 logger.info("Result: \n${getOCR().doOCR(image)}\n----------")
             }
-
         }
     }
 
