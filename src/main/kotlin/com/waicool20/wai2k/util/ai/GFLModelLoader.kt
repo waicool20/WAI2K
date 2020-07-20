@@ -19,4 +19,37 @@
 
 package com.waicool20.wai2k.util.ai
 
+import ai.djl.Device
+import ai.djl.Model
+import ai.djl.pytorch.engine.PtEngine
+import java.nio.file.Files
+import java.nio.file.Path
 
+object GFLModelLoader {
+    private val engine by lazy { PtEngine.getInstance() }
+
+    fun loadModel(path: Path): Model {
+        require(Files.isRegularFile(path)) { "Must be path to model file" }
+        require(Files.exists(path)) { "Model file does not exist" }
+        require("$path".endsWith(".pt")) { "Model must have .pt extension" }
+        val name = "${path.fileName}".dropLastWhile { it != '.' }.dropLast(1)
+        return engine.newModel(name, Device.cpu()).apply {
+            load(path.parent, name)
+            setProperty("InputSize", "640")
+            setProperty("Classes",
+                    listOf(
+                            "Node",
+                            "Command Post",
+                            "Heliport",
+                            "Enemy",
+                            "Sangvis Ferri",
+                            "Military",
+                            "Radar",
+                            "Paradeus",
+                            "Supply Crate",
+                            "Friendly"
+                    ).joinToString()
+            )
+        }
+    }
+}
