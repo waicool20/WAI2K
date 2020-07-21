@@ -20,6 +20,7 @@
 package com.waicool20.wai2k.views
 
 import ai.djl.modality.cv.ImageFactory
+import ai.djl.modality.cv.output.DetectedObjects
 import com.waicool20.cvauto.android.ADB
 import com.waicool20.cvauto.android.AndroidDevice
 import com.waicool20.cvauto.core.Region
@@ -39,6 +40,7 @@ import javafx.scene.control.*
 import javafx.scene.control.SpinnerValueFactory.IntegerSpinnerValueFactory
 import javafx.scene.image.ImageView
 import javafx.scene.layout.VBox
+import javafx.stage.DirectoryChooser
 import javafx.stage.FileChooser
 import kotlinx.coroutines.*
 import kotlinx.coroutines.javafx.JavaFx
@@ -47,8 +49,15 @@ import tornadofx.*
 import java.awt.image.BufferedImage
 import java.nio.file.Files
 import java.nio.file.Paths
+import javax.xml.parsers.DocumentBuilderFactory
+import javax.xml.transform.OutputKeys
+import javax.xml.transform.TransformerFactory
+import javax.xml.transform.dom.DOMSource
+import javax.xml.transform.stream.StreamResult
+import kotlin.streams.asSequence
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTimedValue
+
 
 class DebugView : CoroutineScopeView() {
     override val root: VBox by fxml("/views/debug.fxml")
@@ -64,9 +73,8 @@ class DebugView : CoroutineScopeView() {
     private val ocrImageView: ImageView by fxid()
     private val OCRButton: Button by fxid()
     private val resetOCRButton: Button by fxid()
-    private val filterBlueCheckBox: CheckBox by fxid()
-    private val filterWhiteCheckBox: CheckBox by fxid()
-    private val filterYellowCheckBox: CheckBox by fxid()
+    private val annotateSetButton: Button by fxid()
+    private val saveAnnotationsCheckBox: CheckBox by fxid()
 
     private val useLSTMCheckBox: CheckBox by fxid()
     private val filterCheckBox: CheckBox by fxid()
@@ -104,6 +112,7 @@ class DebugView : CoroutineScopeView() {
         assetOCRButton.setOnAction { doAssetOCR() }
         OCRButton.setOnAction { doOCR() }
         resetOCRButton.setOnAction { createNewRenderJob() }
+        annotateSetButton.setOnAction { annotateSet() }
     }
 
     private fun uiSetup() {
@@ -253,5 +262,67 @@ class DebugView : CoroutineScopeView() {
             ocr.useCharFilter(allowedCharsTextField.text)
         }
         return ocr
+    }
+
+    private fun annotateSet() {
+        launch(Dispatchers.IO) {
+            val predictor = predictor ?: return@launch
+
+            val dir = withContext(Dispatchers.JavaFx) {
+                DirectoryChooser().apply {
+                    title = "Annotate which directory?"
+                }.showDialog(null)?.toPath()
+            } ?: return@launch
+
+            val output = dir.resolve("out")
+            logger.info("Annotating images in $dir")
+            Files.createDirectories(output)
+
+            val doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument()
+            val root = doc.createElement("annotations").also { doc.appendChild(it) }
+            val version = doc.createElement("version").apply {
+                appendChild(doc.createTextNode("1.1"))
+            }
+            root.appendChild(version)
+
+            Files.walk(dir).asSequence()
+                    .filterNot { it.parent.endsWith("out") }
+                    .filter { "$it".endsWith(".png", true) || "$it".endsWith(".jpg", true) }
+                    .sorted()
+                    .forEachIndexed { i, path ->
+                        val image = ImageFactory.getInstance().fromFile(path)
+                        val objects = predictor.predict(image)
+                        val imageNode = doc.createElement("image").apply {
+                            setAttribute("id", "$i")
+                            setAttribute("name", "${dir.parent.relativize(path)}")
+                            setAttribute("width", "${image.width}")
+                            setAttribute("height", "${image.height}")
+                        }
+                        objects.items<DetectedObjects.DetectedObject>().forEach { obj ->
+                            val bbox = obj.boundingBox.bounds
+                            doc.createElement("box").apply {
+                                setAttribute("label", obj.className)
+                                setAttribute("occluded", "0")
+                                setAttribute("xtl", "${bbox.x * image.width}")
+                                setAttribute("ytl", "${bbox.y * image.height}")
+                                setAttribute("xbr", "${(bbox.x + bbox.width) * image.width}")
+                                setAttribute("ybr", "${(bbox.y + bbox.height) * image.height}")
+                            }.also { imageNode.appendChild(it) }
+                        }
+                        root.appendChild(imageNode)
+                        if (saveAnnotationsCheckBox.isSelected) {
+                            image.drawBoundingBoxes(objects)
+                            image.save(Files.newOutputStream(output.resolve(path.fileName)), "png")
+                        }
+                        logger.info("Image: $path\n$objects")
+                    }
+
+            TransformerFactory.newInstance().newTransformer().apply {
+                setOutputProperty(OutputKeys.INDENT, "yes")
+                setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+            }.transform(DOMSource(doc), StreamResult(Files.newOutputStream(output.resolve("annotations.xml"))))
+
+            logger.info("All annotations done")
+        }
     }
 }

@@ -26,7 +26,20 @@ import java.nio.file.Files
 import java.nio.file.Path
 
 object GFLModelLoader {
-    private val engine by lazy { PtEngine.getInstance() }
+    val engine by lazy { PtEngine.getInstance() }
+
+    val classes = listOf(
+            "Node",
+            "Command Post",
+            "Heliport",
+            "Enemy",
+            "Sangvis Ferri",
+            "Military",
+            "Radar",
+            "Paradeus",
+            "Supply Crate",
+            "Friendly"
+    )
 
     fun loadModel(path: Path): Model {
         require(Files.isRegularFile(path)) { "Must be path to model file" }
@@ -36,20 +49,7 @@ object GFLModelLoader {
         return engine.newModel(name, Device.cpu()).apply {
             load(path.parent, name)
             setProperty("InputSize", "640")
-            setProperty("Classes",
-                    listOf(
-                            "Node",
-                            "Command Post",
-                            "Heliport",
-                            "Enemy",
-                            "Sangvis Ferri",
-                            "Military",
-                            "Radar",
-                            "Paradeus",
-                            "Supply Crate",
-                            "Friendly"
-                    ).joinToString()
-            )
+            setProperty("Classes", classes.joinToString())
         }
     }
 }
