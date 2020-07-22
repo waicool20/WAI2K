@@ -20,42 +20,34 @@
 package com.waicool20.wai2k.util.ai
 
 import ai.djl.Model
-import ai.djl.modality.cv.output.DetectedObjects
 import ai.djl.modality.cv.output.Rectangle
-import ai.djl.modality.cv.translator.ObjectDetectionTranslator
+import ai.djl.modality.cv.translator.BaseImageTranslator
 import ai.djl.ndarray.NDList
 import ai.djl.ndarray.index.NDIndex
 import ai.djl.translate.Pipeline
 import ai.djl.translate.TranslatorContext
+import kotlin.reflect.full.primaryConstructor
+import kotlin.reflect.full.superclasses
 
 class YoloTranslator(
         model: Model,
-        threshold: Double,
-        inputImageSize: Pair<Double, Double>,
+        val threshold: Double,
+        val inputImageSize: Pair<Double, Double>,
         val iouThreshold: Double = 0.5
-) : ObjectDetectionTranslator(
-        Builder()
-                .setPipeline(Pipeline(YoloPreProcessor(model)))
-                .optThreshold(threshold.toFloat())
-                .optSynset(model.getClasses() ?: error("Model property 'Classes' must be set"))
-                .optRescaleSize(inputImageSize.first, inputImageSize.second)
+) : BaseImageTranslator<List<GFLObject>>(
+        Builder().setPipeline(Pipeline(YoloPreProcessor(model)))
 ) {
-    companion object {
-        private fun Model.getClasses(): List<String>? {
-            return getProperty("Classes")?.split(",")?.map { it.trim() }
-        }
-    }
-    private class Builder : ObjectDetectionTranslator.BaseBuilder<Builder>() {
+    private class Builder : BaseImageTranslator.BaseBuilder<Builder>() {
         override fun self() = this
     }
 
-    override fun processOutput(ctx: TranslatorContext, list: NDList): DetectedObjects {
+    override fun processOutput(ctx: TranslatorContext, list: NDList): List<GFLObject> {
         var output = list[0]
         val inputArraySize = list[1].shape[1] * 32
         val mask = output[NDIndex(":, 4")].gte(threshold).repeat(15).reshape(output.shape)
         output = output.booleanMask(mask)
         output = output.reshape(output.shape[0] / 15, 15)
-        val objects = mutableListOf<DetectedObjects.DetectedObject>()
+        val objects = mutableListOf<GFLObject>()
         for (i in 0 until output.shape[0]) {
             // Array format is x1, y1, x2, y2, conf, cls
             val detection = output[i].toFloatArray()
@@ -64,6 +56,8 @@ class YoloTranslator(
             var y = (centerY - h / 2).toDouble() / inputArraySize
             var width = w.toDouble() / inputArraySize
             var height = h.toDouble() / inputArraySize
+
+            val (imageWidth, imageHeight) = inputImageSize
 
             when {
                 imageWidth > imageHeight -> {
@@ -79,25 +73,30 @@ class YoloTranslator(
                 imageWidth == imageHeight -> Unit // Do Nothing
             }
 
+            x = x.coerceIn(0.0, 1.0)
+            y = y.coerceIn(0.0, 1.0)
+            width = width.coerceIn(0.0, 1.0)
+            height = height.coerceIn(0.0, 1.0)
+
             val c = detection.slice(5..detection.lastIndex)
             val cMaxIdx = c.indexOf(c.max())
-            objects.add(DetectedObjects.DetectedObject(classes[cMaxIdx], p.toDouble(), Rectangle(x, y, width, height)))
+            val obj = try {
+                GFLObject.values[cMaxIdx].primaryConstructor?.call(p.toDouble(), Rectangle(x, y, width, height))
+            } catch (e: Exception) {
+                null
+            }
+            if (obj != null) objects.add(obj)
         }
-        val keep = nms(objects)
-        return DetectedObjects(
-                keep.map { it.className },
-                keep.map { it.probability },
-                keep.map { it.boundingBox }
-        )
+        return nms(objects)
     }
 
-    fun nms(boxes: List<DetectedObjects.DetectedObject>): List<DetectedObjects.DetectedObject> {
+    fun nms(boxes: List<GFLObject>): List<GFLObject> {
         val input = boxes.toMutableList()
-        val output = mutableListOf<DetectedObjects.DetectedObject>()
+        val output = mutableListOf<GFLObject>()
         while (input.isNotEmpty()) {
             val best = input.maxBy { it.probability } ?: continue
             input.remove(best)
-            input.removeAll { it.className == best.className && it.boundingBox.getIoU(best.boundingBox) >= iouThreshold }
+            input.removeAll { it::class.superclasses == best::class.superclasses && it.bbox.getIoU(best.bbox) >= iouThreshold }
             output.add(best)
         }
         return output

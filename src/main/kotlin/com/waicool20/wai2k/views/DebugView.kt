@@ -20,7 +20,6 @@
 package com.waicool20.wai2k.views
 
 import ai.djl.modality.cv.ImageFactory
-import ai.djl.modality.cv.output.DetectedObjects
 import com.waicool20.cvauto.android.ADB
 import com.waicool20.cvauto.android.AndroidDevice
 import com.waicool20.cvauto.core.Region
@@ -31,6 +30,7 @@ import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.ai.GFLModelLoader
 import com.waicool20.wai2k.util.ai.YoloTranslator
+import com.waicool20.wai2k.util.ai.toDetectedObjects
 import com.waicool20.wai2k.util.useCharFilter
 import com.waicool20.waicoolutils.javafx.CoroutineScopeView
 import com.waicool20.waicoolutils.javafx.addListener
@@ -94,7 +94,7 @@ class DebugView : CoroutineScopeView() {
     private val predictor by lazy {
         try {
             val model = GFLModelLoader.loadModel(wai2KContext.wai2KConfig.assetsDirectory.resolve("gfl.pt"))
-            model.newPredictor(YoloTranslator(model, 0.4, 2160.0 to 1080.0))
+            model.newPredictor(YoloTranslator(model, 0.6, 2160.0 to 1080.0))
         } catch (e: Exception) {
             null
         }
@@ -165,7 +165,7 @@ class DebugView : CoroutineScopeView() {
                 } else {
                     val image = ImageFactory.getInstance().fromImage(device.screens[0].capture())
                     val objects = predictor.predict(image)
-                    image.drawBoundingBoxes(objects)
+                    image.drawBoundingBoxes(objects.toDetectedObjects())
                     withContext(Dispatchers.JavaFx) {
                         ocrImageView.image = SwingFXUtils.toFXImage(image.wrappedImage as BufferedImage, null)
                     }
@@ -298,10 +298,10 @@ class DebugView : CoroutineScopeView() {
                             setAttribute("width", "${image.width}")
                             setAttribute("height", "${image.height}")
                         }
-                        objects.items<DetectedObjects.DetectedObject>().forEach { obj ->
-                            val bbox = obj.boundingBox.bounds
+                        objects.forEach { obj ->
+                            val bbox = obj.bbox
                             doc.createElement("box").apply {
-                                setAttribute("label", obj.className)
+                                setAttribute("label", "$obj")
                                 setAttribute("occluded", "0")
                                 setAttribute("xtl", "${bbox.x * image.width}")
                                 setAttribute("ytl", "${bbox.y * image.height}")
@@ -311,7 +311,7 @@ class DebugView : CoroutineScopeView() {
                         }
                         root.appendChild(imageNode)
                         if (saveAnnotationsCheckBox.isSelected) {
-                            image.drawBoundingBoxes(objects)
+                            image.drawBoundingBoxes(objects.toDetectedObjects())
                             image.save(Files.newOutputStream(output.resolve(path.fileName)), "png")
                         }
                         logger.info("Image: $path\n$objects")
