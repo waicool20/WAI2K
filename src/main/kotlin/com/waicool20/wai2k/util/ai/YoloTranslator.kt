@@ -26,14 +26,15 @@ import ai.djl.ndarray.NDList
 import ai.djl.ndarray.index.NDIndex
 import ai.djl.translate.Pipeline
 import ai.djl.translate.TranslatorContext
+import kotlin.reflect.full.isSubclassOf
+import kotlin.reflect.full.isSuperclassOf
 import kotlin.reflect.full.primaryConstructor
-import kotlin.reflect.full.superclasses
 
 class YoloTranslator(
         model: Model,
         val threshold: Double,
         val inputImageSize: Pair<Double, Double>,
-        val iouThreshold: Double = 0.5
+        val iouThreshold: Double = 0.4
 ) : BaseImageTranslator<List<GFLObject>>(
         Builder().setPipeline(Pipeline(YoloPreProcessor(model)))
 ) {
@@ -96,7 +97,12 @@ class YoloTranslator(
         while (input.isNotEmpty()) {
             val best = input.maxBy { it.probability } ?: continue
             input.remove(best)
-            input.removeAll { it::class.superclasses == best::class.superclasses && it.bbox.getIoU(best.bbox) >= iouThreshold }
+            input.removeAll {
+                (it::class == best::class ||
+                        it::class.isSubclassOf(best::class) ||
+                        it::class.isSuperclassOf(best::class)) &&
+                        it.bbox.getIoU(best.bbox) >= iouThreshold
+            }
             output.add(best)
         }
         return output

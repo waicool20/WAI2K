@@ -32,12 +32,14 @@ sealed class GFLObject {
     class SupplyCrate(override val probability: Double, override val bbox: Rectangle) : Node(probability, bbox)
     class Radar(override val probability: Double, override val bbox: Rectangle) : Node(probability, bbox)
 
-    open class Enemy(override val probability: Double, override val bbox: Rectangle) : GFLObject()
+    abstract class Unit : GFLObject()
+
+    open class Enemy(override val probability: Double, override val bbox: Rectangle) : Unit()
     class SangvisFerri(override val probability: Double, override val bbox: Rectangle) : Enemy(probability, bbox)
     class Military(override val probability: Double, override val bbox: Rectangle) : Enemy(probability, bbox)
     class Paradeus(override val probability: Double, override val bbox: Rectangle) : Enemy(probability, bbox)
 
-    open class Friendly(override val probability: Double, override val bbox: Rectangle) : GFLObject()
+    open class Friendly(override val probability: Double, override val bbox: Rectangle) : Unit()
 
     companion object {
         /**
