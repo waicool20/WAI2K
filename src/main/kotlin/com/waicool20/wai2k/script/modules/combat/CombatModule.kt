@@ -387,15 +387,15 @@ class CombatModule(
             when (map.type) {
                 CombatMap.Type.NORMAL -> {
                     // Normal map
-                    region.subRegion(1528, 265, 142, 50).click()
+                    region.subRegion(1550, 260, 100, 60).click()
                 }
                 CombatMap.Type.EMERGENCY -> {
                     logger.info("Selecting emergency map")
-                    region.subRegion(1700, 265, 142, 50).click()
+                    region.subRegion(1720, 260, 100, 60).click()
                 }
                 CombatMap.Type.NIGHT -> {
                     logger.info("Selecting night map")
-                    region.subRegion(1871, 265, 142, 50).click()
+                    region.subRegion(1895, 260, 100, 60).click()
                 }
             }
             // Wait for it to settle
