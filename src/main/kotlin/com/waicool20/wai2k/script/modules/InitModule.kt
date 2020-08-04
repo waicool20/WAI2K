@@ -19,12 +19,11 @@
 
 package com.waicool20.wai2k.script.modules
 
-import boofcv.io.image.UtilImageIO
+import com.waicool20.cvauto.android.AndroidDevice
 import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.core.Region
 import com.waicool20.cvauto.core.asCachedRegion
 import com.waicool20.cvauto.core.template.FileTemplate
-import com.waicool20.cvauto.util.asGrayF32
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.game.LocationId
@@ -62,9 +61,10 @@ class InitModule(
     private suspend fun updateGameState() {
         navigator.navigateTo(LocationId.HOME_STATUS)
         logger.info("Updating gamestate")
+        val region = region.asCachedRegion()
         measureTimeMillis {
-            val repairJob = launch { updateRepairs() }
-            updateLogistics()
+            val repairJob = launch { updateRepairs(region) }
+            updateLogistics(region)
             // Wait for repairs to finish updating if script just started
             if (scriptStats.sortiesDone == 0) repairJob.join()
         }.let { logger.info("Finished updating game state in $it ms") }
@@ -74,32 +74,25 @@ class InitModule(
     /**
      * Updates the logistic support in gamestate
      */
-    private suspend fun updateLogistics() {
+    private suspend fun updateLogistics(cache: Region<AndroidDevice>) {
         logger.info("Reading logistics support status")
-        // Optimize by taking a single screenshot and working on that
-        val image = region.capture()
-        val entry = region.subRegion(422, 0, 240, region.height)
+        val entry = cache.subRegion(422, 0, 240, cache.height)
                 .findBest(FileTemplate("init/logistics.png"), 4)
                 .map { it.region }
                 // Map each region to whole logistic support entry
-                .map { image.getSubimage(it.x - 135, it.y - 82, 853, 144) }
-                .map {
+                .map { cache.subRegion(it.x - 135, it.y - 82, 853, 144) }
+                .mapAsync {
                     listOf(
-                            async {
-                                // Echelon section on the right without the word "Echelon"
-                                Ocr.forConfig(config, digitsOnly = true).doOCRAndTrim(it.getSubimage(0, 25, 83, 100))
-                            },
-                            async {
-                                // Logistics number ie. 1-1
-                                Ocr.forConfig(config).doOCRAndTrim(it.getSubimage(165, 30, 84, 33))
-                            },
-                            async {
-                                // Timer xx:xx:xx
-                                Ocr.forConfig(config).doOCRAndTrim(it.getSubimage(600, 71, 188, 40))
-                            }
+                            // Echelon section on the right without the word "Echelon"
+                            Ocr.forConfig(config, digitsOnly = true).doOCRAndTrim(it.subRegion(0, 25, 83, 100)),
+                            // Logistics number ie. 1-1
+                            Ocr.forConfig(config).doOCRAndTrim(it.subRegion(165, 30, 84, 33)),
+                            // Timer xx:xx:xx
+                            Ocr.forConfig(config).doOCRAndTrim(it.subRegion(600, 71, 188, 40))
+
                     )
                 }
-                .map { "${it[0].await()} ${it[1].await()} ${it[2].await()}" }
+                .map { "${it[0]} ${it[1]} ${it[2]}" }
                 .mapNotNull {
                     Regex("(\\d+) (\\d\\d?).*?(\\d) (\\d\\d):(\\d\\d):(\\d\\d)").matchEntire(it)?.destructured
                 }
@@ -118,10 +111,8 @@ class InitModule(
     /**
      * Updates the repair timers in gamestate
      */
-    private suspend fun updateRepairs() {
+    private suspend fun updateRepairs(cache: Region<AndroidDevice>) {
         logger.info("Reading repair status")
-        // Optimize by taking a single screenshot and working on that
-        val cache = region.asCachedRegion()
 
         val firstEntryRegion = cache.subRegion(388, 0, 159, region.height)
         val repairRegions = async {
