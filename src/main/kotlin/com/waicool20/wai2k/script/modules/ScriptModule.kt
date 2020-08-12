@@ -155,8 +155,6 @@ abstract class ScriptModule(
             delay(300)
             if (retries++ >= 3) throw ChapterClickFailedException(chapter)
         }
-        navigator.checkLogistics()
-        delay(2000)
         cRegion.subRegion(0, 0, 195, cRegion.height).clickTemplateWhile(
                 template = FileTemplate("chapters/$chapter.png", CHAPTER_SIMILARITY),
                 timeout = 20
