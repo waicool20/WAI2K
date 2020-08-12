@@ -100,8 +100,8 @@
         }
       },
       {
-        "dest-": "event",
-        "dest": "unknown",
+        "dest": "event",
+        "dest-": "unknown",
         "asset": {
           "imageName": "",
           "x": 1536,
@@ -192,8 +192,8 @@
         }
       },
       {
-        "dest-": "event",
-        "dest": "unknown",
+        "dest": "event",
+        "dest-": "unknown",
         "asset": {
           "imageName": "",
           "x": 1536,
@@ -673,8 +673,8 @@
         "asset": {
           "imageName": "",
           "x": 131,
-          "y": 164,
-          "y-": 296,
+          "y-": 164,
+          "y": 296,
           "width": 257,
           "height": 118
         }
@@ -684,8 +684,8 @@
         "asset": {
           "imageName": "",
           "x": 131,
-          "y": 296,
-          "y-": 428,
+          "y-": 296,
+          "y": 428,
           "width": 257,
           "height": 118
         }
@@ -749,8 +749,8 @@
         "asset": {
           "imageName": "",
           "x": 131,
-          "y": 296,
-          "y-": 428,
+          "y-": 296,
+          "y": 428,
           "width": 257,
           "height": 118
         }
@@ -797,8 +797,8 @@
         "asset": {
           "imageName": "",
           "x": 131,
-          "y": 164,
-          "y-": 296,
+          "y-": 164,
+          "y": 296,
           "width": 257,
           "height": 118
         }
@@ -984,8 +984,8 @@
       {
         "asset": {
           "imageName": "event",
-          "x": 16,
-          "y": 815,
+          "x": 246,
+          "y": 583,
           "width": 60,
           "height": 60
         }
