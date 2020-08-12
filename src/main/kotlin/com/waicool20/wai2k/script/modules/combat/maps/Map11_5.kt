@@ -27,6 +27,8 @@ import com.waicool20.wai2k.script.modules.combat.MapRunner
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
+import kotlin.math.roundToInt
+import kotlin.math.roundToLong
 import kotlin.random.Random
 
 class Map11_5(
@@ -39,8 +41,8 @@ class Map11_5(
     override val isCorpseDraggingMap = true
 
     override suspend fun execute() {
-        // No need to zoom
-        // Sometimes it's more zoomed in if the game restarts?
+        // No need to zoom, delay for map lag
+        delay((1000*gameState.delayCoefficient).roundToLong())
         val rEchelons = deployEchelons(nodes[1], nodes[0])
         // Dummy do not supply
         deployEchelons(nodes[2])
