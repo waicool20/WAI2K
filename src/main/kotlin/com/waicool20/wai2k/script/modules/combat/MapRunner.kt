@@ -361,9 +361,12 @@ abstract class MapRunner(
         var currentPoints = 0
         try {
             withTimeout(120_000) {
-                while (isActive && !interruptWaitFlag) {
-                    delay(250)
-                    if (isInBattle()) clickThroughBattle()
+                loop@ while (isActive && !interruptWaitFlag) {
+                    delay(500)
+                    when {
+                        isInBattle() -> clickThroughBattle()
+                        currentTurn == turn && currentPoints == points -> break@loop
+                    }
                     val screenshot = region.capture()
                     val newTurn = ocr.doOCRAndTrim(screenshot.getSubimage(748, 53, 86, 72))
                             .let { if (it.firstOrNull() == '8') it.replaceFirst("8", "0") else it }
@@ -381,16 +384,15 @@ abstract class MapRunner(
                         currentTurn = newTurn
                         currentPoints = newPoints
                     }
-                    if (currentTurn == turn && currentPoints == points) break
                 }
             }
         } catch (e: TimeoutCancellationException) {
             throw ScriptTimeOutException("Waiting for turn and points", e)
         }
-        if (!interruptWaitFlag) {
-            logger.info("Reached required turns and action points!")
-        } else {
+        if (interruptWaitFlag) {
             logger.info("Aborting Wait...")
+        } else {
+            logger.info("Reached required turns and action points!")
         }
         delay(1000)
         while (isActive) {

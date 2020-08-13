@@ -37,6 +37,7 @@ class EventSummerShells(
 ) : EventMapRunner(scriptRunner, region, config, profile) {
     private val logger = loggerFor<EventSummerShells>()
     override val isCorpseDraggingMap = false
+
     // For panning and deselecting
     private val emptySpace = region.subRegionAs<AndroidRegion>(270, 700, 400, 140)
 
@@ -54,7 +55,7 @@ class EventSummerShells(
                     0.0,
                     500
             )
-            delay((1000*gameState.delayCoefficient).roundToLong()) // Wait to settle
+            delay((1000 * gameState.delayCoefficient).roundToLong()) // Wait to settle
             gameState.requiresMapInit = false
         }
         deployEchelons(nodes[0])
@@ -70,7 +71,7 @@ class EventSummerShells(
         deployEchelons(nodes[0]); delay(500) // Dummy
 
         pathToNode()
-        waitForTurnAndPoints(3,3, false) // The crabs capture the heliport
+        waitForTurnAndPoints(3, 3, false) // The crabs capture the heliport
         waitForTurnAssets(true, 0.96, "combat/battle/plan.png") // If melons on final node
         handleBattleResults()
     }
