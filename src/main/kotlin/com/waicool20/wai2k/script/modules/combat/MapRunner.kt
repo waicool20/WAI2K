@@ -304,19 +304,22 @@ abstract class MapRunner(
      */
     protected suspend fun waitForGNKSplash(timeout: Long = 10000) = coroutineScope {
         logger.info("Waiting for G&K splash screen")
-        val battleClicker = launch {
-            while (isActive) {
-                if (isInBattle()) clickThroughBattle() else delay(2000)
-            }
-        }
+        val r = region.subRegion(1350, 247, 178, 114)
+        val start = System.currentTimeMillis()
         // Wait for the G&K splash to appear within 10 seconds
-        region.matcher.settings.matchDimension = ScriptRunner.HIGH_RES
-        region.waitHas(FileTemplate("combat/battle/splash.png"), timeout)?.apply {
-            logger.info("G&K splash screen appeared")
-            delay(2000)
-        } ?: logger.info("G&K splash screen did not appear")
-        region.matcher.settings.matchDimension = ScriptRunner.NORMAL_RES
-        battleClicker.cancel()
+        while(isActive) {
+            if (isInBattle()) clickThroughBattle()
+            if (r.has(FileTemplate("combat/battle/splash.png", 0.8))) {
+                logger.info("G&K splash screen appeared")
+                delay(2000)
+                break
+            }
+            if (System.currentTimeMillis() - start > timeout) {
+                logger.info("G&K splash screen did not appear")
+                break
+            }
+            delay(250)
+        }
     }
 
     /**
