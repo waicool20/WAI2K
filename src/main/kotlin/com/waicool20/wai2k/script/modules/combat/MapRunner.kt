@@ -78,11 +78,6 @@ abstract class MapRunner(
         private val mapper = jacksonObjectMapper()
 
         /**
-         * How many homography samples to take
-         */
-        private const val hSamples = 1
-
-        /**
          * Minimum scroll in pixels, because sometimes smaller scrolls dont register properly
          */
         private const val minScroll = 75
@@ -92,7 +87,6 @@ abstract class MapRunner(
          */
         private const val maxMapDiff = 80.0
         private const val maxSideDiff = 5.0
-        private const val minNodeThreshold = 0.12
 
         val list = mutableMapOf<CombatMap, KClass<out MapRunner>>()
 
@@ -343,6 +337,9 @@ abstract class MapRunner(
             }
         } catch (e: TimeoutCancellationException) {
             throw ScriptTimeOutException("Waiting for battles", e)
+        } finally {
+            _battles = 1
+            mapH = null
         }
         region.waitHas(FileTemplate("combat/battle/terminate.png"), 10000)
         logger.info("Turn ended")
@@ -391,6 +388,9 @@ abstract class MapRunner(
             }
         } catch (e: TimeoutCancellationException) {
             throw ScriptTimeOutException("Waiting for turn and points", e)
+        } finally {
+            _battles = 1
+            mapH = null
         }
         if (interruptWaitFlag) {
             logger.info("Aborting Wait...")
@@ -422,6 +422,9 @@ abstract class MapRunner(
             }
         } catch (e: TimeoutCancellationException) {
             throw ScriptTimeOutException("Waiting for assets", e)
+        } finally {
+            _battles = 1
+            mapH = null
         }
         logger.info("All assets are now on screen")
         region.waitHas(FileTemplate("combat/battle/terminate.png"), 10000)
