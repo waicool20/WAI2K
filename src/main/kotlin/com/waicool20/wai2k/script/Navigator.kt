@@ -129,7 +129,9 @@ class Navigator(
                         }.click()
                         // Wait around average transition delay if not an intermediate location
                         // since it cant transition immediately
-                        if (!srcLoc.isIntermediate) {
+                        if (srcLoc.isIntermediate) {
+                            delay(config.scriptConfig.baseNavigationDelay.toLong())
+                        } else {
                             delay(avgTransitionDelay + config.scriptConfig.baseNavigationDelay)
                             ticks++
                         }
