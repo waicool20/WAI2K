@@ -123,7 +123,7 @@ class StatusTabView : CoroutineScopeView() {
                 builder += echelonLogistics.joinToString("\n") {
                     "\t- Echelon ${it.number} [${it.logisticsSupportAssignment?.logisticSupport?.formattedString}]: ${timeDelta(it.logisticsSupportAssignment?.eta)}"
                 }
-                builder.appendln()
+                builder.appendLine()
             }
 
             val echelonRepairs = echelons

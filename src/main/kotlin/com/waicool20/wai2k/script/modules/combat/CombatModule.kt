@@ -179,7 +179,7 @@ class CombatModule(
                         while (isActive) {
                             // Trying this to improve search reliability, maybe put this upstream in cvauto
                             switchDoll = r.findBest(FileTemplate("doll-list/echelon2-captain.png", 0.85), 5)
-                                    .maxBy { it.score }?.region
+                                    .maxByOrNull { it.score }?.region
                             if (switchDoll == null) {
                                 checkImg = checkRegion.capture()
                                 if (scrollDown) {

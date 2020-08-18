@@ -143,11 +143,11 @@ abstract class ScriptModule(
             }
             logger.debug("Visible chapters: $chapters")
             when {
-                chapter <= chapters.min() ?: CHAPTER_MAX / 2 -> {
+                chapter <= chapters.minOrNull() ?: CHAPTER_MAX / 2 -> {
                     logger.debug("Swiping down the chapters")
                     upperSwipeRegion.swipeTo(lowerSwipeRegion)
                 }
-                chapter >= chapters.max() ?: CHAPTER_MAX / 2 + 1 -> {
+                chapter >= chapters.maxOrNull() ?: CHAPTER_MAX / 2 + 1 -> {
                     logger.debug("Swiping up the chapters")
                     lowerSwipeRegion.swipeTo(upperSwipeRegion)
                 }

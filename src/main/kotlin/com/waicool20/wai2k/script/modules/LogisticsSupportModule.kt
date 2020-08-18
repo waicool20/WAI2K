@@ -228,8 +228,8 @@ class LogisticsSupportModule(
                     return true
                 }
             }
-            val lEchelon = echelons.keys.min() ?: echelons.keys.firstOrNull() ?: continue
-            val hEchelon = echelons.keys.max() ?: echelons.keys.lastOrNull() ?: continue
+            val lEchelon = echelons.keys.minOrNull() ?: echelons.keys.firstOrNull() ?: continue
+            val hEchelon = echelons.keys.maxOrNull() ?: echelons.keys.lastOrNull() ?: continue
             val lEchelonRegion = echelons[lEchelon] ?: continue
             val hEchelonRegion = echelons[hEchelon] ?: continue
             when {

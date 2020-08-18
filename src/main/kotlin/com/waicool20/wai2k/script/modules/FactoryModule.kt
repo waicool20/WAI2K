@@ -100,7 +100,7 @@ class FactoryModule(
                                 .also { logger.info("Found ${it.size} dolls on screen available for enhancement") }
                                 // Map lock region to doll region
                                 .map { region.subRegion(it.x - 7, it.y, 244, it.height) }
-                                .minBy { it.y * 10 + it.x }
+                                .minByOrNull { it.y * 10 + it.x }
                 region.matcher.settings.matchDimension = ScriptRunner.NORMAL_RES
                 if (doll == null) {
                     if (region.findBest(FileTemplate("doll-list/logistics.png"), 20).size >= 12) {
