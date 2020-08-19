@@ -19,9 +19,7 @@
 
 package com.waicool20.wai2k.script.modules.combat
 
-import com.waicool20.cvauto.android.AndroidDevice
 import com.waicool20.cvauto.android.AndroidRegion
-import com.waicool20.cvauto.core.Region
 import com.waicool20.cvauto.core.asCachedRegion
 import com.waicool20.cvauto.core.input.ITouchInterface
 import com.waicool20.cvauto.core.template.FileTemplate
@@ -149,6 +147,16 @@ class CombatModule(
         navigator.navigateTo(LocationId.FORMATION)
         delay(1000) // Formation takes a while to load/render
 
+        val tdoll = run {
+            val tdolls = profile.combat.draggers
+                .map { TDoll.lookup(config, it.id) ?: throw InvalidDollException(it.id) }
+            if (tdolls[0] == tdolls[1]) {
+                tdolls.first()
+            } else {
+                tdolls.first { it.name != gameState.echelons[0].members[1].name }
+            }
+        }
+
         if (scriptStats.sortiesDone >= 1) {
             val startTime = System.currentTimeMillis()
             logger.info("Switching doll 2 of echelon 1")
@@ -157,20 +165,11 @@ class CombatModule(
             region.waitHas(FileTemplate("doll-list/lock.png"), 5000)
 
             region.matcher.settings.matchDimension = ScriptRunner.HIGH_RES
-            val tdolls = profile.combat.draggers
-                .map { TDoll.lookup(config, it.id) ?: throw InvalidDollException(it.id) }
-                // Distinct filter types that way we dont set filters twice for same filter
-                .distinctBy { it.type.ordinal * 10 + it.stars }
-            val tdoll = if (tdolls.size == 1) {
-                tdolls.first()
-            } else {
-                tdolls.filterNot { it.name == gameState.echelons[0].members[1].name }.first()
-            }
             applyFilters(tdoll, false)
             var switchDoll = region.findBest(FileTemplate("doll-list/echelon2-captain.png"))?.region
 
             val r1 = region.subRegionAs<AndroidRegion>(1210, 1038, 500, 20)
-            val r2 = r1.copyAs<AndroidRegion>(y = r1.y - 750)
+            val r2 = r1.copyAs<AndroidRegion>(y = r1.y - 350)
             val checkRegion = region.subRegion(185, 360, 60, 60)
 
             var scrollDown = true
@@ -206,13 +205,20 @@ class CombatModule(
 
             region.matcher.settings.matchDimension = ScriptRunner.NORMAL_RES
             logger.info("Switching dolls took ${System.currentTimeMillis() - startTime} ms")
-            delay(400)
+            delay(1250)
         }
 
         updateEchelonRepairStatus(1)
 
         val echelon1Members = gameState.echelons[0].members.map { it.name }
         wasCancelled = profile.combat.draggers.none { TDoll.lookup(config, it.id)?.name in echelon1Members }
+
+        // Sometimes update echelon repair status reads the old dolls name because old doll is still
+        // on screen briefly after the switch
+        if (scriptStats.sortiesDone >= 1 && gameState.echelons[0].members[1].name != tdoll.name) {
+            logger.warn("Expected new dragger to be ${tdoll.name}, got ${gameState.echelons[0].members[1].name}")
+            gameState.echelons[0].members[1].name = tdoll.name
+        }
     }
 
     /**
