@@ -59,11 +59,11 @@ data class TDoll(
          */
         fun lookup(config: Wai2KConfig, name: String?): TDoll? {
             if (name == null) return null
-            return listAll(config).find {
+            return listAll(config).find { it.id == name } ?: listAll(config).find {
                 var score = (name.length - it.name.distanceTo(name, Ocr.OCR_DISTANCE_MAP)) / name.length
                 // Be a bit more lax on longer names
                 if (name.length > 6) score *= 1.2
-                it.id == name || score > config.scriptConfig.ocrThreshold
+                score > config.scriptConfig.ocrThreshold
             }
         }
     }
