@@ -37,15 +37,16 @@ object Ocr {
 
     val OCR_DISTANCE_MAP = mapOf(
             "-—" to 0.1,
-            "0cCDGoOQ@" to 0.3,
-            "1iIl\\[\\]|!" to 0.3,
+            "0cCDGoOQ@" to 0.1,
+            "1iIl\\[\\]|!" to 0.1,
             "2Zz" to 0.1,
             "3E" to 0.2,
             "4Ah" to 0.1,
             "5sS" to 0.1,
             "6Gb" to 0.1,
             "7-" to 0.3,
-            "8B:" to 0.2
+            "8B:" to 0.2,
+            "9S" to 0.3
     )
 
     const val DIGITS = "0123456789"
