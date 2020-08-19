@@ -30,10 +30,10 @@ import kotlinx.coroutines.yield
 import kotlin.random.Random
 
 class Map10_4E(
-    scriptRunner: ScriptRunner,
-    region: AndroidRegion,
-    config: Wai2KConfig,
-    profile: Wai2KProfile
+        scriptRunner: ScriptRunner,
+        region: AndroidRegion,
+        config: Wai2KConfig,
+        profile: Wai2KProfile
 ) : MapRunner(scriptRunner, region, config, profile) {
     private val logger = loggerFor<Map10_4E>()
     override val isCorpseDraggingMap = false
@@ -45,10 +45,10 @@ class Map10_4E(
             logger.info("Zoom out")
             repeat(2) {
                 region.pinch(
-                    Random.nextInt(700, 800),
-                    Random.nextInt(300, 400),
-                    0.0,
-                    500
+                        Random.nextInt(700, 800),
+                        Random.nextInt(300, 400),
+                        0.0,
+                        500
                 )
                 delay(200)
             }
@@ -61,10 +61,10 @@ class Map10_4E(
         delay(500)
         repeat(1) {
             region.pinch(
-                Random.nextInt(700, 800),
-                Random.nextInt(300, 400),
-                0.0,
-                500
+                    Random.nextInt(700, 800),
+                    Random.nextInt(300, 400),
+                    0.0,
+                    500
             )
             delay(1000)
         }
@@ -78,16 +78,16 @@ class Map10_4E(
         delay(500)
         repeat(1) {
             region.pinch(
-                Random.nextInt(700, 800),
-                Random.nextInt(300, 400),
-                0.0,
-                500
+                    Random.nextInt(700, 800),
+                    Random.nextInt(300, 400),
+                    0.0,
+                    500
             )
             delay(500)
         }
         delay(1000)
-        val rEchelons = deployEchelons(nodes[2])
-        gameState.requiresMapInit = false
+        val rEchelons=deployEchelons(nodes[2])
+        gameState.requiresMapInit=false
 
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
@@ -98,16 +98,17 @@ class Map10_4E(
         nodes[3].findRegion().click()
         //resupplyEchelons(nodes[0])
         planPath()
+        waitForTurnEnd(5, false); delay(1000)
         waitForTurnAndPoints(2, 4, false)
 
 
         //Reset Map Zoom State
         repeat(1) {
             region.pinch(
-                Random.nextInt(700, 800),
-                Random.nextInt(300, 400),
-                0.0,
-                500
+                    Random.nextInt(700, 800),
+                    Random.nextInt(300, 400),
+                    0.0,
+                    500
             )
             delay(200)
         }
