@@ -159,52 +159,52 @@ class CombatModule(
             var switchDoll: Region<AndroidDevice>? = null
             region.matcher.settings.matchDimension = ScriptRunner.HIGH_RES
             val tdolls = profile.combat.draggers
-                    .map { TDoll.lookup(config, it.id) ?: throw InvalidDollException(it.id) }
-                    // Distinct filter types that way we dont set filters twice for same filter
-                    .distinctBy { it.type.ordinal * 10 + it.stars }
-            for ((i, tdoll) in tdolls.withIndex()) {
-                applyFilters(tdoll, i == 1)
-                switchDoll = region.findBest(FileTemplate("doll-list/echelon2-captain.png"))?.region
-
-                val r1 = region.subRegionAs<AndroidRegion>(1210, 1038, 500, 20)
-                val r2 = r1.copyAs<AndroidRegion>(y = r1.y - 750)
-                val checkRegion = region.subRegion(185, 360, 60, 60)
-
-                var scrollDown = true
-                var checkImg: BufferedImage
-
-                try {
-                    withTimeout(90_000) {
-                        val r = region.subRegion(167, 146, 1542, 934)
-                        while (isActive) {
-                            // Trying this to improve search reliability, maybe put this upstream in cvauto
-                            switchDoll = r.findBest(FileTemplate("doll-list/echelon2-captain.png", 0.85), 5)
-                                    .maxByOrNull { it.score }?.region
-                            if (switchDoll == null) {
-                                checkImg = checkRegion.capture()
-                                if (scrollDown) {
-                                    r1.swipeTo(r2, 500)
-                                } else {
-                                    r2.swipeTo(r1, 500)
-                                }
-                                delay(2000)
-                                if (checkRegion.has(ImageTemplate(checkImg))) {
-                                    logger.info("Reached ${if (scrollDown) "bottom" else "top"} of the list")
-                                    scrollDown = !scrollDown
-                                }
-                            } else break
-                        }
-                    }
-                } catch (e: TimeoutCancellationException) {
-                    throw ScriptTimeOutException("Finding replacement dragging doll", e)
-                }
-
-                if (switchDoll != null) {
-                    switchDoll?.copy(width = 142)?.click()
-                    break
-                }
+                .map { TDoll.lookup(config, it.id) ?: throw InvalidDollException(it.id) }
+                // Distinct filter types that way we dont set filters twice for same filter
+                .distinctBy { it.type.ordinal * 10 + it.stars }
+            val tdoll = if (tdolls.size == 1) {
+                tdolls.first()
+            } else {
+                tdolls.filterNot { it.name == gameState.echelons[0].members[1].name }.first()
             }
-            if (switchDoll == null) throw ReplacementDollNotFoundException()
+            applyFilters(tdoll, false)
+            switchDoll = region.findBest(FileTemplate("doll-list/echelon2-captain.png"))?.region
+
+            val r1 = region.subRegionAs<AndroidRegion>(1210, 1038, 500, 20)
+            val r2 = r1.copyAs<AndroidRegion>(y = r1.y - 750)
+            val checkRegion = region.subRegion(185, 360, 60, 60)
+
+            var scrollDown = true
+            var checkImg: BufferedImage
+
+            try {
+                withTimeout(90_000) {
+                    val r = region.subRegion(167, 146, 1542, 934)
+                    while (isActive) {
+                        // Trying this to improve search reliability, maybe put this upstream in cvauto
+                        switchDoll = r.findBest(FileTemplate("doll-list/echelon2-captain.png", 0.85), 5)
+                            .maxByOrNull { it.score }?.region
+                        if (switchDoll == null) {
+                            checkImg = checkRegion.capture()
+                            if (scrollDown) {
+                                r1.swipeTo(r2, 500)
+                            } else {
+                                r2.swipeTo(r1, 500)
+                            }
+                            delay(2000)
+                            if (checkRegion.has(ImageTemplate(checkImg))) {
+                                logger.info("Reached ${if (scrollDown) "bottom" else "top"} of the list")
+                                scrollDown = !scrollDown
+                            }
+                        } else break
+                    }
+                }
+            } catch (e: TimeoutCancellationException) {
+                throw ReplacementDollNotFoundException()
+            }
+
+            switchDoll?.copy(width = 142)?.click()
+
             region.matcher.settings.matchDimension = ScriptRunner.NORMAL_RES
             logger.info("Switching dolls took ${System.currentTimeMillis() - startTime} ms")
             delay(400)
