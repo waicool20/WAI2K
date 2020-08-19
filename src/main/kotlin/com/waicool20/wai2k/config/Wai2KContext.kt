@@ -23,9 +23,9 @@ import javafx.beans.property.ObjectProperty
 import tornadofx.*
 
 data class Wai2KContext(
-        val wai2KConfigProperty: ObjectProperty<Wai2KConfig> = Wai2KConfig().toProperty(),
-        val versionInfoProperty: ObjectProperty<VersionInfo> = VersionInfo().toProperty(),
-        val currentProfileProperty: ObjectProperty<Wai2KProfile> = Wai2KProfile().toProperty()
+    val wai2KConfigProperty: ObjectProperty<Wai2KConfig> = Wai2KConfig().toProperty(),
+    val versionInfoProperty: ObjectProperty<VersionInfo> = VersionInfo().toProperty(),
+    val currentProfileProperty: ObjectProperty<Wai2KProfile> = Wai2KProfile().toProperty()
 ) : Component(), ScopedInstance {
     var wai2KConfig by wai2KConfigProperty
     var versionInfo by versionInfoProperty

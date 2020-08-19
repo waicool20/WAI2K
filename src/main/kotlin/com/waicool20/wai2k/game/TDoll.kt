@@ -26,13 +26,13 @@ import com.waicool20.wai2k.util.Ocr
 import com.waicool20.waicoolutils.distanceTo
 
 data class TDoll(
-        /**
-         * Display name of the tdoll as shown in game
-         */
-        val name: String,
-        val stars: Int,
-        val type: Type,
-        private val moddable: Boolean = false
+    /**
+     * Display name of the tdoll as shown in game
+     */
+    val name: String,
+    val stars: Int,
+    val type: Type,
+    private val moddable: Boolean = false
 ) {
     /**
      * Unique tdoll id, usually just the tdoll name with + appended to it if it's mod variant

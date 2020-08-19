@@ -20,7 +20,6 @@
 package com.waicool20.wai2k.script.modules.combat.maps
 
 import com.waicool20.cvauto.android.AndroidRegion
-import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.script.ScriptRunner
@@ -31,10 +30,10 @@ import kotlinx.coroutines.yield
 import kotlin.random.Random
 
 class Map6_4N(
-        scriptRunner: ScriptRunner,
-        region: AndroidRegion,
-        config: Wai2KConfig,
-        profile: Wai2KProfile
+    scriptRunner: ScriptRunner,
+    region: AndroidRegion,
+    config: Wai2KConfig,
+    profile: Wai2KProfile
 ) : MapRunner(scriptRunner, region, config, profile) {
     private val logger = loggerFor<Map6_4N>()
     override val isCorpseDraggingMap = false
@@ -84,16 +83,16 @@ class Map6_4N(
     private suspend fun zoom() {
         repeat(2) {
             region.pinch(
-                    Random.nextInt(666, 777),
-                    Random.nextInt(288, 404),
-                    0.0,
-                    500
+                Random.nextInt(666, 777),
+                Random.nextInt(288, 404),
+                0.0,
+                500
             )
             delay(200)
         }
     }
 
-    private suspend fun swap(){
+    private suspend fun swap() {
         logger.info("Selecting Combat team at ${nodes[5]}")
         nodes[5].findRegion().click()
 

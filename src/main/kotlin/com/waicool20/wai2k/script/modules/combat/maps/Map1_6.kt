@@ -31,10 +31,10 @@ import kotlinx.coroutines.yield
 import kotlin.random.Random
 
 class Map1_6(
-        scriptRunner: ScriptRunner,
-        region: AndroidRegion,
-        config: Wai2KConfig,
-        profile: Wai2KProfile
+    scriptRunner: ScriptRunner,
+    region: AndroidRegion,
+    config: Wai2KConfig,
+    profile: Wai2KProfile
 ) : MapRunner(scriptRunner, region, config, profile) {
     private val logger = loggerFor<Map1_6>()
     override val isCorpseDraggingMap = false
@@ -44,10 +44,10 @@ class Map1_6(
     override suspend fun execute() {
         logger.info("Zoom out")
         region.pinch(
-                Random.nextInt(700, 800),
-                Random.nextInt(250, 340),
-                0.0,
-                500
+            Random.nextInt(700, 800),
+            Random.nextInt(250, 340),
+            0.0,
+            500
         )
         //Map to settle
         delay(1000)
@@ -57,13 +57,13 @@ class Map1_6(
         waitForGNKSplash()
         resupplyEchelons(nodes[0]) //Force resupply so echelons with no doll in slot 2 can run
         planPathFirst()
-        waitForTurnAssets(false, 0.96,"combat/battle/plan.png")
+        waitForTurnAssets(false, 0.96, "combat/battle/plan.png")
         delay(1000)
         mapRunnerRegions.endBattle.click(); yield()
-        waitForTurnAndPoints(3,3, false) //SF may be on the Heliport
+        waitForTurnAndPoints(3, 3, false) //SF may be on the Heliport
         resupplyEchelons(nodes[2]) // might be >5 battles
         planPathSecond()
-        waitForTurnAssets(true, 0.96,"combat/battle/plan.png")
+        waitForTurnAssets(true, 0.96, "combat/battle/plan.png")
         handleBattleResults()
     }
 

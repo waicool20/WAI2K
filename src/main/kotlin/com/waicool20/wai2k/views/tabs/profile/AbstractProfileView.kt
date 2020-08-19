@@ -25,7 +25,7 @@ import com.waicool20.waicoolutils.javafx.listen
 import tornadofx.*
 import java.util.concurrent.atomic.AtomicBoolean
 
-abstract class AbstractProfileView: View(), Binder {
+abstract class AbstractProfileView : View(), Binder {
     protected val context: Wai2KContext by inject()
     private val initialized = AtomicBoolean(false)
 

@@ -37,11 +37,11 @@ import java.awt.Point
 import kotlin.random.Random
 
 class FactoryModule(
-        scriptRunner: ScriptRunner,
-        region: AndroidRegion,
-        config: Wai2KConfig,
-        profile: Wai2KProfile,
-        navigator: Navigator
+    scriptRunner: ScriptRunner,
+    region: AndroidRegion,
+    config: Wai2KConfig,
+    profile: Wai2KProfile,
+    navigator: Navigator
 ) : ScriptModule(scriptRunner, region, config, profile, navigator) {
     private val logger = loggerFor<FactoryModule>()
 
@@ -94,13 +94,13 @@ class FactoryModule(
             while (isActive) {
                 region.matcher.settings.matchDimension = ScriptRunner.HIGH_RES
                 val doll = // Map lock region to doll region
-                        // Prioritize higher level dolls
-                        region.findBest(FileTemplate("doll-list/lock.png"), 20)
-                                .map { it.region }
-                                .also { logger.info("Found ${it.size} dolls on screen available for enhancement") }
-                                // Map lock region to doll region
-                                .map { region.subRegion(it.x - 7, it.y, 244, it.height) }
-                                .minByOrNull { it.y * 10 + it.x }
+                    // Prioritize higher level dolls
+                    region.findBest(FileTemplate("doll-list/lock.png"), 20)
+                        .map { it.region }
+                        .also { logger.info("Found ${it.size} dolls on screen available for enhancement") }
+                        // Map lock region to doll region
+                        .map { region.subRegion(it.x - 7, it.y, 244, it.height) }
+                        .minByOrNull { it.y * 10 + it.x }
                 region.matcher.settings.matchDimension = ScriptRunner.NORMAL_RES
                 if (doll == null) {
                     if (region.findBest(FileTemplate("doll-list/logistics.png"), 20).size >= 12) {
@@ -115,7 +115,7 @@ class FactoryModule(
 
                         // Swipe down because all the dolls presented were in logistics
                         region.device.input.touchInterface?.swipe(ITouchInterface.Swipe(
-                                0, src.x, src.y, dest.x, dest.y
+                            0, src.x, src.y, dest.x, dest.y
                         ), 1000)
 
                         delay(100)
@@ -141,12 +141,12 @@ class FactoryModule(
 
             // Click smart select button
             logger.info("Using smart select")
-            region.subRegion(1770, 862, 247, 158).click();
+            region.subRegion(1770, 862, 247, 158).click()
             delay(400)
 
             // Confirm doll selection
             val okButton = region.subRegion(1768, 859, 250, 158)
-                    .findBest(FileTemplate("factory/ok.png"))?.region
+                .findBest(FileTemplate("factory/ok.png"))?.region
             if (okButton == null) {
                 // Click cancel if no t dolls could be used for enhancement
                 region.subRegion(120, 0, 205, 144).click()
@@ -166,10 +166,10 @@ class FactoryModule(
 
             // Click confirm if not enough T-dolls, got to get rid of the trash anyways :D
             region.subRegion(1095, 668, 290, 150)
-                    .findBest(FileTemplate("ok.png"))?.region?.let {
-                        logger.info("Not enough T-dolls for enhancement, but enhancing anyways")
-                        it.click()
-                    }
+                .findBest(FileTemplate("ok.png"))?.region?.let {
+                    logger.info("Not enough T-dolls for enhancement, but enhancing anyways")
+                    it.click()
+                }
 
             region.waitHas(FileTemplate("close.png"), 30000)?.click()
         }
@@ -210,7 +210,7 @@ class FactoryModule(
 
             // Confirm doll selection
             val okButton = region.subRegion(1768, 889, 250, 158)
-                    .findBest(FileTemplate("factory/ok.png"))?.region
+                .findBest(FileTemplate("factory/ok.png"))?.region
             if (okButton == null) {
                 logger.info("No more 2 star T-dolls to disassemble!")
                 break
@@ -237,9 +237,9 @@ class FactoryModule(
         while (isActive) {
             region.matcher.settings.matchDimension = ScriptRunner.HIGH_RES
             val dolls = region.findBest(FileTemplate("doll-list/3star.png"), 12)
-                    .map { it.region }
-                    .also { logger.info("Found ${it.size} that can be disassembled") }
-                    .map { region.subRegion(it.x - 102, it.y, 136, 427) }
+                .map { it.region }
+                .also { logger.info("Found ${it.size} that can be disassembled") }
+                .map { region.subRegion(it.x - 102, it.y, 136, 427) }
             region.matcher.settings.matchDimension = ScriptRunner.NORMAL_RES
             if (dolls.isEmpty()) {
                 // Click cancel if no t dolls could be used for disassembly
@@ -255,13 +255,13 @@ class FactoryModule(
             logger.info("Confirm doll selections")
             // Click ok
             region.subRegion(1768, 889, 250, 158)
-                    .findBest(FileTemplate("factory/ok.png"))?.region?.click(); delay(500)
+                .findBest(FileTemplate("factory/ok.png"))?.region?.click(); delay(500)
             logger.info("Disassembling selected T-dolls")
             // Click disassemble button
             region.subRegion(1749, 839, 247, 95).click(); delay(500)
             // Click confirm
             region.subRegion(1100, 865, 324, 161)
-                    .findBest(FileTemplate("ok.png"))?.region?.click(); delay(200)
+                .findBest(FileTemplate("ok.png"))?.region?.click(); delay(200)
             // Update stats
             scriptStats.disassemblesDone += 1
             // Can break if disassembled count is less than 12
@@ -273,10 +273,10 @@ class FactoryModule(
             }
             // Wait for menu to settle
             region.subRegion(483, 200, 1557, 565)
-                    .waitHas(FileTemplate("factory/select.png"), 10000)?.let {
-                        it.click()
-                        delay(750)
-                    }
+                .waitHas(FileTemplate("factory/select.png"), 10000)?.let {
+                    it.click()
+                    delay(750)
+                }
         }
         if (!gameState.dollOverflow) logger.info("The base now has space for new dolls")
     }
@@ -311,7 +311,7 @@ class FactoryModule(
 
         // Confirm doll selection
         val okButton = region.subRegion(1768, 889, 250, 170)
-                .findBest(FileTemplate("factory/ok-equip.png"))?.region
+            .findBest(FileTemplate("factory/ok-equip.png"))?.region
         logger.info("Confirm equipment selections")
         // Click ok
         okButton?.click()
@@ -324,10 +324,10 @@ class FactoryModule(
 
         // Wait for menu to settle
         region.subRegion(483, 200, 1557, 565)
-                .waitHas(FileTemplate("factory/select-equip.png"), 10000)?.let {
-                    it.click()
-                    delay(750)
-                }
+            .waitHas(FileTemplate("factory/select-equip.png"), 10000)?.let {
+                it.click()
+                delay(750)
+            }
 
         logger.info("Disassembling higher rarity equipment")
         logger.info("Applying filters")
@@ -350,16 +350,16 @@ class FactoryModule(
         while (isActive) {
             region.matcher.settings.matchDimension = ScriptRunner.HIGH_RES
             val equips = region.findBest(FileTemplate("factory/equip-3star.png"), 12)
-                    .map { it.region }
-                    .also { logger.info("Found ${it.size} 3*s that can be disassembled") }
-                    .map { region.subRegion(it.x - 106, it.y - 3, 247, 436) }
-                    .toMutableList()
+                .map { it.region }
+                .also { logger.info("Found ${it.size} 3*s that can be disassembled") }
+                .map { region.subRegion(it.x - 106, it.y - 3, 247, 436) }
+                .toMutableList()
             yield()
             if (profile.factory.equipDisassembly.disassemble4Star) {
                 equips += region.findBest(FileTemplate("factory/equip-4star.png"), 12)
-                        .map { it.region }
-                        .also { logger.info("Found ${it.size} 4*s that can be disassembled") }
-                        .map { region.subRegion(it.x - 106, it.y - 3, 247, 436) }
+                    .map { it.region }
+                    .also { logger.info("Found ${it.size} 4*s that can be disassembled") }
+                    .map { region.subRegion(it.x - 106, it.y - 3, 247, 436) }
             }
             region.matcher.settings.matchDimension = ScriptRunner.NORMAL_RES
             if (equips.isEmpty()) {
@@ -380,13 +380,13 @@ class FactoryModule(
             logger.info("Confirm equipment selections")
             // Click ok
             region.subRegion(1768, 889, 250, 170)
-                    .findBest(FileTemplate("factory/ok-equip.png"))?.region?.click(); delay(500)
+                .findBest(FileTemplate("factory/ok-equip.png"))?.region?.click(); delay(500)
             logger.info("Disassembling selected equipment")
             // Click disassemble button
             region.subRegion(1749, 839, 247, 95).click(); delay(500)
             // Click confirm
             region.subRegion(1100, 865, 324, 161)
-                    .findBest(FileTemplate("ok.png"))?.region?.click(); delay(200)
+                .findBest(FileTemplate("ok.png"))?.region?.click(); delay(200)
             // Update stats
             scriptStats.equipDisassemblesDone += 1
             // Can break if disassembled count is less than 12
@@ -398,10 +398,10 @@ class FactoryModule(
             }
             // Wait for menu to settle
             region.subRegion(483, 200, 1557, 565)
-                    .waitHas(FileTemplate("factory/select-equip.png"), 10000)?.let {
-                        it.click()
-                        delay(750)
-                    }
+                .waitHas(FileTemplate("factory/select-equip.png"), 10000)?.let {
+                    it.click()
+                    delay(750)
+                }
         }
         if (!gameState.equipOverflow) logger.info("The base now has space for new equipment")
     }

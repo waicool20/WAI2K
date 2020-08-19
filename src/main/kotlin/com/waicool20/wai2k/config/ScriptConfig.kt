@@ -24,15 +24,15 @@ import tornadofx.*
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 class ScriptConfig(
-        loopDelay: Int = 15,
-        baseNavigationDelay: Int = 500,
-        mouseDelay: Double = 0.15,
-        defaultSimilarityThreshold: Double = 0.9,
-        mapRunnerSimilarityThreshold: Double = 0.85,
-        ocrThreshold: Double = 0.9,
-        fastScreenshotMode: Boolean = false,
-        minPostBattleClick: Int = 7,
-        maxPostBattleClick: Int = 9
+    loopDelay: Int = 15,
+    baseNavigationDelay: Int = 500,
+    mouseDelay: Double = 0.15,
+    defaultSimilarityThreshold: Double = 0.9,
+    mapRunnerSimilarityThreshold: Double = 0.85,
+    ocrThreshold: Double = 0.9,
+    fastScreenshotMode: Boolean = false,
+    minPostBattleClick: Int = 7,
+    maxPostBattleClick: Int = 9
 ) {
     val loopDelayProperty = loopDelay.toProperty()
     val baseNavigationDelayProperty = baseNavigationDelay.toProperty()

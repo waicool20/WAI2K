@@ -45,11 +45,11 @@ import java.time.Instant
 import kotlin.system.measureTimeMillis
 
 class InitModule(
-        scriptRunner: ScriptRunner,
-        region: AndroidRegion,
-        config: Wai2KConfig,
-        profile: Wai2KProfile,
-        navigator: Navigator
+    scriptRunner: ScriptRunner,
+    region: AndroidRegion,
+    config: Wai2KConfig,
+    profile: Wai2KProfile,
+    navigator: Navigator
 ) : ScriptModule(scriptRunner, region, config, profile, navigator) {
     private val logger = loggerFor<InitModule>()
     override suspend fun execute() {
@@ -77,25 +77,25 @@ class InitModule(
     private suspend fun updateLogistics(cache: Region<AndroidDevice>) {
         logger.info("Reading logistics support status")
         val entry = cache.subRegion(422, 0, 240, cache.height)
-                .findBest(FileTemplate("init/logistics.png"), 4)
-                .map { it.region }
-                // Map each region to whole logistic support entry
-                .map { cache.subRegion(it.x - 135, it.y - 82, 853, 144) }
-                .mapAsync {
-                    listOf(
-                            // Echelon section on the right without the word "Echelon"
-                            Ocr.forConfig(config, digitsOnly = true).doOCRAndTrim(it.subRegion(0, 25, 83, 100)),
-                            // Logistics number ie. 1-1
-                            Ocr.forConfig(config).doOCRAndTrim(it.subRegion(165, 30, 84, 33)),
-                            // Timer xx:xx:xx
-                            Ocr.forConfig(config).doOCRAndTrim(it.subRegion(600, 71, 188, 40))
+            .findBest(FileTemplate("init/logistics.png"), 4)
+            .map { it.region }
+            // Map each region to whole logistic support entry
+            .map { cache.subRegion(it.x - 135, it.y - 82, 853, 144) }
+            .mapAsync {
+                listOf(
+                    // Echelon section on the right without the word "Echelon"
+                    Ocr.forConfig(config, digitsOnly = true).doOCRAndTrim(it.subRegion(0, 25, 83, 100)),
+                    // Logistics number ie. 1-1
+                    Ocr.forConfig(config).doOCRAndTrim(it.subRegion(165, 30, 84, 33)),
+                    // Timer xx:xx:xx
+                    Ocr.forConfig(config).doOCRAndTrim(it.subRegion(600, 71, 188, 40))
 
-                    )
-                }
-                .map { "${it[0]} ${it[1]} ${it[2]}" }
-                .mapNotNull {
-                    Regex("(\\d+) (\\d\\d?).*?(\\d) (\\d\\d):(\\d\\d):(\\d\\d)").matchEntire(it)?.destructured
-                }
+                )
+            }
+            .map { "${it[0]} ${it[1]} ${it[2]}" }
+            .mapNotNull {
+                Regex("(\\d+) (\\d\\d?).*?(\\d) (\\d\\d):(\\d\\d):(\\d\\d)").matchEntire(it)?.destructured
+            }
         // Clear existing timers
         gameState.echelons.forEach { it.logisticsSupportAssignment = null }
         entry.forEach { (sEchelon, sChapter, sNumber, sHour, sMinutes, sSeconds) ->
@@ -129,13 +129,13 @@ class InitModule(
 
         // Map each region to whole logistic support entry
         val mappedEntries = entries.map { it.region }
-                .map { cache.capture().getSubimage(it.x - 109, it.y - 12, 851, 143) }
-                .map {
-                    async {
-                        // Echelon section on the right without the word "Echelon"
-                        Ocr.forConfig(config).doOCRAndTrim(it.getSubimage(10, 25, 65, 100))
-                    } to async { readRepairTimers(it) }
-                }.map { it.first.await().toInt() to it.second.await() }
+            .map { cache.capture().getSubimage(it.x - 109, it.y - 12, 851, 143) }
+            .map {
+                async {
+                    // Echelon section on the right without the word "Echelon"
+                    Ocr.forConfig(config).doOCRAndTrim(it.getSubimage(10, 25, 65, 100))
+                } to async { readRepairTimers(it) }
+            }.map { it.first.await().toInt() to it.second.await() }
 
         // Clear existing timers
         gameState.echelons.flatMap { it.members }.forEach { it.repairEta = null }
@@ -157,12 +157,12 @@ class InitModule(
         return (0 until 5).mapAsync { entry ->
             // Single repair entry without the "Repairing" or "Standby"
             Ocr.forConfig(config).doOCRAndTrim(image.getSubimage(115 + 145 * entry, 38, 122, 75))
-                    .takeIf { it.contains("Repairing") }
-                    ?.let { timer ->
-                        Regex("(\\d\\d):(\\d\\d):(\\d\\d)").find(timer)?.groupValues?.let {
-                            entry to DurationUtils.of(it[3].toLong(), it[2].toLong(), it[1].toLong())
-                        }
-                    } ?: entry to Duration.ZERO
+                .takeIf { it.contains("Repairing") }
+                ?.let { timer ->
+                    Regex("(\\d\\d):(\\d\\d):(\\d\\d)").find(timer)?.groupValues?.let {
+                        entry to DurationUtils.of(it[3].toLong(), it[2].toLong(), it[1].toLong())
+                    }
+                } ?: entry to Duration.ZERO
         }.toMap()
     }
 }

@@ -24,11 +24,11 @@ import java.awt.Rectangle
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 sealed class MapNode(
-        val x: Int,
-        val y: Int,
-        val width: Int,
-        val height: Int,
-        val type: Type = Type.Normal
+    val x: Int,
+    val y: Int,
+    val width: Int,
+    val height: Int,
+    val type: Type = Type.Normal
 ) {
     enum class Type { Normal, CommandPost, Heliport, HeavyHeliport }
 

@@ -30,9 +30,9 @@ import java.awt.image.BufferedImage
  * Returns a masked image where nodes and path lines are located
  */
 fun BufferedImage.extractNodes(
-        includeBlue: Boolean = true,
-        includeWhite: Boolean = true,
-        includeYellow: Boolean = true
+    includeBlue: Boolean = true,
+    includeWhite: Boolean = true,
+    includeYellow: Boolean = true
 ): GrayF32 {
     val hsv = asPlanar().asHsv()
     val redNodes = hsv.clone().apply { hsvFilter(hueRange = arrayOf(0..10, 250..360), satRange = arrayOf(12..100)) }.getBand(2)

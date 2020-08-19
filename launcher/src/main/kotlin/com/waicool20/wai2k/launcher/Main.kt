@@ -176,10 +176,10 @@ object Main {
         }
 
         val deps = depsString
-                .map { it.split(":") }
-                .filter { (_, name, version) ->
-                    Files.notExists(libPath.resolve("$name-$version.jar"))
-                }
+            .map { it.split(":") }
+            .filter { (_, name, version) ->
+                Files.notExists(libPath.resolve("$name-$version.jar"))
+            }
 
         val latch = CountDownLatch(deps.size)
         label.text = "Downloading libraries: ${deps.size - latch.count}/${deps.size}"
@@ -231,9 +231,9 @@ object Main {
         println("Classpath: $classpath")
         println("Args: ${args.joinToString()}")
         val process = ProcessBuilder("java", "-cp",
-                classpath,
-                "com.waicool20.wai2k.LauncherKt",
-                *args
+            classpath,
+            "com.waicool20.wai2k.LauncherKt",
+            *args
         ).inheritIO().start()
         process.waitFor()
         exitProcess(process.exitValue())

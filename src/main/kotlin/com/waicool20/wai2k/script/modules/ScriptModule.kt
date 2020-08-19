@@ -39,11 +39,11 @@ import kotlinx.coroutines.yield
 import kotlin.coroutines.CoroutineContext
 
 abstract class ScriptModule(
-        protected val scriptRunner: ScriptRunner,
-        protected val region: AndroidRegion,
-        protected val config: Wai2KConfig,
-        protected val profile: Wai2KProfile,
-        protected val navigator: Navigator
+    protected val scriptRunner: ScriptRunner,
+    protected val region: AndroidRegion,
+    protected val config: Wai2KConfig,
+    protected val profile: Wai2KProfile,
+    protected val navigator: Navigator
 ) : CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = scriptRunner.coroutineContext
@@ -123,17 +123,17 @@ abstract class ScriptModule(
         val cRegion = region.subRegion(395, 146, 283, 934)
         // Top 1/4 part of lsRegion
         val upperSwipeRegion = cRegion.subRegionAs<AndroidRegion>(
-                cRegion.width / 2 - 15,
-                0,
-                30,
-                cRegion.height / 4
+            cRegion.width / 2 - 15,
+            0,
+            30,
+            cRegion.height / 4
         )
         // Lower 1/4 part of lsRegion
         val lowerSwipeRegion = cRegion.subRegionAs<AndroidRegion>(
-                cRegion.width / 2 - 15,
-                cRegion.height / 4 + cRegion.height / 2,
-                30,
-                cRegion.height / 4
+            cRegion.width / 2 - 15,
+            cRegion.height / 4 + cRegion.height / 2,
+            30,
+            cRegion.height / 4
         )
         var retries = 0
         while (cRegion.doesntHave(FileTemplate("chapters/$chapter.png", CHAPTER_SIMILARITY))) {
@@ -156,8 +156,8 @@ abstract class ScriptModule(
             if (retries++ >= 3) throw ChapterClickFailedException(chapter)
         }
         cRegion.subRegion(0, 0, 195, cRegion.height).clickTemplateWhile(
-                template = FileTemplate("chapters/$chapter.png", CHAPTER_SIMILARITY),
-                timeout = 20
+            template = FileTemplate("chapters/$chapter.png", CHAPTER_SIMILARITY),
+            timeout = 20
         ) { has(it) }
     }
 }

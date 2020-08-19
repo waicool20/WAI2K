@@ -24,8 +24,8 @@ import com.waicool20.waicoolutils.javafx.LongSpinnerValueFactory
 import com.waicool20.waicoolutils.javafx.bind
 import javafx.scene.control.CheckBox
 import javafx.scene.control.Spinner
-import javafx.scene.control.SpinnerValueFactory.IntegerSpinnerValueFactory
 import javafx.scene.control.SpinnerValueFactory.DoubleSpinnerValueFactory
+import javafx.scene.control.SpinnerValueFactory.IntegerSpinnerValueFactory
 import javafx.scene.layout.VBox
 import tornadofx.*
 

@@ -27,22 +27,20 @@ import com.waicool20.wai2k.script.modules.combat.MapRunner
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
-import kotlin.math.roundToInt
 import kotlin.math.roundToLong
-import kotlin.random.Random
 
 class Map11_5(
-        scriptRunner: ScriptRunner,
-        region: AndroidRegion,
-        config: Wai2KConfig,
-        profile: Wai2KProfile
+    scriptRunner: ScriptRunner,
+    region: AndroidRegion,
+    config: Wai2KConfig,
+    profile: Wai2KProfile
 ) : MapRunner(scriptRunner, region, config, profile) {
     private val logger = loggerFor<Map11_5>()
     override val isCorpseDraggingMap = true
 
     override suspend fun execute() {
         // No need to zoom, delay for map lag
-        delay((1000*gameState.delayCoefficient).roundToLong())
+        delay((1000 * gameState.delayCoefficient).roundToLong())
         val rEchelons = deployEchelons(nodes[1], nodes[0])
         // Dummy do not supply
         deployEchelons(nodes[2])
@@ -53,8 +51,8 @@ class Map11_5(
         planPath()
         // Wait for team to move all the way
         waitForTurnEnd(5, false); delay(1000)
-        waitForTurnAndPoints(1, 0 , false); delay(1000)
-        retreatEchelons(nodes[0])       
+        waitForTurnAndPoints(1, 0, false); delay(1000)
+        retreatEchelons(nodes[0])
         terminateMission()
     }
 

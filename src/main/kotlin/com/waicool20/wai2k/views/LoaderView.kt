@@ -36,12 +36,11 @@ import javafx.application.Application
 import javafx.scene.control.Label
 import javafx.scene.layout.AnchorPane
 import kotlinx.coroutines.*
-import okhttp3.*
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import tornadofx.*
-import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Paths
-import java.util.concurrent.CountDownLatch
 
 class LoaderView : CoroutineScopeView() {
     override val root: AnchorPane by fxml("/views/loader.fxml")

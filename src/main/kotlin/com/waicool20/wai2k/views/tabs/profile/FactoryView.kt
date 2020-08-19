@@ -36,7 +36,7 @@ class FactoryView : AbstractProfileView() {
     override fun createBindings() {
         alwaysDisassembleAfterEnhanceCheckBox.disableWhen {
             enableEnhancementCheckBox.selectedProperty().not() or
-            enableDisassemblyCheckBox.selectedProperty().not()
+                enableDisassemblyCheckBox.selectedProperty().not()
         }
 
         enableEquip4StarDisassemblyCheckBox.disableWhen {

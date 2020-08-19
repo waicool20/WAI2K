@@ -30,10 +30,10 @@ import kotlinx.coroutines.yield
 import kotlin.random.Random
 
 class Map4_6(
-        scriptRunner: ScriptRunner,
-        region: AndroidRegion,
-        config: Wai2KConfig,
-        profile: Wai2KProfile
+    scriptRunner: ScriptRunner,
+    region: AndroidRegion,
+    config: Wai2KConfig,
+    profile: Wai2KProfile
 ) : MapRunner(scriptRunner, region, config, profile) {
     private val logger = loggerFor<Map4_6>()
     override val isCorpseDraggingMap = false
@@ -43,10 +43,10 @@ class Map4_6(
             logger.info("Zoom out")
             repeat(2) {
                 region.pinch(
-                        Random.nextInt(700, 800),
-                        Random.nextInt(300, 400),
-                        0.0,
-                        500
+                    Random.nextInt(700, 800),
+                    Random.nextInt(300, 400),
+                    0.0,
+                    500
                 )
                 delay(200)
             }
@@ -55,13 +55,12 @@ class Map4_6(
             r.swipeTo(r.copy(y = r.y - 400))
             delay(500)
             deployEchelons(nodes[5])
-            gameState.requiresMapInit = false           
-        }
-        else{
+            gameState.requiresMapInit = false
+        } else {
             nodes[0].findRegion()
             deployEchelons(nodes[0])
-        }   
-         // pan up
+        }
+        // pan up
         val r = region.subRegionAs<AndroidRegion>(1058, 224, 100, 22)
         repeat(2) {
             r.swipeTo(r.copy(y = r.y + 450))
@@ -74,7 +73,7 @@ class Map4_6(
         resupplyEchelons(rEchelons)
         planPath()
         waitForTurnEnd(4)
-        handleBattleResults()        
+        handleBattleResults()
     }
 
     private suspend fun planPath() {

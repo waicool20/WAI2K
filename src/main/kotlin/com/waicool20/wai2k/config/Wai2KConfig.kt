@@ -34,22 +34,20 @@ import com.waicool20.waicoolutils.logging.loggerFor
 import tornadofx.*
 import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.Paths
-import java.util.jar.JarFile
 
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy::class)
 @JsonIgnoreProperties(ignoreUnknown = true)
 class Wai2KConfig(
-        currentProfile: String = Wai2KProfile.DEFAULT_NAME,
-        assetsDirectory: Path = Wai2K.CONFIG_DIR.resolve("assets"),
-        ocrDirectory: Path = Wai2K.CONFIG_DIR.resolve("tessdata"),
-        clearConsoleOnStart: Boolean = true,
-        showConsoleOnStart: Boolean = true,
-        debugModeEnabled: Boolean = true,
-        lastDeviceSerial: String = "",
-        scriptConfig: ScriptConfig = ScriptConfig(),
-        gameRestartConfig: GameRestartConfig = GameRestartConfig(),
-        apiKey: String = ""
+    currentProfile: String = Wai2KProfile.DEFAULT_NAME,
+    assetsDirectory: Path = Wai2K.CONFIG_DIR.resolve("assets"),
+    ocrDirectory: Path = Wai2K.CONFIG_DIR.resolve("tessdata"),
+    clearConsoleOnStart: Boolean = true,
+    showConsoleOnStart: Boolean = true,
+    debugModeEnabled: Boolean = true,
+    lastDeviceSerial: String = "",
+    scriptConfig: ScriptConfig = ScriptConfig(),
+    gameRestartConfig: GameRestartConfig = GameRestartConfig(),
+    apiKey: String = ""
 ) {
     private val logger = loggerFor<Wai2K>()
 
@@ -87,7 +85,7 @@ class Wai2KConfig(
         private val loaderLogger = loggerFor<Loader>()
 
         val requiredOcrFiles = listOf(
-                "eng.traineddata", "osd.traineddata"
+            "eng.traineddata", "osd.traineddata"
         )
 
         val path: Path = Wai2K.CONFIG_DIR.resolve("preferences.json")

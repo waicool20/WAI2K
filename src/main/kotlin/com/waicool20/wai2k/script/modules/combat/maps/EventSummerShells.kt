@@ -30,10 +30,10 @@ import kotlin.math.roundToLong
 import kotlin.random.Random
 
 class EventSummerShells(
-        scriptRunner: ScriptRunner,
-        region: AndroidRegion,
-        config: Wai2KConfig,
-        profile: Wai2KProfile
+    scriptRunner: ScriptRunner,
+    region: AndroidRegion,
+    config: Wai2KConfig,
+    profile: Wai2KProfile
 ) : EventMapRunner(scriptRunner, region, config, profile) {
     private val logger = loggerFor<EventSummerShells>()
     override val isCorpseDraggingMap = false
@@ -50,10 +50,10 @@ class EventSummerShells(
         if (gameState.requiresMapInit) {
             logger.info("Zoom out")
             region.pinch(
-                    Random.nextInt(900, 1000),
-                    Random.nextInt(300, 400),
-                    0.0,
-                    500
+                Random.nextInt(900, 1000),
+                Random.nextInt(300, 400),
+                0.0,
+                500
             )
             delay((1000 * gameState.delayCoefficient).roundToLong()) // Wait to settle
             gameState.requiresMapInit = false

@@ -28,25 +28,25 @@ import java.awt.image.BufferedImage
 
 object Ocr {
     private val numberReplacements = mapOf(
-            "cCDGoOQ@" to "0", "iIl\\[\\]|!" to "1",
-            "zZ" to "2", "E" to "3",
-            "Ah" to "4", "sS" to "5",
-            "bG" to "6", "B:" to "8",
-            "- —" to ""
+        "cCDGoOQ@" to "0", "iIl\\[\\]|!" to "1",
+        "zZ" to "2", "E" to "3",
+        "Ah" to "4", "sS" to "5",
+        "bG" to "6", "B:" to "8",
+        "- —" to ""
     )
 
     val OCR_DISTANCE_MAP = mapOf(
-            "-—" to 0.1,
-            "0cCDGoOQ@" to 0.1,
-            "1iIl\\[\\]|!" to 0.1,
-            "2Zz" to 0.1,
-            "3E" to 0.2,
-            "4Ah" to 0.1,
-            "5sS" to 0.1,
-            "6Gb" to 0.1,
-            "7-" to 0.3,
-            "8B:" to 0.2,
-            "9S" to 0.3
+        "-—" to 0.1,
+        "0cCDGoOQ@" to 0.1,
+        "1iIl\\[\\]|!" to 0.1,
+        "2Zz" to 0.1,
+        "3E" to 0.2,
+        "4Ah" to 0.1,
+        "5sS" to 0.1,
+        "6Gb" to 0.1,
+        "7-" to 0.3,
+        "8B:" to 0.2,
+        "9S" to 0.3
     )
 
     const val DIGITS = "0123456789"
@@ -68,9 +68,9 @@ object Ocr {
      * @param useLSTM Uses the new LSTM engine instead of legacy if true
      */
     fun forConfig(
-            config: Wai2KConfig,
-            digitsOnly: Boolean = false,
-            useLSTM: Boolean = false
+        config: Wai2KConfig,
+        digitsOnly: Boolean = false,
+        useLSTM: Boolean = false
     ) = Tesseract().apply {
         setTessVariable("user_defined_dpi", "300")
         setDatapath(config.ocrDirectory.toString())

@@ -35,7 +35,7 @@ object YuuBot {
     private val logger = loggerFor<YuuBot>()
     private val endpoint
         get() = System.getenv("WAI2K_ENDPOINT").takeUnless { it.isNullOrEmpty() }
-                ?: "https://yuu.waicool20.com/api/wai2k/user"
+            ?: "https://yuu.waicool20.com/api/wai2k/user"
 
     private val JSON_MEDIA_TYPE = "application/json".toMediaTypeOrNull()
 
@@ -64,16 +64,16 @@ object YuuBot {
         }
 
         val body = jacksonObjectMapper()
-                .addMixIn(ScriptStats::class.java, ScriptStatsMixin::class.java)
-                .writer()
-                .withAttributes(attr)
-                .writeValueAsString(stats)
-                .toRequestBody(JSON_MEDIA_TYPE)
+            .addMixIn(ScriptStats::class.java, ScriptStatsMixin::class.java)
+            .writer()
+            .withAttributes(attr)
+            .writeValueAsString(stats)
+            .toRequestBody(JSON_MEDIA_TYPE)
 
         val request = Request.Builder()
-                .url("$endpoint/$apiKey/stats/${startTime.toEpochMilli()}")
-                .post(body)
-                .build()
+            .url("$endpoint/$apiKey/stats/${startTime.toEpochMilli()}")
+            .post(body)
+            .build()
 
         OkHttpClient().newCall(request).enqueue(object : Callback {
             override fun onResponse(call: Call, response: Response) {

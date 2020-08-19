@@ -117,7 +117,7 @@ class StatusTabView : CoroutineScopeView() {
         val builder = StringBuilder()
         scriptRunner.gameState.apply {
             val echelonLogistics = echelons.filter { it.logisticsSupportAssignment?.eta?.isAfter(Instant.now()) == true }
-                    .sortedBy { it.logisticsSupportAssignment?.eta }
+                .sortedBy { it.logisticsSupportAssignment?.eta }
             if (echelonLogistics.isNotEmpty()) {
                 builder /= "Logistics:"
                 builder += echelonLogistics.joinToString("\n") {
@@ -127,9 +127,9 @@ class StatusTabView : CoroutineScopeView() {
             }
 
             val echelonRepairs = echelons
-                    .flatMap { echelon -> echelon.members.map { echelon.number to it } }
-                    .filter { it.second.repairEta?.isAfter(Instant.now()) == true }
-                    .sortedBy { it.second.repairEta }
+                .flatMap { echelon -> echelon.members.map { echelon.number to it } }
+                .filter { it.second.repairEta?.isAfter(Instant.now()) == true }
+                .sortedBy { it.second.repairEta }
             if (echelonRepairs.isNotEmpty()) {
                 builder /= "Repairs:"
                 builder += echelonRepairs.joinToString("\n") { (echelonNumber, member) ->
@@ -146,7 +146,7 @@ class StatusTabView : CoroutineScopeView() {
 
     private fun timeDelta(time: Instant?): String {
         val duration = time?.let { Duration.between(it, Instant.now()).abs() }
-                ?: return "00:00:00"
+            ?: return "00:00:00"
         return formatDuration(duration) ?: "00:00:00"
     }
 
@@ -155,7 +155,7 @@ class StatusTabView : CoroutineScopeView() {
     }
 
     private fun hoursSince(time: Instant?) =
-            time?.let { Duration.between(it, Instant.now()).seconds / 3600.0 } ?: 0.0
+        time?.let { Duration.between(it, Instant.now()).seconds / 3600.0 } ?: 0.0
 
     private fun formatDecimal(d: Double) = DecimalFormat("0.00").format(d).replace("\uFFFD", "0.00")
 }

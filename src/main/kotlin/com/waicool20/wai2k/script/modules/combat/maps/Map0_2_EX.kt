@@ -30,10 +30,10 @@ import kotlinx.coroutines.yield
 import kotlin.random.Random
 
 class Map0_2_EX(
-        scriptRunner: ScriptRunner,
-        region: AndroidRegion,
-        config: Wai2KConfig,
-        profile: Wai2KProfile
+    scriptRunner: ScriptRunner,
+    region: AndroidRegion,
+    config: Wai2KConfig,
+    profile: Wai2KProfile
 ) : MapRunner(scriptRunner, region, config, profile) {
     private val logger = loggerFor<Map0_2_EX>()
     override val isCorpseDraggingMap = true
@@ -45,18 +45,18 @@ class Map0_2_EX(
         if (gameState.requiresMapInit) {
             logger.info("Zoom out")
             region.pinch(
-                    Random.nextInt(900, 1000),
-                    Random.nextInt(300, 400),
-                    0.0,
-                    500
+                Random.nextInt(900, 1000),
+                Random.nextInt(300, 400),
+                0.0,
+                500
             )
             gameState.requiresMapInit = false
         } else {
             region.pinch(
-                    Random.nextInt(444, 555),
-                    Random.nextInt(222, 333),
-                    0.0,
-                    300
+                Random.nextInt(444, 555),
+                Random.nextInt(222, 333),
+                0.0,
+                300
             )
         }
         delay(800) //Wait to settle

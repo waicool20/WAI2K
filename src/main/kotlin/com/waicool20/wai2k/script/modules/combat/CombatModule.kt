@@ -49,17 +49,17 @@ import java.text.DecimalFormat
 import kotlin.reflect.full.primaryConstructor
 
 class CombatModule(
-        scriptRunner: ScriptRunner,
-        region: AndroidRegion,
-        config: Wai2KConfig,
-        profile: Wai2KProfile,
-        navigator: Navigator
+    scriptRunner: ScriptRunner,
+    region: AndroidRegion,
+    config: Wai2KConfig,
+    profile: Wai2KProfile,
+    navigator: Navigator
 ) : ScriptModule(scriptRunner, region, config, profile, navigator) {
     private val logger = loggerFor<CombatModule>()
 
     private val map by lazy {
         MapRunner.list.keys.find { it.name == profile.combat.map }
-                ?: throw UnsupportedMapException(profile.combat.map)
+            ?: throw UnsupportedMapException(profile.combat.map)
     }
 
     private val mapRunner by lazy {
@@ -224,7 +224,7 @@ class CombatModule(
         tdoll.apply { applyDollFilters(stars, type, reset) }
         delay(500)
         region.subRegion(1188, 214, 258, 252)
-                .waitDoesntHave(FileTemplate("doll-list/filtermenu.png"), 5000)
+            .waitDoesntHave(FileTemplate("doll-list/filtermenu.png"), 5000)
     }
 
     //</editor-fold>
@@ -250,22 +250,22 @@ class CombatModule(
         for (i in 1..retries) {
             val cache = region.asCachedRegion()
             val members = cache.findBest(FileTemplate("formation/stats.png"), 5)
-                    .also { logger.info("Found ${it.size} dolls on screen") }
-                    .map { it.region }
-                    .sortedBy { it.x }
-                    .map {
-                        DollRegions(
-                                cache.capture().getSubimage(it.x - 153, it.y - 183, 247, 84),
-                                cache.capture().getSubimage(it.x - 133, it.y - 61, 209, 1)
-                        )
-                    }
+                .also { logger.info("Found ${it.size} dolls on screen") }
+                .map { it.region }
+                .sortedBy { it.x }
+                .map {
+                    DollRegions(
+                        cache.capture().getSubimage(it.x - 153, it.y - 183, 247, 84),
+                        cache.capture().getSubimage(it.x - 133, it.y - 61, 209, 1)
+                    )
+                }
 
             val formatter = DecimalFormat("##.#")
             gameState.echelons[echelon - 1].members.forEachIndexed { j, member ->
                 val dMember = members.getOrNull(j)
                 member.name = dMember?.tdollOcr?.await()?.second?.name ?: "Unknown"
                 member.needsRepair = (dMember?.percent?.await()
-                        ?: 100.0) < profile.combat.repairThreshold
+                    ?: 100.0) < profile.combat.repairThreshold
                 val sPercent = dMember?.percent?.await()?.let { formatter.format(it) } ?: "N/A"
                 logger.info("[Repair OCR] Name: ${dMember?.tdollOcr?.await()?.first} | HP (%): $sPercent")
             }
@@ -300,28 +300,28 @@ class CombatModule(
 
             while (isActive) {
                 val repairSlots = region.findBest(FileTemplate("combat/empty-repair.png"), 7)
-                        .map { it.region }
+                    .map { it.region }
                 repairSlots.firstOrNull()?.click()
-                        ?: run {
-                            logger.info("No available repair slots, cancelling sortie")
-                            return
-                        }
+                    ?: run {
+                        logger.info("No available repair slots, cancelling sortie")
+                        return
+                    }
                 delay(1000)
 
                 val cache = region.asCachedRegion()
                 // Set matcher to high resolution, otherwise sometimes not all lock.png are found
                 region.matcher.settings.matchDimension = ScriptRunner.HIGH_RES
                 val repairRegions = cache.findBest(FileTemplate("doll-list/lock.png"), 12)
-                        .also { logger.info("Found ${it.size} dolls on screen") }
-                        .map { it.region }
-                        .filterAsync {
-                            val isCritical = region.subRegion(it.x - 4, it.y - 258, 230, 413).has(FileTemplate("combat/critical-dmg.png"))
-                            val isDmgedMember = Ocr.forConfig(config).doOCRAndTrim(cache.capture().getSubimage(it.x + 61, it.y + 77, 166, 46))
-                                    .let { TDoll.lookup(config, it) }
-                                    ?.let { tdoll -> members.any { it.name == tdoll.name } } == true
-                            isCritical || isDmgedMember
-                        }.map { region.subRegion(it.x - 4, it.y - 258, 230, 413) }
-                        .also { logger.info("${it.size} dolls need repair") }
+                    .also { logger.info("Found ${it.size} dolls on screen") }
+                    .map { it.region }
+                    .filterAsync {
+                        val isCritical = region.subRegion(it.x - 4, it.y - 258, 230, 413).has(FileTemplate("combat/critical-dmg.png"))
+                        val isDmgedMember = Ocr.forConfig(config).doOCRAndTrim(cache.capture().getSubimage(it.x + 61, it.y + 77, 166, 46))
+                            .let { TDoll.lookup(config, it) }
+                            ?.let { tdoll -> members.any { it.name == tdoll.name } } == true
+                        isCritical || isDmgedMember
+                    }.map { region.subRegion(it.x - 4, it.y - 258, 230, 413) }
+                    .also { logger.info("${it.size} dolls need repair") }
                 region.matcher.settings.matchDimension = ScriptRunner.NORMAL_RES
                 if (repairRegions.isEmpty()) {
                     // Click close popup
@@ -415,7 +415,7 @@ class CombatModule(
                     while (isActive) {
                         region.subRegion(1020, 880, 675, 140).randomPoint().let {
                             region.device.input.touchInterface?.swipe(
-                                    ITouchInterface.Swipe(0, it.x, it.y, it.x, it.y - 650), 1000
+                                ITouchInterface.Swipe(0, it.x, it.y, it.x, it.y - 650), 1000
                             )
                         }
                         if (Ocr.forConfig(config).doOCRAndTrim(mapNameR).contains(mapName)) break
@@ -444,7 +444,7 @@ class CombatModule(
             // and try again
             if (loops++ == 5) return
             region.subRegion(790, 800, 580, 140)
-                    .findBest(FileTemplate("combat/battle/normal.png"))?.region?.click() ?: continue
+                .findBest(FileTemplate("combat/battle/normal.png"))?.region?.click() ?: continue
             delay(200)
 
             if (checkNeedsEnhancement()) return

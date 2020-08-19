@@ -19,7 +19,6 @@
 
 package com.waicool20.wai2k.views.tabs.profile
 
-import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.config.Wai2KProfile.CombatReport
 import javafx.scene.control.CheckBox
 import javafx.scene.control.ComboBox

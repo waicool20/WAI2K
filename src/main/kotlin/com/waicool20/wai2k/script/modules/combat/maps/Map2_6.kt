@@ -31,10 +31,10 @@ import kotlinx.coroutines.yield
 import kotlin.random.Random
 
 class Map2_6(
-        scriptRunner: ScriptRunner,
-        region: AndroidRegion,
-        config: Wai2KConfig,
-        profile: Wai2KProfile
+    scriptRunner: ScriptRunner,
+    region: AndroidRegion,
+    config: Wai2KConfig,
+    profile: Wai2KProfile
 ) : MapRunner(scriptRunner, region, config, profile) {
     private val logger = loggerFor<Map2_6>()
     override val isCorpseDraggingMap = false
@@ -44,10 +44,10 @@ class Map2_6(
     override suspend fun execute() {
         logger.info("Zoom out")
         region.pinch(
-                Random.nextInt(700, 800),
-                Random.nextInt(250, 340),
-                0.0,
-                500
+            Random.nextInt(700, 800),
+            Random.nextInt(250, 340),
+            0.0,
+            500
         )
         //Map to settle
         delay(1000)

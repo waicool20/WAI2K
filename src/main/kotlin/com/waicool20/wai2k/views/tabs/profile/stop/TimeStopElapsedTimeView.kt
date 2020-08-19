@@ -61,10 +61,10 @@ class TimeStopElapsedTimeView : AbstractProfileView() {
 
     private fun updateElapsedTime() {
         context.currentProfile.stop.time.elapsedTime = DurationUtils.of(
-                days = daysField.text.toLongOrNull() ?: 0,
-                hours = hoursField.text.toLongOrNull() ?: 0,
-                minutes = minutesField.text.toLongOrNull() ?: 0,
-                seconds = secondsField.text.toLongOrNull() ?: 0
+            days = daysField.text.toLongOrNull() ?: 0,
+            hours = hoursField.text.toLongOrNull() ?: 0,
+            minutes = minutesField.text.toLongOrNull() ?: 0,
+            seconds = secondsField.text.toLongOrNull() ?: 0
         )
     }
 }

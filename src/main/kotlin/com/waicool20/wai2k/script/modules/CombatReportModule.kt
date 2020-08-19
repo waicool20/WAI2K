@@ -36,11 +36,11 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 class CombatReportModule(
-        scriptRunner: ScriptRunner,
-        region: AndroidRegion,
-        config: Wai2KConfig,
-        profile: Wai2KProfile,
-        navigator: Navigator
+    scriptRunner: ScriptRunner,
+    region: AndroidRegion,
+    config: Wai2KConfig,
+    profile: Wai2KProfile,
+    navigator: Navigator
 ) : ScriptModule(scriptRunner, region, config, profile, navigator) {
     private val logger = loggerFor<CombatReportModule>()
 
@@ -85,8 +85,8 @@ class CombatReportModule(
         }
         delay(500)
         val reports = Ocr.forConfig(config).doOCRAndTrim(reportRegion)
-                .takeWhile { it.isDigit() || it != '/' }
-                .toIntOrNull()
+            .takeWhile { it.isDigit() || it != '/' }
+            .toIntOrNull()
         if (reports != null) {
             logger.info("Writing $reports reports")
             scriptStats.combatReportsWritten += reports

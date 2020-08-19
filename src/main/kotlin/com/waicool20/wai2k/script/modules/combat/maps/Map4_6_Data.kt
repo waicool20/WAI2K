@@ -30,10 +30,10 @@ import kotlinx.coroutines.yield
 import kotlin.random.Random
 
 class Map4_6_Data(
-        scriptRunner: ScriptRunner,
-        region: AndroidRegion,
-        config: Wai2KConfig,
-        profile: Wai2KProfile
+    scriptRunner: ScriptRunner,
+    region: AndroidRegion,
+    config: Wai2KConfig,
+    profile: Wai2KProfile
 ) : MapRunner(scriptRunner, region, config, profile) {
     private val logger = loggerFor<Map4_6>()
     override val isCorpseDraggingMap = false
@@ -46,10 +46,10 @@ class Map4_6_Data(
             logger.info("Zoom out")
             repeat(2) {
                 region.pinch(
-                        Random.nextInt(700, 800),
-                        Random.nextInt(300, 400),
-                        0.0,
-                        500
+                    Random.nextInt(700, 800),
+                    Random.nextInt(300, 400),
+                    0.0,
+                    500
                 )
                 delay(200)
             }

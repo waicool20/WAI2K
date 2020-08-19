@@ -98,24 +98,24 @@ class DeviceTabView : CoroutineScopeView(), Binder {
     override fun createBindings() {
         val itemProp = deviceComboBox.selectionModel.selectedItemProperty()
         androidVersionLabel.textProperty().bind(
-                itemProp.stringBinding { it?.properties?.androidVersion ?: "" }
+            itemProp.stringBinding { it?.properties?.androidVersion ?: "" }
         )
         brandLabel.textProperty().bind(
-                itemProp.stringBinding { it?.properties?.brand ?: "" }
+            itemProp.stringBinding { it?.properties?.brand ?: "" }
         )
         manufacturerLabel.bind(
-                itemProp.stringBinding { it?.properties?.manufacturer ?: "" }
+            itemProp.stringBinding { it?.properties?.manufacturer ?: "" }
         )
         modelLabel.bind(
-                itemProp.stringBinding { it?.properties?.model ?: "" }
+            itemProp.stringBinding { it?.properties?.model ?: "" }
         )
         serialLabel.bind(
-                itemProp.stringBinding { it?.serial ?: "" }
+            itemProp.stringBinding { it?.serial ?: "" }
         )
         displayLabel.textProperty().bind(
-                itemProp.stringBinding {
-                    it?.properties?.run { "${displayWidth}x$displayHeight" } ?: ""
-                }
+            itemProp.stringBinding {
+                it?.properties?.run { "${displayWidth}x$displayHeight" } ?: ""
+            }
         )
         itemProp.addListener("AndroidDeviceSelection", ::setNewDevice)
         touchesButton.action {

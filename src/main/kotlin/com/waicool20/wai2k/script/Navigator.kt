@@ -46,10 +46,10 @@ import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 
 class Navigator(
-        private val scriptRunner: ScriptRunner,
-        private val region: AndroidRegion,
-        private val config: Wai2KConfig,
-        private val profile: Wai2KProfile
+    private val scriptRunner: ScriptRunner,
+    private val region: AndroidRegion,
+    private val config: Wai2KConfig,
+    private val profile: Wai2KProfile
 ) : CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = scriptRunner.coroutineContext
@@ -71,7 +71,7 @@ class Navigator(
     suspend fun identifyCurrentLocation(retries: Int = 5): GameLocation {
         logger.info("Identifying current location")
         val locations = locations.entries.sortedBy { it.value.isIntermediate }
-                .map { it.value }.asFlow()
+            .map { it.value }.asFlow()
         repeat(retries) { i ->
             checkLogistics(true)
             val r = region.asCachedRegion()
@@ -97,7 +97,7 @@ class Navigator(
             val dest = locations[destination] ?: throw InvalidDestinationException(destination)
             logger.info("Navigating to ${dest.id}")
             val cLocation = gameState.currentGameLocation.takeIf { it.isInRegion(region) }
-                    ?: identifyCurrentLocation()
+                ?: identifyCurrentLocation()
             val path = cLocation.shortestPathTo(dest)
             if (path.isEmpty()) {
                 logger.info("Already at ${dest.id}")
@@ -120,7 +120,7 @@ class Navigator(
                 // Record amount of time that is spent on none transitional delay like image matching
                 var noneTransitionDelay = 0L
                 val avgTransitionDelay = transitionDelays.takeIf { it.isNotEmpty() }
-                        ?.average()?.roundToLong() ?: config.gameRestartConfig.averageDelay
+                    ?.average()?.roundToLong() ?: config.gameRestartConfig.averageDelay
                 for (cycle in 0..Integer.MAX_VALUE) {
                     if (cycle % 5 == 0) {
                         link.asset.getSubRegionFor(region).apply {
@@ -184,10 +184,10 @@ class Navigator(
                 updateAverageDelay(avgTransitionDelay)
                 updateRestartFlag()
                 logger.info("Transition: $transitionTime ms" +
-                        " | Delay: $avgTransitionDelay ms" +
-                        " | Ticks: $ticks" +
-                        " | DC: ${DecimalFormat("#.##").format(gameState.delayCoefficient)}" +
-                        " | RC: $restartCounter"
+                    " | Delay: $avgTransitionDelay ms" +
+                    " | Ticks: $ticks" +
+                    " | DC: ${DecimalFormat("#.##").format(gameState.delayCoefficient)}" +
+                    " | RC: $restartCounter"
                 )
 
                 gameState.currentGameLocation = destLoc
@@ -245,8 +245,8 @@ class Navigator(
         // to see if logistics might arrive anytime soon
         // We skip further execution if no logistics is due in 15s
         if (!forceCheck && !gameState.requiresUpdate &&
-                gameState.echelons.mapNotNull { it.logisticsSupportAssignment }
-                        .none { Duration.between(Instant.now(), it.eta).seconds <= 15 }) return false
+            gameState.echelons.mapNotNull { it.logisticsSupportAssignment }
+                .none { Duration.between(Instant.now(), it.eta).seconds <= 15 }) return false
         var logisticsArrived = false
         loop@ while (true) {
             when {

@@ -34,16 +34,17 @@ import com.waicool20.cvauto.core.Region
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Asset(
-        val imageName: String,
-        val x: Int,
-        val y: Int,
-        val width: Int,
-        val height: Int
+    val imageName: String,
+    val x: Int,
+    val y: Int,
+    val width: Int,
+    val height: Int
 ) {
     /**
      * Path prefix
      */
     var prefix = ""
+
     /**
      * Image path constructed from [prefix] and [imageName] with .png extension
      */

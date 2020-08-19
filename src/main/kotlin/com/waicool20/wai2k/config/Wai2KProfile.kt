@@ -42,20 +42,20 @@ import java.time.LocalTime
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy::class)
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Wai2KProfile(
-        val logistics: Logistics = Logistics(),
-        val combat: Combat = Combat(),
-        val combatReport: CombatReport = CombatReport(),
-        val factory: Factory = Factory(),
-        val stop: Stop = Stop()
+    val logistics: Logistics = Logistics(),
+    val combat: Combat = Combat(),
+    val combatReport: CombatReport = CombatReport(),
+    val factory: Factory = Factory(),
+    val stop: Stop = Stop()
 ) {
     data class DollCriteria(var id: String = "Gr G11")
 
     class Logistics(
-            enabled: Boolean = false,
-            receivalMode: ReceivalMode = ReceivalMode.RANDOM,
-            assignments: MutableMap<Int, ListProperty<Int>> = (1..10).associateWith {
-                SimpleListProperty<Int>(ArrayList<Int>().asObservable())
-            }.toMutableMap()
+        enabled: Boolean = false,
+        receivalMode: ReceivalMode = ReceivalMode.RANDOM,
+        assignments: MutableMap<Int, ListProperty<Int>> = (1..10).associateWith {
+            SimpleListProperty<Int>(ArrayList<Int>().asObservable())
+        }.toMutableMap()
     ) {
         enum class ReceivalMode {
             ALWAYS_CONTINUE, RANDOM, ALWAYS_CANCEL
@@ -70,10 +70,10 @@ data class Wai2KProfile(
     }
 
     class Combat(
-            enabled: Boolean = false,
-            map: String = "0-2",
-            repairThreshold: Int = 40,
-            draggers: MutableList<DollCriteria> = mutableListOf(DollCriteria(), DollCriteria())
+        enabled: Boolean = false,
+        map: String = "0-2",
+        repairThreshold: Int = 40,
+        draggers: MutableList<DollCriteria> = mutableListOf(DollCriteria(), DollCriteria())
     ) {
         val enabledProperty = enabled.toProperty()
         val mapProperty = map.toProperty()
@@ -99,13 +99,13 @@ data class Wai2KProfile(
     }
 
     class Factory(
-            enhancement: Enhancement = Enhancement(),
-            disassembly: Disassembly = Disassembly(),
-            alwaysDisassembleAfterEnhance: Boolean = true,
-            equipDisassembly: EquipDisassembly = EquipDisassembly()
+        enhancement: Enhancement = Enhancement(),
+        disassembly: Disassembly = Disassembly(),
+        alwaysDisassembleAfterEnhance: Boolean = true,
+        equipDisassembly: EquipDisassembly = EquipDisassembly()
     ) {
         class Enhancement(
-                enabled: Boolean = true
+            enabled: Boolean = true
         ) {
             val enabledProperty = enabled.toProperty()
 
@@ -113,7 +113,7 @@ data class Wai2KProfile(
         }
 
         class Disassembly(
-                enabled: Boolean = false
+            enabled: Boolean = false
         ) {
             val enabledProperty = enabled.toProperty()
 
@@ -131,8 +131,8 @@ data class Wai2KProfile(
         // Equipment ----------
 
         class EquipDisassembly(
-                enabled: Boolean = true,
-                disassemble4Star: Boolean = false
+            enabled: Boolean = true,
+            disassemble4Star: Boolean = false
         ) {
             val enabledProperty = enabled.toProperty()
             val disassemble4StarProperty = disassemble4Star.toProperty()
@@ -147,21 +147,21 @@ data class Wai2KProfile(
     }
 
     class Stop(
-            enabled: Boolean = false,
-            exitProgram: Boolean = false,
-            time: Time = Time()
+        enabled: Boolean = false,
+        exitProgram: Boolean = false,
+        time: Time = Time()
     ) {
         enum class Mode {
             ELAPSED_TIME, SPECIFIC_TIME, COUNT
         }
 
         class Time(
-                enabled: Boolean = true,
-                mode: Mode = Mode.ELAPSED_TIME,
-                @JsonFormat(shape = JsonFormat.Shape.STRING)
-                elapsedTime: Duration = Duration.ofHours(8),
-                @JsonFormat(pattern = "HH:mm")
-                specificTime: LocalTime = LocalTime.of(0, 0)
+            enabled: Boolean = true,
+            mode: Mode = Mode.ELAPSED_TIME,
+            @JsonFormat(shape = JsonFormat.Shape.STRING)
+            elapsedTime: Duration = Duration.ofHours(8),
+            @JsonFormat(pattern = "HH:mm")
+            specificTime: LocalTime = LocalTime.of(0, 0)
         ) {
             val enabledProperty = enabled.toProperty()
             val modeProperty = mode.toProperty()
@@ -186,16 +186,18 @@ data class Wai2KProfile(
     companion object Loader {
         private val loaderLogger = loggerFor<Loader>()
         private val mapper = fxJacksonObjectMapper()
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                .registerModule(JavaTimeModule())
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            .registerModule(JavaTimeModule())
         val PROFILE_DIR: Path = Wai2K.CONFIG_DIR.resolve("profiles")
         const val DEFAULT_NAME = "Default"
 
         fun profileExists(name: String) = Files.exists(PROFILE_DIR.resolve("$name${Wai2K.CONFIG_SUFFIX}"))
 
         fun load(name: String): Wai2KProfile {
-            return load(PROFILE_DIR.resolve("${name.takeIf { it.isNotBlank() }
-                    ?: DEFAULT_NAME}${Wai2K.CONFIG_SUFFIX}")).also { it.name = name }
+            return load(PROFILE_DIR.resolve("${
+                name.takeIf { it.isNotBlank() }
+                    ?: DEFAULT_NAME
+            }${Wai2K.CONFIG_SUFFIX}")).also { it.name = name }
         }
 
         fun load(path: Path): Wai2KProfile {

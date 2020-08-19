@@ -24,10 +24,10 @@ import tornadofx.*
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 class GameRestartConfig(
-        enabled: Boolean = false,
-        averageDelay: Long = 1600,
-        delayCoefficientThreshold: Double = 1.5,
-        maxRestarts: Int = 15
+    enabled: Boolean = false,
+    averageDelay: Long = 1600,
+    delayCoefficientThreshold: Double = 1.5,
+    maxRestarts: Int = 15
 ) {
     val enabledProperty = enabled.toProperty()
     val averageDelayProperty = averageDelay.toProperty()

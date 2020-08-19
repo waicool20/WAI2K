@@ -64,6 +64,9 @@
     </codeStyleSettings>
     <codeStyleSettings language="kotlin">
       <option name="FIELD_ANNOTATION_WRAP" value="1" />
+      <indentOptions>
+        <option name="CONTINUATION_INDENT_SIZE" value="4" />
+      </indentOptions>
     </codeStyleSettings>
   </code_scheme>
 </component>

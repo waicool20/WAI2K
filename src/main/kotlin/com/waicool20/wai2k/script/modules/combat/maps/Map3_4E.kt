@@ -30,10 +30,10 @@ import kotlinx.coroutines.yield
 import kotlin.random.Random
 
 class Map3_4E(
-        scriptRunner: ScriptRunner,
-        region: AndroidRegion,
-        config: Wai2KConfig,
-        profile: Wai2KProfile
+    scriptRunner: ScriptRunner,
+    region: AndroidRegion,
+    config: Wai2KConfig,
+    profile: Wai2KProfile
 ) : MapRunner(scriptRunner, region, config, profile) {
     private val logger = loggerFor<Map3_4E>()
     override val isCorpseDraggingMap = false
@@ -43,15 +43,15 @@ class Map3_4E(
     override suspend fun execute() {
         logger.info("Zoom out")
         region.pinch(
-                Random.nextInt(700, 800),
-                Random.nextInt(250, 340),
-                0.0,
-                500
+            Random.nextInt(700, 800),
+            Random.nextInt(250, 340),
+            0.0,
+            500
         )
         //Map to settle
         delay(1000)
 
-        val rEchelons = deployEchelons(nodes[0],nodes[1])
+        val rEchelons = deployEchelons(nodes[0], nodes[1])
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
         resupplyEchelons(rEchelons)

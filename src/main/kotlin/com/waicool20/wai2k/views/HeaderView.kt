@@ -85,8 +85,8 @@ class HeaderView : CoroutineScopeView() {
         wai2KContext.currentProfile.apply {
             val toDelete = name
             confirm(
-                    header = "Delete profile [$toDelete]?",
-                    title = "Wai2K - Profile Deletion Confirmation"
+                header = "Delete profile [$toDelete]?",
+                title = "Wai2K - Profile Deletion Confirmation"
             ) {
                 delete()
                 profileComboBox.value = ""
@@ -145,10 +145,10 @@ class HeaderView : CoroutineScopeView() {
     private fun updateProfileItems() {
         val currentProfile = profileComboBox.value
         val profiles = Files.walk(Wai2KProfile.PROFILE_DIR).toList()
-                .filter { Files.isRegularFile(it) }
-                .map { "${it.fileName}".removeSuffix(Wai2K.CONFIG_SUFFIX) }
-                .filter { it != currentProfile }
-                .sorted()
+            .filter { Files.isRegularFile(it) }
+            .map { "${it.fileName}".removeSuffix(Wai2K.CONFIG_SUFFIX) }
+            .filter { it != currentProfile }
+            .sorted()
         if (profiles.isNotEmpty()) {
             profileComboBox.items.setAll(profiles)
         }

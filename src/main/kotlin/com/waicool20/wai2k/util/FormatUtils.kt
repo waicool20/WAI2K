@@ -23,4 +23,4 @@ import java.time.Instant
 import java.time.format.DateTimeFormatter
 
 fun Instant.formatted() = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-        .format(this.atZone(java.time.ZoneId.systemDefault()))
+    .format(this.atZone(java.time.ZoneId.systemDefault()))

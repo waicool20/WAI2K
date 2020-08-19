@@ -99,12 +99,12 @@ class DebugView : CoroutineScopeView() {
         filterOptionsVBox.disableWhen { filterCheckBox.selectedProperty().not() }
         createNewRenderJob()
         wai2KContext.wai2KConfig.lastDeviceSerialProperty
-                .addListener("DebugViewDeviceListener") { _ -> createNewRenderJob() }
+            .addListener("DebugViewDeviceListener") { _ -> createNewRenderJob() }
     }
 
     private fun createNewRenderJob(serial: String = wai2KContext.wai2KConfig.lastDeviceSerial) {
         val device = ADB.getDevices().find { it.serial == serial }
-                .also { lastAndroidDevice = it } ?: return
+            .also { lastAndroidDevice = it } ?: return
         lastJob?.cancel()
         lastJob = launch(Dispatchers.IO) {
             withContext(Dispatchers.JavaFx) {
@@ -144,9 +144,9 @@ class DebugView : CoroutineScopeView() {
                 }
                 if (filterBlueCheckBox.isSelected || filterWhiteCheckBox.isSelected || filterYellowCheckBox.isSelected) {
                     image = image.extractNodes(
-                            includeBlue = filterBlueCheckBox.isSelected,
-                            includeWhite = filterWhiteCheckBox.isSelected,
-                            includeYellow = filterYellowCheckBox.isSelected
+                        includeBlue = filterBlueCheckBox.isSelected,
+                        includeWhite = filterWhiteCheckBox.isSelected,
+                        includeYellow = filterYellowCheckBox.isSelected
                     ).asBufferedImage()
                 }
                 withContext(Dispatchers.JavaFx) {
@@ -184,8 +184,8 @@ class DebugView : CoroutineScopeView() {
                         return@launch
                     }
                     val image = device.screens[0].capture()
-                            .getSubimage(xSpinner.value, ySpinner.value, wSpinner.value, hSpinner.value)
-                            .asGrayF32()
+                        .getSubimage(xSpinner.value, ySpinner.value, wSpinner.value, hSpinner.value)
+                        .asGrayF32()
                     Region.DEFAULT_MATCHER.settings.matchDimension = ScriptRunner.HIGH_RES
                     // Set similarity to 0.6f to make cvauto report the similarity value down to 0.6
                     val (results, duration) = measureTimedValue {
@@ -198,10 +198,10 @@ class DebugView : CoroutineScopeView() {
                     }
                     Region.DEFAULT_MATCHER.settings.matchDimension = ScriptRunner.NORMAL_RES
                     results.takeIf { it.isNotEmpty() }
-                            ?.sortedBy { it.score }
-                            ?.forEach {
-                                logger.info("Found ${path.fileName}: $it")
-                            } ?: run { logger.warn("Could not find the asset anywhere") }
+                        ?.sortedBy { it.score }
+                        ?.forEach {
+                            logger.info("Found ${path.fileName}: $it")
+                        } ?: run { logger.warn("Could not find the asset anywhere") }
                     logger.info("Took ${duration.inMilliseconds} ms")
                 } else {
                     logger.warn("That asset doesn't exist!")
@@ -237,9 +237,9 @@ class DebugView : CoroutineScopeView() {
 
     private fun getOCR(): ITesseract {
         val ocr = Ocr.forConfig(
-                config = wai2KContext.wai2KConfig,
-                digitsOnly = filterCheckBox.isSelected && filterOptions.selectedToggle == digitsOnlyRadioButton,
-                useLSTM = useLSTMCheckBox.isSelected
+            config = wai2KContext.wai2KConfig,
+            digitsOnly = filterCheckBox.isSelected && filterOptions.selectedToggle == digitsOnlyRadioButton,
+            useLSTM = useLSTMCheckBox.isSelected
         )
         if (filterCheckBox.isSelected && filterOptions.selectedToggle == customRadioButton) {
             ocr.useCharFilter(allowedCharsTextField.text)

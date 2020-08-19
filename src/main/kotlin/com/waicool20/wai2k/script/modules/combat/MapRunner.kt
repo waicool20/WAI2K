@@ -61,10 +61,10 @@ import kotlin.reflect.KClass
 
 
 abstract class MapRunner(
-        protected val scriptRunner: ScriptRunner,
-        protected val region: AndroidRegion,
-        protected val config: Wai2KConfig,
-        protected val profile: Wai2KProfile
+    protected val scriptRunner: ScriptRunner,
+    protected val region: AndroidRegion,
+    protected val config: Wai2KConfig,
+    protected val profile: Wai2KProfile
 ) : CoroutineScope {
     private val logger = loggerFor<MapRunner>()
     private var _battles = 1
@@ -92,7 +92,7 @@ abstract class MapRunner(
 
         init {
             val mapClasses = Reflections("com.waicool20.wai2k.script.modules.combat.maps")
-                    .getSubTypesOf(MapRunner::class.java)
+                .getSubTypesOf(MapRunner::class.java)
             for (mapClass in mapClasses) {
                 if (Modifier.isAbstract(mapClass.modifiers)) continue
                 if (EventMapRunner::class.java.isAssignableFrom(mapClass)) {
@@ -100,7 +100,7 @@ abstract class MapRunner(
                     list[CombatMap.EventMap(name)] = mapClass.kotlin
                 } else {
                     val name = mapClass.simpleName.replaceFirst("Map", "")
-                            .replace("_", "-")
+                        .replace("_", "-")
                     list[CombatMap.StoryMap(name)] = mapClass.kotlin
                 }
             }
@@ -229,7 +229,7 @@ abstract class MapRunner(
                         logger.info("Repairing member ${mIndex + 1}")
                         region.subRegion(360 + mIndex * 272, 286, 246, 323).click()
                         region.subRegion(1360, 702, 290, 117)
-                                .waitHas(FileTemplate("ok.png"), 3000)?.click()
+                            .waitHas(FileTemplate("ok.png"), 3000)?.click()
                         scriptStats.repairs++
                     }
                 }
@@ -300,7 +300,7 @@ abstract class MapRunner(
         logger.info("Waiting for G&K splash screen")
         val start = System.currentTimeMillis()
         // Wait for the G&K splash to appear within 10 seconds
-        while(isActive) {
+        while (isActive) {
             delay(500)
             if (mapRunnerRegions.endBattle.has(FileTemplate("combat/battle/end.png", 0.8))) {
                 logger.info("G&K splash screen appeared")
@@ -368,13 +368,13 @@ abstract class MapRunner(
                     }
                     val screenshot = region.capture()
                     val newTurn = ocr.doOCRAndTrim(screenshot.getSubimage(748, 53, 86, 72))
-                            .let { if (it.firstOrNull() == '8') it.replaceFirst("8", "0") else it }
-                            .toIntOrNull() ?: continue
+                        .let { if (it.firstOrNull() == '8') it.replaceFirst("8", "0") else it }
+                        .toIntOrNull() ?: continue
 
 
                     val newPoints = ocr.doOCRAndTrim(screenshot.getSubimage(1730, 970, 135, 76)
-                            .binarizeImage().pad(10, 10, Color.BLACK))
-                            .toIntOrNull() ?: continue
+                        .binarizeImage().pad(10, 10, Color.BLACK))
+                        .toIntOrNull() ?: continue
 
 
                     // Ignore point deltas larger than 10
@@ -477,7 +477,7 @@ abstract class MapRunner(
         while (h == null) {
             h = try {
                 mapH
-                        ?: fullMap.homography(window.capture().extractNodes(extractBlueNodes, extractWhiteNodes, extractYellowNodes))
+                    ?: fullMap.homography(window.capture().extractNodes(extractBlueNodes, extractWhiteNodes, extractYellowNodes))
             } catch (e: IllegalStateException) {
                 continue
             }
@@ -487,10 +487,10 @@ abstract class MapRunner(
             if (Random.nextBoolean()) {
                 logger.info("Zoom out")
                 region.pinch(
-                        Random.nextInt(500, 700),
-                        Random.nextInt(300, 400),
-                        0.0,
-                        500
+                    Random.nextInt(500, 700),
+                    Random.nextInt(300, 400),
+                    0.0,
+                    500
                 )
                 delay(1000)
             }
@@ -506,10 +506,10 @@ abstract class MapRunner(
             return retry()
         }
         val roi = window.copyAs<AndroidRegion>(
-                window.x + rect.x,
-                window.y + rect.y,
-                rect.width,
-                rect.height
+            window.x + rect.x,
+            window.y + rect.y,
+            rect.width,
+            rect.height
         )
         // Difference from reference values in map.json and estimated rect values
         val mapDiff = (rect.width.toDouble() - width).pow(2) + (rect.height.toDouble() - height).pow(2)
@@ -526,9 +526,9 @@ abstract class MapRunner(
         if (!window.contains(roi)) {
             logger.info("Node $this not in map window")
             val center = region.subRegion(
-                    (region.width - 5) / 2,
-                    (region.height - 5) / 2,
-                    5, 5
+                (region.width - 5) / 2,
+                (region.height - 5) / 2,
+                5, 5
             )
             // Add some randomness
             center.translate(Random.nextInt(-50, 50), Random.nextInt(-50, 50))
@@ -608,7 +608,7 @@ abstract class MapRunner(
         // If the clicks above managed to halt battle plan just cancel the dialog
         delay(1000)
         region.subRegion(761, 674, 283, 144)
-                .findBest(FileTemplate("combat/battle/cancel.png"))?.region?.click()
+            .findBest(FileTemplate("combat/battle/cancel.png"))?.region?.click()
         onFinishBattleListener()
     }
 

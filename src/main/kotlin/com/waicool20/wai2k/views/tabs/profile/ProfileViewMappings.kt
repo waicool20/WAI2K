@@ -29,13 +29,13 @@ import com.waicool20.wai2k.views.tabs.profile.stop.TimeStopView
 
 object ProfileViewMappings {
     val list = listOf(
-            ViewNode("Logistics", LogisticsView::class),
-            ViewNode("Assignments", AssignmentsView::class, LogisticsView::class),
-            ViewNode("Combat", CombatView::class),
-            ViewNode("Draggers", DraggersView::class, CombatView::class),
-            ViewNode("Combat Report", CombatReportView::class),
-            ViewNode("Factory", FactoryView::class),
-            ViewNode("Stop", StopView::class),
-            ViewNode("Time", TimeStopView::class, StopView::class)
+        ViewNode("Logistics", LogisticsView::class),
+        ViewNode("Assignments", AssignmentsView::class, LogisticsView::class),
+        ViewNode("Combat", CombatView::class),
+        ViewNode("Draggers", DraggersView::class, CombatView::class),
+        ViewNode("Combat Report", CombatReportView::class),
+        ViewNode("Factory", FactoryView::class),
+        ViewNode("Stop", StopView::class),
+        ViewNode("Time", TimeStopView::class, StopView::class)
     )
 }
