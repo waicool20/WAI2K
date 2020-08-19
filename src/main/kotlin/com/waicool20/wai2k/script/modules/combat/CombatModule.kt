@@ -156,7 +156,6 @@ class CombatModule(
             region.subRegion(635, 206, 237, 544).click(); yield()
             region.waitHas(FileTemplate("doll-list/lock.png"), 5000)
 
-            var switchDoll: Region<AndroidDevice>? = null
             region.matcher.settings.matchDimension = ScriptRunner.HIGH_RES
             val tdolls = profile.combat.draggers
                 .map { TDoll.lookup(config, it.id) ?: throw InvalidDollException(it.id) }
@@ -168,7 +167,7 @@ class CombatModule(
                 tdolls.filterNot { it.name == gameState.echelons[0].members[1].name }.first()
             }
             applyFilters(tdoll, false)
-            switchDoll = region.findBest(FileTemplate("doll-list/echelon2-captain.png"))?.region
+            var switchDoll = region.findBest(FileTemplate("doll-list/echelon2-captain.png"))?.region
 
             val r1 = region.subRegionAs<AndroidRegion>(1210, 1038, 500, 20)
             val r2 = r1.copyAs<AndroidRegion>(y = r1.y - 750)
