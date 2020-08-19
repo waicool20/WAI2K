@@ -410,12 +410,13 @@ class FactoryModule(
 
     private tailrec suspend fun getCurrentDollCount(): Pair<Int, Int> {
         logger.info("Updating doll count")
-        val dollCountRegion = region.subRegion(1750, 750, 300, 150)
-        var ocrResult = ""
+        val dollCountRegion = region.subRegion(1790, 815, 220, 60)
+        var ocrResult: String
         while (isActive) {
-            ocrResult = Ocr.forConfig(config).doOCRAndTrim(dollCountRegion)
+            ocrResult = Ocr.forConfig(config).doOCRAndTrim(dollCountRegion.copy(y = 763))
             if (ocrResult.contains("capacity", true)) break else yield()
         }
+        ocrResult = Ocr.forConfig(config).doOCRAndTrim(dollCountRegion)
         logger.info("Doll count ocr: $ocrResult")
         return countRegex.find(ocrResult)?.groupValues?.let {
             val count = it[1].toInt()
