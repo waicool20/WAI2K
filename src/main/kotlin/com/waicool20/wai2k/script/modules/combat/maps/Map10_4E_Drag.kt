@@ -27,116 +27,83 @@ import com.waicool20.wai2k.script.modules.combat.MapRunner
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
+import kotlin.math.roundToLong
 import kotlin.random.Random
 
-class Map10_4E(
+class Map10_4E_Drag(
     scriptRunner: ScriptRunner,
     region: AndroidRegion,
     config: Wai2KConfig,
     profile: Wai2KProfile
 ) : MapRunner(scriptRunner, region, config, profile) {
-    private val logger = loggerFor<Map10_4E>()
-    override val isCorpseDraggingMap = false
+    private val logger = loggerFor<Map10_4E_Drag>()
+    override val isCorpseDraggingMap = true
     override val extractBlueNodes = false
     override val extractYellowNodes = false
 
     override suspend fun execute() {
+
+        val r = region.subRegionAs<AndroidRegion>(300, 500, 150, 8)
+
         if (gameState.requiresMapInit) {
             logger.info("Zoom out")
-            repeat(2) {
-                region.pinch(
-                    Random.nextInt(700, 800),
-                    Random.nextInt(300, 400),
-                    0.0,
-                    500
-                )
-                delay(200)
-            }
-
+            region.pinch(
+                Random.nextInt(700, 800),
+                Random.nextInt(200, 300),
+                0.0,
+                500
+            ) // It's pretty close to the post init zoom
+            delay((1000 * gameState.delayCoefficient).roundToLong())
+            r.swipeTo(r.copy(y = r.y + 12)) // Nudge it anyway
             delay(500)
         }
 
-        val r = region.subRegionAs<AndroidRegion>(1058, 224, 100, 22)
-        r.swipeTo(r.copy(y = r.y - 1000))
-        delay(500)
-        repeat(1) {
-            region.pinch(
-                Random.nextInt(700, 800),
-                Random.nextInt(300, 400),
-                0.0,
-                500
-            )
-            delay(1000)
-        }
-        deployEchelons(nodes[0], nodes[1])
+        val rEchelons = deployEchelons(nodes[0], nodes[1]) // maybe check for dragger chip dmg here
 
-        //Heavyports are configured now
+        logger.info("Panning down")
+        r.swipeTo(r.copy(y = r.y - 200))
 
         delay(500)
+        deployEchelons(nodes[2])
 
-        r.swipeTo(r.copy(y = r.y + 900))
+        logger.info("Panning up")
+        r.swipeTo(r.copy(y = r.y + 200))
         delay(500)
-        repeat(1) {
-            region.pinch(
-                Random.nextInt(700, 800),
-                Random.nextInt(300, 400),
-                0.0,
-                500
-            )
-            delay(500)
-        }
-        delay(1000)
-        val rEchelons = deployEchelons(nodes[2])
-        gameState.requiresMapInit = false
+
+        gameState.requiresMapInit = false // Yes this gets set every time
 
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
-        //need to do something on empty supplies...selection doesn't work as intended
-        resupplyEchelons(rEchelons + nodes[2])
-        delay(1000)
-        //lose focus of combat echelon
-        nodes[3].findRegion().click()
-        //resupplyEchelons(nodes[0])
+
+        resupplyEchelons(rEchelons + nodes[1])
+        retreatEchelons(nodes[1]); delay(500)
         planPath()
+
         waitForTurnEnd(5, false); delay(1000)
         waitForTurnAssets(false, 0.96, "combat/battle/plan.png")
-
-        //Reset Map Zoom State
-        repeat(1) {
-            region.pinch(
-                Random.nextInt(700, 800),
-                Random.nextInt(300, 400),
-                0.0,
-                500
-            )
-            delay(200)
-        }
-        //Map gets moved a little so use another node to retreat
-        nodes[7].findRegion().click()
-        delay(1000)
-        retreatEchelons(nodes[7])
-        terminateMission()
+        retreatEchelons(nodes[5])
+        terminateMission() // Make a restart option for speed ;)
     }
 
     private suspend fun planPath() {
-        logger.info("Selecting echelon at ${nodes[2]}")
-        nodes[2].findRegion().click()
 
         logger.info("Entering planning mode")
         mapRunnerRegions.planningMode.click(); yield()
 
+        logger.info("Selecting echelon at ${nodes[0]}")
+        nodes[0].findRegion().click()
+
         logger.info("Selecting ${nodes[3]}")
         nodes[3].findRegion().click()
+
+        logger.info("Selecting ${nodes[0]}")
+        nodes[0].findRegion().click(); yield()
 
         logger.info("Selecting ${nodes[4]}")
         nodes[4].findRegion().click(); yield()
 
-        logger.info("Selecting ${nodes[5]}")
-        nodes[5].findRegion().click(); yield()
-
-        logger.info("Selecting ${nodes[6]}")
-        nodes[6].findRegion().click(); yield()
-
+        logger.info("Selecting ${nodes[0]}")
+        nodes[0].findRegion().click(); yield()
 
         logger.info("Executing plan")
         mapRunnerRegions.executePlan.click()
