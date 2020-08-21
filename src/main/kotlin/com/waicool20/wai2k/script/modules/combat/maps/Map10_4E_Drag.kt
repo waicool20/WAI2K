@@ -20,13 +20,17 @@
 package com.waicool20.wai2k.script.modules.combat.maps
 
 import com.waicool20.cvauto.android.AndroidRegion
+import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.script.modules.combat.MapRunner
+import com.waicool20.waicoolutils.binarizeImage
+import com.waicool20.waicoolutils.countColor
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
+import java.awt.Color
 import kotlin.math.roundToLong
 import kotlin.random.Random
 
@@ -54,11 +58,13 @@ class Map10_4E_Drag(
                 500
             ) // It's pretty close to the post init zoom
             delay((1000 * gameState.delayCoefficient).roundToLong())
-            r.swipeTo(r.copy(y = r.y + 12)) // Nudge it anyway
+            r.swipeTo(r.copy(y = r.y + 14)) // Nudge it anyway
             delay(500)
         }
 
-        val rEchelons = deployEchelons(nodes[0], nodes[1]) // maybe check for dragger chip dmg here
+        val rEchelons = deployEchelons(nodes[0])
+        openEchelon(nodes[1], singleClick = true); delay(500)
+        checkDragRepairs()
 
         logger.info("Panning down")
         r.swipeTo(r.copy(y = r.y - 200))
@@ -74,11 +80,18 @@ class Map10_4E_Drag(
 
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
-
         resupplyEchelons(rEchelons + nodes[1])
-        retreatEchelons(nodes[1]); delay(500)
-        planPath()
 
+        // Ghetto retreatEchelons for slightly faster retreats
+/*        logger.info("Retreating echelon at ${nodes[1]}")
+        openEchelon(nodes[1], singleClick = true)
+        mapRunnerRegions.retreat.click(); delay(500)
+        region.subRegion(1120, 700, 90, 90)
+            .waitHas(FileTemplate("ok.png"), 3000)?.click()
+        delay(1000)*/
+        retreatEchelons(nodes[1]); delay(300)
+
+        planPath()
         waitForTurnEnd(5, false); delay(1000)
         waitForTurnAssets(false, 0.96, "combat/battle/plan.png")
         retreatEchelons(nodes[5])
@@ -107,5 +120,22 @@ class Map10_4E_Drag(
 
         logger.info("Executing plan")
         mapRunnerRegions.executePlan.click()
+    }
+
+    private suspend fun checkDragRepairs() {
+
+        // Checks if the other doll has less than 5 links from possible grenade chip damage
+        // Taken from MapRunner deployEchelons
+        val hpImage = region.subRegion(373, 778, 217, 1).capture().binarizeImage()
+        val hp = hpImage.countColor(Color.WHITE) / hpImage.width.toDouble() * 100
+        if (hp < 80) {
+            logger.info("Repairing other combat doll that has lost a dummy link")
+            region.subRegion(360, 286, 246, 323).click()
+            region.subRegion(1360, 702, 290, 117)
+                .waitHas(FileTemplate("ok.png"), 3000)?.click()
+            scriptStats.repairs++
+            delay(1500)
+        }
+        mapRunnerRegions.deploy.click(); delay(500)
     }
 }
