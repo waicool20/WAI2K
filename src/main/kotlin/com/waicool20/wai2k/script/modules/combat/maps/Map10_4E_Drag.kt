@@ -47,8 +47,8 @@ class Map10_4E_Drag(
 
     override suspend fun execute() {
 
+        // Mostly empty region to the left
         val r = region.subRegionAs<AndroidRegion>(300, 500, 150, 8)
-
         if (gameState.requiresMapInit) {
             logger.info("Zoom out")
             region.pinch(
@@ -59,15 +59,15 @@ class Map10_4E_Drag(
             ) // It's pretty close to the post init zoom
             delay((1000 * gameState.delayCoefficient).roundToLong())
             r.swipeTo(r.copy(y = r.y + 14)) // Nudge it anyway
-            delay(500)
         }
 
+        delay((800 * gameState.delayCoefficient).roundToLong()) // Map sometimes lags when starting
         val rEchelons = deployEchelons(nodes[0])
-        openEchelon(nodes[1], singleClick = true); delay(500)
+        openEchelon(nodes[1], singleClick = true); delay(300)
         checkDragRepairs()
 
         logger.info("Panning down")
-        r.swipeTo(r.copy(y = r.y - 200))
+        r.swipeTo(r.copy(y = r.y - 200)) // Random, the nodes should still line up
 
         delay(500)
         deployEchelons(nodes[2])
@@ -81,14 +81,6 @@ class Map10_4E_Drag(
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
         resupplyEchelons(rEchelons + nodes[1])
-
-        // Ghetto retreatEchelons for slightly faster retreats
-/*        logger.info("Retreating echelon at ${nodes[1]}")
-        openEchelon(nodes[1], singleClick = true)
-        mapRunnerRegions.retreat.click(); delay(500)
-        region.subRegion(1120, 700, 90, 90)
-            .waitHas(FileTemplate("ok.png"), 3000)?.click()
-        delay(1000)*/
         retreatEchelons(nodes[1]); delay(300)
 
         planPath()
@@ -128,7 +120,7 @@ class Map10_4E_Drag(
         // Taken from MapRunner deployEchelons
         val hpImage = region.subRegion(373, 778, 217, 1).capture().binarizeImage()
         val hp = hpImage.countColor(Color.WHITE) / hpImage.width.toDouble() * 100
-        if (hp < 80) {
+        if (hp <= 80) {
             logger.info("Repairing other combat doll that has lost a dummy link")
             region.subRegion(360, 286, 246, 323).click()
             region.subRegion(1360, 702, 290, 117)
