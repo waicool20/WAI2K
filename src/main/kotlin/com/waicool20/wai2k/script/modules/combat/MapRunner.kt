@@ -601,7 +601,12 @@ abstract class MapRunner(
         logger.info("Battle ${_battles++} complete, clicking through battle results")
         delay(Random.nextLong(400, 600))
         val l = mapRunnerRegions.battleEndClick.randomPoint()
-        repeat(Random.nextInt(config.scriptConfig.minPostBattleClick, config.scriptConfig.maxPostBattleClick)) {
+        val clicks = if (config.scriptConfig.minPostBattleClick == config.scriptConfig.maxPostBattleClick) {
+            config.scriptConfig.minPostBattleClick
+        } else {
+            Random.nextInt(config.scriptConfig.minPostBattleClick, config.scriptConfig.maxPostBattleClick)
+        }
+        repeat(clicks) {
             region.subRegion(l.x, l.y, 20, 20).click()
             delay(Random.nextLong(150, 250))
         }
