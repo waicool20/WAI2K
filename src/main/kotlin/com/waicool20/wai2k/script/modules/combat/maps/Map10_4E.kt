@@ -98,8 +98,8 @@ class Map10_4E(
         nodes[3].findRegion().click()
         //resupplyEchelons(nodes[0])
         planPath()
-        waitForTurnAndPoints(2, 4, false)
-
+        waitForTurnEnd(5, false); delay(1000)
+        waitForTurnAssets(false, 0.96, "combat/battle/plan.png")
 
         //Reset Map Zoom State
         repeat(1) {
