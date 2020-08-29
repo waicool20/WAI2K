@@ -169,7 +169,7 @@ class CombatModule(
             var switchDoll = region.findBest(FileTemplate("doll-list/echelon2-captain.png"))?.region
 
             val r1 = region.subRegionAs<AndroidRegion>(1210, 1038, 500, 20)
-            val r2 = r1.copyAs<AndroidRegion>(y = r1.y - 350)
+            val r2 = r1.copyAs<AndroidRegion>(y = r1.y - 325)
             val checkRegion = region.subRegion(185, 360, 60, 60)
 
             var scrollDown = true
