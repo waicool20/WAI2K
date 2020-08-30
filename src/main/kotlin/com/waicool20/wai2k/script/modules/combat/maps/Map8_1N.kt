@@ -61,9 +61,15 @@ class Map8_1N(
         val rEchelons = deployEchelons(nodes[3], nodes[0])
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
-        resupplyEchelons(rEchelons + nodes[0])
-        planPath()
-        waitForTurnEnd(5, false)
+        if (rEchelons.contains(nodes[3])) {
+            logger.info("Dragging Echelon is NOT prepared to drag!")
+            logger.info("Canceling this sortie")
+            resupplyEchelons(nodes[0])
+        } else {
+            resupplyEchelons(rEchelons + nodes[0])
+            planPath()
+            waitForTurnEnd(5, false)
+            }
         retreatEchelons(nodes[0])
         terminateMission()
     }
