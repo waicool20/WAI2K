@@ -93,6 +93,42 @@ object YuuBot {
         })
     }
 
+    fun postMessage(apiKey: String, title: String, body: String) {
+        if (apiKey.isEmpty()) {
+            logger.warn("API key is empty, YuuBot reporting is disabled.")
+            return
+        }
+        logger.info("Posting message to YuuBot...")
+
+        val jsonBody = jacksonObjectMapper()
+            .writeValueAsString(mapOf(
+                "title" to title,
+                "body" to body
+            )).toRequestBody(JSON_MEDIA_TYPE)
+
+        val request = Request.Builder()
+            .url("$endpoint/$apiKey/message/")
+            .post(jsonBody)
+            .build()
+
+        OkHttpClient().newCall(request).enqueue(object : Callback {
+            override fun onResponse(call: Call, response: Response) {
+                when (val code = response.code) {
+                    200 -> {
+                        logger.info("Posted message to YuuBot, response was: $code")
+                    }
+                    else -> {
+                        logger.warn("Failed to post message to YuuBot, response was: $code")
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call, e: IOException) {
+                logger.warn("Failed to post message to YuuBot, maybe your internet is down?")
+            }
+        })
+    }
+
     fun testApiKey(apiKey: String, onComplete: (ApiKeyStatus) -> Unit) {
         if (apiKey.isEmpty()) {
             logger.warn("API key is empty, YuuBot reporting is disabled.")

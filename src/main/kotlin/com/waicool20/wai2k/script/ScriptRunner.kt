@@ -46,8 +46,8 @@ import kotlin.math.roundToLong
 import kotlin.reflect.full.primaryConstructor
 
 class ScriptRunner(
-        wai2KConfig: Wai2KConfig = Wai2KConfig(),
-        wai2KProfile: Wai2KProfile = Wai2KProfile()
+    wai2KConfig: Wai2KConfig = Wai2KConfig(),
+    wai2KProfile: Wai2KProfile = Wai2KProfile()
 ) : CoroutineScope {
     companion object {
         const val NORMAL_RES = 480
@@ -57,7 +57,7 @@ class ScriptRunner(
     private var scriptJob: Job? = null
     override val coroutineContext: CoroutineContext
         get() = scriptJob?.takeIf { it.isActive }?.let { it + Dispatchers.Default }
-                ?: Dispatchers.Default
+            ?: Dispatchers.Default
 
     private val logger = loggerFor<ScriptRunner>()
     private var currentDevice: AndroidDevice? = null
@@ -137,13 +137,13 @@ class ScriptRunner(
             navigator = nav
             modules.add(InitModule(this, region, currentConfig, currentProfile, nav))
             Reflections("com.waicool20.wai2k.script.modules")
-                    .getSubTypesOf(ScriptModule::class.java)
-                    .map { it.kotlin }
-                    .filterNot { it.isAbstract || it == InitModule::class || it == StopModule::class }
-                    .mapNotNull {
-                        it.primaryConstructor?.call(this, region, currentConfig, currentProfile, nav)
-                    }
-                    .let { modules.addAll(it) }
+                .getSubTypesOf(ScriptModule::class.java)
+                .map { it.kotlin }
+                .filterNot { it.isAbstract || it == InitModule::class || it == StopModule::class }
+                .mapNotNull {
+                    it.primaryConstructor?.call(this, region, currentConfig, currentProfile, nav)
+                }
+                .let { modules.addAll(it) }
             modules.add(StopModule(this, region, currentConfig, currentProfile, nav))
             modules.map { it::class.simpleName }.forEach { logger.info("Loaded new instance of $it") }
         }
@@ -170,6 +170,11 @@ class ScriptRunner(
             e.printStackTrace()
             if (currentConfig.gameRestartConfig.enabled) {
                 restartGame()
+                if (currentConfig.notificationsConfig.onRestart) {
+                    YuuBot
+                    YuuBot.postMessage(currentConfig.apiKey, "Script Restarted",
+                        "Reason: ${e.message}")
+                }
             } else {
                 logger.warn("Restart not enabled, ending script here")
                 coroutineContext.cancelAndYield()
@@ -206,8 +211,8 @@ class ScriptRunner(
         }
         logger.info("Game restarted, waiting for login screen")
         region.subRegion(672, 960, 250, 93)
-                .waitHas(FileTemplate("login.png", 0.8), 5 * 60 * 1000)
-                ?: logger.warn("Timed out on login!")
+            .waitHas(FileTemplate("login.png", 0.8), 5 * 60 * 1000)
+            ?: logger.warn("Timed out on login!")
         logger.info("Logging in")
         region.subRegion(630, 400, 900, 300).click()
         val locations = GameLocation.mappings(currentConfig)
