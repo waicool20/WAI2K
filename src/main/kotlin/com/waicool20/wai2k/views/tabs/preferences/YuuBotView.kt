@@ -23,6 +23,7 @@ import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.util.YuuBot
 import com.waicool20.waicoolutils.javafx.listen
 import com.waicool20.waicoolutils.javafx.listenDebounced
+import javafx.scene.control.CheckBox
 import javafx.scene.control.TextField
 import javafx.scene.layout.VBox
 import tornadofx.*
@@ -31,6 +32,7 @@ import tornadofx.*
 class YuuBotView : View() {
     override val root: VBox by fxml("/views/tabs/preferences/yuubot.fxml")
     private val apiKeyTextField: TextField by fxid()
+    private val onRestartCheckBox: CheckBox by fxid()
 
     private val context: Wai2KContext by inject()
 
@@ -44,6 +46,8 @@ class YuuBotView : View() {
         }
 
         apiKeyTextField.text = context.wai2KConfig.apiKey
+
+        onRestartCheckBox.bind(context.wai2KConfig.notificationsConfig.onRestartProperty)
     }
 
     fun testApiKey(apiKey: String) {
