@@ -169,12 +169,7 @@ class ScriptRunner(
             logger.warn("Fault detected, restarting game")
             e.printStackTrace()
             if (currentConfig.gameRestartConfig.enabled) {
-                restartGame()
-                if (currentConfig.notificationsConfig.onRestart) {
-                    YuuBot
-                    YuuBot.postMessage(currentConfig.apiKey, "Script Restarted",
-                        "Reason: ${e.message}")
-                }
+                restartGame(e.localizedMessage)
             } else {
                 logger.warn("Restart not enabled, ending script here")
                 coroutineContext.cancelAndYield()
@@ -194,7 +189,7 @@ class ScriptRunner(
      * Restarts the game
      * This assumes that automatic login is enabled and no updates are required
      */
-    suspend fun restartGame() {
+    suspend fun restartGame(reason: String) {
         if (scriptStats.gameRestarts >= currentConfig.gameRestartConfig.maxRestarts) {
             logger.info("Maximum of restarts reached, terminating script instead")
             coroutineContext.cancelAndYield()
@@ -203,6 +198,9 @@ class ScriptRunner(
         val region = device.screens.first()
         gameState.requiresRestart = false
         scriptStats.gameRestarts++
+        if (currentConfig.notificationsConfig.onRestart) {
+            YuuBot.postMessage(currentConfig.apiKey, "Script Restarted", "Reason: $reason")
+        }
         logger.info("Game will now restart")
         ProcessManager(device).apply {
             kill(GFL.pkgName)

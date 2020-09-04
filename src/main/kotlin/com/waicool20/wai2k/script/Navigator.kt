@@ -315,7 +315,7 @@ class Navigator(
      */
     suspend fun checkRequiresRestart() {
         if (config.gameRestartConfig.enabled && gameState.requiresRestart) {
-            scriptRunner.restartGame()
+            scriptRunner.restartGame("Game is slowing down")
             restartCounter = 0
             transitionDelays.clear()
         }
