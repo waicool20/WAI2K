@@ -45,6 +45,7 @@ data class Wai2KProfile(
     val logistics: Logistics = Logistics(),
     val combat: Combat = Combat(),
     val combatReport: CombatReport = CombatReport(),
+    val combatSimulation: CombatSimulation = CombatSimulation(),
     val factory: Factory = Factory(),
     val stop: Stop = Stop()
 ) {
@@ -96,6 +97,24 @@ data class Wai2KProfile(
 
         val enabled by enabledProperty
         val type by typeProperty
+    }
+
+    class CombatSimulation(
+        enabled: Boolean = false,
+        basic: Boolean = false,
+        intermediate: Boolean = true,
+        advanced: Boolean = true
+    ) {
+
+        val enabledProperty = enabled.toProperty()
+        val basicProperty = basic.toProperty()
+        val intermediateProperty = intermediate.toProperty()
+        val advancedProperty = advanced.toProperty()
+
+        val enabled by enabledProperty
+        val basicData by basicProperty
+        val intermediateData by intermediateProperty
+        val advancedData by advancedProperty
     }
 
     class Factory(
