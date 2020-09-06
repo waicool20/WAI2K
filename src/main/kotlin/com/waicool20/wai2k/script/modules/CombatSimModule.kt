@@ -39,10 +39,11 @@ import kotlinx.coroutines.withTimeout
 import okhttp3.internal.cacheGet
 import okhttp3.internal.checkDuration
 import java.time.*
+import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import kotlin.math.roundToLong
 
-class DataSimModule(
+class CombatSimModule(
     scriptRunner: ScriptRunner,
     region: AndroidRegion,
     config: Wai2KConfig,
@@ -59,6 +60,7 @@ class DataSimModule(
         profile.combatSimulation.intermediateData,
         profile.combatSimulation.basicData
     )
+    private val formatter = DateTimeFormatter.ofPattern("HH:mm:ss")
 
 
     override suspend fun execute() {
@@ -70,7 +72,7 @@ class DataSimModule(
         while (energy > 0) {
             runDataSimulation()
         }
-        logger.info("Next Sim check is in: ${Duration.ofMinutes(nextCheck)} minutes")
+        logger.info("Next Sim check is in: ${nextCheck.toString().format(formatter)}")
     }
 
     private suspend fun checkSimEnergy() {
@@ -84,6 +86,7 @@ class DataSimModule(
         energy = Ocr.forConfig(config)
             .useCharFilter("0123456/")
             .doOCRAndTrim(simEnergyRegion)
+            .replace(" ", "")
             .first()
             .toInt()
         logger.info("Current sim energy is $energy/6")
@@ -99,7 +102,7 @@ class DataSimModule(
             remainder.substring(0, 2).toLong()
         )
 
-        logger.info("Time until next sim energy ${rechargeTime.toMinutes()}")
+        logger.info("Time until next sim energy ${rechargeTime.seconds.toString().format(formatter)}")
     }
 
     private suspend fun runDataSimulation() {
@@ -109,26 +112,31 @@ class DataSimModule(
         // Generous Delays here since combat sims don't occur often
         delay((1000 * gameState.delayCoefficient).roundToLong())
 
-        var cost = 1
+        var cost = 0
 
         for ((i, type) in difficulties.withIndex()) {
             if (type) {
                 cost = difficulties.size + 1 - i
+                break
             }
         }
-        logger.info("Selecting data sim type")
-        region.subRegion(735, 377 + 177 * (cost - 1), 1230, 130).click() // Difficulty
-        delay(1000)
+        if (cost == 0) {
+            logger.info("Not enough energy to run selected simulations")
+        } else {
+            logger.info("Selecting data sim type")
+            region.subRegion(735, 377 + 177 * (cost - 1), 1230, 130).click() // Difficulty
+            delay(1000)
 
-        logger.info("Entering sim")
-        region.subRegion(1320, 810, 310, 105).click() // Enter Combat
-        region.waitHas(FileTemplate("ok.png"), 10000)
-        delay(3000)
+            logger.info("Entering sim")
+            region.subRegion(1320, 810, 310, 105).click() // Enter Combat
+            region.waitHas(FileTemplate("ok.png"), 10000)
+            delay(3000)
 
-        logger.info("Clicking through sim results")
-        withTimeout(10000) {
-            region.clickWhile {
-                doesntHave(FileTemplate("location/landmarks/combat_simulation"))
+            logger.info("Clicking through sim results")
+            withTimeout(10000) {
+                region.clickWhile {
+                    doesntHave(FileTemplate("location/landmarks/combat_simulation.png"))
+                }
             }
         }
         scriptStats.simEnergySpent += cost
