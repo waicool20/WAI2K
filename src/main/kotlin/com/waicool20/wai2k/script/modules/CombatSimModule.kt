@@ -24,20 +24,16 @@ import com.waicool20.cvauto.core.asCachedRegion
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
-import com.waicool20.wai2k.config.Wai2KProfile.CombatReport
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.doOCRAndTrim
-import com.waicool20.wai2k.util.formatted
 import com.waicool20.wai2k.util.useCharFilter
 import com.waicool20.waicoolutils.DurationUtils
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
-import okhttp3.internal.cacheGet
-import okhttp3.internal.checkDuration
 import java.time.*
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -77,7 +73,7 @@ class CombatSimModule(
 
     private suspend fun checkSimEnergy() {
         // Check the current sim energy and the duration until the next energy recharges
-        // Perhaps put this in gamestate if it didn't take so long to check
+        // Perhaps put this in gameState if it didn't take so long to check
         navigator.navigateTo(LocationId.COMBAT_SIMULATION)
 
         // X/6 xx:xx:xx part
@@ -87,13 +83,14 @@ class CombatSimModule(
             .useCharFilter("0123456/")
             .doOCRAndTrim(simEnergyRegion)
             .replace(" ", "")
-            .first()
+            .take(1)
             .toInt()
         logger.info("Current sim energy is $energy/6")
 
         val remainder = Ocr.forConfig(config)
             .useCharFilter("0123456/")
             .doOCRAndTrim(simEnergyRegion)
+            .replace(" ", "")
             .takeLast(6)
 
         rechargeTime = DurationUtils.of(
@@ -101,7 +98,6 @@ class CombatSimModule(
             remainder.substring(2, 4).toLong(),
             remainder.substring(0, 2).toLong()
         )
-
         logger.info("Time until next sim energy ${rechargeTime.seconds.toString().format(formatter)}")
     }
 
@@ -135,7 +131,7 @@ class CombatSimModule(
             logger.info("Clicking through sim results")
             withTimeout(10000) {
                 region.clickWhile {
-                    doesntHave(FileTemplate("location/landmarks/combat_simulation.png"))
+                    doesntHave(FileTemplate("locations/landmarks/combat_simulation.png"))
                 }
             }
         }
@@ -144,5 +140,4 @@ class CombatSimModule(
         logger.info("Sim energy remaining : $energy")
         nextCheck = ((cost - energy) * 7200) - rechargeTime.seconds
     }
-
 }
