@@ -20,7 +20,6 @@
 package com.waicool20.wai2k.script.modules
 
 import com.waicool20.cvauto.android.AndroidRegion
-import com.waicool20.cvauto.core.asCachedRegion
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
@@ -29,9 +28,9 @@ import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.Ocr
+import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.wai2k.util.formatted
-import com.waicool20.wai2k.util.useCharFilter
 import com.waicool20.waicoolutils.DurationUtils
 import com.waicool20.waicoolutils.logging.loggerFor
 import com.waicool20.waicoolutils.prettyString
@@ -52,7 +51,7 @@ class CombatSimModule(
     private val dataSimDays = arrayOf(DayOfWeek.TUESDAY, DayOfWeek.FRIDAY, DayOfWeek.SUNDAY)
     private var nextCheck = Instant.now()
     private var energy = 0
-    private var rechargeTime = Duration.ofSeconds(0)
+    private var rechargeTime = Duration.ZERO
 
     override suspend fun execute() {
         if (!profile.combatSimulation.enabled) return
@@ -81,36 +80,46 @@ class CombatSimModule(
         // Perhaps put this in gameState if it didn't take so long to check
         navigator.navigateTo(LocationId.COMBAT_SIMULATION)
 
-        // X/6 xx:xx:xx part
-        val simEnergyRegion = region.subRegion(1462, 184, 188, 44).asCachedRegion()
-        energy = Ocr.forConfig(config)
-            .useCharFilter("0123456")
-            .doOCRAndTrim(simEnergyRegion)
-            .replace(" ", "")
-            .takeIf { it.isNotEmpty() }
-            ?.take(1)
-            ?.toInt() ?: 0 // If there is lag or something blocking
+        // X/6 HH:mm:ss part
+        val simEnergyRegion = region.subRegion(1462, 184, 188, 44)
 
-        logger.info("Current sim energy is $energy/6")
+        while (true) {
+            val simString = Ocr.forConfig(config, digitsOnly = true)
+                .doOCRAndTrim(simEnergyRegion)
+                .replace(" ", "")
+            logger.info("Sim energy OCR: $simString")
 
-        var remainder = Ocr.forConfig(config)
-            .useCharFilter("0123456/")
-            .doOCRAndTrim(simEnergyRegion)
-            .replace(" ", "")
-            .takeLast(6)
+            // Return if not in X6HHmmss format or empty
+            if (simString.isEmpty() || simString.length != 8) {
+                delay(500)
+                continue
+            }
 
-        // If energy is at 6/6 it will be --:--:--
-        if (remainder.length < 6) {
-            remainder = "000000"
+            energy = simString.replace("8", "0")
+                .take(1).toIntOrNull()?.takeIf { it in 0..6 } ?: continue // If there is lag or something blocking
+
+            logger.info("Current sim energy is $energy/6")
+
+            if (energy == 6) {
+                rechargeTime = Duration.ZERO
+                return
+            }
+
+            var seconds = simString.substring(6, 8)
+            var minutes = simString.substring(4, 6)
+            val hours = simString.substring(3, 4)
+
+            if (seconds[0] == '8') seconds = seconds.replaceFirst('8', '0')
+            if (minutes[0] == '8') minutes = minutes.replaceFirst('8', '0')
+
+            rechargeTime = DurationUtils.of(
+                seconds.toLong(),
+                minutes.toLong(),
+                hours.toLong()
+            )
+            logger.info("Time until next sim energy: ${rechargeTime.prettyString()}")
+            return
         }
-
-        rechargeTime = DurationUtils.of(
-            remainder.substring(4, 6).toLong(),
-            remainder.substring(2, 4).toLong(),
-            remainder.substring(0, 2).toLong()
-        )
-        nextCheck = Instant.now().plusSeconds(rechargeTime.seconds)
-        logger.info("Time until next sim energy ${rechargeTime.prettyString()}")
     }
 
     private suspend fun runDataSimulation(): Boolean {
