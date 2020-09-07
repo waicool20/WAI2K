@@ -70,7 +70,7 @@ class Map0_2_EX(
     }
 
     private suspend fun planPath() {
-        logger.info("Selecting ehcelon at ${nodes[0]}")
+        logger.info("Selecting echelon at ${nodes[0]}")
         nodes[0].findRegion().click()
 
         logger.info("Entering planning mode")

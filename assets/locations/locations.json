@@ -16,8 +16,8 @@
         "asset": {
           "imageName": "home0",
           "x": 1776,
-          "y-": 664,
-          "y": 563,
+          "y": 664,
+          "y-": 563,
           "width": 60,
           "height": 60
         }
@@ -29,8 +29,8 @@
         "asset": {
           "imageName": "",
           "x": 1328,
-          "y-": 646,
-          "y": 544,
+          "y": 646,
+          "y-": 544,
           "width": 375,
           "height": 161
         }
@@ -50,8 +50,8 @@
         "asset": {
           "imageName": "",
           "x": 1720,
-          "y-": 645,
-          "y": 543,
+          "y": 645,
+          "y-": 543,
           "width": 286,
           "height": 162
         }
@@ -61,8 +61,8 @@
         "asset": {
           "imageName": "",
           "x": 1730,
-          "y-": 470,
-          "y": 368,
+          "y": 470,
+          "y-": 368,
           "width": 273,
           "height": 143
         }
@@ -72,8 +72,8 @@
         "asset": {
           "imageName": "",
           "x": 1204,
-          "y-": 645,
-          "y": 543,
+          "y": 645,
+          "y-": 543,
           "width": 109,
           "height": 162
         }
@@ -83,8 +83,8 @@
         "asset": {
           "imageName": "",
           "x": 1371,
-          "y-": 470,
-          "y": 368,
+          "y": 470,
+          "y-": 368,
           "width": 354,
           "height": 144
         }
@@ -142,8 +142,8 @@
         "asset": {
           "imageName": "",
           "x": 1328,
-          "y-": 646,
-          "y": 544,
+          "y": 646,
+          "y-": 544,
           "width": 375,
           "height": 161
         }
@@ -153,8 +153,8 @@
         "asset": {
           "imageName": "",
           "x": 1720,
-          "y-": 645,
-          "y": 543,
+          "y": 645,
+          "y-": 543,
           "width": 286,
           "height": 162
         }
@@ -164,8 +164,8 @@
         "asset": {
           "imageName": "",
           "x": 1730,
-          "y-": 470,
-          "y": 368,
+          "y": 470,
+          "y-": 368,
           "width": 273,
           "height": 143
         }
@@ -175,8 +175,8 @@
         "asset": {
           "imageName": "",
           "x": 1371,
-          "y-": 470,
-          "y": 368,
+          "y": 470,
+          "y-": 368,
           "width": 354,
           "height": 144
         }
@@ -689,6 +689,17 @@
           "width": 257,
           "height": 118
         }
+      },
+      {
+        "dest": "combat_simulation",
+        "asset": {
+          "imageName": "",
+          "x": 131,
+          "y": 428,
+          "y-": 562,
+          "width": 257,
+          "height": 118
+        }
       }
     ]
   },
@@ -776,6 +787,54 @@
           "imageName": "logistics_support",
           "x": 1746,
           "y": 147,
+          "width": 60,
+          "height": 60
+        }
+      }
+    ],
+    "links": [
+      {
+        "dest": "home",
+        "asset": {
+          "imageName": "",
+          "x": 120,
+          "y": 0,
+          "width": 205,
+          "height": 130
+        }
+      },
+      {
+        "dest": "combat",
+        "asset": {
+          "imageName": "",
+          "x": 131,
+          "y": 164,
+          "y-": 296,
+          "width": 257,
+          "height": 118
+        }
+      },
+      {
+        "dest": "combat_menu",
+        "asset": {
+          "imageName": "",
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        }
+      }
+    ]
+  },
+  {
+    "id": "combat_simulation",
+    "isIntermediate": true,
+    "landmarks": [
+      {
+        "asset": {
+          "imageName": "combat_simulation",
+          "x": 1959,
+          "y": 179,
           "width": 60,
           "height": 60
         }
