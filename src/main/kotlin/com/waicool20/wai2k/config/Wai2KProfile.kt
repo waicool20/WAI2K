@@ -101,7 +101,8 @@ data class Wai2KProfile(
 
     class CombatSimulation(
         enabled: Boolean = false,
-        dataSim: Level = Level.ADVANCED
+        dataSim: Level = Level.ADVANCED,
+        neuralFragment: Level = Level.ADVANCED
     ) {
         enum class Level {
             OFF, BASIC, INTERMEDIATE, ADVANCED;
@@ -111,9 +112,11 @@ data class Wai2KProfile(
 
         val enabledProperty = enabled.toProperty()
         val dataSimProperty = dataSim.toProperty()
+        val neuralFragmentProperty = neuralFragment.toProperty()
 
         val enabled by enabledProperty
         val dataSim by dataSimProperty
+        val neuralFragment by neuralFragmentProperty
     }
 
     class Factory(
