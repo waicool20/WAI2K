@@ -19,25 +19,25 @@
 
 package com.waicool20.wai2k.views.tabs.profile
 
+import com.waicool20.wai2k.config.Wai2KProfile.CombatSimulation.DataSim
 import javafx.scene.control.CheckBox
+import javafx.scene.control.ComboBox
 import javafx.scene.layout.VBox
 import tornadofx.*
 
 class CombatSimulationView : AbstractProfileView() {
     override val root: VBox by fxml("/views/tabs/profile/combat-simulation.fxml")
     private val enableCombatSimulationCheckBox: CheckBox by fxid()
-    private val enableBasicCheckBox: CheckBox by fxid()
-    private val enableIntermediateCheckBox: CheckBox by fxid()
-    private val enableAdvancedCheckBox: CheckBox by fxid()
+    private val dataSimComboBox: ComboBox<DataSim> by fxid()
 
-    override fun setValues() = Unit
+    override fun setValues() {
+        dataSimComboBox.items.setAll(DataSim.values().toList())
+    }
 
     override fun createBindings() {
         context.currentProfile.combatSimulation.apply {
             enableCombatSimulationCheckBox.bind(enabledProperty)
-            enableBasicCheckBox.bind(basicProperty)
-            enableIntermediateCheckBox.bind(intermediateProperty)
-            enableAdvancedCheckBox.bind(advancedProperty)
+            dataSimComboBox.bind(dataSimProperty)
         }
     }
 }

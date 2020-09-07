@@ -50,13 +50,7 @@ class CombatSimModule(
     private var nextCheck = Instant.now()
     private var energy = 0
     private var rechargeTime = Duration.ofSeconds(0)
-    private val difficulties = arrayOf(
-        profile.combatSimulation.advancedData,
-        profile.combatSimulation.intermediateData,
-        profile.combatSimulation.basicData
-    )
     private val formatter = DateTimeFormatter.ofPattern("HH:mm:ss")
-
 
     override suspend fun execute() {
         if (!profile.combatSimulation.enabled) return
@@ -114,14 +108,7 @@ class CombatSimModule(
         // Generous Delays here since combat sims don't occur often
         delay((1000 * gameState.delayCoefficient).roundToLong())
 
-        var cost = 0
-
-        for ((i, type) in difficulties.withIndex()) {
-            if (type) {
-                cost = difficulties.size - i
-                break
-            }
-        }
+        val cost = profile.combatSimulation.dataSim.cost
         if (cost == 0) {
             logger.info("Not enough energy to run selected simulations")
         } else {

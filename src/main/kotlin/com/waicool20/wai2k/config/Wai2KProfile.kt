@@ -101,20 +101,19 @@ data class Wai2KProfile(
 
     class CombatSimulation(
         enabled: Boolean = false,
-        basic: Boolean = false,
-        intermediate: Boolean = true,
-        advanced: Boolean = true
+        dataSim: DataSim = DataSim.ADVANCED
     ) {
+        enum class DataSim {
+            OFF, BASIC, INTERMEDIATE, ADVANCED;
+
+            val cost = ordinal
+        }
 
         val enabledProperty = enabled.toProperty()
-        val basicProperty = basic.toProperty()
-        val intermediateProperty = intermediate.toProperty()
-        val advancedProperty = advanced.toProperty()
+        val dataSimProperty = dataSim.toProperty()
 
         val enabled by enabledProperty
-        val basicData by basicProperty
-        val intermediateData by intermediateProperty
-        val advancedData by advancedProperty
+        val dataSim by dataSimProperty
     }
 
     class Factory(
