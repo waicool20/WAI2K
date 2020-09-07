@@ -101,9 +101,9 @@ data class Wai2KProfile(
 
     class CombatSimulation(
         enabled: Boolean = false,
-        dataSim: DataSim = DataSim.ADVANCED
+        dataSim: Level = Level.ADVANCED
     ) {
-        enum class DataSim {
+        enum class Level {
             OFF, BASIC, INTERMEDIATE, ADVANCED;
 
             val cost = ordinal
