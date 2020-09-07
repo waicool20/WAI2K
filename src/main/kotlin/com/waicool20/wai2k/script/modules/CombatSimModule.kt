@@ -36,7 +36,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
 import java.time.*
 import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
 import kotlin.math.roundToLong
 
 class CombatSimModule(
@@ -48,7 +47,7 @@ class CombatSimModule(
 ) : ScriptModule(scriptRunner, region, config, profile, navigator) {
 
     private val logger = loggerFor<CombatReportModule>()
-    private var nextCheck = 0L
+    private var nextCheck = Instant.now()
     private var energy = 0
     private var rechargeTime = Duration.ofSeconds(0)
     private val difficulties = arrayOf(
@@ -61,7 +60,7 @@ class CombatSimModule(
 
     override suspend fun execute() {
         if (!profile.combatSimulation.enabled) return
-        if (ChronoUnit.SECONDS.between(Instant.ofEpochSecond(nextCheck), Instant.now()) <= 0) return
+        if (Instant.now() < nextCheck) return
         val daysOpen = arrayOf(DayOfWeek.TUESDAY, DayOfWeek.FRIDAY, DayOfWeek.SUNDAY)
         if (OffsetDateTime.now(ZoneOffset.ofHours(-8)).dayOfWeek !in daysOpen) return
         checkSimEnergy()
@@ -78,20 +77,26 @@ class CombatSimModule(
 
         // X/6 xx:xx:xx part
         val simEnergyRegion = region.subRegion(1462, 184, 188, 44).asCachedRegion()
-
         energy = Ocr.forConfig(config)
-            .useCharFilter("0123456/")
+            .useCharFilter("0123456")
             .doOCRAndTrim(simEnergyRegion)
             .replace(" ", "")
-            .take(1)
-            .toInt()
+            .takeIf { it.isNotEmpty() }
+            ?.take(1)
+            ?.toInt() ?: 0 // If there is lag or something blocking
+
         logger.info("Current sim energy is $energy/6")
 
-        val remainder = Ocr.forConfig(config)
+        var remainder = Ocr.forConfig(config)
             .useCharFilter("0123456/")
             .doOCRAndTrim(simEnergyRegion)
             .replace(" ", "")
             .takeLast(6)
+
+        // If energy is at 6/6 it will be --:--:--
+        if (remainder.length < 6) {
+            remainder = "000000"
+        }
 
         rechargeTime = DurationUtils.of(
             remainder.substring(4, 6).toLong(),
@@ -99,6 +104,7 @@ class CombatSimModule(
             remainder.substring(0, 2).toLong()
         )
         logger.info("Time until next sim energy ${rechargeTime.seconds.toString().format(formatter)}")
+        nextCheck = Instant.now().plusSeconds(rechargeTime.seconds)
     }
 
     private suspend fun runDataSimulation() {
@@ -112,7 +118,7 @@ class CombatSimModule(
 
         for ((i, type) in difficulties.withIndex()) {
             if (type) {
-                cost = difficulties.size + 1 - i
+                cost = difficulties.size - i
                 break
             }
         }
@@ -120,24 +126,31 @@ class CombatSimModule(
             logger.info("Not enough energy to run selected simulations")
         } else {
             logger.info("Selecting data sim type")
-            region.subRegion(735, 377 + 177 * (cost - 1), 1230, 130).click() // Difficulty
+            region.subRegion(735, 377 + (177 * (cost - 1)), 1230, 130).click() // Difficulty
             delay(1000)
-
             logger.info("Entering sim")
-            region.subRegion(1320, 810, 310, 105).click() // Enter Combat
-            region.waitHas(FileTemplate("ok.png"), 10000)
+            region.subRegion(1320, 810, 300, 105).click() // Enter Combat
+            region.waitHas(FileTemplate("ok.png"), 5000)?.click()
             delay(3000)
 
             logger.info("Clicking through sim results")
-            withTimeout(10000) {
-                region.clickWhile {
-                    doesntHave(FileTemplate("locations/landmarks/combat_simulation.png"))
+            // If there is enough sim energy (including extra energy) to run again
+            // the previous message box will appear again
+            // Perhaps make this more like mapRunner
+            withTimeout(8000) {
+                while (region.subRegion(1959, 179, 60, 60)
+                        .doesntHave(FileTemplate("locations/landmarks/combat_simulation.png"))
+                ) {
+                    region.subRegion(992, 24, 1100, 121).click() // endBattleClick
+                    delay(300)
+                    region.subRegion(761, 674, 283, 144)
+                        .findBest(FileTemplate("cancel-logi.png"))?.region?.click() // Same button
                 }
             }
         }
         scriptStats.simEnergySpent += cost
         energy -= cost
         logger.info("Sim energy remaining : $energy")
-        nextCheck = ((cost - energy) * 7200) - rechargeTime.seconds
+        nextCheck = Instant.now().plusSeconds(((cost - energy) * 7200) - rechargeTime.seconds)
     }
 }
