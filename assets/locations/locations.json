@@ -689,17 +689,6 @@
           "width": 257,
           "height": 118
         }
-      },
-      {
-        "dest": "combat_simulation",
-        "asset": {
-          "imageName": "",
-          "x": 131,
-          "y": 428,
-          "y-": 562,
-          "width": 257,
-          "height": 118
-        }
       }
     ]
   },
@@ -787,54 +776,6 @@
           "imageName": "logistics_support",
           "x": 1746,
           "y": 147,
-          "width": 60,
-          "height": 60
-        }
-      }
-    ],
-    "links": [
-      {
-        "dest": "home",
-        "asset": {
-          "imageName": "",
-          "x": 120,
-          "y": 0,
-          "width": 205,
-          "height": 130
-        }
-      },
-      {
-        "dest": "combat",
-        "asset": {
-          "imageName": "",
-          "x": 131,
-          "y": 164,
-          "y-": 296,
-          "width": 257,
-          "height": 118
-        }
-      },
-      {
-        "dest": "combat_menu",
-        "asset": {
-          "imageName": "",
-          "x": 0,
-          "y": 0,
-          "width": 0,
-          "height": 0
-        }
-      }
-    ]
-  },
-  {
-    "id": "combat_simulation",
-    "isIntermediate": true,
-    "landmarks": [
-      {
-        "asset": {
-          "imageName": "combat_simulation",
-          "x": 1959,
-          "y": 179,
           "width": 60,
           "height": 60
         }

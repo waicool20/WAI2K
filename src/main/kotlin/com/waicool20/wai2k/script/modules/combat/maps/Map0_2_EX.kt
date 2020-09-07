@@ -27,6 +27,7 @@ import com.waicool20.wai2k.script.modules.combat.MapRunner
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
+import kotlin.math.roundToLong
 import kotlin.random.Random
 
 class Map0_2_EX(
@@ -59,7 +60,7 @@ class Map0_2_EX(
                 300
             )
         }
-        delay(800) //Wait to settle
+        delay(900 * gameState.delayCoefficient.roundToLong()) //Wait to settle
         val rEchelons = deployEchelons(nodes[0], nodes[1])
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
