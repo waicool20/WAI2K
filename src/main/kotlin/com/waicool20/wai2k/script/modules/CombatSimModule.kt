@@ -30,13 +30,14 @@ import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.doOCRAndTrim
+import com.waicool20.wai2k.util.formatted
 import com.waicool20.wai2k.util.useCharFilter
 import com.waicool20.waicoolutils.DurationUtils
 import com.waicool20.waicoolutils.logging.loggerFor
+import com.waicool20.waicoolutils.prettyString
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
 import java.time.*
-import java.time.format.DateTimeFormatter
 import kotlin.math.roundToLong
 
 class CombatSimModule(
@@ -48,21 +49,31 @@ class CombatSimModule(
 ) : ScriptModule(scriptRunner, region, config, profile, navigator) {
 
     private val logger = loggerFor<CombatReportModule>()
+    private val dataSimDays = arrayOf(DayOfWeek.TUESDAY, DayOfWeek.FRIDAY, DayOfWeek.SUNDAY)
     private var nextCheck = Instant.now()
     private var energy = 0
     private var rechargeTime = Duration.ofSeconds(0)
-    private val formatter = DateTimeFormatter.ofPattern("HH:mm:ss")
 
     override suspend fun execute() {
         if (!profile.combatSimulation.enabled) return
         if (Instant.now() < nextCheck) return
-        val daysOpen = arrayOf(DayOfWeek.TUESDAY, DayOfWeek.FRIDAY, DayOfWeek.SUNDAY)
-        if (OffsetDateTime.now(ZoneOffset.ofHours(-8)).dayOfWeek !in daysOpen) return
+        if (!combatSimAvailable()) return
         checkSimEnergy()
         while (energy > 0) {
-            runDataSimulation()
+            if (runDataSimulation()) continue
+            runNeuralFragment()
         }
-        logger.info("Next Sim check is in: ${nextCheck.toString().format(formatter)}")
+        logger.info("Next sim check is in: ${nextCheck.formatted()}")
+    }
+
+    /**
+     * Returns true if any enabled combat simulation is available that day
+     */
+    private fun combatSimAvailable(): Boolean {
+        val daysOpen = mutableSetOf<DayOfWeek>()
+        if (profile.combatSimulation.dataSim != Level.OFF) daysOpen += dataSimDays
+        if (profile.combatSimulation.neuralFragment != Level.OFF) daysOpen += DayOfWeek.values()
+        return OffsetDateTime.now(ZoneOffset.ofHours(-8)).dayOfWeek in daysOpen
     }
 
     private suspend fun checkSimEnergy() {
@@ -98,12 +109,13 @@ class CombatSimModule(
             remainder.substring(2, 4).toLong(),
             remainder.substring(0, 2).toLong()
         )
-        logger.info("Time until next sim energy ${rechargeTime.seconds.toString().format(formatter)}")
         nextCheck = Instant.now().plusSeconds(rechargeTime.seconds)
+        logger.info("Time until next sim energy ${rechargeTime.prettyString()}")
     }
 
-    private suspend fun runDataSimulation() {
-        // Runs a training data sim, prioritising the highest difficulty enabled in config
+    private suspend fun runDataSimulation(): Boolean {
+        if (profile.combatSimulation.dataSim == Level.OFF) return false
+        if (OffsetDateTime.now(ZoneOffset.ofHours(-8)).dayOfWeek !in dataSimDays) return false
 
         region.subRegion(400, 320, 180, 120).click()
         // Generous Delays here since combat sims don't occur often
@@ -140,5 +152,13 @@ class CombatSimModule(
         energy -= cost
         logger.info("Sim energy remaining : $energy")
         nextCheck = Instant.now().plusSeconds(((cost - energy) * 7200) - rechargeTime.seconds)
+        return true
+    }
+
+    /**
+     * Placeholder function
+     */
+    private suspend fun runNeuralFragment() {
+        //TODO
     }
 }
