@@ -29,7 +29,6 @@ import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.Ocr
-import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.wai2k.util.formatted
 import com.waicool20.waicoolutils.DurationUtils
@@ -37,6 +36,7 @@ import com.waicool20.waicoolutils.logging.loggerFor
 import com.waicool20.waicoolutils.prettyString
 import kotlinx.coroutines.delay
 import java.time.*
+import java.time.temporal.ChronoUnit
 import kotlin.math.roundToLong
 
 class CombatSimModule(
@@ -173,5 +173,7 @@ class CombatSimModule(
      */
     private suspend fun runNeuralFragment() {
         //TODO
+        energyRemaining = 0
+        nextCheck = Instant.now().plus(1, ChronoUnit.DAYS)
     }
 }
