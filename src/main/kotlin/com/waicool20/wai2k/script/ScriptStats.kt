@@ -20,18 +20,19 @@
 package com.waicool20.wai2k.script
 
 data class ScriptStats(
-        var logisticsSupportReceived: Int = 0,
-        var logisticsSupportSent: Int = 0,
-        var sortiesDone: Int = 0,
-        var enhancementsDone: Int = 0,
-        var dollsUsedForEnhancement: Int = 0,
-        var disassemblesDone: Int = 0,
-        var dollsUsedForDisassembly: Int = 0,
-        var equipDisassemblesDone: Int = 0,
-        var equipsUsedForDisassembly: Int = 0,
-        var repairs: Int = 0,
-        var gameRestarts: Int = 0,
-        var combatReportsWritten: Int = 0
+    var logisticsSupportReceived: Int = 0,
+    var logisticsSupportSent: Int = 0,
+    var sortiesDone: Int = 0,
+    var enhancementsDone: Int = 0,
+    var dollsUsedForEnhancement: Int = 0,
+    var disassemblesDone: Int = 0,
+    var dollsUsedForDisassembly: Int = 0,
+    var equipDisassemblesDone: Int = 0,
+    var equipsUsedForDisassembly: Int = 0,
+    var repairs: Int = 0,
+    var gameRestarts: Int = 0,
+    var combatReportsWritten: Int = 0,
+    var simEnergySpent: Int = 0
 ) {
     fun reset() {
         logisticsSupportReceived = 0
@@ -46,5 +47,6 @@ data class ScriptStats(
         repairs = 0
         gameRestarts = 0
         combatReportsWritten = 0
+        simEnergySpent = 0
     }
 }

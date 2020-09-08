@@ -45,6 +45,7 @@ data class Wai2KProfile(
     val logistics: Logistics = Logistics(),
     val combat: Combat = Combat(),
     val combatReport: CombatReport = CombatReport(),
+    val combatSimulation: CombatSimulation = CombatSimulation(),
     val factory: Factory = Factory(),
     val stop: Stop = Stop()
 ) {
@@ -96,6 +97,26 @@ data class Wai2KProfile(
 
         val enabled by enabledProperty
         val type by typeProperty
+    }
+
+    class CombatSimulation(
+        enabled: Boolean = false,
+        dataSim: Level = Level.ADVANCED,
+        neuralFragment: Level = Level.ADVANCED
+    ) {
+        enum class Level {
+            OFF, BASIC, INTERMEDIATE, ADVANCED;
+
+            val cost = ordinal
+        }
+
+        val enabledProperty = enabled.toProperty()
+        val dataSimProperty = dataSim.toProperty()
+        val neuralFragmentProperty = neuralFragment.toProperty()
+
+        val enabled by enabledProperty
+        val dataSim by dataSimProperty
+        val neuralFragment by neuralFragmentProperty
     }
 
     class Factory(
