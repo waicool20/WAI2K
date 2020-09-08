@@ -24,6 +24,7 @@ import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.config.Wai2KProfile.CombatSimulation.Level
+import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
@@ -35,7 +36,6 @@ import com.waicool20.waicoolutils.DurationUtils
 import com.waicool20.waicoolutils.logging.loggerFor
 import com.waicool20.waicoolutils.prettyString
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.withTimeout
 import java.time.*
 import kotlin.math.roundToLong
 
@@ -50,7 +50,7 @@ class CombatSimModule(
     private val logger = loggerFor<CombatReportModule>()
     private val dataSimDays = arrayOf(DayOfWeek.TUESDAY, DayOfWeek.FRIDAY, DayOfWeek.SUNDAY)
     private var nextCheck = Instant.now()
-    private var energy = 0
+    private var energyRemaining = 0
     private var rechargeTime = Duration.ZERO
 
     override suspend fun execute() {
@@ -58,11 +58,10 @@ class CombatSimModule(
         if (Instant.now() < nextCheck) return
         if (!combatSimAvailable()) return
         checkSimEnergy()
-        while (energy > 0) {
-            if (runDataSimulation()) continue
-            runNeuralFragment()
-        }
-        logger.info("Next sim check is in: ${nextCheck.formatted()}")
+        runDataSimulation()
+        runNeuralFragment()
+        logger.info("Sim energy remaining : $energyRemaining")
+        logger.info("Next sim check at: ${nextCheck.formatted()}")
     }
 
     /**
@@ -90,17 +89,17 @@ class CombatSimModule(
             logger.info("Sim energy OCR: $simString")
 
             // Return if not in X6HHmmss format or empty
-            if (simString.isEmpty() || simString.length != 8) {
+            if (simString.isEmpty() || !(simString.length == 2 || simString.length == 8)) {
                 delay(500)
                 continue
             }
 
-            energy = simString.replace("8", "0")
+            energyRemaining = simString.replace("8", "0")
                 .take(1).toIntOrNull()?.takeIf { it in 0..6 } ?: continue // If there is lag or something blocking
 
-            logger.info("Current sim energy is $energy/6")
+            logger.info("Current sim energy is $energyRemaining/6")
 
-            if (energy == 6) {
+            if (energyRemaining == 6) {
                 rechargeTime = Duration.ZERO
                 return
             }
@@ -122,46 +121,51 @@ class CombatSimModule(
         }
     }
 
-    private suspend fun runDataSimulation(): Boolean {
-        if (profile.combatSimulation.dataSim == Level.OFF) return false
-        if (OffsetDateTime.now(ZoneOffset.ofHours(-8)).dayOfWeek !in dataSimDays) return false
+    private suspend fun runDataSimulation() {
+        if (profile.combatSimulation.dataSim == Level.OFF) return
+        if (OffsetDateTime.now(ZoneOffset.ofHours(-8)).dayOfWeek !in dataSimDays) return
+
+        val level = profile.combatSimulation.dataSim
+        var times = energyRemaining / level.cost
+        if (times == 0) return
 
         region.subRegion(400, 320, 180, 120).click()
         // Generous Delays here since combat sims don't occur often
         delay((1000 * gameState.delayCoefficient).roundToLong())
 
-        val cost = profile.combatSimulation.dataSim.cost
-        if (cost == 0) {
-            logger.info("Not enough energy to run selected simulations")
-        } else {
-            logger.info("Selecting data sim type")
-            region.subRegion(735, 377 + (177 * (cost - 1)), 1230, 130).click() // Difficulty
-            delay(1000)
-            logger.info("Entering sim")
-            region.subRegion(1320, 810, 300, 105).click() // Enter Combat
-            region.waitHas(FileTemplate("ok.png"), 5000)?.click()
-            delay(3000)
+        logger.info("Running data sim type $level $times times")
+        region.subRegion(735, 377 + (177 * (level.cost - 1)), 1230, 130).click() // Difficulty
+        delay(1000)
+        logger.info("Entering $level sim")
+        region.subRegion(1320, 810, 300, 105).click() // Enter Combat
+        region.waitHas(FileTemplate("ok.png"), 5000)?.click()
+        delay(3000)
 
-            logger.info("Clicking through sim results")
-            // If there is enough sim energy (including extra energy) to run again
-            // the previous message box will appear again
-            // Perhaps make this more like mapRunner
-            withTimeout(8000) {
-                while (region.subRegion(1959, 179, 60, 60)
-                        .doesntHave(FileTemplate("locations/landmarks/combat_simulation.png"))
-                ) {
-                    region.subRegion(992, 24, 1100, 121).click() // endBattleClick
-                    delay(300)
-                    region.subRegion(761, 674, 283, 144)
-                        .findBest(FileTemplate("cancel-logi.png"))?.region?.click() // Same button
+        logger.info("Clicking through sim results")
+
+        var energySpent = 0
+        while (true) {
+            region.subRegion(992, 24, 1100, 121).click() // endBattleClick
+            delay(300)
+            if (GameLocation.mappings(config)[LocationId.COMBAT_SIMULATION]!!.isInRegion(region)) {
+                energySpent += level.cost
+                break
+            }
+            if (region.subRegion(1100, 680, 275, 130).has(FileTemplate("ok.png"))) {
+                energySpent += level.cost
+                if (--times == 0) {
+                    region.subRegion(788, 695, 250, 96).click() // Cancel
+                    break
+                } else {
+                    region.subRegion(1115, 695, 250, 96).click() // ok
+                    logger.info("Done one cycle, remaining: $times")
                 }
             }
         }
-        scriptStats.simEnergySpent += cost
-        energy -= cost
-        logger.info("Sim energy remaining : $energy")
-        nextCheck = Instant.now().plusSeconds(((cost - energy) * 7200) - rechargeTime.seconds)
-        return true
+        logger.info("Completed all data sim")
+        scriptStats.simEnergySpent += energySpent
+        energyRemaining -= energySpent
+        nextCheck = Instant.now().plusSeconds(((level.cost - energyRemaining - 1) * 7200) + rechargeTime.seconds)
     }
 
     /**
