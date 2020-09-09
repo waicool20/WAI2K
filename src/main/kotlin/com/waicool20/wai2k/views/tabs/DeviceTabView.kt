@@ -212,7 +212,7 @@ class DeviceTabView : CoroutineScopeView(), Binder {
                         }
                     }
                 } catch (e: Exception) {
-                    logger.warn("Failed to get frame for device $device")
+                    logger.warn("Failed to get frame for device $device", e)
                     break
                 }
             }
