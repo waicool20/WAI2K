@@ -20,7 +20,6 @@
 package com.waicool20.wai2k.script.modules
 
 import com.waicool20.cvauto.android.AndroidRegion
-import com.waicool20.cvauto.core.asCachedRegion
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
@@ -105,7 +104,7 @@ class CombatSimModule(
             break
         }
 
-        while(true) {
+        while (true) {
             val timerString = Ocr.forConfig(config)
                 .useCharFilter("0123456789:")
                 .doOCRAndTrim(region.subRegion(1552, 182, 100, 45))
@@ -141,7 +140,10 @@ class CombatSimModule(
 
         val level = profile.combatSimulation.dataSim
         var times = energyRemaining / level.cost
-        if (times == 0) return
+        if (times == 0) {
+            updateNextCheck(level)
+            return
+        }
 
         region.subRegion(400, 320, 180, 120).click()
         // Generous Delays here since combat sims don't occur often
@@ -179,7 +181,7 @@ class CombatSimModule(
         logger.info("Completed all data sim")
         scriptStats.simEnergySpent += energySpent
         energyRemaining -= energySpent
-        nextCheck = Instant.now().plusSeconds(((level.cost - energyRemaining - 1) * 7200) + rechargeTime.seconds)
+        updateNextCheck(level)
     }
 
     /**
@@ -190,5 +192,12 @@ class CombatSimModule(
         if (OffsetDateTime.now(ZoneOffset.ofHours(-8)).dayOfWeek !in dataSimDays) {
             nextCheck = Instant.now().plus(1, ChronoUnit.DAYS)
         }
+    }
+
+    /**
+     * Schedules the next check up time based on the required level passed in
+     */
+    private fun updateNextCheck(level: Level) {
+        nextCheck = Instant.now().plusSeconds(((level.cost - energyRemaining - 1) * 7200) + rechargeTime.seconds)
     }
 }
