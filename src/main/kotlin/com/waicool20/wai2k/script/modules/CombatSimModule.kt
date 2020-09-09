@@ -20,6 +20,7 @@
 package com.waicool20.wai2k.script.modules
 
 import com.waicool20.cvauto.android.AndroidRegion
+import com.waicool20.cvauto.core.asCachedRegion
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
@@ -31,6 +32,7 @@ import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.wai2k.util.formatted
+import com.waicool20.wai2k.util.useCharFilter
 import com.waicool20.waicoolutils.DurationUtils
 import com.waicool20.waicoolutils.logging.loggerFor
 import com.waicool20.waicoolutils.prettyString
@@ -79,23 +81,20 @@ class CombatSimModule(
         // Perhaps put this in gameState if it didn't take so long to check
         navigator.navigateTo(LocationId.COMBAT_SIMULATION)
 
-        // X/6 HH:mm:ss part
-        val simEnergyRegion = region.subRegion(1462, 184, 188, 44)
-
         while (true) {
-            val simString = Ocr.forConfig(config, digitsOnly = true)
-                .doOCRAndTrim(simEnergyRegion)
+            val energyString = Ocr.forConfig(config)
+                .useCharFilter("0123456/")
+                .doOCRAndTrim(region.subRegion(1455, 165, 75, 75))
                 .replace(" ", "")
-            logger.info("Sim energy OCR: $simString")
+            logger.info("Sim energy OCR: $energyString")
 
-            // Return if not in X6HHmmss format or empty
-            if (simString.isEmpty() || !(simString.length == 2 || simString.length == 8)) {
+            // Continue if not in X/6 format
+            if (!energyString.matches(Regex("\\d/6"))) {
                 delay(500)
                 continue
             }
 
-            energyRemaining = simString.replace("8", "0")
-                .take(1).toIntOrNull()?.takeIf { it in 0..6 } ?: continue // If there is lag or something blocking
+            energyRemaining = energyString.take(1).toIntOrNull() ?: continue
 
             logger.info("Current sim energy is $energyRemaining/6")
 
@@ -103,13 +102,28 @@ class CombatSimModule(
                 rechargeTime = Duration.ZERO
                 return
             }
+            break
+        }
 
-            var seconds = simString.substring(6, 8)
-            var minutes = simString.substring(4, 6)
-            val hours = simString.substring(3, 4)
+        while(true) {
+            val timerString = Ocr.forConfig(config)
+                .useCharFilter("0123456789:")
+                .doOCRAndTrim(region.subRegion(1552, 182, 100, 45))
+                .replace(" ", "")
+            logger.info("Sim timer OCR: $timerString")
+
+            if (!timerString.matches(Regex("\\d:\\d\\d:\\d\\d"))) {
+                delay(500)
+                continue
+            }
+
+            var seconds = timerString.substring(5, 7)
+            var minutes = timerString.substring(2, 4)
+            var hours = timerString.substring(0, 1)
 
             if (seconds[0] == '8') seconds = seconds.replaceFirst('8', '0')
             if (minutes[0] == '8') minutes = minutes.replaceFirst('8', '0')
+            if (hours[0] == '8') hours = hours.replaceFirst('8', '0')
 
             rechargeTime = DurationUtils.of(
                 seconds.toLong(),
@@ -172,8 +186,9 @@ class CombatSimModule(
      * Placeholder function
      */
     private suspend fun runNeuralFragment() {
-        //TODO
-        energyRemaining = 0
-        nextCheck = Instant.now().plus(1, ChronoUnit.DAYS)
+        //TODO Remove below and add actual neural fragment code
+        if (OffsetDateTime.now(ZoneOffset.ofHours(-8)).dayOfWeek !in dataSimDays) {
+            nextCheck = Instant.now().plus(1, ChronoUnit.DAYS)
+        }
     }
 }
