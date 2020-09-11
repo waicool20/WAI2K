@@ -25,15 +25,19 @@ import java.awt.Dimension
 import java.awt.FlowLayout
 import java.io.IOException
 import java.nio.file.Files
+import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
+import java.security.MessageDigest
 import java.time.Instant
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import java.util.zip.ZipInputStream
 import javax.swing.BorderFactory
 import javax.swing.JFrame
 import javax.swing.JLabel
 import javax.swing.JPanel
+import javax.xml.bind.DatatypeConverter
 import kotlin.concurrent.thread
 import kotlin.system.exitProcess
 
@@ -175,48 +179,83 @@ object Main {
             }
         }
 
-        val deps = depsString
-            .map { it.split(":") }
-            .filter { (_, name, version) ->
-                Files.notExists(libPath.resolve("$name-$version.jar"))
+        for (i in 0 until 10) {
+            val deps = depsString
+                .map { it.split(":") }
+                .filterNot { (_, name, version) ->
+                    verifyCheckSum(libPath.resolve("$name-$version.jar"))
+                }
+
+            val depsTotal = deps.size * 2
+            if (depsTotal == 0) {
+                return
+            } else {
+                if (i > 0) TimeUnit.SECONDS.sleep(1)
+            }
+            val latch = CountDownLatch(depsTotal)
+
+            fun downloadFile(path: Path, response: Response) {
+                println("[DOWNLOAD] $path")
+                val input = response.body!!.byteStream()
+                val output = Files.newOutputStream(path)
+                input.copyTo(output)
+                input.close()
+                output.close()
+                println("[OK] $path")
+                latch.countDown()
+                label.text = "Downloading libraries: ${depsTotal - latch.count}/${depsTotal}"
             }
 
-        val latch = CountDownLatch(deps.size)
-        label.text = "Downloading libraries: ${deps.size - latch.count}/${deps.size}"
-        for ((grp, name, version) in deps) {
-            val group = grp.replace(".", "/")
-            for (repo in repos) {
-                val url = if (repo.endsWith("/")) repo else "$repo/"
-                val filename = "$name-$version.jar"
-                val path = libPath.resolve(filename)
-                if (Files.exists(path)) {
-                    println("[OK] $path")
+            label.text = "Downloading libraries: ${depsTotal - latch.count}/${depsTotal}"
+            for ((grp, name, version) in deps) {
+                val group = grp.replace(".", "/")
+                for (repo in repos) {
+                    val url = if (repo.endsWith("/")) repo else "$repo/"
+                    val filename = "$name-$version.jar"
+                    val path = libPath.resolve(filename)
+                    if (verifyCheckSum(path)) {
+                        println("[OK] $path")
+                        break
+                    }
+
+                    client.newCall(Request.Builder().url("$url$group/$name/$version/$filename").build())
+                        .enqueue(object : Callback {
+                            override fun onResponse(call: Call, response: Response) {
+                                if (response.code == 200) downloadFile(path, response)
+                            }
+
+                            override fun onFailure(call: Call, e: IOException) {
+                                // Do Nothing
+                            }
+                        })
+                    client.newCall(Request.Builder().url("$url$group/$name/$version/$filename.md5").build())
+                        .enqueue(object : Callback {
+                            override fun onResponse(call: Call, response: Response) {
+                                if (response.code == 200) downloadFile(libPath.resolve("$filename.md5"), response)
+                            }
+
+                            override fun onFailure(call: Call, e: IOException) {
+                                // Do Nothing
+                            }
+                        })
                     break
                 }
-                val request = Request.Builder().url("$url$group/$name/$version/$filename").build()
-                client.newCall(request).enqueue(object : Callback {
-                    override fun onResponse(call: Call, response: Response) {
-                        if (response.code == 200) {
-                            println("[DOWNLOAD] $path")
-                            val input = response.body!!.byteStream()
-                            val output = Files.newOutputStream(path)
-                            input.copyTo(output)
-                            input.close()
-                            output.close()
-                            println("[OK] $path")
-                            latch.countDown()
-                            label.text = "Downloading libraries: ${deps.size - latch.count}/${deps.size}"
-                        }
-                    }
-
-                    override fun onFailure(call: Call, e: IOException) {
-                        // Do Nothing
-                    }
-                })
-                break
             }
+            latch.await()
         }
-        latch.await()
+
+        label.text = "Failed to download libraries, try deleting .wai2k/libs and try again"
+        while (true) TimeUnit.SECONDS.sleep(1)
+    }
+
+    private fun verifyCheckSum(file: Path): Boolean {
+        if (Files.notExists(file)) return false
+        val md5sumFile = file.resolveSibling("${file.fileName}.md5")
+        if (Files.notExists(md5sumFile)) return false
+        val md5sum = MessageDigest.getInstance("MD5")
+            .digest(Files.readAllBytes(file))
+            .let { DatatypeConverter.printHexBinary(it) }
+        return md5sum.equals(Files.readAllBytes(md5sumFile).toString(Charsets.UTF_8).take(32), ignoreCase = true)
     }
 
     private fun launchWai2K(args: Array<String>) {
