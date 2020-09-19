@@ -33,13 +33,13 @@ class CombatSimulationView : AbstractProfileView() {
     private val enableCombatSimulationCheckBox: CheckBox by fxid()
     private val dataSimComboBox: ComboBox<Level> by fxid()
     private val neuralSimComboBox: ComboBox<Level> by fxid()
-    private val neuralEchelonSpinner: Spinner<Int> by fxid()
+    private val neuralEchelonComboBox: ComboBox<Int> by fxid()
 
 
     override fun setValues() {
         dataSimComboBox.items.setAll(Level.values().toList())
         neuralSimComboBox.items.setAll(Level.values().toList())
-        neuralEchelonSpinner.valueFactory = SpinnerValueFactory.IntegerSpinnerValueFactory(1, 10)
+        neuralEchelonComboBox.items.setAll((1..10).toList())
     }
 
     override fun createBindings() {
@@ -47,7 +47,7 @@ class CombatSimulationView : AbstractProfileView() {
             enableCombatSimulationCheckBox.bind(enabledProperty)
             dataSimComboBox.bind(dataSimProperty)
             neuralSimComboBox.bind(neuralFragmentProperty)
-            neuralEchelonSpinner.bind(neuralEchelonProperty)
+            neuralEchelonComboBox.bind(neuralEchelonProperty)
         }
     }
 }
