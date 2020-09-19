@@ -125,6 +125,7 @@ class CombatSimModule(
             if (!deploy) {
                 throw ScriptException("Could not deploy echelon $echelon")
             }
+            delay(1000)
 
             // A pretty common script restart is if you get a long loadwheel from poor connection
             // and the try to .click() start the (unavailable) button it will get stuck until timeout
@@ -309,7 +310,7 @@ class CombatSimModule(
      */
     private suspend fun clickEchelon(echelon: Echelon): Boolean {
         logger.debug("Clicking the echelon")
-        val eRegion = region.subRegion(162, 40, 170, region.height - 140)
+        val eRegion = region.subRegion(140, 40, 170, region.height - 140)
         delay(100)
 
         val start = System.currentTimeMillis()
