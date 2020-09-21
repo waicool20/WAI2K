@@ -38,7 +38,7 @@ class CombatSimulationView : AbstractProfileView() {
 
     override fun setValues() {
         dataSimComboBox.items.setAll(Level.values().toList())
-        neuralSimComboBox.items.setAll(Level.values().toList())
+        neuralSimComboBox.items.setAll(listOf(Level.OFF, Level.ADVANCED))
         neuralEchelonComboBox.items.setAll((1..10).toList())
     }
 

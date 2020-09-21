@@ -19,7 +19,6 @@
 
 package com.waicool20.wai2k.script.modules
 
-import com.sun.media.jfxmedia.logging.Logger
 import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.config.Wai2KConfig
@@ -28,12 +27,10 @@ import com.waicool20.wai2k.config.Wai2KProfile.CombatSimulation.Level
 import com.waicool20.wai2k.game.Echelon
 import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.LocationId
-import com.waicool20.wai2k.game.MapRunnerRegions
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptException
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.script.ScriptTimeOutException
-import com.waicool20.wai2k.script.modules.combat.MapNode
 import com.waicool20.wai2k.script.modules.combat.MapRunner
 import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.doOCRAndTrim
@@ -46,8 +43,6 @@ import com.waicool20.waicoolutils.prettyString
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
-import okhttp3.internal.wait
-import java.lang.reflect.Constructor
 import java.time.*
 import java.time.temporal.ChronoUnit
 import kotlin.math.roundToLong
@@ -71,17 +66,12 @@ class CombatSimModule(
         override val isCorpseDraggingMap = false
         override suspend fun execute() {
             if (profile.combatSimulation.neuralFragment == Level.OFF) return
-            if (profile.combatSimulation.neuralFragment != Level.ADVANCED) {
-                logger.info("Only advanced is implemented")
-                return
-            }
 
             if (OffsetDateTime.now(ZoneOffset.ofHours(-8)).dayOfWeek !in dataSimDays) {
                 nextCheck = Instant.now().plus(1, ChronoUnit.DAYS)
             }
 
             val level = profile.combatSimulation.neuralFragment
-
             var times = energyRemaining / level.cost
             if (times == 0) {
                 updateNextCheck(level)
@@ -118,7 +108,7 @@ class CombatSimModule(
                 0.0,
                 500
             )
-            delay(1200)
+            delay(1500)
 
             heliport.click(); delay(3000)
             val deploy = clickEchelon(echelon)
@@ -137,10 +127,10 @@ class CombatSimModule(
             } catch (e: TimeoutCancellationException) {
                 throw ScriptTimeOutException("Could not start neural sim")
             }
-            waitForGNKSplash()
-            mapRunnerRegions.planningMode.click()
-            heliport.click()
-            endNode.click()
+            waitForGNKSplash(7000) // Map background makes it hard to find
+            mapRunnerRegions.planningMode.click(); delay(500)
+            heliport.click(); delay(500)
+            endNode.click(); delay(500)
             mapRunnerRegions.executePlan.click(); delay(7000)
             waitForTurnEnd(1)
 
