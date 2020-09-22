@@ -80,16 +80,15 @@ class InitModule(
             .findBest(FileTemplate("init/logistics.png"), 4)
             .map { it.region }
             // Map each region to whole logistic support entry
-            .map { cache.subRegion(it.x - 135, it.y - 82, 853, 144) }
+            .map { cache.subRegion(it.x - 133, it.y - 109, 852, 184) }
             .mapAsync {
                 listOf(
-                    // Echelon section on the right without the word "Echelon"
-                    Ocr.forConfig(config, digitsOnly = true).doOCRAndTrim(it.subRegion(0, 25, 83, 100)),
+                    // Echelon number
+                    Ocr.forConfig(config, digitsOnly = true).doOCRAndTrim(it.subRegion(0, 25, 80, 125)),
                     // Logistics number ie. 1-1
                     Ocr.forConfig(config).doOCRAndTrim(it.subRegion(165, 30, 84, 33)),
                     // Timer xx:xx:xx
-                    Ocr.forConfig(config).doOCRAndTrim(it.subRegion(600, 71, 188, 40))
-
+                    Ocr.forConfig(config).doOCRAndTrim(it.subRegion(600, 91, 188, 40))
                 )
             }
             .map { "${it[0]} ${it[1]} ${it[2]}" }
@@ -129,11 +128,11 @@ class InitModule(
 
         // Map each region to whole logistic support entry
         val mappedEntries = entries.map { it.region }
-            .map { cache.capture().getSubimage(it.x - 109, it.y - 12, 851, 143) }
+            .map { cache.capture().getSubimage(it.x - 109, it.y - 31, 852, 184) }
             .map {
                 async {
-                    // Echelon section on the right without the word "Echelon"
-                    Ocr.forConfig(config).doOCRAndTrim(it.getSubimage(10, 25, 65, 100))
+                    // Echelon number
+                    Ocr.forConfig(config, digitsOnly = true).doOCRAndTrim(it.getSubimage(0, 25, 80, 125))
                 } to async { readRepairTimers(it) }
             }.map { it.first.await().toInt() to it.second.await() }
 
@@ -156,7 +155,7 @@ class InitModule(
     private suspend fun readRepairTimers(image: BufferedImage): Map<Int, Duration> {
         return (0 until 5).mapAsync { entry ->
             // Single repair entry without the "Repairing" or "Standby"
-            Ocr.forConfig(config).doOCRAndTrim(image.getSubimage(115 + 145 * entry, 38, 122, 75))
+            Ocr.forConfig(config).doOCRAndTrim(image.getSubimage(115 + 145 * entry, 66, 122, 75))
                 .takeIf { it.contains("Repairing") }
                 ?.let { timer ->
                     Regex("(\\d\\d):(\\d\\d):(\\d\\d)").find(timer)?.groupValues?.let {
