@@ -440,15 +440,15 @@ class CombatModule(
         // Enter battle, use higher similarity threshold to exclude possibly disabled
         // button which will be slightly transparent
         var loops = 0
+        logger.info("Entering normal battle at $map")
         while (isActive) {
             navigator.checkLogistics()
-            logger.info("Entering normal battle at $map")
             // Needed in case of continue
             yield()
             // If still can't enter normal battle after 5 loops then just cancel the sortie
             // and try again
             if (loops++ == 5) return
-            region.subRegion(790, 800, 580, 140)
+            region.subRegion(1445, 830, 345, 135)
                 .findBest(FileTemplate("combat/battle/normal.png"))?.region?.click() ?: continue
             delay(200)
 
