@@ -24,21 +24,29 @@ import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.config.Wai2KProfile.CombatSimulation.Level
+import com.waicool20.wai2k.game.Echelon
 import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.Navigator
+import com.waicool20.wai2k.script.ScriptException
 import com.waicool20.wai2k.script.ScriptRunner
+import com.waicool20.wai2k.script.ScriptTimeOutException
+import com.waicool20.wai2k.script.modules.combat.MapRunner
 import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.wai2k.util.formatted
 import com.waicool20.wai2k.util.useCharFilter
 import com.waicool20.waicoolutils.DurationUtils
 import com.waicool20.waicoolutils.logging.loggerFor
+import com.waicool20.waicoolutils.mapAsync
 import com.waicool20.waicoolutils.prettyString
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import java.time.*
 import java.time.temporal.ChronoUnit
 import kotlin.math.roundToLong
+import kotlin.random.Random
 
 class CombatSimModule(
     scriptRunner: ScriptRunner,
@@ -53,6 +61,105 @@ class CombatSimModule(
     private var nextCheck = Instant.now()
     private var energyRemaining = 0
     private var rechargeTime = Duration.ZERO
+
+    private val mapRunner = object : MapRunner(scriptRunner, region, config, profile) {
+        override val isCorpseDraggingMap = false
+        override suspend fun execute() {
+            if (profile.combatSimulation.neuralFragment == Level.OFF) return
+
+            if (OffsetDateTime.now(ZoneOffset.ofHours(-8)).dayOfWeek !in dataSimDays) {
+                nextCheck = Instant.now().plus(1, ChronoUnit.DAYS)
+            }
+
+            val level = profile.combatSimulation.neuralFragment
+            var times = energyRemaining / level.cost
+            if (times == 0) {
+                updateNextCheck(level)
+                return
+            }
+
+            region.subRegion(400, 630, 180, 120).click() // Neural Cloud Corridor
+            delay((1000 * gameState.delayCoefficient).roundToLong())
+
+            logger.info("Running neural sim type $level $times times")
+            logger.info("Entering $level sim")
+            region.subRegion(735, 377 + (177 * (level.cost - 1)), 1230, 130).click() // Difficulty
+            delay(1000)
+
+            var energySpent = 0
+            // Heliport that turns into a node
+            val heliport = region.subRegion(1055, 866, 24, 24)
+            // blank mode at the end with SF on it
+            val endNode = region.subRegion(1109, 380, 24, 24)
+            // echelon to use for the run
+            val echelon = Echelon(number = profile.combatSimulation.neuralEchelon)
+
+
+            // Plan the route on the first run
+            region.subRegion(1730, 900, 430, 180)
+                .waitHas(FileTemplate("combat/battle/start.png"), 10000)
+            delay(1000)
+
+
+            logger.info("Zoom out")
+            region.pinch(
+                Random.nextInt(900, 1000),
+                Random.nextInt(300, 400),
+                0.0,
+                500
+            )
+            delay(1500)
+
+            heliport.click(); delay(3000)
+            val deploy = clickEchelon(echelon)
+            if (!deploy) {
+                throw ScriptException("Could not deploy echelon $echelon")
+            }
+            delay(1000)
+
+            // A pretty common script restart is if you get a long loadwheel from poor connection
+            // and the try to .click() start the (unavailable) button it will get stuck until timeout
+            mapRunnerRegions.deploy.click(); delay(1000)
+            mapRunnerRegions.startOperation.click(); delay(1000)
+            try {
+                region.subRegion(1100, 680, 275, 130)
+                    .waitHas(FileTemplate("ok.png"), 5000)?.click()
+            } catch (e: TimeoutCancellationException) {
+                throw ScriptTimeOutException("Could not start neural sim")
+            }
+            waitForGNKSplash(7000) // Map background makes it hard to find
+            mapRunnerRegions.planningMode.click(); delay(500)
+            heliport.click(); delay(500)
+            endNode.click(); delay(500)
+            mapRunnerRegions.executePlan.click(); delay(7000)
+            waitForTurnEnd(1)
+
+            while (true) {
+                region.subRegion(992, 24, 1100, 121).click() // endBattleClick
+                delay(300)
+                if (GameLocation.mappings(config)[LocationId.COMBAT_SIMULATION]!!.isInRegion(region)) {
+                    energySpent += level.cost
+                    break
+                }
+                if (region.subRegion(1100, 680, 275, 130).has(FileTemplate("ok.png"))) {
+                    energySpent += level.cost
+                    if (--times == 0) {
+                        region.subRegion(788, 695, 250, 96).click() // Cancel
+                        break
+                    } else {
+                        region.subRegion(1115, 695, 250, 96).click() // ok
+                        logger.info("Done one cycle, remaining: $times")
+                        delay(7000)
+                        waitForTurnEnd(1)
+                    }
+                }
+            }
+            logger.info("Completed all data sim")
+            scriptStats.simEnergySpent += energySpent
+            energyRemaining -= energySpent
+            updateNextCheck(level)
+        }
+    }
 
     override suspend fun execute() {
         if (!profile.combatSimulation.enabled) return
@@ -184,14 +291,62 @@ class CombatSimModule(
         updateNextCheck(level)
     }
 
-    /**
-     * Placeholder function
-     */
     private suspend fun runNeuralFragment() {
-        //TODO Remove below and add actual neural fragment code
-        if (OffsetDateTime.now(ZoneOffset.ofHours(-8)).dayOfWeek !in dataSimDays) {
-            nextCheck = Instant.now().plus(1, ChronoUnit.DAYS)
+        mapRunner.execute()
+    }
+
+    /**
+     * Copy from LogisticsSupportModule
+     */
+    private suspend fun clickEchelon(echelon: Echelon): Boolean {
+        logger.debug("Clicking the echelon")
+        val eRegion = region.subRegion(140, 40, 170, region.height - 140)
+        delay(100)
+
+        val start = System.currentTimeMillis()
+        while (isActive) {
+            val echelons = eRegion.findBest(FileTemplate("echelons/echelon.png"), 8)
+                .map { it.region }
+                .map { it.copyAs<AndroidRegion>(it.x + 93, it.y - 40, 60, 100) }
+                .mapAsync {
+                    Ocr.forConfig(config, true).doOCRAndTrim(it)
+                        .replace("18", "10").toInt() to it
+                }
+                .toMap()
+            logger.debug("Visible echelons: ${echelons.keys}")
+            when {
+                echelons.keys.isEmpty() -> {
+                    logger.info("No echelons available...")
+                    return false
+                }
+                echelon.number in echelons.keys -> {
+                    logger.info("Found echelon!")
+                    echelons[echelon.number]?.click()
+                    return true
+                }
+            }
+            val lEchelon = echelons.keys.minOrNull() ?: echelons.keys.firstOrNull() ?: continue
+            val hEchelon = echelons.keys.maxOrNull() ?: echelons.keys.lastOrNull() ?: continue
+            val lEchelonRegion = echelons[lEchelon] ?: continue
+            val hEchelonRegion = echelons[hEchelon] ?: continue
+            when {
+                echelon.number <= lEchelon -> {
+                    logger.debug("Swiping down the echelons")
+                    lEchelonRegion.swipeTo(hEchelonRegion)
+                }
+                echelon.number >= hEchelon -> {
+                    logger.debug("Swiping up the echelons")
+                    hEchelonRegion.swipeTo(lEchelonRegion)
+                }
+            }
+            delay(300)
+            if (System.currentTimeMillis() - start > 45000) {
+                gameState.requiresUpdate = true
+                logger.warn("Failed to find echelon, maybe ocr failed?")
+                break
+            }
         }
+        return false
     }
 
     /**
