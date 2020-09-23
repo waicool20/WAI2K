@@ -105,9 +105,9 @@ class CombatModule(
 
         navigator.navigateTo(LocationId.COMBAT)
         val map = map as CombatMap.StoryMap
-        clickCombatChapter(map)
-        clickCombatMap(map)
-        enterBattle(map)
+        clickCombatChapter(map); delay(1000)
+        clickCombatMap(map); delay(1000)
+        enterBattle(map); delay(1000)
         // Cancel further execution if not in battle, maybe due to doll/equip overflow
         wasCancelled = gameState.currentGameLocation.id != LocationId.BATTLE
         if (wasCancelled) return
@@ -406,7 +406,6 @@ class CombatModule(
             // Wait for it to settle
             delay(400)
         }
-        navigator.checkLogistics()
 
         // Swipe up if map is > 4
         when (map.number) {
@@ -427,7 +426,6 @@ class CombatModule(
                         yield()
                     }
                 }
-                navigator.checkLogistics()
                 region.subRegion(925, 472 + 177 * (map.number - 4), 440, 130).click()
             }
         }
@@ -442,11 +440,6 @@ class CombatModule(
         var loops = 0
         logger.info("Entering normal battle at $map")
         while (isActive) {
-            navigator.checkLogistics()
-            // Needed in case of continue
-            yield()
-            // If still can't enter normal battle after 5 loops then just cancel the sortie
-            // and try again
             if (loops++ == 5) return
             region.subRegion(1445, 830, 345, 135)
                 .findBest(FileTemplate("combat/battle/normal.png"))?.region?.click() ?: continue
