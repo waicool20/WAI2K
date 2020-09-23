@@ -606,7 +606,7 @@ abstract class MapRunner(
         while (isActive && isInBattle()) yield()
         logger.info("Battle ${_battles++} complete, clicking through battle results")
         // Animation and load wheel until you can click through results/drops
-        delay(Random.nextLong(1000, 1200))
+        delay(Random.nextLong(1100, 1300))
         val l = mapRunnerRegions.battleEndClick.randomPoint()
         val clicks = if (config.scriptConfig.minPostBattleClick == config.scriptConfig.maxPostBattleClick) {
             config.scriptConfig.minPostBattleClick
