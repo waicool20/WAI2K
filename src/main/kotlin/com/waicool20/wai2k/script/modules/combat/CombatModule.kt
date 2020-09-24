@@ -303,6 +303,22 @@ class CombatModule(
 
             navigator.navigateTo(LocationId.REPAIR)
 
+            if (profile.combat.repairOneClick) {
+                logger.info("Using one-click repair")
+                // one-click repair
+                region.subRegion(1660, 965, 358, 98).click()
+                region.waitHas(FileTemplate("ok.png"), 2000)
+                val repairs = Ocr.forConfig(config, digitsOnly = true)
+                    .doOCRAndTrim(region.subRegion(1472, 689, 68, 42))
+                scriptStats.repairs += repairs.toInt()
+
+                logger.info("Repairing $repairs dolls")
+                // Click ok
+                region.subRegion(1441, 772, 250, 96).click()
+                gameState.echelons.flatMap { it.members }.forEach { it.needsRepair = false }
+                return
+            }
+
             while (isActive) {
                 val repairSlots = region.findBest(FileTemplate("combat/empty-repair.png"), 7)
                     .map { it.region }
@@ -330,7 +346,7 @@ class CombatModule(
                 region.matcher.settings.matchDimension = ScriptRunner.NORMAL_RES
                 if (repairRegions.isEmpty()) {
                     // Click close popup
-                    region.findBest(FileTemplate("close.png"))?.region?.click()
+                    region.subRegion(10, 10, 350, 130)
                     break
                 }
 
@@ -343,11 +359,12 @@ class CombatModule(
                 }
 
                 // Click ok
-                region.subRegion(1888, 749, 250, 158).click(); delay(400)
+                region.subRegion(1768, 749, 250, 158).click(); delay(400)
                 // Use quick repair
-                region.subRegion(545, 713, 99, 96).click(); delay(100)
+                region.subRegion(512, 780, 80, 80)
+                    .waitHas(FileTemplate("combat/quick-repair.png"), 2000)?.click()
                 // Click ok
-                region.subRegion(1381, 710, 250, 96).click()
+                region.subRegion(1441, 772, 250, 96).click()
                 // Click close
                 region.waitHas(FileTemplate("close.png"), 15000)?.click()
                 // If dolls that needed repair is equal or less than the repair slot count then

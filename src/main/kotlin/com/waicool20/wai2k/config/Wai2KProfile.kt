@@ -74,16 +74,19 @@ data class Wai2KProfile(
         enabled: Boolean = false,
         map: String = "0-2",
         repairThreshold: Int = 40,
+        oneClick: Boolean = true,
         draggers: MutableList<DollCriteria> = mutableListOf(DollCriteria(), DollCriteria())
     ) {
         val enabledProperty = enabled.toProperty()
         val mapProperty = map.toProperty()
         val repairThresholdProperty = repairThreshold.toProperty()
+        val repairOneClickProperty = oneClick.toProperty()
         val draggersProperty = draggers.toProperty()
 
         val enabled by enabledProperty
         val map by mapProperty
         val repairThreshold by repairThresholdProperty
+        val repairOneClick by repairOneClickProperty
         val draggers by draggersProperty
     }
 
