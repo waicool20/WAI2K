@@ -43,12 +43,15 @@ class Map0_2_EX(
     override suspend fun execute() {
         // Bounce back for all nodes mostly on screen at once
         logger.info("Zoom out")
-        region.pinch(
-            Random.nextInt(900, 1000),
-            Random.nextInt(300, 400),
-            0.0,
-            1000
-        )
+        repeat(2) {
+            region.pinch(
+                Random.nextInt(900, 1000),
+                Random.nextInt(300, 400),
+                0.0,
+                1000
+            )
+            delay(500)
+        }
         delay(800) //Wait to settle
         val rEchelons = deployEchelons(nodes[0], nodes[1])
         mapRunnerRegions.startOperation.click(); yield()
@@ -60,7 +63,7 @@ class Map0_2_EX(
     }
 
     private suspend fun planPath() {
-        logger.info("Selecting ehcelon at ${nodes[0]}")
+        logger.info("Selecting echelon at ${nodes[0]}")
         nodes[0].findRegion().click()
 
         logger.info("Entering planning mode")
