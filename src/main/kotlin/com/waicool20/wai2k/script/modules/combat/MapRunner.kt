@@ -638,6 +638,6 @@ abstract class MapRunner(
 
     private suspend fun endTurn() {
         mapRunnerRegions.endBattle.clickWhile { has(FileTemplate("combat/battle/end.png", 0.8)) }
-        delay(200)
+        region.subRegion(1100, 675, 275, 130).waitHas(FileTemplate("ok.png"), 1000)?.click()
     }
 }
