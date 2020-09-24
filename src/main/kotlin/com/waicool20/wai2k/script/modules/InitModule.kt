@@ -84,7 +84,7 @@ class InitModule(
             .mapAsync {
                 listOf(
                     // Echelon number
-                    Ocr.forConfig(config, digitsOnly = true).doOCRAndTrim(it.subRegion(0, 25, 85, 90)),
+                    Ocr.forConfig(config, digitsOnly = true).doOCRAndTrim(it.subRegion(0, 25, 80, 90)),
                     // Logistics number ie. 1-1
                     Ocr.forConfig(config).doOCRAndTrim(it.subRegion(165, 0, 90, 42)),
                     // Timer xx:xx:xx
