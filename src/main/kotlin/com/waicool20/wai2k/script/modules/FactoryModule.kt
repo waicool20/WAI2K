@@ -136,16 +136,17 @@ class FactoryModule(
             delay(400)
             // Click "Select t-doll" button
             logger.info("Selecting T-dolls that will be used for enhancement")
-            region.subRegion(760, 217, 1250, 550).findBest(FileTemplate("factory/select.png"))?.region?.click()
+            region.subRegion(798, 212, 1217, 555)
+                .findBest(FileTemplate("factory/select.png"))?.region?.click()
             delay(200)
 
             // Click smart select button
             logger.info("Using smart select")
-            region.subRegion(1770, 862, 247, 158).click()
+            region.subRegion(1768, 859, 250, 158).click()
             delay(400)
 
             // Confirm doll selection
-            val okButton = region.subRegion(1768, 859, 250, 158)
+            val okButton = region.subRegion(1759, 850, 268, 177)
                 .findBest(FileTemplate("factory/ok.png"))?.region
             if (okButton == null) {
                 // Click cancel if no t dolls could be used for enhancement
@@ -171,7 +172,9 @@ class FactoryModule(
                     it.click()
                 }
 
-            region.waitHas(FileTemplate("close.png"), 30000)?.click()
+            region.subRegion(798, 212, 1217, 555)
+                .waitHas(FileTemplate("factory/select.png"), 1000)
+            delay(1000)
         }
 
         if (!gameState.dollOverflow) logger.info("The base now has space for new dolls")
@@ -414,7 +417,7 @@ class FactoryModule(
         var ocrResult: String
         while (isActive) {
             ocrResult = Ocr.forConfig(config).doOCRAndTrim(dollCountRegion.copy(y = 763))
-            if (ocrResult.contains("capacity", true)) break else yield()
+            if (ocrResult.contains("capa", true)) break else yield()
         }
         ocrResult = Ocr.forConfig(config).doOCRAndTrim(dollCountRegion)
         logger.info("Doll count ocr: $ocrResult")
