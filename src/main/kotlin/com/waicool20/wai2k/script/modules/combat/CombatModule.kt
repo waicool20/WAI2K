@@ -303,7 +303,7 @@ class CombatModule(
 
             navigator.navigateTo(LocationId.REPAIR)
 
-            if (profile.combat.repairOneClick) {
+            if (profile.combat.enableOneClickRepair) {
                 logger.info("Using one-click repair")
                 // one-click repair
                 region.subRegion(1660, 965, 358, 98).click()
