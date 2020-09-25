@@ -80,15 +80,15 @@ class InitModule(
             .findBest(FileTemplate("init/logistics.png"), 4)
             .map { it.region }
             // Map each region to whole logistic support entry
-            .map { cache.subRegion(it.x - 133, it.y - 109, 852, 184) }
+            .map { cache.subRegion(it.x - 133, it.y - 87, 852, 115) }
             .mapAsync {
                 listOf(
                     // Echelon number
-                    Ocr.forConfig(config, digitsOnly = true).doOCRAndTrim(it.subRegion(0, 25, 80, 125)),
+                    Ocr.forConfig(config, digitsOnly = true).doOCRAndTrim(it.subRegion(0, 25, 80, 90)),
                     // Logistics number ie. 1-1
-                    Ocr.forConfig(config).doOCRAndTrim(it.subRegion(165, 30, 84, 33)),
+                    Ocr.forConfig(config).doOCRAndTrim(it.subRegion(165, 0, 90, 42)),
                     // Timer xx:xx:xx
-                    Ocr.forConfig(config).doOCRAndTrim(it.subRegion(600, 91, 188, 40))
+                    Ocr.forConfig(config).doOCRAndTrim(it.subRegion(600, 70, 190, 42))
                 )
             }
             .map { "${it[0]} ${it[1]} ${it[2]}" }

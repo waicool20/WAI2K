@@ -31,6 +31,7 @@ import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.wai2k.util.doOCRAndTrim
+import com.waicool20.waicoolutils.binarizeImage
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.*
 import java.awt.Point
@@ -136,16 +137,17 @@ class FactoryModule(
             delay(400)
             // Click "Select t-doll" button
             logger.info("Selecting T-dolls that will be used for enhancement")
-            region.subRegion(760, 217, 1250, 550).findBest(FileTemplate("factory/select.png"))?.region?.click()
+            region.subRegion(798, 212, 1217, 555)
+                .findBest(FileTemplate("factory/select.png"))?.region?.click()
             delay(200)
 
             // Click smart select button
             logger.info("Using smart select")
-            region.subRegion(1770, 862, 247, 158).click()
+            region.subRegion(1768, 859, 250, 158).click()
             delay(400)
 
             // Confirm doll selection
-            val okButton = region.subRegion(1768, 859, 250, 158)
+            val okButton = region.subRegion(1759, 850, 268, 177)
                 .findBest(FileTemplate("factory/ok.png"))?.region
             if (okButton == null) {
                 // Click cancel if no t dolls could be used for enhancement
@@ -171,7 +173,9 @@ class FactoryModule(
                     it.click()
                 }
 
-            region.waitHas(FileTemplate("close.png"), 30000)?.click()
+            region.subRegion(798, 212, 1217, 555)
+                .waitHas(FileTemplate("factory/select.png"), 1000)
+            delay(1000)
         }
 
         if (!gameState.dollOverflow) logger.info("The base now has space for new dolls")
@@ -186,8 +190,8 @@ class FactoryModule(
         logger.info("Disassembling 2 star T-dolls")
         while (isActive) {
             logger.info("Start T-doll selection")
-            val sTemp = FileTemplate("factory/select.png")
-            val dRegion = region.subRegion(483, 200, 1557, 565)
+            val sTemp = FileTemplate("factory/select.png", 0.8)
+            val dRegion = region.subRegion(454, 217, 1169, 771)
             dRegion.waitHas(sTemp, 10000)?.click()
             delay(750)
 
@@ -205,11 +209,11 @@ class FactoryModule(
 
             // Click smart select button
             logger.info("Using smart select")
-            region.subRegion(1770, 890, 247, 158).click()
+            region.subRegion(1768, 890, 250, 158).click()
             delay(400)
 
             // Confirm doll selection
-            val okButton = region.subRegion(1768, 889, 250, 158)
+            val okButton = region.subRegion(1759, 880, 268, 177)
                 .findBest(FileTemplate("factory/ok.png"))?.region
             if (okButton == null) {
                 logger.info("No more 2 star T-dolls to disassemble!")
@@ -221,7 +225,7 @@ class FactoryModule(
             dRegion.waitHas(sTemp, 3000)
             logger.info("Disassembling selected T-dolls")
             // Click disassemble button
-            region.subRegion(1749, 839, 247, 95).click(); delay(750)
+            region.subRegion(1702, 859, 247, 95).click(); delay(750)
             // Update stats
             scriptStats.disassemblesDone += 1
         }
@@ -251,14 +255,15 @@ class FactoryModule(
                 it.click()
                 delay(250)
             }
+            delay(250)
             scriptStats.dollsUsedForDisassembly += dolls.size
             logger.info("Confirm doll selections")
             // Click ok
-            region.subRegion(1768, 889, 250, 158)
+            region.subRegion(1759, 880, 268, 177)
                 .findBest(FileTemplate("factory/ok.png"))?.region?.click(); delay(500)
             logger.info("Disassembling selected T-dolls")
             // Click disassemble button
-            region.subRegion(1749, 839, 247, 95).click(); delay(500)
+            region.subRegion(1702, 859, 247, 95).click(); delay(500)
             // Click confirm
             region.subRegion(1100, 865, 324, 161)
                 .findBest(FileTemplate("ok.png"))?.region?.click(); delay(200)
@@ -272,7 +277,7 @@ class FactoryModule(
                 logger.info("Still more 3 star T-dolls to disassemble")
             }
             // Wait for menu to settle
-            region.subRegion(483, 200, 1557, 565)
+            region.subRegion(454, 217, 1169, 771)
                 .waitHas(FileTemplate("factory/select.png"), 10000)?.let {
                     it.click()
                     delay(750)
@@ -383,7 +388,7 @@ class FactoryModule(
                 .findBest(FileTemplate("factory/ok-equip.png"))?.region?.click(); delay(500)
             logger.info("Disassembling selected equipment")
             // Click disassemble button
-            region.subRegion(1749, 839, 247, 95).click(); delay(500)
+            region.subRegion(1790, 763, 183, 60).click(); delay(500)
             // Click confirm
             region.subRegion(1100, 865, 324, 161)
                 .findBest(FileTemplate("ok.png"))?.region?.click(); delay(200)
@@ -410,11 +415,11 @@ class FactoryModule(
 
     private tailrec suspend fun getCurrentDollCount(): Pair<Int, Int> {
         logger.info("Updating doll count")
-        val dollCountRegion = region.subRegion(1790, 815, 220, 60)
+        val dollCountRegion = region.subRegion(1790, 815, 183, 60)
         var ocrResult: String
         while (isActive) {
-            ocrResult = Ocr.forConfig(config).doOCRAndTrim(dollCountRegion.copy(y = 763))
-            if (ocrResult.contains("capacity", true)) break else yield()
+            ocrResult = Ocr.forConfig(config).doOCRAndTrim(dollCountRegion.copy(y = 763).capture().binarizeImage(0.7))
+            if (ocrResult.contains("capa", true)) break else yield()
         }
         ocrResult = Ocr.forConfig(config).doOCRAndTrim(dollCountRegion)
         logger.info("Doll count ocr: $ocrResult")

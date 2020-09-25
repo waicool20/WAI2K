@@ -37,6 +37,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.yield
 import kotlin.coroutines.CoroutineContext
+import kotlin.math.roundToLong
 
 abstract class ScriptModule(
     protected val scriptRunner: ScriptRunner,
@@ -91,7 +92,7 @@ abstract class ScriptModule(
         if (stars != null) {
             logger.info("Applying $stars stars filter")
             val unlockedStars = dollFilterRegions.starRegions[6]?.let {
-                Ocr.forConfig(config).doOCRAndTrim(it.subRegion(126, 70, 119, 39))
+                Ocr.forConfig(config).doOCRAndTrim(it.subRegion(92, 70, 28, 39))
             }
             if (unlockedStars?.contains("6") == true) {
                 logger.info("6 star filter is unlocked")
@@ -155,6 +156,8 @@ abstract class ScriptModule(
             delay(300)
             if (retries++ >= 3) throw ChapterClickFailedException(chapter)
         }
+        // Wait for bounce back, usually on top/bottom chapter
+        delay((500 * gameState.delayCoefficient).roundToLong())
         cRegion.subRegion(0, 0, 195, cRegion.height).clickTemplateWhile(
             template = FileTemplate("chapters/$chapter.png", CHAPTER_SIMILARITY),
             timeout = 20

@@ -87,7 +87,7 @@ class CombatReportModule(
         delay(500)
         val reports = Ocr.forConfig(config).doOCRAndTrim(reportRegion)
             .takeWhile { it.isDigit() || it != '/' }
-            .toIntOrNull()
+            .toIntOrNull()?.coerceAtMost(80)
         if (reports != null) {
             logger.info("Writing $reports reports")
             scriptStats.combatReportsWritten += reports

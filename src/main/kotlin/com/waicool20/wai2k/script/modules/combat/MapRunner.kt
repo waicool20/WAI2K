@@ -56,6 +56,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.pow
+import kotlin.math.roundToInt
 import kotlin.random.Random
 import kotlin.reflect.KClass
 
@@ -446,8 +447,13 @@ abstract class MapRunner(
 
         try {
             withTimeout(60000) {
+                var extraClicks = 10.0
                 while (!location.isInRegion(region)) {
-                    mapRunnerRegions.battleEndClick.click()
+                    // Speed this up as time goes on
+                    repeat((extraClicks / 10).roundToInt()) {
+                        mapRunnerRegions.battleEndClick.click()
+                        extraClicks += 1
+                    }
                     endTurn()
                 }
             }
@@ -599,7 +605,8 @@ abstract class MapRunner(
         // Wait until it disappears
         while (isActive && isInBattle()) yield()
         logger.info("Battle ${_battles++} complete, clicking through battle results")
-        delay(Random.nextLong(400, 600))
+        // Animation and load wheel until you can click through results/drops
+        delay(Random.nextLong(1100, 1300))
         val l = mapRunnerRegions.battleEndClick.randomPoint()
         val clicks = if (config.scriptConfig.minPostBattleClick == config.scriptConfig.maxPostBattleClick) {
             config.scriptConfig.minPostBattleClick
@@ -631,6 +638,6 @@ abstract class MapRunner(
 
     private suspend fun endTurn() {
         mapRunnerRegions.endBattle.clickWhile { has(FileTemplate("combat/battle/end.png", 0.8)) }
-        delay(200)
+        region.subRegion(1100, 675, 275, 130).waitHas(FileTemplate("ok.png"), 1000)?.click()
     }
 }

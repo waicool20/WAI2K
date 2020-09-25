@@ -105,9 +105,9 @@ class CombatModule(
 
         navigator.navigateTo(LocationId.COMBAT)
         val map = map as CombatMap.StoryMap
-        clickCombatChapter(map)
-        clickCombatMap(map)
-        enterBattle(map)
+        clickCombatChapter(map); delay(1000)
+        clickCombatMap(map); delay(1000)
+        enterBattle(map); delay(1000)
         // Cancel further execution if not in battle, maybe due to doll/equip overflow
         wasCancelled = gameState.currentGameLocation.id != LocationId.BATTLE
         if (wasCancelled) return
@@ -303,6 +303,22 @@ class CombatModule(
 
             navigator.navigateTo(LocationId.REPAIR)
 
+            if (profile.combat.enableOneClickRepair) {
+                logger.info("Using one-click repair")
+                // one-click repair
+                region.subRegion(1660, 965, 358, 98).click()
+                region.waitHas(FileTemplate("ok.png"), 2000)
+                val repairs = Ocr.forConfig(config, digitsOnly = true)
+                    .doOCRAndTrim(region.subRegion(1472, 689, 68, 42))
+                scriptStats.repairs += repairs.toInt()
+
+                logger.info("Repairing $repairs dolls")
+                // Click ok
+                region.subRegion(1441, 772, 250, 96).click()
+                gameState.echelons.flatMap { it.members }.forEach { it.needsRepair = false }
+                return
+            }
+
             while (isActive) {
                 val repairSlots = region.findBest(FileTemplate("combat/empty-repair.png"), 7)
                     .map { it.region }
@@ -330,7 +346,7 @@ class CombatModule(
                 region.matcher.settings.matchDimension = ScriptRunner.NORMAL_RES
                 if (repairRegions.isEmpty()) {
                     // Click close popup
-                    region.findBest(FileTemplate("close.png"))?.region?.click()
+                    region.subRegion(10, 10, 350, 130)
                     break
                 }
 
@@ -343,11 +359,12 @@ class CombatModule(
                 }
 
                 // Click ok
-                region.subRegion(1888, 749, 250, 158).click(); delay(400)
+                region.subRegion(1768, 749, 250, 158).click(); delay(400)
                 // Use quick repair
-                region.subRegion(545, 713, 99, 96).click(); delay(100)
+                region.subRegion(512, 780, 80, 80)
+                    .waitHas(FileTemplate("combat/quick-repair.png"), 2000)?.click()
                 // Click ok
-                region.subRegion(1381, 710, 250, 96).click()
+                region.subRegion(1441, 772, 250, 96).click()
                 // Click close
                 region.waitHas(FileTemplate("close.png"), 15000)?.click()
                 // If dolls that needed repair is equal or less than the repair slot count then
@@ -406,7 +423,6 @@ class CombatModule(
             // Wait for it to settle
             delay(400)
         }
-        navigator.checkLogistics()
 
         // Swipe up if map is > 4
         when (map.number) {
@@ -427,7 +443,6 @@ class CombatModule(
                         yield()
                     }
                 }
-                navigator.checkLogistics()
                 region.subRegion(925, 472 + 177 * (map.number - 4), 440, 130).click()
             }
         }
@@ -440,15 +455,10 @@ class CombatModule(
         // Enter battle, use higher similarity threshold to exclude possibly disabled
         // button which will be slightly transparent
         var loops = 0
+        logger.info("Entering normal battle at $map")
         while (isActive) {
-            navigator.checkLogistics()
-            logger.info("Entering normal battle at $map")
-            // Needed in case of continue
-            yield()
-            // If still can't enter normal battle after 5 loops then just cancel the sortie
-            // and try again
             if (loops++ == 5) return
-            region.subRegion(790, 800, 580, 140)
+            region.subRegion(1445, 830, 345, 135)
                 .findBest(FileTemplate("combat/battle/normal.png"))?.region?.click() ?: continue
             delay(200)
 
