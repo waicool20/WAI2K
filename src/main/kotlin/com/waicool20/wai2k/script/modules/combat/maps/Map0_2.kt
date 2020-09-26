@@ -23,7 +23,7 @@ import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.script.ScriptRunner
-import com.waicool20.wai2k.script.modules.combat.MapRunner
+import com.waicool20.wai2k.script.modules.combat.HomographyMapRunner
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.yield
 
@@ -32,7 +32,7 @@ class Map0_2(
     region: AndroidRegion,
     config: Wai2KConfig,
     profile: Wai2KProfile
-) : MapRunner(scriptRunner, region, config, profile) {
+) : HomographyMapRunner(scriptRunner, region, config, profile) {
     private val logger = loggerFor<Map0_2>()
     override val isCorpseDraggingMap = true
 
