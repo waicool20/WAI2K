@@ -49,13 +49,17 @@ fun BufferedImage.extractNodes(
         val yellowNodes = hsv.clone().apply { hsvFilter(hueRange = 40..50, satRange = 12..100) }.getBand(2)
         img += yellowNodes
     }
+
+    return img.binarizeImage(0.75)
+}
+
+fun GrayF32.binarizeImage(threshold: Double = 0.4): GrayF32 {
     for (y in 0 until height) {
-        var index = img.startIndex + y * img.stride
+        var index = startIndex + y * stride
         for (x in 0 until width) {
-            img.data[index] = if (img.data[index] >= 175) 255f else 0f
+            data[index] = if (data[index] >= 255 * threshold) 255f else 0f
             index++
         }
     }
-
-    return img
+    return this
 }
