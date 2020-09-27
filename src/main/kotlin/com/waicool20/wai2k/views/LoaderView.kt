@@ -29,6 +29,7 @@ import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.script.ScriptContext
 import com.waicool20.wai2k.script.ScriptRunner
+import com.waicool20.wai2k.util.ai.GFLModelLoader
 import com.waicool20.waicoolutils.javafx.CoroutineScopeView
 import com.waicool20.waicoolutils.logging.LoggingEventBus
 import com.waicool20.waicoolutils.logging.loggerFor
@@ -86,6 +87,8 @@ class LoaderView : CoroutineScopeView() {
         loadWai2KProfile()
         loadScriptRunner()
         FileTemplate.checkPaths.add(wai2KConfig.assetsDirectory)
+        logger.info("Loading detection model...")
+        GFLModelLoader.loadModel(wai2KConfig.assetsDirectory.resolve("gfl.pt")).close()
         closeAndShowMainApp()
     }
 
