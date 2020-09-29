@@ -31,7 +31,7 @@
    <children>
       <HBox alignment="CENTER_LEFT" spacing="10.0">
          <children>
-            <Label prefWidth="220.0" text="Loop delay:" />
+            <Label prefWidth="220.0" text="Loop delay (s):" />
             <Spinner fx:id="loopDelaySpinner" editable="true" />
          </children>
          <VBox.margin>
@@ -40,13 +40,13 @@
       </HBox>
       <HBox alignment="CENTER_LEFT" spacing="10.0">
          <children>
-            <Label prefWidth="220.0" text="Base navigation delay:" />
+            <Label prefWidth="220.0" text="Base navigation delay (ms):" />
             <Spinner fx:id="baseNavigationDelaySpinner" editable="true" />
          </children>
       </HBox>
       <HBox alignment="CENTER_LEFT" spacing="10.0">
          <children>
-            <Label prefWidth="220.0" text="Mouse delay:" />
+            <Label prefWidth="220.0" text="Mouse delay (s):" />
             <Spinner fx:id="mouseDelaySpinner" editable="true" />
          </children>
       </HBox>
