@@ -89,8 +89,6 @@ abstract class MapRunner(
      */
     val PREFIX = "combat/maps/${javaClass.simpleName.replace("_", "-").replace("Map", "")}"
 
-    protected open val battleTimeout = 45000L // make this a user config?
-
     /**
      * The nodes defined for this map
      */
@@ -272,7 +270,7 @@ abstract class MapRunner(
         logger.info("Waiting for turn to end, expected battles: $battles")
         var battlesPassed = 0
         try {
-            withTimeout(battles * battleTimeout) {
+            withTimeout(battles * profile.combat.battleTimeout.toLong()) {
                 while (isActive && battlesPassed < battles) {
                     if (isInBattle()) {
                         clickThroughBattle()

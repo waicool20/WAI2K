@@ -42,6 +42,12 @@
                 <Spinner fx:id="repairThresholdSpinner" editable="true" prefWidth="75.0" />
             </children>
         </HBox>
+      <HBox alignment="CENTER_LEFT" spacing="10.0">
+         <children>
+            <Label prefHeight="16.0" prefWidth="159.0" text="Battle timeout (s):" />
+            <Spinner fx:id="battleTimeoutSpinner" editable="true" prefWidth="75.0" />
+         </children>
+      </HBox>
       <HBox spacing="10.0">
          <children>
             <Label prefHeight="16.0" prefWidth="215.0" text="Enable one-click repair:" />

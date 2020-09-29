@@ -35,6 +35,7 @@ class CombatView : AbstractProfileView() {
     override val root: VBox by fxml("/views/tabs/profile/combat/combat.fxml")
     private val enabledCheckBox: CheckBox by fxid()
     private val mapComboBox: ComboBox<String> by fxid()
+    private val battleTimeoutSpinner: Spinner<Int> by fxid()
     private val repairThresholdSpinner: Spinner<Int> by fxid()
     private val enableOneClickRepairCheckBox: CheckBox by fxid()
 
@@ -56,6 +57,7 @@ class CombatView : AbstractProfileView() {
             }
         }
         repairThresholdSpinner.valueFactory = SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100)
+        battleTimeoutSpinner.valueFactory = SpinnerValueFactory.IntegerSpinnerValueFactory(0, Int.MAX_VALUE)
     }
 
     override fun createBindings() {
@@ -63,6 +65,7 @@ class CombatView : AbstractProfileView() {
             enabledCheckBox.bind(enabledProperty)
             mapComboBox.bind(mapProperty)
             repairThresholdSpinner.bind(repairThresholdProperty)
+            battleTimeoutSpinner.bind(battleTimeoutProperty)
             enableOneClickRepairCheckBox.bind(enableOneClickRepairProperty)
         }
     }
