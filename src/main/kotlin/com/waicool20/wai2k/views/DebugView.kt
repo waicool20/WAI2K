@@ -94,7 +94,7 @@ class DebugView : CoroutineScopeView() {
     private val predictor by lazy {
         try {
             val model = GFLModelLoader.loadModel(wai2KContext.wai2KConfig.assetsDirectory.resolve("gfl.pt"))
-            model.newPredictor(YoloTranslator(model, 0.6, 2160.0 to 1080.0))
+            model.newPredictor(YoloTranslator(model, 0.6))
         } catch (e: Exception) {
             null
         }

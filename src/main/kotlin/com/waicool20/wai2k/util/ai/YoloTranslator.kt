@@ -20,6 +20,7 @@
 package com.waicool20.wai2k.util.ai
 
 import ai.djl.Model
+import ai.djl.modality.cv.Image
 import ai.djl.modality.cv.output.Rectangle
 import ai.djl.modality.cv.translator.BaseImageTranslator
 import ai.djl.ndarray.NDList
@@ -33,13 +34,21 @@ import kotlin.reflect.full.primaryConstructor
 class YoloTranslator(
         model: Model,
         val threshold: Double,
-        val inputImageSize: Pair<Double, Double>,
         val iouThreshold: Double = 0.4
 ) : BaseImageTranslator<List<GFLObject>>(
         Builder().setPipeline(Pipeline(YoloPreProcessor(model)))
 ) {
     private class Builder : BaseImageTranslator.BaseBuilder<Builder>() {
         override fun self() = this
+    }
+
+    private var imageWidth = -1
+    private var imageHeight = -1
+
+    override fun processInput(ctx: TranslatorContext, input: Image): NDList {
+        imageWidth = input.width
+        imageHeight = input.height
+        return super.processInput(ctx, input)
     }
 
     override fun processOutput(ctx: TranslatorContext, list: NDList): List<GFLObject> {
@@ -57,8 +66,6 @@ class YoloTranslator(
             var y = (centerY - h / 2).toDouble() / inputArraySize
             var width = w.toDouble() / inputArraySize
             var height = h.toDouble() / inputArraySize
-
-            val (imageWidth, imageHeight) = inputImageSize
 
             when {
                 imageWidth > imageHeight -> {
