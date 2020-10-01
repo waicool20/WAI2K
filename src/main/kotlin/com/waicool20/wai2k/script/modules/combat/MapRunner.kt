@@ -19,43 +19,31 @@
 
 package com.waicool20.wai2k.script.modules.combat
 
-import boofcv.struct.image.GrayF32
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.core.asCachedRegion
 import com.waicool20.cvauto.core.template.FileTemplate
-import com.waicool20.cvauto.util.homography
-import com.waicool20.cvauto.util.transformRect
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.game.CombatMap
 import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.game.MapRunnerRegions
-import com.waicool20.wai2k.script.NodeNotFoundException
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.script.ScriptTimeOutException
 import com.waicool20.wai2k.script.modules.combat.maps.EventMapRunner
 import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.doOCRAndTrim
-import com.waicool20.wai2k.util.extractNodes
 import com.waicool20.waicoolutils.binarizeImage
 import com.waicool20.waicoolutils.countColor
 import com.waicool20.waicoolutils.logging.loggerFor
 import com.waicool20.waicoolutils.pad
-import georegression.struct.homography.Homography2D_F64
 import kotlinx.coroutines.*
 import org.reflections.Reflections
 import java.awt.Color
 import java.lang.reflect.Modifier
-import java.nio.file.Files
 import java.text.DecimalFormat
-import javax.imageio.ImageIO
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.abs
-import kotlin.math.max
-import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.random.Random
 import kotlin.reflect.KClass
@@ -70,25 +58,7 @@ abstract class MapRunner(
     private val logger = loggerFor<MapRunner>()
     private var _battles = 1
 
-    /**
-     * Map homography cache
-     */
-    private var mapH: Homography2D_F64? = null
-
     companion object {
-        private val mapper = jacksonObjectMapper()
-
-        /**
-         * Minimum scroll in pixels, because sometimes smaller scrolls dont register properly
-         */
-        private const val minScroll = 75
-
-        /**
-         * Difference theresholds
-         */
-        private const val maxMapDiff = 80.0
-        private const val maxSideDiff = 5.0
-
         val list = mutableMapOf<CombatMap, KClass<out MapRunner>>()
 
         init {
@@ -119,36 +89,10 @@ abstract class MapRunner(
      */
     val PREFIX = "combat/maps/${javaClass.simpleName.replace("_", "-").replace("Map", "")}"
 
-    protected open val extractBlueNodes: Boolean = true
-    protected open val extractWhiteNodes: Boolean = false
-    protected open val extractYellowNodes: Boolean = true
-    protected open val battleTimeout = 45000L // make this a user config?
-
-    private val _nodes = async(Dispatchers.IO) {
-        val relPath = config.assetsDirectory.resolve("$PREFIX/map.json")
-        val absPath = config.assetsDirectory.resolve("$PREFIX/map-abs.json")
-        when {
-            Files.exists(relPath) -> mapper.readValue<List<MapNode.RelativeMapNode>>(relPath.toFile())
-            Files.exists(absPath) -> mapper.readValue<List<MapNode.AbsoluteMapNode>>(absPath.toFile())
-            else -> emptyList()
-        }
-    }
-
-    private val _fullMap = async(Dispatchers.IO) {
-        val path = config.assetsDirectory.resolve("$PREFIX/map.png")
-        if (Files.exists(path)) {
-            ImageIO.read(path.toFile()).extractNodes(extractBlueNodes, extractWhiteNodes, extractYellowNodes)
-        } else {
-            GrayF32()
-        }
-    }
-
     /**
      * The nodes defined for this map
      */
-    protected val nodes = runBlocking { _nodes.await() }
-
-    protected val fullMap = runBlocking { _fullMap.await() }
+    abstract val nodes: List<MapNode>
 
     /**
      * Set this to true to exit waitFor- Functions early
@@ -326,7 +270,7 @@ abstract class MapRunner(
         logger.info("Waiting for turn to end, expected battles: $battles")
         var battlesPassed = 0
         try {
-            withTimeout(battles * battleTimeout) {
+            withTimeout(battles * profile.combat.battleTimeout.toLong()) {
                 while (isActive && battlesPassed < battles) {
                     if (isInBattle()) {
                         clickThroughBattle()
@@ -339,7 +283,6 @@ abstract class MapRunner(
             throw ScriptTimeOutException("Waiting for battles", e)
         } finally {
             _battles = 1
-            mapH = null
         }
         region.waitHas(FileTemplate("combat/battle/terminate.png"), 10000)
         logger.info("Turn ended")
@@ -390,7 +333,6 @@ abstract class MapRunner(
             throw ScriptTimeOutException("Waiting for turn and points", e)
         } finally {
             _battles = 1
-            mapH = null
         }
         if (interruptWaitFlag) {
             logger.info("Aborting Wait...")
@@ -424,7 +366,6 @@ abstract class MapRunner(
             throw ScriptTimeOutException("Waiting for assets", e)
         } finally {
             _battles = 1
-            mapH = null
         }
         logger.info("All assets are now on screen")
         region.waitHas(FileTemplate("combat/battle/terminate.png"), 10000)
@@ -462,7 +403,6 @@ abstract class MapRunner(
         } finally {
             scriptStats.sortiesDone += 1
             _battles = 1
-            mapH = null
         }
     }
 
@@ -473,131 +413,9 @@ abstract class MapRunner(
         logger.info("Left battle screen")
         scriptStats.sortiesDone += 1
         _battles = 1
-        mapH = null
     }
 
-    protected suspend fun MapNode.findRegion(): AndroidRegion {
-        if (this is MapNode.AbsoluteMapNode) return region.subRegionAs(x, y, width, height)
-        val window = mapRunnerRegions.window
-        var h: Homography2D_F64? = null
-        while (h == null) {
-            h = try {
-                mapH
-                    ?: fullMap.homography(window.capture().extractNodes(extractBlueNodes, extractWhiteNodes, extractYellowNodes))
-            } catch (e: IllegalStateException) {
-                continue
-            }
-        }
-
-        suspend fun retry(): AndroidRegion {
-            if (Random.nextBoolean()) {
-                logger.info("Zoom out")
-                region.pinch(
-                    Random.nextInt(500, 700),
-                    Random.nextInt(300, 400),
-                    0.0,
-                    500
-                )
-                delay(1000)
-            }
-            mapH = null
-            return findRegion()
-        }
-
-        // Rect that is relative to the window
-        val rect = h.transformRect(rect)
-        logger.debug("$this estimated to be at Rect(x=${rect.x}, y=${rect.y}, width=${rect.width}, height=${rect.height})")
-        if (rect.width <= 0 || rect.height <= 0) {
-            logger.debug("Estimate failed basic dimension test, will retry")
-            return retry()
-        }
-        val roi = window.copyAs<AndroidRegion>(
-            window.x + rect.x,
-            window.y + rect.y,
-            rect.width,
-            rect.height
-        )
-        // Difference from reference values in map.json and estimated rect values
-        val mapDiff = (rect.width.toDouble() - width).pow(2) + (rect.height.toDouble() - height).pow(2)
-        if (mapDiff > maxMapDiff.pow(2)) {
-            logger.info("Estimate failed map difference test, will retry | diff=$mapDiff, max=$maxMapDiff")
-            return retry()
-        }
-        // Difference between rect width and height, should be roughly square (1:1)
-        val sideDiff = (rect.width.toDouble() - rect.height).pow(2)
-        if (sideDiff > maxSideDiff.pow(2)) {
-            logger.debug("Estimate failed side difference test, will retry | diff=$sideDiff, max=$maxSideDiff")
-            return retry()
-        }
-        if (!window.contains(roi)) {
-            logger.info("Node $this not in map window")
-            val center = region.subRegion(
-                (region.width - 5) / 2,
-                (region.height - 5) / 2,
-                5, 5
-            )
-            // Add some randomness
-            center.translate(Random.nextInt(-50, 50), Random.nextInt(-50, 50))
-            when {
-                roi.y < window.y -> {
-                    val dist = max(window.y - roi.y, minScroll)
-                    val from = center.copyAs<AndroidRegion>().apply { translate(0, -dist) }
-                    val to = center.copyAs<AndroidRegion>().apply { translate(0, dist) }
-                    logger.info("Scroll up $dist px")
-                    from.swipeTo(to)
-                }
-                roi.y > window.y + window.height -> {
-                    val dist = max(roi.y - (window.y + window.height), minScroll)
-                    val from = center.copyAs<AndroidRegion>().apply { translate(0, dist) }
-                    val to = center.copyAs<AndroidRegion>().apply { translate(0, -dist) }
-                    logger.info("Scroll down $dist px")
-                    from.swipeTo(to)
-                }
-            }
-            when {
-                roi.x < window.x -> {
-                    val dist = max(window.x - roi.x, minScroll)
-                    val from = center.copyAs<AndroidRegion>().apply { translate(-dist, 0) }
-                    val to = center.copyAs<AndroidRegion>().apply { translate(dist, 0) }
-                    logger.info("Scroll left $dist px")
-                    from.swipeTo(to)
-                }
-                roi.x > window.x + window.width -> {
-                    val dist = max(roi.x - (window.x + window.width), minScroll)
-                    val from = center.copyAs<AndroidRegion>().apply { translate(dist, 0) }
-                    val to = center.copyAs<AndroidRegion>().apply { translate(-dist, 0) }
-                    logger.info("Scroll right $dist px")
-                    from.swipeTo(to)
-                }
-            }
-            mapH = null
-            delay(200)
-            return findRegion()
-        }
-
-        while (isActive) {
-            val targets = mutableListOf<Pair<Int, Int>>()
-            val img = roi.capture().extractNodes()
-            for (y in 0 until img.height) {
-                var index = img.startIndex + y * img.stride
-                for (x in 0 until img.width) {
-                    if (img.data[index++] >= 175) targets += x to y
-                }
-            }
-            yield()
-            if (targets.isEmpty()) {
-                logger.debug("No targets found, retry")
-                if (Random.nextBoolean()) continue else return retry()
-            }
-            logger.debug("${targets.size} target candidates for node $this")
-            val target = targets.random().let { (cX, cY) ->
-                region.subRegionAs<AndroidRegion>(roi.x + cX, roi.y + cY, 5, 5)
-            }
-            logger.debug("Node target: (x=${target.x},y=${target.y})")
-            return target
-        }
-        throw NodeNotFoundException(this)
-    }
+    abstract suspend fun MapNode.findRegion(): AndroidRegion
 
     private suspend fun clickThroughBattle() {
         logger.info("Entered battle $_battles")

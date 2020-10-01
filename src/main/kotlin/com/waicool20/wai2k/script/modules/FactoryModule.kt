@@ -323,12 +323,12 @@ class FactoryModule(
         dRegion.waitHas(sTemp, 3000)
         logger.info("Disassembling selected equipment")
         // Click disassemble button
-        region.subRegion(1749, 839, 247, 95).click(); delay(750)
+        region.subRegion(1702, 859, 247, 95).click(); delay(750)
         // Update stats
         scriptStats.equipDisassemblesDone += 1
 
         // Wait for menu to settle
-        region.subRegion(483, 200, 1557, 565)
+        region.subRegion(483, 200, 1162, 565)
             .waitHas(FileTemplate("factory/select-equip.png"), 10000)?.let {
                 it.click()
                 delay(750)
@@ -337,7 +337,7 @@ class FactoryModule(
         logger.info("Disassembling higher rarity equipment")
         logger.info("Applying filters")
         // Filter button
-        region.subRegion(1767, 347, 257, 162).click(); yield()
+        region.subRegion(1767, 347, 257, 162).click(); delay(750)
         // 3 star
         region.subRegion(1460, 213, 257, 117).click(); yield()
         if (profile.factory.equipDisassembly.disassemble4Star) {
@@ -388,7 +388,7 @@ class FactoryModule(
                 .findBest(FileTemplate("factory/ok-equip.png"))?.region?.click(); delay(500)
             logger.info("Disassembling selected equipment")
             // Click disassemble button
-            region.subRegion(1790, 763, 183, 60).click(); delay(500)
+            region.subRegion(1702, 859, 247, 94).click(); delay(500)
             // Click confirm
             region.subRegion(1100, 865, 324, 161)
                 .findBest(FileTemplate("ok.png"))?.region?.click(); delay(200)

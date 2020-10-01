@@ -20,13 +20,15 @@
 package com.waicool20.wai2k.script.modules.combat.maps
 
 import com.waicool20.cvauto.android.AndroidRegion
+import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.script.ScriptRunner
-import com.waicool20.wai2k.script.modules.combat.MapRunner
+import com.waicool20.wai2k.script.modules.combat.AbsoluteMapRunner
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
+import kotlin.math.roundToLong
 import kotlin.random.Random
 
 class Map0_2_EX(
@@ -34,25 +36,32 @@ class Map0_2_EX(
     region: AndroidRegion,
     config: Wai2KConfig,
     profile: Wai2KProfile
-) : MapRunner(scriptRunner, region, config, profile) {
+) : AbsoluteMapRunner(scriptRunner, region, config, profile) {
     private val logger = loggerFor<Map0_2_EX>()
     override val isCorpseDraggingMap = true
-    override val extractBlueNodes = false
-    override val extractYellowNodes = false
 
     override suspend fun execute() {
-        // Bounce back for all nodes mostly on screen at once
-        logger.info("Zoom out")
-        repeat(2) {
-            region.pinch(
-                Random.nextInt(900, 1000),
-                Random.nextInt(300, 400),
-                0.0,
-                1000
-            )
-            delay(500)
+
+        if (gameState.requiresMapInit) {
+            // Check to see if its already good
+            logger.info("Checking map zoom")
+            if (region.subRegion(1327, 320, 146, 27)
+                    .waitHas(FileTemplate("$PREFIX/zoom-anchor.png"), 5000) != null) {
+                logger.info("zoom anchor found")
+            } else {
+                // Otherwise set it ourself
+                // Bounce back for all nodes mostly on screen at once
+                logger.info("Zoom out")
+                region.pinch(
+                    Random.nextInt(900, 1000),
+                    Random.nextInt(300, 400),
+                    0.0,
+                    1000)
+            }
+            gameState.requiresMapInit = false
         }
-        delay(800) //Wait to settle
+
+        delay((900 * gameState.delayCoefficient).roundToLong()) //Wait to settle
         val rEchelons = deployEchelons(nodes[0], nodes[1])
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()

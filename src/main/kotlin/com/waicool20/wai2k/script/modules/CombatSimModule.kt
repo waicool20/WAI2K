@@ -31,7 +31,7 @@ import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptException
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.script.ScriptTimeOutException
-import com.waicool20.wai2k.script.modules.combat.MapRunner
+import com.waicool20.wai2k.script.modules.combat.AbsoluteMapRunner
 import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.wai2k.util.formatted
@@ -62,7 +62,7 @@ class CombatSimModule(
     private var energyRemaining = 0
     private var rechargeTime = Duration.ZERO
 
-    private val mapRunner = object : MapRunner(scriptRunner, region, config, profile) {
+    private val mapRunner = object : AbsoluteMapRunner(scriptRunner, region, config, profile) {
         override val isCorpseDraggingMap = false
         override suspend fun execute() {
             if (profile.combatSimulation.neuralFragment == Level.OFF) return

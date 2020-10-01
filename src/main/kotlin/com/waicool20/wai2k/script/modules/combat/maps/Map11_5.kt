@@ -23,7 +23,7 @@ import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.script.ScriptRunner
-import com.waicool20.wai2k.script.modules.combat.MapRunner
+import com.waicool20.wai2k.script.modules.combat.AbsoluteMapRunner
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
@@ -34,7 +34,7 @@ class Map11_5(
     region: AndroidRegion,
     config: Wai2KConfig,
     profile: Wai2KProfile
-) : MapRunner(scriptRunner, region, config, profile) {
+) : AbsoluteMapRunner(scriptRunner, region, config, profile) {
     private val logger = loggerFor<Map11_5>()
     override val isCorpseDraggingMap = true
 
