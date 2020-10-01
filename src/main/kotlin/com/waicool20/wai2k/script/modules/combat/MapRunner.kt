@@ -270,7 +270,7 @@ abstract class MapRunner(
         logger.info("Waiting for turn to end, expected battles: $battles")
         var battlesPassed = 0
         try {
-            withTimeout(battles * profile.combat.battleTimeout.toLong()) {
+            withTimeout(battles * profile.combat.battleTimeout * 1000L) {
                 while (isActive && battlesPassed < battles) {
                     if (isInBattle()) {
                         clickThroughBattle()
