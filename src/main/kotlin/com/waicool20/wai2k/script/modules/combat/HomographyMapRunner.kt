@@ -99,6 +99,10 @@ abstract class HomographyMapRunner(
         fullMap = runBlocking { fm.await() }
     }
 
+    override suspend fun cleanup() {
+        mapH = null
+    }
+
     override suspend fun MapNode.findRegion(): AndroidRegion {
         val window = mapRunnerRegions.window
 
