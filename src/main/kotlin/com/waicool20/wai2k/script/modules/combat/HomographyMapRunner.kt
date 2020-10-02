@@ -68,8 +68,8 @@ abstract class HomographyMapRunner(
 
     private val predictor by lazy {
         val model = MatchingModel(
-            config.assetsDirectory.resolve("SuperPoint.pt"),
-            config.assetsDirectory.resolve("SuperGlue.pt")
+            config.assetsDirectory.resolve("models/SuperPoint.pt"),
+            config.assetsDirectory.resolve("models/SuperGlue.pt")
         )
         model.newPredictor(MatchingTranslator(480, 360)).also { it.setMetrics(metrics) }
     }
