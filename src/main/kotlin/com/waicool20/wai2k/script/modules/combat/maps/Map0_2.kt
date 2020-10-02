@@ -25,7 +25,10 @@ import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.script.modules.combat.HomographyMapRunner
 import com.waicool20.waicoolutils.logging.loggerFor
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
+import kotlin.math.roundToLong
+import kotlin.random.Random
 
 class Map0_2(
     scriptRunner: ScriptRunner,
@@ -37,7 +40,16 @@ class Map0_2(
     override val isCorpseDraggingMap = true
 
     override suspend fun execute() {
-        nodes[2].findRegion() // Try focus boss node to get map centered
+        if (gameState.requiresMapInit) {
+            logger.info("Zoom out")
+            region.pinch(
+                Random.nextInt(900, 1000),
+                Random.nextInt(300, 400),
+                0.0,
+                1000)
+            delay((900 * gameState.delayCoefficient).roundToLong()) //Wait to settle
+            gameState.requiresMapInit = false
+        }
         val rEchelons = deployEchelons(nodes[14], nodes[13])
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
