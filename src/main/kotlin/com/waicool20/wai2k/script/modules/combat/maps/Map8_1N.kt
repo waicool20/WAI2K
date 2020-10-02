@@ -38,7 +38,7 @@ class Map8_1N(
     private val logger = loggerFor<Map8_1N>()
     override val isCorpseDraggingMap = true
 
-    override suspend fun execute() {
+    override suspend fun begin() {
         if (gameState.requiresMapInit) {
             logger.info("Zoom out")
             repeat(2) {

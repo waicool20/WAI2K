@@ -39,7 +39,7 @@ class Map2_6(
     private val logger = loggerFor<Map2_6>()
     override val isCorpseDraggingMap = false
 
-    override suspend fun execute() {
+    override suspend fun begin() {
         logger.info("Zoom out")
         region.pinch(
             Random.nextInt(700, 800),

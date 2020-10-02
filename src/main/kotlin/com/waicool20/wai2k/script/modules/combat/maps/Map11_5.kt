@@ -38,7 +38,7 @@ class Map11_5(
     private val logger = loggerFor<Map11_5>()
     override val isCorpseDraggingMap = true
 
-    override suspend fun execute() {
+    override suspend fun begin() {
         // No need to zoom, delay for map lag
         delay((1000 * gameState.delayCoefficient).roundToLong())
         val rEchelons = deployEchelons(nodes[1], nodes[0])
