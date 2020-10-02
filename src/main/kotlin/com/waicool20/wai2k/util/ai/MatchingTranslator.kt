@@ -20,6 +20,7 @@
 package com.waicool20.wai2k.util.ai
 
 import ai.djl.modality.cv.Image
+import ai.djl.modality.cv.transform.Resize
 import ai.djl.ndarray.NDList
 import ai.djl.ndarray.index.NDIndex
 import ai.djl.translate.Batchifier
@@ -44,7 +45,7 @@ class MatchingTranslator(
 
     override fun getBatchifier() = Batchifier.STACK
 
-    override fun getPipeline() = Pipeline(MatchingPreProcessor(resizeWidth, resizeHeight))
+    override fun getPipeline() = Pipeline(Resize(resizeWidth, resizeHeight), TransposeNormalizeTransform())
 
     override fun processInput(ctx: TranslatorContext, input: Pair<Image, Image>): NDList {
         val (img0, img1) = input
