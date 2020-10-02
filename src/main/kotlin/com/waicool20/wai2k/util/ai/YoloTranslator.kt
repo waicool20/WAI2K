@@ -21,12 +21,26 @@ package com.waicool20.wai2k.util.ai
 
 import ai.djl.Model
 import ai.djl.modality.cv.Image
+import ai.djl.modality.cv.ImageFactory
 import ai.djl.modality.cv.output.Rectangle
 import ai.djl.modality.cv.translator.BaseImageTranslator
+import ai.djl.modality.cv.util.NDImageUtils
+import ai.djl.ndarray.NDArray
 import ai.djl.ndarray.NDList
 import ai.djl.ndarray.index.NDIndex
+import ai.djl.ndarray.types.Shape
 import ai.djl.translate.Pipeline
+import ai.djl.translate.Transform
 import ai.djl.translate.TranslatorContext
+import com.waicool20.waicoolutils.createCompatibleCopy
+import com.waicool20.waicoolutils.pad
+import java.awt.Color
+import java.awt.Graphics2D
+import java.awt.RenderingHints
+import java.awt.image.BufferedImage
+import java.awt.image.ImageObserver
+import java.util.concurrent.CountDownLatch
+import kotlin.math.roundToInt
 import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.isSuperclassOf
 import kotlin.reflect.full.primaryConstructor
@@ -36,19 +50,51 @@ class YoloTranslator(
         val threshold: Double,
         val iouThreshold: Double = 0.4
 ) : BaseImageTranslator<List<GFLObject>>(
-        Builder().setPipeline(Pipeline(YoloPreProcessor(model)))
+        Builder().setPipeline(Pipeline(TransposeNormalizeTransform()))
 ) {
+    private val size = model.getProperty("InputSize")?.toInt()
+        ?: error("Model property 'InputSize' must be set")
+
     private class Builder : BaseImageTranslator.BaseBuilder<Builder>() {
         override fun self() = this
     }
 
-    private var imageWidth = -1
-    private var imageHeight = -1
+    private var imageWidth = -1.0
+    private var imageHeight = -1.0
 
     override fun processInput(ctx: TranslatorContext, input: Image): NDList {
-        imageWidth = input.width
-        imageHeight = input.height
-        return super.processInput(ctx, input)
+        imageWidth = input.width.toDouble()
+        imageHeight = input.height.toDouble()
+
+        val inputImage= input.wrappedImage as BufferedImage
+        val networkInput = inputImage.createCompatibleCopy(size, size)
+        val g = (networkInput.graphics as Graphics2D).apply {
+            setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR)
+            paint = Color.BLACK
+            fillRect(0, 0, size, size)
+        }
+
+        if (input.width < size && input.height < size) {
+            g.drawImage(inputImage, 0, 0, null)
+        } else {
+            val width = input.width.toDouble()
+            val height = input.height.toDouble()
+            when {
+                width > height -> {
+                    val newHeight = (size * (height / width)).roundToInt()
+                    g.drawImage(inputImage, 0, 0, size, newHeight, null)
+                }
+                height < width -> {
+                    val newWidth = (size * (width / height)).roundToInt()
+                    g.drawImage(inputImage, 0, 0, newWidth, size, null)
+                }
+                width == height -> {
+                    g.drawImage(inputImage, 0, 0, size, size, null)
+                }
+            }
+        }
+        g.dispose()
+        return super.processInput(ctx, ImageFactory.getInstance().fromImage(networkInput))
     }
 
     override fun processOutput(ctx: TranslatorContext, list: NDList): List<GFLObject> {
@@ -67,18 +113,25 @@ class YoloTranslator(
             var width = w.toDouble() / inputArraySize
             var height = h.toDouble() / inputArraySize
 
-            when {
-                imageWidth > imageHeight -> {
-                    val scale = imageWidth / imageHeight
-                    y *= scale
-                    height *= scale
+            if (imageWidth < size && imageHeight < size) {
+                x *= size / imageWidth
+                y *= size / imageHeight
+                width *= size / imageWidth
+                height *= size / imageHeight
+            } else {
+                when {
+                    imageWidth > imageHeight -> {
+                        val scale = imageWidth / imageHeight
+                        y *= scale
+                        height *= scale
+                    }
+                    imageWidth < imageHeight -> {
+                        val scale = imageHeight / imageWidth
+                        x *= scale
+                        width *= scale
+                    }
+                    imageWidth == imageHeight -> Unit // Do Nothing
                 }
-                imageWidth < imageHeight -> {
-                    val scale = imageHeight / imageWidth
-                    x *= scale
-                    width *= scale
-                }
-                imageWidth == imageHeight -> Unit // Do Nothing
             }
 
             x = x.coerceIn(0.0, 1.0)
