@@ -28,7 +28,7 @@ import com.waicool20.cvauto.util.asGrayF32
 import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.Ocr
-import com.waicool20.wai2k.util.ai.GFLModelLoader
+import com.waicool20.wai2k.util.ai.ModelLoader
 import com.waicool20.wai2k.util.ai.YoloTranslator
 import com.waicool20.wai2k.util.ai.toDetectedObjects
 import com.waicool20.wai2k.util.useCharFilter
@@ -93,7 +93,8 @@ class DebugView : CoroutineScopeView() {
 
     private val predictor by lazy {
         try {
-            val model = GFLModelLoader.loadModel(wai2KContext.wai2KConfig.assetsDirectory.resolve("gfl.pt"))
+            val model = ModelLoader.loadModel(wai2KContext.wai2KConfig.assetsDirectory.resolve("gfl.pt"))
+            model.setProperty("InputSize", "640")
             model.newPredictor(YoloTranslator(model, 0.6))
         } catch (e: Exception) {
             null

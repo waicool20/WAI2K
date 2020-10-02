@@ -19,6 +19,7 @@
 
 package com.waicool20.wai2k.views
 
+import ai.djl.Device
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.waicool20.cvauto.android.ADB
@@ -29,7 +30,7 @@ import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.script.ScriptContext
 import com.waicool20.wai2k.script.ScriptRunner
-import com.waicool20.wai2k.util.ai.GFLModelLoader
+import com.waicool20.wai2k.util.ai.ModelLoader
 import com.waicool20.waicoolutils.javafx.CoroutineScopeView
 import com.waicool20.waicoolutils.logging.LoggingEventBus
 import com.waicool20.waicoolutils.logging.loggerFor
@@ -88,7 +89,7 @@ class LoaderView : CoroutineScopeView() {
         loadScriptRunner()
         FileTemplate.checkPaths.add(wai2KConfig.assetsDirectory)
         logger.info("Loading detection model...")
-        GFLModelLoader.loadModel(wai2KConfig.assetsDirectory.resolve("gfl.pt")).close()
+        ModelLoader.engine.newModel("Loading", Device.defaultDevice()).close()
         closeAndShowMainApp()
     }
 
