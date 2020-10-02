@@ -25,6 +25,10 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.security.MessageDigest
+import javax.xml.bind.DatatypeConverter
 
 plugins {
     java
@@ -68,5 +72,15 @@ tasks {
         archiveClassifier.value("")
         archiveVersion.value("")
         exclude("kotlin/reflect/**")
+        doLast { md5sum(archiveFile.get()) }
     }
+}
+
+fun md5sum(file: RegularFile) {
+    val path = file.asFile.toPath()
+    val md5File = Paths.get("$path.md5")
+    val md5sum = MessageDigest.getInstance("MD5")
+        .digest(Files.readAllBytes(path))
+        .let { DatatypeConverter.printHexBinary(it) }
+    Files.write(md5File, md5sum.toByteArray())
 }

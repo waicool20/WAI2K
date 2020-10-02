@@ -23,6 +23,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
+import java.security.MessageDigest
+import javax.xml.bind.DatatypeConverter
 
 plugins {
     java
@@ -100,11 +102,16 @@ tasks {
         dependencies {
             include { it.moduleGroup.startsWith("com.waicool20") }
         }
+        doLast { md5sum(archiveFile.get()) }
     }
 }
 
+task("prepare-deploy") {
+    dependsOn("build", "deps-list", "packAssets")
+}
+
 task("deps-list") {
-    val file = Paths.get("$projectDir/build/dependencies.txt")
+    val file = Paths.get("$buildDir/deploy/dependencies.txt")
     doFirst {
         if (Files.notExists(file)) {
             Files.createDirectories(file.parent)
@@ -143,7 +150,28 @@ task("versioning") {
 
 task<Zip>("packAssets") {
     archiveFileName.set("assets.zip")
-    destinationDirectory.set(file("$buildDir"))
+    destinationDirectory.set(file("$buildDir/deploy/"))
 
-    from("$projectDir/assets")
+    from(projectDir)
+    include("/assets/**")
+    exclude("/assets/models/**")
+    doLast { md5sum(archiveFile.get()) }
+}
+
+task<Zip>("packModels") {
+    archiveFileName.set("models.zip")
+    destinationDirectory.set(file("$buildDir/deploy/"))
+
+    from(projectDir)
+    include("/assets/models/**")
+    doLast { md5sum(archiveFile.get()) }
+}
+
+fun md5sum(file: RegularFile) {
+    val path = file.asFile.toPath()
+    val md5File = Paths.get("$path.md5")
+    val md5sum = MessageDigest.getInstance("MD5")
+        .digest(Files.readAllBytes(path))
+        .let { DatatypeConverter.printHexBinary(it) }
+    Files.write(md5File, md5sum.toByteArray())
 }
