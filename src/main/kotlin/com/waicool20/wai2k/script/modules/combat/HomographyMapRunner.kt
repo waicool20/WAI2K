@@ -38,7 +38,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import java.nio.file.Files
-import java.nio.file.Paths
 import kotlin.math.max
 import kotlin.math.pow
 import kotlin.random.Random
@@ -58,7 +57,7 @@ abstract class HomographyMapRunner(
         private const val minScroll = 75
 
         /**
-         * Difference theresholds
+         * Difference thresholds
          */
         private const val maxMapDiff = 80.0
         private const val maxSideDiff = 5.0
@@ -93,7 +92,7 @@ abstract class HomographyMapRunner(
             }
         }
         val fm = async(Dispatchers.IO) {
-            ImageFactory.getInstance().fromFile(Paths.get("$PREFIX/map.png"))
+            ImageFactory.getInstance().fromFile(config.assetsDirectory.resolve("$PREFIX/map.png"))
         }
 
         nodes = runBlocking { n.await() }
