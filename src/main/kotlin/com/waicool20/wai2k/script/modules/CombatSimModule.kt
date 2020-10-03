@@ -78,7 +78,7 @@ class CombatSimModule(
                 return
             }
 
-            region.subRegion(400, 630, 180, 120).click() // Neural Cloud Corridor
+            region.findBest(FileTemplate("combat-simulation/neural.png"))?.region?.click()
             delay((1000 * gameState.delayCoefficient).roundToLong())
 
             logger.info("Running neural sim type $level $times times")
@@ -88,9 +88,9 @@ class CombatSimModule(
 
             var energySpent = 0
             // Heliport that turns into a node
-            val heliport = region.subRegion(1055, 866, 24, 24)
+            val heliport = region.subRegion(1055, 1000, 24, 24)
             // blank mode at the end with SF on it
-            val endNode = region.subRegion(1109, 380, 24, 24)
+            val endNode = region.subRegion(1105, 565, 24, 24)
             // echelon to use for the run
             val echelon = Echelon(number = profile.combatSimulation.neuralEchelon)
 
@@ -102,15 +102,22 @@ class CombatSimModule(
 
 
             logger.info("Zoom out")
-            region.pinch(
-                Random.nextInt(900, 1000),
-                Random.nextInt(300, 400),
-                0.0,
-                500
-            )
-            delay(1500)
+            repeat(2) {
+                region.pinch(
+                    Random.nextInt(900, 1000),
+                    Random.nextInt(300, 400),
+                    0.0,
+                    500
+                )
+                delay(500)
+            }
+            logger.info("Pan up")
+            val r = region.subRegionAs<AndroidRegion>(700, 140, 400, 100)
+            r.swipeTo(r.copy(y = r.y + 400))
+            delay(1000) // Wait to settle
 
-            heliport.click(); delay(3000)
+            heliport.click()
+            region.waitHas(FileTemplate("ok.png"), 3000)
             val deploy = clickEchelon(echelon)
             if (!deploy) {
                 throw ScriptException("Could not deploy echelon $echelon")
@@ -135,7 +142,7 @@ class CombatSimModule(
             waitForTurnEnd(1)
 
             while (true) {
-                region.subRegion(992, 24, 1100, 121).click() // endBattleClick
+                mapRunnerRegions.battleEndClick.click()
                 delay(300)
                 if (GameLocation.mappings(config)[LocationId.COMBAT_SIMULATION]!!.isInRegion(region)) {
                     energySpent += level.cost
@@ -154,7 +161,7 @@ class CombatSimModule(
                     }
                 }
             }
-            logger.info("Completed all data sim")
+            logger.info("Completed all neural sim")
             scriptStats.simEnergySpent += energySpent
             energyRemaining -= energySpent
             updateNextCheck(level)
@@ -252,7 +259,7 @@ class CombatSimModule(
             return
         }
 
-        region.subRegion(400, 320, 180, 120).click()
+        region.findBest(FileTemplate("combat-simulation/data-mode.png"))?.region?.click()
         // Generous Delays here since combat sims don't occur often
         delay((1000 * gameState.delayCoefficient).roundToLong())
 
