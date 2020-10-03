@@ -125,7 +125,7 @@ object Main {
                 println("[OK] $file")
             }
 
-            if ("$path".endsWith(".zip")) unzip(path, appPath)
+            if ("$path".endsWith(".zip")) unzip(path, appPath.resolve("wai2k"))
         } catch (e: Exception) {
             if (Files.exists(path)) {
                 println("Skipping $file update check due to exception: ${e.message}")
