@@ -43,7 +43,7 @@ class Map10_4E_Drag(
     private val logger = loggerFor<Map10_4E_Drag>()
     override val isCorpseDraggingMap = true
 
-    override suspend fun execute() {
+    override suspend fun begin() {
 
         // Mostly empty region to the left
         val r = region.subRegionAs<AndroidRegion>(300, 500, 150, 8)

@@ -42,7 +42,7 @@ class Map4_6_Data(
     //Allow interruption of waiting for turn if necessary
     private var combatComplete = false
 
-    override suspend fun execute() {
+    override suspend fun begin() {
         if (gameState.requiresMapInit) {
             logger.info("Zoom out")
             repeat(2) {

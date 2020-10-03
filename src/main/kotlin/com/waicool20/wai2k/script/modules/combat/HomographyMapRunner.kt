@@ -19,22 +19,25 @@
 
 package com.waicool20.wai2k.script.modules.combat
 
-import boofcv.struct.image.GrayF32
+import ai.djl.metric.Metrics
+import ai.djl.modality.cv.Image
+import ai.djl.modality.cv.ImageFactory
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.waicool20.cvauto.android.AndroidRegion
-import com.waicool20.cvauto.util.homography
 import com.waicool20.cvauto.util.transformRect
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
-import com.waicool20.wai2k.script.NodeNotFoundException
 import com.waicool20.wai2k.script.ScriptRunner
-import com.waicool20.wai2k.util.extractNodes
+import com.waicool20.wai2k.util.ai.MatchingModel
+import com.waicool20.wai2k.util.ai.MatchingTranslator
 import com.waicool20.waicoolutils.logging.loggerFor
 import georegression.struct.homography.Homography2D_F64
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import java.nio.file.Files
-import javax.imageio.ImageIO
 import kotlin.math.max
 import kotlin.math.pow
 import kotlin.random.Random
@@ -54,10 +57,20 @@ abstract class HomographyMapRunner(
         private const val minScroll = 75
 
         /**
-         * Difference theresholds
+         * Difference thresholds
          */
         private const val maxMapDiff = 80.0
         private const val maxSideDiff = 5.0
+    }
+
+    private val metrics = Metrics()
+
+    private val predictor by lazy {
+        val model = MatchingModel(
+            config.assetsDirectory.resolve("models/SuperPoint.pt"),
+            config.assetsDirectory.resolve("models/SuperGlue.pt")
+        )
+        model.newPredictor(MatchingTranslator(480, 360)).also { it.setMetrics(metrics) }
     }
 
     /**
@@ -65,13 +78,9 @@ abstract class HomographyMapRunner(
      */
     private var mapH: Homography2D_F64? = null
 
-    protected open val extractBlueNodes: Boolean = true
-    protected open val extractWhiteNodes: Boolean = false
-    protected open val extractYellowNodes: Boolean = true
-
     final override val nodes: List<MapNode>
 
-    val fullMap: GrayF32
+    val fullMap: Image
 
     init {
         val n = async(Dispatchers.IO) {
@@ -83,41 +92,41 @@ abstract class HomographyMapRunner(
             }
         }
         val fm = async(Dispatchers.IO) {
-            val path = config.assetsDirectory.resolve("$PREFIX/map.png")
-            if (Files.exists(path)) {
-                ImageIO.read(path.toFile()).extractNodes(extractBlueNodes, extractWhiteNodes, extractYellowNodes)
-            } else {
-                GrayF32()
-            }
+            ImageFactory.getInstance().fromFile(config.assetsDirectory.resolve("$PREFIX/map.png"))
         }
 
         nodes = runBlocking { n.await() }
         fullMap = runBlocking { fm.await() }
     }
 
+    override suspend fun cleanup() {
+        mapH = null
+    }
+
     override suspend fun MapNode.findRegion(): AndroidRegion {
         val window = mapRunnerRegions.window
-        var h: Homography2D_F64? = null
-        while (h == null) {
-            h = try {
-                mapH
-                    ?: fullMap.homography(window.capture().extractNodes(extractBlueNodes, extractWhiteNodes, extractYellowNodes))
-            } catch (e: IllegalStateException) {
-                continue
-            }
+
+        val h = mapH ?: run {
+            logger.info("Finding map transformation")
+            val prediction = predictor.predict(fullMap to ImageFactory.getInstance().fromImage(window.capture()))
+            logger.debug("Homography prediction metrics:")
+            logger.debug("Preprocess: ${metrics.latestMetric("Preprocess").value.toLong() / 1000000} ms")
+            logger.debug("Inference: ${metrics.latestMetric("Inference").value.toLong() / 1000000} ms")
+            logger.debug("Postprocess: ${metrics.latestMetric("Postprocess").value.toLong() / 1000000} ms")
+            logger.debug("Total: ${metrics.latestMetric("Total").value.toLong() / 1000000} ms")
+            mapH = prediction
+            prediction
         }
 
         suspend fun retry(): AndroidRegion {
-            if (Random.nextBoolean()) {
-                logger.info("Zoom out")
-                region.pinch(
-                    Random.nextInt(500, 700),
-                    Random.nextInt(300, 400),
-                    0.0,
-                    500
-                )
-                delay(1000)
-            }
+            logger.info("Zoom out")
+            region.pinch(
+                Random.nextInt(500, 700),
+                Random.nextInt(300, 400),
+                0.0,
+                500
+            )
+            delay(1000)
             mapH = null
             return findRegion()
         }
@@ -192,28 +201,6 @@ abstract class HomographyMapRunner(
             delay(200)
             return findRegion()
         }
-
-        while (isActive) {
-            val targets = mutableListOf<Pair<Int, Int>>()
-            val img = roi.capture().extractNodes()
-            for (y in 0 until img.height) {
-                var index = img.startIndex + y * img.stride
-                for (x in 0 until img.width) {
-                    if (img.data[index++] >= 175) targets += x to y
-                }
-            }
-            yield()
-            if (targets.isEmpty()) {
-                logger.debug("No targets found, retry")
-                if (Random.nextBoolean()) continue else return retry()
-            }
-            logger.debug("${targets.size} target candidates for node $this")
-            val target = targets.random().let { (cX, cY) ->
-                region.subRegionAs<AndroidRegion>(roi.x + cX, roi.y + cY, 5, 5)
-            }
-            logger.debug("Node target: (x=${target.x},y=${target.y})")
-            return target
-        }
-        throw NodeNotFoundException(this)
+        return roi
     }
 }

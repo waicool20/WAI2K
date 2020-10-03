@@ -116,9 +116,22 @@ abstract class MapRunner(
     abstract val isCorpseDraggingMap: Boolean
 
     /**
-     * Main execution function that is executed when map is entered
+     * Main run function that goes through whole life cycle of MapRunner
      */
-    abstract suspend fun execute()
+    suspend fun execute() {
+        begin()
+        cleanup()
+    }
+
+    /**
+     * Function that is executed when map is entered
+     */
+    abstract suspend fun begin()
+
+    /**
+     * Cleanup function run after execute()
+     */
+    open suspend fun cleanup() = Unit
 
     /**
      * Executes when entering a battle

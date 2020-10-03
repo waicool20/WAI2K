@@ -40,7 +40,7 @@ class Map0_2_EX(
     private val logger = loggerFor<Map0_2_EX>()
     override val isCorpseDraggingMap = true
 
-    override suspend fun execute() {
+    override suspend fun begin() {
 
         if (gameState.requiresMapInit) {
             // Check to see if its already good

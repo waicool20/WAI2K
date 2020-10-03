@@ -34,80 +34,78 @@
 
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
     <children>
-      <HBox alignment="CENTER_LEFT" spacing="5.0">
-         <children>
-            <Label text="X:" />
-            <Spinner editable="true" prefWidth="100.0" fx:id="xSpinner" />
-            <Label text="Y:" />
-            <Spinner fx:id="ySpinner" editable="true" prefWidth="100.0" />
-            <Label text="W:" />
-            <Spinner fx:id="wSpinner" editable="true" prefWidth="100.0" />
-            <Label text="H:" />
-            <Spinner fx:id="hSpinner" editable="true" prefWidth="100.0" />
-         </children>
-         <VBox.margin>
-            <Insets left="10.0" />
-         </VBox.margin>
-      </HBox>
-      <Label text="Asset Testing:" />
-        <HBox alignment="CENTER_LEFT" spacing="10.0">
+        <HBox alignment="CENTER_LEFT" spacing="5.0">
             <children>
-                <TextField fx:id="pathField" prefWidth="300.0" promptText="/path/to/asset" />
-                <Button fx:id="openButton" mnemonicParsing="false" text="Open" />
-              <Button fx:id="testButton" mnemonicParsing="false" text="Test" />
-            <Button fx:id="assetOCRButton" mnemonicParsing="false" text="OCR" />
+                <Label text="X:" />
+                <Spinner editable="true" prefWidth="100.0" fx:id="xSpinner" />
+                <Label text="Y:" />
+                <Spinner fx:id="ySpinner" editable="true" prefWidth="100.0" />
+                <Label text="W:" />
+                <Spinner fx:id="wSpinner" editable="true" prefWidth="100.0" />
+                <Label text="H:" />
+                <Spinner fx:id="hSpinner" editable="true" prefWidth="100.0" />
             </children>
             <VBox.margin>
                 <Insets left="10.0" />
             </VBox.margin>
         </HBox>
-      <Separator prefWidth="200.0" />
-      <Label text="On-Screen OCR Testing:" />
-      <HBox alignment="CENTER" VBox.vgrow="ALWAYS">
-         <children>
-            <ImageView fx:id="ocrImageView" fitHeight="300.0" fitWidth="600.0" pickOnBounds="true" preserveRatio="true" HBox.hgrow="ALWAYS" />
-         </children>
-      </HBox>
-      <HBox alignment="CENTER_LEFT" spacing="5.0">
-         <children>
-            <Button fx:id="OCRButton" mnemonicParsing="false" text="OCR" />
-            <Button fx:id="resetOCRButton" mnemonicParsing="false" text="Reset" />
-            <Separator orientation="VERTICAL" />
-            <Label text="Filter Nodes:" />
-            <CheckBox fx:id="filterBlueCheckBox" mnemonicParsing="false" text="Blue" />
-            <CheckBox fx:id="filterWhiteCheckBox" mnemonicParsing="false" text="White" />
-            <CheckBox fx:id="filterYellowCheckBox" mnemonicParsing="false" text="Yellow" />
-         </children>
-      </HBox>
-      <Separator prefWidth="200.0" />
-      <Label text="OCR Options" />
-      <VBox alignment="CENTER_LEFT" spacing="15.0">
-         <children>
-            <CheckBox fx:id="useLSTMCheckBox" mnemonicParsing="false" text="Use LSTM Engine" />
-            <CheckBox fx:id="filterCheckBox" mnemonicParsing="false" text="Use filters:" />
-            <VBox fx:id="filterOptionsVBox" spacing="5.0">
-               <children>
-                  <RadioButton fx:id="digitsOnlyRadioButton" mnemonicParsing="false" selected="true" text="Digits Only [0-9]">
-                     <toggleGroup>
-                        <ToggleGroup fx:id="filterOptions" />
-                     </toggleGroup>
-                  </RadioButton>
-                  <HBox alignment="CENTER_LEFT" spacing="5.0">
-                     <children>
-                        <RadioButton fx:id="customRadioButton" mnemonicParsing="false" text="Custom:" toggleGroup="$filterOptions" />
-                        <TextField fx:id="allowedCharsTextField" promptText="Allowed Characters" />
-                     </children>
-                  </HBox>
-               </children>
-               <VBox.margin>
-                  <Insets left="10.0" />
-               </VBox.margin>
-            </VBox>
-         </children>
-         <VBox.margin>
-            <Insets left="10.0" />
-         </VBox.margin>
-      </VBox>
+        <Label text="Asset Testing:" />
+        <HBox alignment="CENTER_LEFT" spacing="10.0">
+            <children>
+                <TextField fx:id="pathField" prefWidth="300.0" promptText="/path/to/asset" />
+                <Button fx:id="openButton" mnemonicParsing="false" text="Open" />
+                <Button fx:id="testButton" mnemonicParsing="false" text="Test" />
+                <Button fx:id="assetOCRButton" mnemonicParsing="false" text="OCR" />
+            </children>
+            <VBox.margin>
+                <Insets left="10.0" />
+            </VBox.margin>
+        </HBox>
+        <Separator prefWidth="200.0" />
+        <Label text="Preview:" />
+        <HBox fx:id="container" alignment="CENTER" minHeight="300.0" minWidth="600.0" VBox.vgrow="ALWAYS">
+            <children>
+                <ImageView fx:id="ocrImageView" fitHeight="${container.height}" fitWidth="${container.width}" pickOnBounds="true" preserveRatio="true" HBox.hgrow="ALWAYS" />
+            </children>
+        </HBox>
+        <HBox alignment="CENTER_LEFT" spacing="5.0">
+            <children>
+                <Button fx:id="OCRButton" mnemonicParsing="false" text="OCR" />
+                <Button fx:id="resetOCRButton" mnemonicParsing="false" text="Reset" />
+                <Separator orientation="VERTICAL" />
+                <Button fx:id="annotateSetButton" mnemonicParsing="false" text="Annotate Set" />
+                <CheckBox fx:id="saveAnnotationsCheckBox" mnemonicParsing="false" text="Draw and Save Annotations" />
+            </children>
+        </HBox>
+        <Separator prefWidth="200.0" />
+        <Label text="OCR Options" />
+        <VBox alignment="CENTER_LEFT" spacing="15.0">
+            <children>
+                <CheckBox fx:id="useLSTMCheckBox" mnemonicParsing="false" text="Use LSTM Engine" />
+                <CheckBox fx:id="filterCheckBox" mnemonicParsing="false" text="Use filters:" />
+                <VBox fx:id="filterOptionsVBox" spacing="5.0">
+                    <children>
+                        <RadioButton fx:id="digitsOnlyRadioButton" mnemonicParsing="false" selected="true" text="Digits Only [0-9]">
+                            <toggleGroup>
+                                <ToggleGroup fx:id="filterOptions" />
+                            </toggleGroup>
+                        </RadioButton>
+                        <HBox alignment="CENTER_LEFT" spacing="5.0">
+                            <children>
+                                <RadioButton fx:id="customRadioButton" mnemonicParsing="false" text="Custom:" toggleGroup="$filterOptions" />
+                                <TextField fx:id="allowedCharsTextField" promptText="Allowed Characters" />
+                            </children>
+                        </HBox>
+                    </children>
+                    <VBox.margin>
+                        <Insets left="10.0" />
+                    </VBox.margin>
+                </VBox>
+            </children>
+            <VBox.margin>
+                <Insets left="10.0" />
+            </VBox.margin>
+        </VBox>
     </children>
     <padding>
         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
