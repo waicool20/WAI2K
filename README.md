@@ -11,9 +11,6 @@ If you understand this then read on
 
 ---
 
-This software is currently in a feature incomplete state, Windows support is still unstable, but 
-extensive testing has been done in Linux. 
-
 # Features
 
 - Logistics Support
@@ -22,9 +19,9 @@ extensive testing has been done in Linux.
 - Auto enhancement
 - Auto disassembly
 - Auto combat reports, make kalina work overtime!
+- Auto combat simulations
 - [Discord integration](https://github.com/waicool20/WAI2K/wiki/Discord-Integration)
 - Can run in background without taking over desktop mouse
-- Can run on phone (Provided you have a phone that is 2160x1080 resolution, theoretically possible)
 - More to come
 
 # Setup
@@ -35,7 +32,7 @@ Prerequisites:
 * [WAI2K-Launcher.jar](https://github.com/waicool20/WAI2K/releases/latest)
 * Emulator, must be 2160x1080 resolution
 
-Start the app by running the launcher jar file (Double click on windows)
+Start the app by running the launcher jar file (Double click on windows), first launch will be longer due to automatic downloading of necessary files!
 
 It is recommended to use the Android Studio Emulator to run the game.
 
@@ -50,15 +47,13 @@ You can always join our discord community (Invite below) if you have any further
 Prerequisites: 
 
 * [Java JDK 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
-* [My Utility Library](https://github.com/waicool20/waicoolUtils), place this inside the project directory, you don't need to do this if you are cloning and pulling all submodules
-* [CVAuto](https://github.com/waicool20/CVAuto), same as the utility library above
 
 Git clone instructions: 
 
 ```bash
-git clone https://github.com/waicool20/WAI2K.git     // Clone repository, replace with ssh url if you prefer that  
-cd WAI2K/                                            // Make sure you are in the WAI2K directory
-git submodule update --init --recursive             // Pull all submodules, this includes the utility library and cvauto
+git clone https://github.com/waicool20/WAI2K.git      // Clone repository, replace with ssh url if you prefer that  
+cd WAI2K/                                             // Make sure you are in the WAI2K directory
+git submodule update --init --recursive               // Pull all submodules, this includes the utility library and cvauto
 ```
 
 To build the jar file after cloning/pulling the latest commits, go into the repo directory and run the right command
@@ -71,7 +66,7 @@ Linux/MacOS:
 
 > ./gradlew
 
-A compiled Jar file which you can execute directly will be generated in the build/libs directory
+A compiled Jar file will be generated in the build/libs directory
 
 # Screenshots
 
