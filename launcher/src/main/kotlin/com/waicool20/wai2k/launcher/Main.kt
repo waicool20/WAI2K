@@ -19,17 +19,16 @@
 
 package com.waicool20.wai2k.launcher
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import okhttp3.*
+import java.awt.Desktop
 import java.awt.Dimension
 import java.awt.FlowLayout
 import java.io.IOException
+import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.nio.file.StandardOpenOption
 import java.security.MessageDigest
-import java.time.Instant
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.zip.ZipInputStream
@@ -62,24 +61,24 @@ import kotlin.system.exitProcess
 
 object Main {
     private val client = OkHttpClient()
-    private val endpoint = "https://api.github.com/repos/waicool20/WAI2K/releases/latest"
+    private val url = "https://wai2k.waicool20.com/files"
     private val appPath = Paths.get(System.getProperty("user.home")).resolve(".wai2k").toAbsolutePath()
     private val libPath = appPath.resolve("libs")
-    private val lastUpdatedPath = appPath.resolve("last_updated.txt")
 
-    var lastUpdated = Instant.ofEpochMilli(0)
-
+    val mainFiles = listOf("WAI2K.jar", "assets.zip", "models.zip")
 
     val label = JLabel().apply {
         text = "Launching WAI2K"
     }
-    val content = JPanel(FlowLayout(FlowLayout.LEFT)).apply {
-        border = BorderFactory.createEmptyBorder(10, 10, 10, 10)
-        add(label)
-    }
+
     val frame = JFrame("WAI2K Launcher").apply {
         defaultCloseOperation = JFrame.EXIT_ON_CLOSE
-        add(content)
+        add(
+            JPanel(FlowLayout(FlowLayout.LEFT)).apply {
+                border = BorderFactory.createEmptyBorder(10, 10, 10, 10)
+                add(label)
+            }
+        )
         size = Dimension(500, 75)
         setLocationRelativeTo(null)
         isResizable = false
@@ -89,76 +88,98 @@ object Main {
     init {
         if (Files.notExists(appPath)) Files.createDirectories(appPath)
         if (Files.notExists(libPath)) Files.createDirectories(libPath)
-        if (Files.notExists(lastUpdatedPath)) Files.createFile(lastUpdatedPath)
-        try {
-            lastUpdated = Instant.parse(Files.newInputStream(lastUpdatedPath).bufferedReader().readText())
-        } catch (e: Exception) {
-            // Do nothing
-        }
     }
 
     @JvmStatic
     fun main(args: Array<String>) {
-        checkLatestRelease()
-        checkDependencies()
+        if (!args.contains("--skip-checks")) {
+            try {
+                checkLauncherUpdate()
+                mainFiles.forEach(::checkFile)
+                checkDependencies()
+            } catch (e: Exception) {
+                println("Exception during update check ${e.message}")
+                // Just try to launch wai2k anyways if anything unexpected happens ¯\_(ツ)_/¯
+            }
+        }
         launchWai2K(args)
     }
 
-    private fun checkLatestRelease() {
-        val json = try {
-            val request = Request.Builder().url(endpoint).build()
-            client.newCall(request).execute().use {
-                ObjectMapper().readTree(it.body?.string())
+    private fun checkFile(file: String) {
+        label.text = "Checking file $file"
+        val path = appPath.resolve(file)
+        try {
+            if (Files.exists(path)) {
+                val sum = client.newCall(Request.Builder().url("$url/$file.md5").build())
+                    .execute().use { it.body!!.string() }
+                if (sum.equals(calcCheckSum(path), true)) return
             }
+
+            client.newCall(Request.Builder().url("$url/$file").build()).execute().use {
+                println("[DOWNLOAD] $file")
+                val input = it.body!!.byteStream()
+                val output = Files.newOutputStream(path)
+                input.copyTo(output)
+                input.close()
+                output.close()
+                println("[OK] $file")
+            }
+
+            if ("$path".endsWith(".zip")) unzip(path, appPath)
         } catch (e: Exception) {
-            null
-        } ?: return
-
-        val lastCreated = Instant.parse(json.at("/created_at").textValue())
-        if (lastCreated.isAfter(lastUpdated)) {
-            val assets = json.at("/assets")
-            var downloaded = 0
-            val total = assets.size() - 1
-            label.text = "Downloading main files: $downloaded/$total"
-            assets.forEach {
-                val url = it["browser_download_url"].textValue()
-                val filename = it["name"].textValue()
-                if (filename.contains("Launcher")) return@forEach
-                val dest = appPath.resolve(filename)
-                println("[DOWNLOAD] $url")
-
-                val request = Request.Builder().url(url).build()
-                client.newCall(request).execute().use {
-                    Files.write(dest, it.body!!.bytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
-                }
-                downloaded++
-                label.text = "Downloading main files: $downloaded/$total"
-            }
-            Files.write(lastUpdatedPath, lastCreated.toString().toByteArray())
-            thread {
-                val file = appPath.resolve("assets.zip")
-                val destDir = appPath.resolve("wai2k/assets")
-                val zis = ZipInputStream(Files.newInputStream(file))
-                var entry = zis.nextEntry
-                while (entry != null) {
-                    if (!entry.isDirectory) {
-                        val outputFile = destDir.resolve(entry.name)
-                        Files.createDirectories(outputFile.parent)
-                        val output = Files.newOutputStream(outputFile)
-                        zis.copyTo(output)
-                        output.close()
-                    }
-                    entry = zis.nextEntry
-                }
-                zis.closeEntry()
-                zis.close()
+            if (Files.exists(path)) {
+                println("Skipping $file update check due to exception: ${e.message}")
+                return
+            } else {
+                halt("Could not grab initial copy of $file")
             }
         }
     }
 
+    private fun checkLauncherUpdate() {
+        // Skip update check if running from code
+        if (!"${Main.javaClass.getResource(Main.javaClass.simpleName + ".class")}".startsWith("jar")) return
+        val jarPath = Paths.get(Main::class.java.protectionDomain.codeSource.location.toURI())
+
+        try {
+            val md5Url = "https://github.com/waicool20/WAI2K/releases/download/Latest/WAI2K-Launcher.jar.md5"
+            val request = Request.Builder().url(md5Url).build()
+            val sum = client.newCall(request).execute().use { it.body!!.string() }
+            if (sum.equals(calcCheckSum(jarPath), true)) return
+
+            val uri = URI("https://github.com/waicool20/WAI2K/releases/tag/Latest")
+            thread {
+                try {
+                    Desktop.getDesktop().browse(uri)
+                } catch (e: Exception) {
+                    if (System.getProperty("os.name").toLowerCase().contains("linux")) {
+                        ProcessBuilder("xdg-open", "$uri").start()
+                    } else {
+                        throw e
+                    }
+                }
+            }
+            halt("Launcher update available, please download it and try again")
+        } catch (e: Exception) {
+            println("Skipping launcher update check due to exception: ${e.message}")
+        }
+    }
+
     private fun checkDependencies() {
-        if (Files.notExists(appPath.resolve("dependencies.txt"))) return
-        val text = Files.readAllLines(appPath.resolve("dependencies.txt"))
+        val depPath = appPath.resolve("dependencies.txt")
+        val text = if (Files.exists(depPath)) {
+            Files.readAllLines(depPath)
+        } else {
+            try {
+                val request = Request.Builder().url("$url/dependencies.txt").build()
+                val text = client.newCall(request).execute().use { it.body!!.string() }
+                Files.write(depPath, text.toByteArray())
+                text.lines()
+            } catch (e: Exception) {
+                halt("Could not retrieve dependency list: ${e.message}")
+            }
+        }
+
         val repos = mutableListOf<String>()
         val depsString = mutableListOf<String>()
 
@@ -244,18 +265,44 @@ object Main {
             latch.await()
         }
 
-        label.text = "Failed to download libraries, try deleting .wai2k/libs and try again"
+        halt("Failed to download libraries, try deleting .wai2k/libs and try again")
+    }
+
+    private fun halt(msg: String): Nothing {
+        label.text = msg
         while (true) TimeUnit.SECONDS.sleep(1)
     }
 
     private fun verifyCheckSum(file: Path): Boolean {
         if (Files.notExists(file)) return false
-        val md5sumFile = file.resolveSibling("${file.fileName}.md5")
+        val md5sumFile = Paths.get("$file.md5")
         if (Files.notExists(md5sumFile)) return false
-        val md5sum = MessageDigest.getInstance("MD5")
+        return calcCheckSum(file).equals(Files.readAllBytes(md5sumFile)
+            .toString(Charsets.UTF_8).take(32), ignoreCase = true)
+    }
+
+    private fun calcCheckSum(file: Path): String {
+        return MessageDigest.getInstance("MD5")
             .digest(Files.readAllBytes(file))
             .let { DatatypeConverter.printHexBinary(it) }
-        return md5sum.equals(Files.readAllBytes(md5sumFile).toString(Charsets.UTF_8).take(32), ignoreCase = true)
+    }
+
+    private fun unzip(file: Path, destination: Path) {
+        label.text = "Unpacking ${file.fileName}"
+        val zis = ZipInputStream(Files.newInputStream(file))
+        var entry = zis.nextEntry
+        while (entry != null) {
+            if (!entry.isDirectory) {
+                val outputFile = destination.resolve(entry.name)
+                Files.createDirectories(outputFile.parent)
+                val output = Files.newOutputStream(outputFile)
+                zis.copyTo(output)
+                output.close()
+            }
+            entry = zis.nextEntry
+        }
+        zis.closeEntry()
+        zis.close()
     }
 
     private fun launchWai2K(args: Array<String>) {
