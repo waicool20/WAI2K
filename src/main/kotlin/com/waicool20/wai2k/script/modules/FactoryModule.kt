@@ -25,6 +25,7 @@ import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.cvauto.core.template.ImageTemplate
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
+import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
@@ -181,6 +182,9 @@ class FactoryModule(
         if (!gameState.dollOverflow) logger.info("The base now has space for new dolls")
     }
 
+    private val disassemblyWindow = region.subRegion(454, 217, 1169, 771)
+    private val disassembleButton = region.subRegion(1702, 859, 247, 95)
+
     private suspend fun disassembleDolls() {
         logger.info("Doll limit reached, will try to disassemble")
         navigator.navigateTo(LocationId.TDOLL_DISASSEMBLY)
@@ -188,12 +192,19 @@ class FactoryModule(
         var oldCount: Int? = null
 
         logger.info("Disassembling 2 star T-dolls")
+
+        val sTemp = FileTemplate("factory/select.png", 0.8)
+
         while (isActive) {
             logger.info("Start T-doll selection")
-            val sTemp = FileTemplate("factory/select.png", 0.8)
-            val dRegion = region.subRegion(454, 217, 1169, 771)
-            dRegion.waitHas(sTemp, 10000)?.click()
-            delay(750)
+
+            disassemblyWindow.waitHas(sTemp, 10000)?.click(); delay(750)
+
+            // If still on disassemble menu, maybe there's no more dolls to disassemble
+            if (GameLocation.mappings(config)[LocationId.TDOLL_DISASSEMBLY]?.isInRegion(region) == true) {
+                gameState.dollOverflow = false
+                return
+            }
 
             // Find the old doll count
             try {
@@ -222,10 +233,10 @@ class FactoryModule(
             logger.info("Confirm doll selections")
             // Click ok
             okButton.click()
-            dRegion.waitHas(sTemp, 3000)
+            disassemblyWindow.waitHas(sTemp, 3000)
             logger.info("Disassembling selected T-dolls")
             // Click disassemble button
-            region.subRegion(1702, 859, 247, 95).click(); delay(750)
+            disassembleButton.click(); delay(750)
             // Update stats
             scriptStats.disassemblesDone += 1
         }
@@ -262,8 +273,7 @@ class FactoryModule(
             region.subRegion(1759, 880, 268, 177)
                 .findBest(FileTemplate("factory/ok.png"))?.region?.click(); delay(500)
             logger.info("Disassembling selected T-dolls")
-            // Click disassemble button
-            region.subRegion(1702, 859, 247, 95).click(); delay(500)
+            disassembleButton.click(); delay(500)
             // Click confirm
             region.subRegion(1100, 865, 324, 161)
                 .findBest(FileTemplate("ok.png"))?.region?.click(); delay(200)
@@ -276,12 +286,14 @@ class FactoryModule(
             } else {
                 logger.info("Still more 3 star T-dolls to disassemble")
             }
-            // Wait for menu to settle
-            region.subRegion(454, 217, 1169, 771)
-                .waitHas(FileTemplate("factory/select.png"), 10000)?.let {
-                    it.click()
-                    delay(750)
-                }
+
+            disassemblyWindow.waitHas(sTemp, 10000)?.click(); delay(750)
+
+            // If still on disassemble menu, maybe there's no more dolls to disassemble
+            if (GameLocation.mappings(config)[LocationId.TDOLL_DISASSEMBLY]?.isInRegion(region) == true) {
+                gameState.dollOverflow = false
+                return
+            }
         }
         if (!gameState.dollOverflow) logger.info("The base now has space for new dolls")
     }
@@ -293,10 +305,17 @@ class FactoryModule(
         var oldCount: Int? = null
         logger.info("Disassembling 2 star equipment")
         logger.info("Start equipment selection")
+
+
         val sTemp = FileTemplate("factory/select-equip.png")
-        val dRegion = region.subRegion(483, 200, 1557, 565)
-        dRegion.waitHas(sTemp, 10000)?.click()
-        delay(750)
+
+        disassemblyWindow.waitHas(sTemp, 10000)?.click(); delay(750)
+
+        // If still on disassemble menu, maybe there's no more equips to disassemble
+        if (GameLocation.mappings(config)[LocationId.TDOLL_DISASSEMBLY]?.isInRegion(region) == true) {
+            gameState.equipOverflow = false
+            return
+        }
 
         // Find the old equip count
         try {
@@ -320,19 +339,19 @@ class FactoryModule(
         logger.info("Confirm equipment selections")
         // Click ok
         okButton?.click()
-        dRegion.waitHas(sTemp, 3000)
+        disassemblyWindow.waitHas(sTemp, 3000)
         logger.info("Disassembling selected equipment")
-        // Click disassemble button
-        region.subRegion(1702, 859, 247, 95).click(); delay(750)
+        disassembleButton.click(); delay(750)
         // Update stats
         scriptStats.equipDisassemblesDone += 1
 
-        // Wait for menu to settle
-        region.subRegion(483, 200, 1162, 565)
-            .waitHas(FileTemplate("factory/select-equip.png"), 10000)?.let {
-                it.click()
-                delay(750)
-            }
+        disassemblyWindow.waitHas(sTemp, 10000)?.click(); delay(750)
+
+        // If still on disassemble menu, maybe there's no more equips to disassemble
+        if (GameLocation.mappings(config)[LocationId.TDOLL_DISASSEMBLY]?.isInRegion(region) == true) {
+            gameState.equipOverflow = false
+            return
+        }
 
         logger.info("Disassembling higher rarity equipment")
         logger.info("Applying filters")
@@ -387,8 +406,7 @@ class FactoryModule(
             region.subRegion(1768, 889, 250, 170)
                 .findBest(FileTemplate("factory/ok-equip.png"))?.region?.click(); delay(500)
             logger.info("Disassembling selected equipment")
-            // Click disassemble button
-            region.subRegion(1702, 859, 247, 94).click(); delay(500)
+            disassembleButton.click(); delay(500)
             // Click confirm
             region.subRegion(1100, 865, 324, 161)
                 .findBest(FileTemplate("ok.png"))?.region?.click(); delay(200)
@@ -401,27 +419,30 @@ class FactoryModule(
             } else {
                 logger.info("Still more higher rarity equipment to disassemble")
             }
-            // Wait for menu to settle
-            region.subRegion(483, 200, 1557, 565)
-                .waitHas(FileTemplate("factory/select-equip.png"), 10000)?.let {
-                    it.click()
-                    delay(750)
-                }
+
+            disassemblyWindow.waitHas(sTemp, 10000)?.click(); delay(750)
+
+            // If still on disassemble menu, maybe there's no more equips to disassemble
+            if (GameLocation.mappings(config)[LocationId.TDOLL_DISASSEMBLY]?.isInRegion(region) == true) {
+                gameState.equipOverflow = false
+                return
+            }
         }
         if (!gameState.equipOverflow) logger.info("The base now has space for new equipment")
     }
 
     private val countRegex = Regex("(\\d+)\\s*?/\\s*?(\\d+)")
+    private val countRegion = region.subRegion(1790, 815, 220, 60)
 
     private tailrec suspend fun getCurrentDollCount(): Pair<Int, Int> {
         logger.info("Updating doll count")
-        val dollCountRegion = region.subRegion(1790, 815, 183, 60)
         var ocrResult: String
         while (isActive) {
-            ocrResult = Ocr.forConfig(config).doOCRAndTrim(dollCountRegion.copy(y = 763).capture().binarizeImage(0.7))
+            ocrResult = Ocr.forConfig(config).doOCRAndTrim(countRegion.copy(y = 763).capture().binarizeImage(0.7))
             if (ocrResult.contains("capa", true)) break else yield()
         }
-        ocrResult = Ocr.forConfig(config).doOCRAndTrim(dollCountRegion)
+        ocrResult = Ocr.forConfig(config).doOCRAndTrim(countRegion)
+        ocrResult = Ocr.cleanNumericString(ocrResult)
         logger.info("Doll count ocr: $ocrResult")
         return countRegex.find(ocrResult)?.groupValues?.let {
             val count = it[1].toInt()
@@ -434,13 +455,13 @@ class FactoryModule(
 
     private tailrec suspend fun getCurrentEquipCount(): Pair<Int, Int> {
         logger.info("Updating equipment count")
-        val equipCountRegion = region.subRegion(1790, 815, 220, 60)
         var ocrResult: String
         while (isActive) {
-            ocrResult = Ocr.forConfig(config).doOCRAndTrim(equipCountRegion.copy(y = 763))
+            ocrResult = Ocr.forConfig(config).doOCRAndTrim(countRegion.copy(y = 763))
             if (ocrResult.contains("equip", true)) break else yield()
         }
-        ocrResult = Ocr.forConfig(config).doOCRAndTrim(equipCountRegion)
+        ocrResult = Ocr.forConfig(config).doOCRAndTrim(countRegion)
+        ocrResult = Ocr.cleanNumericString(ocrResult)
         logger.info("Equipment count ocr: $ocrResult")
         return countRegex.find(ocrResult)?.groupValues?.let {
             val count = it[1].toInt()
