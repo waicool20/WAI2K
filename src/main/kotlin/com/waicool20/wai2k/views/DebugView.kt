@@ -159,12 +159,14 @@ class DebugView : CoroutineScopeView() {
             }
             while (isActive) {
                 val predictor = this@DebugView.predictor
+                val bImg = device.screens[0].capture()
+                    .getSubimage(xSpinner.value, ySpinner.value, wSpinner.value, hSpinner.value)
                 if (predictor == null) {
                     withContext(Dispatchers.JavaFx) {
-                        ocrImageView.image = SwingFXUtils.toFXImage(device.screens[0].capture(), null)
+                        ocrImageView.image = SwingFXUtils.toFXImage(bImg, null)
                     }
                 } else {
-                    val image = ImageFactory.getInstance().fromImage(device.screens[0].capture())
+                    val image = ImageFactory.getInstance().fromImage(bImg)
                     val objects = predictor.predict(image)
                     image.drawBoundingBoxes(objects.toDetectedObjects())
                     withContext(Dispatchers.JavaFx) {
@@ -205,17 +207,18 @@ class DebugView : CoroutineScopeView() {
                     val image = device.screens[0].capture()
                         .getSubimage(xSpinner.value, ySpinner.value, wSpinner.value, hSpinner.value)
                         .asGrayF32()
-                    Region.DEFAULT_MATCHER.settings.matchDimension = ScriptRunner.HIGH_RES
+                    val matcher = device.screens[0].matcher
+                    matcher.settings.matchDimension = ScriptRunner.HIGH_RES
                     // Set similarity to 0.6f to make cvauto report the similarity value down to 0.6
                     val (results, duration) = measureTimedValue {
                         try {
-                            device.screens[0].matcher.findBest(FileTemplate(path, 0.6), image, 20)
+                            matcher.findBest(FileTemplate(path, 0.6), image, 20)
                         } catch (e: ArrayIndexOutOfBoundsException) {
                             val max = e.localizedMessage.takeLastWhile { it.isDigit() }.toInt() - 1
-                            device.screens[0].matcher.findBest(FileTemplate(path, 0.6), image, max)
+                            matcher.findBest(FileTemplate(path, 0.6), image, max)
                         }
                     }
-                    Region.DEFAULT_MATCHER.settings.matchDimension = ScriptRunner.NORMAL_RES
+                    matcher.settings.matchDimension = ScriptRunner.NORMAL_RES
                     results.takeIf { it.isNotEmpty() }
                         ?.sortedBy { it.score }
                         ?.forEach {
