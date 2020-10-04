@@ -180,12 +180,9 @@ data class Wai2KProfile(
     class Stop(
         enabled: Boolean = false,
         exitProgram: Boolean = false,
-        time: Time = Time()
+        time: Time = Time(),
+        count: Count = Count()
     ) {
-        enum class Mode {
-            ELAPSED_TIME, SPECIFIC_TIME, COUNT
-        }
-
         class Time(
             enabled: Boolean = true,
             mode: Mode = Mode.ELAPSED_TIME,
@@ -194,6 +191,10 @@ data class Wai2KProfile(
             @JsonFormat(pattern = "HH:mm")
             specificTime: LocalTime = LocalTime.of(0, 0)
         ) {
+            enum class Mode {
+                ELAPSED_TIME, SPECIFIC_TIME
+            }
+
             val enabledProperty = enabled.toProperty()
             val modeProperty = mode.toProperty()
             val elapsedTimeProperty = elapsedTime.toProperty()
@@ -205,13 +206,26 @@ data class Wai2KProfile(
             var specificTime by specificTimeProperty
         }
 
+        class Count(
+            enabled: Boolean = false,
+            sorties: Int = 10
+        ) {
+            val enabledProperty = enabled.toProperty()
+            val sortiesProperty = sorties.toProperty()
+
+            var enabled by enabledProperty
+            var sorties by sortiesProperty
+        }
+
         val enabledProperty = enabled.toProperty()
         val exitProgramProperty = exitProgram.toProperty()
         val timeProperty = time.toProperty()
+        val countProperty = count.toProperty()
 
         var enabled by enabledProperty
         var exitProgram by exitProgramProperty
         var time by timeProperty
+        var count by countProperty
     }
 
     companion object Loader {

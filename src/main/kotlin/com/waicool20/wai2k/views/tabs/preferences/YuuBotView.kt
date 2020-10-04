@@ -33,6 +33,7 @@ class YuuBotView : View() {
     override val root: VBox by fxml("/views/tabs/preferences/yuubot.fxml")
     private val apiKeyTextField: TextField by fxid()
     private val onRestartCheckBox: CheckBox by fxid()
+    private val onStopConditionCheckBox: CheckBox by fxid()
 
     private val context: Wai2KContext by inject()
 
@@ -47,7 +48,10 @@ class YuuBotView : View() {
 
         apiKeyTextField.text = context.wai2KConfig.apiKey
 
-        onRestartCheckBox.bind(context.wai2KConfig.notificationsConfig.onRestartProperty)
+        with(context.wai2KConfig.notificationsConfig) {
+            onRestartCheckBox.bind(onRestartProperty)
+            onStopConditionCheckBox.bind(onStopConditionProperty)
+        }
     }
 
     fun testApiKey(apiKey: String) {

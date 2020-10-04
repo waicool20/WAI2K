@@ -19,7 +19,7 @@
 
 package com.waicool20.wai2k.views.tabs.profile.stop
 
-import com.waicool20.wai2k.config.Wai2KProfile.Stop.Mode
+import com.waicool20.wai2k.config.Wai2KProfile.Stop.Time.Mode
 import com.waicool20.wai2k.views.tabs.profile.AbstractProfileView
 import com.waicool20.waicoolutils.javafx.addListener
 import javafx.scene.Node

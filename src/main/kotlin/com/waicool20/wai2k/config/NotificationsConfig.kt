@@ -24,9 +24,12 @@ import tornadofx.*
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 class NotificationsConfig(
-    onRestart: Boolean = true
+    onRestart: Boolean = true,
+    onStopCondition: Boolean = true
 ) {
     val onRestartProperty = onRestart.toProperty()
+    val onStopConditionProperty = onStopCondition.toProperty()
 
     var onRestart by onRestartProperty
+    var onStopCondition by onStopConditionProperty
 }

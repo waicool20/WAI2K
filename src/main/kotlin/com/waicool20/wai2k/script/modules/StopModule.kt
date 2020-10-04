@@ -24,6 +24,7 @@ import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
+import com.waicool20.wai2k.util.YuuBot
 import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.waicoolutils.logging.loggerFor
 import java.time.*
@@ -41,6 +42,7 @@ class StopModule(
     override suspend fun execute() {
         if (!profile.stop.enabled) return
         checkTime()
+        checkCount()
     }
 
     //<editor-fold desc="Time">
@@ -51,31 +53,47 @@ class StopModule(
         with(profile.stop.time) {
             if (!enabled) return
             val stop = when (mode) {
-                Wai2KProfile.Stop.Mode.ELAPSED_TIME -> {
+                Wai2KProfile.Stop.Time.Mode.ELAPSED_TIME -> {
                     Duration.between(scriptRunner.lastStartTime!!, Instant.now()) > elapsedTime
                 }
-                Wai2KProfile.Stop.Mode.SPECIFIC_TIME -> {
+                Wai2KProfile.Stop.Time.Mode.SPECIFIC_TIME -> {
                     LocalDateTime.now() > nextStopTime
                 }
                 else -> false
             }
-            if (stop) {
-                logger.info("Script time stop condition reached for $mode, terminating further execution")
-                logger.info("Final script statistics: ${scriptRunner.scriptStats}")
-                if (profile.stop.exitProgram) {
-                    exitProcess(0)
-                } else {
-                    coroutineContext.cancelAndYield()
-                }
-            }
+            if (stop) stopScript("$mode")
         }
     }
-
-    //</editor-fold>
 
     private fun getNextTime(time: LocalTime): LocalDateTime {
         val now = LocalDateTime.now()
         val i = time.atDate(LocalDate.now())
         return if (i.isBefore(now)) i.plusDays(1) else i
+    }
+
+    //</editor-fold>
+
+    private suspend fun checkCount() {
+        with(profile.stop.count) {
+            if (!enabled) return
+            if (scriptStats.sortiesDone >= sorties) stopScript("Sorties >= $sorties")
+        }
+    }
+
+    private suspend fun stopScript(reason: String) {
+        val msg = """
+        Script stop condition reached: $reason
+        Terminating further execution, final script statistics: 
+        ${scriptRunner.scriptStats}
+        """.trimIndent()
+        logger.info(msg)
+        if (config.notificationsConfig.onStopCondition) {
+            YuuBot.postMessage(config.apiKey, "Script Terminated", msg)
+        }
+        if (profile.stop.exitProgram) {
+            exitProcess(0)
+        } else {
+            coroutineContext.cancelAndYield()
+        }
     }
 }
