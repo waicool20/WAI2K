@@ -40,6 +40,7 @@ import kotlinx.coroutines.runBlocking
 import java.nio.file.Files
 import kotlin.math.max
 import kotlin.math.pow
+import kotlin.math.roundToLong
 import kotlin.random.Random
 
 abstract class HomographyMapRunner(
@@ -106,7 +107,20 @@ abstract class HomographyMapRunner(
     override suspend fun MapNode.findRegion(): AndroidRegion {
         val window = mapRunnerRegions.window
 
-        val h = mapH ?: run {
+        suspend fun retry(): AndroidRegion {
+            logger.info("Zoom out")
+            region.pinch(
+                Random.nextInt(500, 700),
+                Random.nextInt(300, 400),
+                0.0,
+                500
+            )
+            delay((900 * gameState.delayCoefficient).roundToLong()) //Wait to settle
+            mapH = null
+            return findRegion()
+        }
+
+        val h = mapH ?: try {
             logger.info("Finding map transformation")
             val prediction = predictor.predict(fullMap to ImageFactory.getInstance().fromImage(window.capture()))
             logger.debug("Homography prediction metrics:")
@@ -116,19 +130,8 @@ abstract class HomographyMapRunner(
             logger.debug("Total: ${metrics.latestMetric("Total").value.toLong() / 1000000} ms")
             mapH = prediction
             prediction
-        }
-
-        suspend fun retry(): AndroidRegion {
-            logger.info("Zoom out")
-            region.pinch(
-                Random.nextInt(500, 700),
-                Random.nextInt(300, 400),
-                0.0,
-                500
-            )
-            delay(1000)
-            mapH = null
-            return findRegion()
+        } catch (e: Exception) {
+            return retry()
         }
 
         // Rect that is relative to the window
