@@ -157,7 +157,7 @@ class CombatModule(
             }
         }
 
-        if (scriptStats.sortiesDone >= 1) {
+        if (gameState.switchDolls) {
             val startTime = System.currentTimeMillis()
             logger.info("Switching doll 2 of echelon 1")
             // Doll 2 region ( excludes stuff below name/type )
