@@ -68,6 +68,10 @@ tasks {
     withType<KotlinCompile> {
         kotlinOptions.jvmTarget = JavaVersion.VERSION_1_8.toString()
     }
+    withType<AbstractArchiveTask>().configureEach {
+        isPreserveFileTimestamps = false
+        isReproducibleFileOrder = true
+    }
     withType<ShadowJar> {
         archiveClassifier.value("")
         archiveVersion.value("")

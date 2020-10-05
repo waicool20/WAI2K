@@ -84,6 +84,10 @@ tasks {
         finalizedBy("shadowJar")
         finalizedBy(gradle.includedBuild("launcher").task(":build"))
     }
+    withType<AbstractArchiveTask>().configureEach {
+        isPreserveFileTimestamps = false
+        isReproducibleFileOrder = true
+    }
     jar {
         enabled = false
         manifest {
