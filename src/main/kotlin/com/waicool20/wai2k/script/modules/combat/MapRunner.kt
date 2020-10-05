@@ -121,6 +121,7 @@ abstract class MapRunner(
     suspend fun execute() {
         begin()
         cleanup()
+        gameState.switchDolls = isCorpseDraggingMap
     }
 
     /**
@@ -419,12 +420,12 @@ abstract class MapRunner(
         }
     }
 
-    protected suspend fun terminateMission() {
+    protected suspend fun terminateMission(incrementSorties: Boolean = true) {
         mapRunnerRegions.terminateMenu.click(); delay(700)
         mapRunnerRegions.terminate.click(); delay(5000)
 
         logger.info("Left battle screen")
-        scriptStats.sortiesDone += 1
+        if (incrementSorties) scriptStats.sortiesDone += 1
         _battles = 1
     }
 

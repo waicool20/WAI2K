@@ -71,8 +71,7 @@ class Map8_1N(
             logger.info("Canceling this sortie")
             // Do over the map
             gameState.requiresMapInit = true
-            // maybe stop the fake sortie appearing here
-            terminateMission()
+            terminateMission(incrementSorties = false)
         } else {
             // No suicide if Zas has correct stats
             planPath()
