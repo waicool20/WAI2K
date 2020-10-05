@@ -56,12 +56,6 @@ abstract class HomographyMapRunner(
          * Minimum scroll in pixels, because sometimes smaller scrolls dont register properly
          */
         private const val minScroll = 75
-
-        /**
-         * Difference thresholds
-         */
-        private const val maxMapDiff = 80.0
-        private const val maxSideDiff = 5.0
     }
 
     private val metrics = Metrics()
@@ -99,6 +93,18 @@ abstract class HomographyMapRunner(
         nodes = runBlocking { n.await() }
         fullMap = runBlocking { fm.await() }
     }
+
+    /**
+     * Difference threshold between reference node coordinate values in map.json
+     * and estimated rect values
+     */
+    protected open val maxMapDiff = 80.0
+
+    /**
+     * Difference threshold between estimated rect width and height,
+     * it should be roughly square (1:1)
+     */
+    protected open val maxSideDiff = 5.0
 
     override suspend fun cleanup() {
         mapH = null
@@ -147,13 +153,11 @@ abstract class HomographyMapRunner(
             rect.width,
             rect.height
         )
-        // Difference from reference values in map.json and estimated rect values
         val mapDiff = (rect.width.toDouble() - width).pow(2) + (rect.height.toDouble() - height).pow(2)
         if (mapDiff > maxMapDiff.pow(2)) {
             logger.info("Estimate failed map difference test, will retry | diff=$mapDiff, max=$maxMapDiff")
             return retry()
         }
-        // Difference between rect width and height, should be roughly square (1:1)
         val sideDiff = (rect.width.toDouble() - rect.height).pow(2)
         if (sideDiff > maxSideDiff.pow(2)) {
             logger.debug("Estimate failed side difference test, will retry | diff=$sideDiff, max=$maxSideDiff")
