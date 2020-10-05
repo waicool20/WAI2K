@@ -24,9 +24,11 @@ import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.script.modules.combat.AbsoluteMapRunner
+import com.waicool20.wai2k.script.modules.combat.HomographyMapRunner
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
+import kotlin.math.roundToLong
 import kotlin.random.Random
 
 class Map6_6(
@@ -34,28 +36,23 @@ class Map6_6(
     region: AndroidRegion,
     config: Wai2KConfig,
     profile: Wai2KProfile
-) : AbsoluteMapRunner(scriptRunner, region, config, profile) {
+) : HomographyMapRunner(scriptRunner, region, config, profile) {
     private val logger = loggerFor<Map6_6>()
     override val isCorpseDraggingMap = false
 
     override suspend fun begin() {
         if (gameState.requiresMapInit) {
             logger.info("Zoom out")
-            repeat(2) {
-                region.pinch(
-                    Random.nextInt(700, 800),
-                    Random.nextInt(300, 400),
-                    0.0,
-                    500
-                )
-                delay(200)
+
+            region.pinch(
+                Random.nextInt(700, 800),
+                Random.nextInt(300, 400),
+                0.0,
+                500
+            )
+            delay((800 * gameState.delayCoefficient).roundToLong())
                 gameState.requiresMapInit = false
-            }
         }
-        // pan up
-        val r = region.subRegionAs<AndroidRegion>(1058, 224, 100, 22)
-        r.swipeTo(r.copy(y = r.y + 490))
-        delay(200)
 
         val rEchelons = deployEchelons(nodes[0])
         mapRunnerRegions.startOperation.click(); yield()
@@ -70,11 +67,11 @@ class Map6_6(
         logger.info("Entering planning mode")
         mapRunnerRegions.planningMode.click(); yield()
 
-        logger.info("Selecting ${nodes[1]}")
-        nodes[1].findRegion().click()
-
         logger.info("Selecting ${nodes[2]}")
-        nodes[2].findRegion().click(); yield()
+        nodes[2].findRegion().click()
+
+        logger.info("Selecting ${nodes[1]}")
+        nodes[1].findRegion().click(); yield()
 
         logger.info("Executing plan")
         mapRunnerRegions.executePlan.click()
