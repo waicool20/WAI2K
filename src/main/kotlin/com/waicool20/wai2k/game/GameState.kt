@@ -34,13 +34,18 @@ class GameState {
     fun reset() {
         requiresUpdate = true
         requiresRestart = false
+        requiresMapInit = true
+
         dollOverflow = false
+        equipOverflow = false
+        switchDolls = false
+
         currentGameLocation = GameLocation(LocationId.UNKNOWN)
-        delayCoefficient = 1.0
         echelons.forEach {
             it.members.forEach { it.needsRepair = false }
             it.logisticsSupportEnabled = true
         }
+        delayCoefficient = 1.0
     }
 
     fun resetAll() {
