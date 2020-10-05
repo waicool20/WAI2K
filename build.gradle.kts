@@ -52,7 +52,7 @@ dependencies {
     implementation("org.jetbrains.kotlin", "kotlin-reflect", versions.Kotlin)
     implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-core", versions.KotlinCoroutines)
     implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-javafx", versions.KotlinCoroutines)
-    implementation("no.tornado", "tornadofx", "1.7.19")
+    implementation("no.tornado", "tornadofx", "1.7.20")
     implementation("com.fasterxml.jackson.core", "jackson-core", versions.Jackson)
     implementation("com.fasterxml.jackson.core", "jackson-databind", versions.Jackson)
     implementation("com.fasterxml.jackson.core", "jackson-annotations", versions.Jackson)
@@ -61,11 +61,11 @@ dependencies {
     implementation("ch.qos.logback", "logback-classic", "1.2.3")
     implementation("org.controlsfx", "controlsfx", "8.40.14")
     implementation("org.reflections", "reflections", "0.9.12")
-    implementation("com.squareup.okhttp3:okhttp:4.7.2")
+    implementation("com.squareup.okhttp3:okhttp:4.9.0")
     implementation("ai.djl.pytorch:pytorch-engine:0.8.0")
     implementation("ai.djl.pytorch:pytorch-native-auto:1.6.0")
 
-    implementation("net.sourceforge.tess4j", "tess4j", "4.5.1") {
+    implementation("net.sourceforge.tess4j", "tess4j", "4.5.3") {
         exclude("org.ghost4j")
         exclude("org.apache.pdfbox")
         exclude("org.jboss")
