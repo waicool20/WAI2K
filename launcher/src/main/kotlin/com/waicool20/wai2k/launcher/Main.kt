@@ -110,12 +110,12 @@ object Main {
         val path = appPath.resolve(file)
         try {
             if (Files.exists(path)) {
-                val sum = client.newCall(Request.Builder().url("$url/$file.md5").build())
-                    .execute().use { it.body!!.string() }
+                val sum = grabWebString("$url/$file.md5")
                 if (sum.equals(calcCheckSum(path), true)) return
             }
 
             client.newCall(Request.Builder().url("$url/$file").build()).execute().use {
+                if (!it.isSuccessful) error("Bad server response: ${it.code}")
                 println("[DOWNLOAD] $file")
                 val input = it.body!!.byteStream()
                 val output = Files.newOutputStream(path)
@@ -142,9 +142,7 @@ object Main {
         val jarPath = Paths.get(Main::class.java.protectionDomain.codeSource.location.toURI())
 
         try {
-            val md5Url = "https://github.com/waicool20/WAI2K/releases/download/Latest/WAI2K-Launcher.jar.md5"
-            val request = Request.Builder().url(md5Url).build()
-            val sum = client.newCall(request).execute().use { it.body!!.string() }
+            val sum = grabWebString("https://github.com/waicool20/WAI2K/releases/download/Latest/WAI2K-Launcher.jar.md5")
             if (sum.equals(calcCheckSum(jarPath), true)) return
 
             val uri = URI("https://github.com/waicool20/WAI2K/releases/tag/Latest")
@@ -171,8 +169,7 @@ object Main {
             Files.readAllLines(depPath)
         } else {
             try {
-                val request = Request.Builder().url("$url/dependencies.txt").build()
-                val text = client.newCall(request).execute().use { it.body!!.string() }
+                val text = grabWebString("$url/dependencies.txt")
                 Files.write(depPath, text.toByteArray())
                 text.lines()
             } catch (e: Exception) {
@@ -242,7 +239,7 @@ object Main {
                     client.newCall(Request.Builder().url("$url$group/$name/$version/$filename").build())
                         .enqueue(object : Callback {
                             override fun onResponse(call: Call, response: Response) {
-                                if (response.code == 200) downloadFile(path, response)
+                                if (response.isSuccessful) downloadFile(path, response)
                             }
 
                             override fun onFailure(call: Call, e: IOException) {
@@ -252,7 +249,7 @@ object Main {
                     client.newCall(Request.Builder().url("$url$group/$name/$version/$filename.md5").build())
                         .enqueue(object : Callback {
                             override fun onResponse(call: Call, response: Response) {
-                                if (response.code == 200) downloadFile(libPath.resolve("$filename.md5"), response)
+                                if (response.isSuccessful) downloadFile(libPath.resolve("$filename.md5"), response)
                             }
 
                             override fun onFailure(call: Call, e: IOException) {
@@ -266,6 +263,14 @@ object Main {
         }
 
         halt("Failed to download libraries, try deleting .wai2k/libs and try again")
+    }
+
+    private fun grabWebString(url: String): String {
+        val request = Request.Builder().url(url).build()
+        return client.newCall(request).execute().use {
+            if (!it.isSuccessful) error("Bad server response: ${it.code}")
+            it.body!!.string()
+        }
     }
 
     private fun halt(msg: String): Nothing {
