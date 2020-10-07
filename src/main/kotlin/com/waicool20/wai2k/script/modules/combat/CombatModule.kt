@@ -24,8 +24,6 @@ import com.waicool20.cvauto.core.asCachedRegion
 import com.waicool20.cvauto.core.input.ITouchInterface
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.cvauto.core.template.ImageTemplate
-import com.waicool20.wai2k.config.Wai2KConfig
-import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.game.CombatMap
 import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.LocationId
@@ -46,13 +44,7 @@ import java.awt.image.BufferedImage
 import java.text.DecimalFormat
 import kotlin.reflect.full.primaryConstructor
 
-class CombatModule(
-    scriptRunner: ScriptRunner,
-    region: AndroidRegion,
-    config: Wai2KConfig,
-    profile: Wai2KProfile,
-    navigator: Navigator
-) : ScriptModule(scriptRunner, region, config, profile, navigator) {
+class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
     private val logger = loggerFor<CombatModule>()
 
     private val map by lazy {
@@ -61,7 +53,7 @@ class CombatModule(
     }
 
     private val mapRunner by lazy {
-        MapRunner.list[map]!!.primaryConstructor!!.call(scriptRunner, region, config, profile)
+        MapRunner.list[map]!!.primaryConstructor!!.call(this)
     }
 
     private var wasCancelled = false

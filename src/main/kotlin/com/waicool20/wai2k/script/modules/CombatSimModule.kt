@@ -48,13 +48,7 @@ import java.time.temporal.ChronoUnit
 import kotlin.math.roundToLong
 import kotlin.random.Random
 
-class CombatSimModule(
-    scriptRunner: ScriptRunner,
-    region: AndroidRegion,
-    config: Wai2KConfig,
-    profile: Wai2KProfile,
-    navigator: Navigator
-) : ScriptModule(scriptRunner, region, config, profile, navigator) {
+class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
 
     private val logger = loggerFor<CombatReportModule>()
     private val dataSimDays = arrayOf(DayOfWeek.TUESDAY, DayOfWeek.FRIDAY, DayOfWeek.SUNDAY)
@@ -62,7 +56,7 @@ class CombatSimModule(
     private var energyRemaining = 0
     private var rechargeTime = Duration.ZERO
 
-    private val mapRunner = object : AbsoluteMapRunner(scriptRunner, region, config, profile) {
+    private val mapRunner = object : AbsoluteMapRunner(this@CombatSimModule) {
         override val isCorpseDraggingMap = false
         override suspend fun begin() {
             if (profile.combatSimulation.neuralFragment == Level.OFF) return

@@ -20,17 +20,13 @@
 package com.waicool20.wai2k.script.modules
 
 import com.waicool20.cvauto.android.AndroidDevice
-import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.core.Region
 import com.waicool20.cvauto.core.asCachedRegion
 import com.waicool20.cvauto.core.template.FileTemplate
-import com.waicool20.wai2k.config.Wai2KConfig
-import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.game.LogisticsSupport
 import com.waicool20.wai2k.game.LogisticsSupport.Assignment
 import com.waicool20.wai2k.script.Navigator
-import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.wai2k.util.formatted
@@ -44,13 +40,7 @@ import java.time.Duration
 import java.time.Instant
 import kotlin.system.measureTimeMillis
 
-class InitModule(
-    scriptRunner: ScriptRunner,
-    region: AndroidRegion,
-    config: Wai2KConfig,
-    profile: Wai2KProfile,
-    navigator: Navigator
-) : ScriptModule(scriptRunner, region, config, profile, navigator) {
+class InitModule(navigator: Navigator) : ScriptModule(navigator) {
     private val logger = loggerFor<InitModule>()
     override suspend fun execute() {
         navigator.checkRequiresRestart()

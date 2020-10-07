@@ -22,13 +22,11 @@ package com.waicool20.wai2k.script.modules.combat
 import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.core.asCachedRegion
 import com.waicool20.cvauto.core.template.FileTemplate
-import com.waicool20.wai2k.config.Wai2KConfig
-import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.game.CombatMap
 import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.game.MapRunnerRegions
-import com.waicool20.wai2k.script.ScriptRunner
+import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.ScriptTimeOutException
 import com.waicool20.wai2k.script.modules.combat.maps.EventMapRunner
 import com.waicool20.wai2k.util.Ocr
@@ -50,11 +48,8 @@ import kotlin.reflect.KClass
 
 
 abstract class MapRunner(
-    protected val scriptRunner: ScriptRunner,
-    protected val region: AndroidRegion,
-    protected val config: Wai2KConfig,
-    protected val profile: Wai2KProfile
-) : CoroutineScope {
+    scriptComponent: ScriptComponent
+) : ScriptComponent by scriptComponent, CoroutineScope {
     private val logger = loggerFor<MapRunner>()
     private var _battles = 1
 

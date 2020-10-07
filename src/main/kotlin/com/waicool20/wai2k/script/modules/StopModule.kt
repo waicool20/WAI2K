@@ -19,24 +19,15 @@
 
 package com.waicool20.wai2k.script.modules
 
-import com.waicool20.cvauto.android.AndroidRegion
-import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.script.Navigator
-import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.YuuBot
 import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.waicoolutils.logging.loggerFor
 import java.time.*
 import kotlin.system.exitProcess
 
-class StopModule(
-    scriptRunner: ScriptRunner,
-    region: AndroidRegion,
-    config: Wai2KConfig,
-    profile: Wai2KProfile,
-    navigator: Navigator
-) : ScriptModule(scriptRunner, region, config, profile, navigator) {
+class StopModule(navigator: Navigator) : ScriptModule(navigator) {
     private val logger = loggerFor<StopModule>()
 
     override suspend fun execute() {

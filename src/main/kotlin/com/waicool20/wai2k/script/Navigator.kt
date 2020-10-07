@@ -46,11 +46,11 @@ import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 
 class Navigator(
-    private val scriptRunner: ScriptRunner,
-    private val region: AndroidRegion,
-    private val config: Wai2KConfig,
-    private val profile: Wai2KProfile
-) : CoroutineScope {
+    override val scriptRunner: ScriptRunner,
+    override val region: AndroidRegion,
+    override val config: Wai2KConfig,
+    override val profile: Wai2KProfile
+) : ScriptComponent, CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = scriptRunner.coroutineContext
     private val logger = loggerFor<Navigator>()

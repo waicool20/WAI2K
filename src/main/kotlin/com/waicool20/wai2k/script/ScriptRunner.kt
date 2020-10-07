@@ -135,16 +135,14 @@ class ScriptRunner(
             modules.clear()
             val nav = Navigator(this, region, currentConfig, currentProfile)
             navigator = nav
-            modules.add(InitModule(this, region, currentConfig, currentProfile, nav))
+            modules.add(InitModule(nav))
             Reflections("com.waicool20.wai2k.script.modules")
                 .getSubTypesOf(ScriptModule::class.java)
                 .map { it.kotlin }
                 .filterNot { it.isAbstract || it == InitModule::class || it == StopModule::class }
-                .mapNotNull {
-                    it.primaryConstructor?.call(this, region, currentConfig, currentProfile, nav)
-                }
+                .mapNotNull { it.primaryConstructor?.call(nav) }
                 .let { modules.addAll(it) }
-            modules.add(StopModule(this, region, currentConfig, currentProfile, nav))
+            modules.add(StopModule(nav))
             modules.map { it::class.simpleName }.forEach { logger.info("Loaded new instance of $it") }
         }
     }

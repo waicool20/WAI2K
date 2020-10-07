@@ -19,22 +19,14 @@
 
 package com.waicool20.wai2k.script.modules.combat.maps
 
-import com.waicool20.cvauto.android.AndroidRegion
-import com.waicool20.wai2k.config.Wai2KConfig
-import com.waicool20.wai2k.config.Wai2KProfile
-import com.waicool20.wai2k.script.ScriptRunner
+import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.modules.combat.AbsoluteMapRunner
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
 import kotlin.math.roundToLong
 
-class Map11_5(
-    scriptRunner: ScriptRunner,
-    region: AndroidRegion,
-    config: Wai2KConfig,
-    profile: Wai2KProfile
-) : AbsoluteMapRunner(scriptRunner, region, config, profile) {
+class Map11_5(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptComponent) {
     private val logger = loggerFor<Map11_5>()
     override val isCorpseDraggingMap = true
 

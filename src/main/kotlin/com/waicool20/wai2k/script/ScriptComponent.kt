@@ -17,26 +17,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.waicool20.wai2k.script.modules.combat
+package com.waicool20.wai2k.script
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import com.waicool20.cvauto.android.AndroidRegion
-import com.waicool20.wai2k.script.ScriptComponent
-import java.nio.file.Files
+import com.waicool20.wai2k.config.Wai2KConfig
+import com.waicool20.wai2k.config.Wai2KProfile
 
-abstract class AbsoluteMapRunner(scriptComponent: ScriptComponent) : MapRunner(scriptComponent) {
-
-    override val nodes = run {
-        val path = config.assetsDirectory.resolve("$PREFIX/map.json")
-        if (Files.exists(path)) {
-            jacksonObjectMapper().readValue<List<MapNode>>(path.toFile())
-        } else {
-            emptyList()
-        }
-    }
-
-    override suspend fun MapNode.findRegion(): AndroidRegion {
-        return region.subRegionAs(x, y, width, height)
-    }
+interface ScriptComponent {
+    val scriptRunner: ScriptRunner
+    val region: AndroidRegion
+    val config: Wai2KConfig
+    val profile: Wai2KProfile
 }

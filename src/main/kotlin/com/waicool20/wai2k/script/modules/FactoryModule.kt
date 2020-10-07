@@ -38,13 +38,7 @@ import kotlinx.coroutines.*
 import java.awt.Point
 import kotlin.random.Random
 
-class FactoryModule(
-    scriptRunner: ScriptRunner,
-    region: AndroidRegion,
-    config: Wai2KConfig,
-    profile: Wai2KProfile,
-    navigator: Navigator
-) : ScriptModule(scriptRunner, region, config, profile, navigator) {
+class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
     private val logger = loggerFor<FactoryModule>()
 
     override suspend fun execute() {

@@ -39,13 +39,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.yield
 import java.time.Instant
 
-class LogisticsSupportModule(
-    scriptRunner: ScriptRunner,
-    region: AndroidRegion,
-    config: Wai2KConfig,
-    profile: Wai2KProfile,
-    navigator: Navigator
-) : ScriptModule(scriptRunner, region, config, profile, navigator) {
+class LogisticsSupportModule(navigator: Navigator) : ScriptModule(navigator) {
     private val logger = loggerFor<LogisticsSupportModule>()
     override suspend fun execute() {
         if (!profile.logistics.enabled) return

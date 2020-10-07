@@ -26,9 +26,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.util.transformRect
-import com.waicool20.wai2k.config.Wai2KConfig
-import com.waicool20.wai2k.config.Wai2KProfile
-import com.waicool20.wai2k.script.ScriptRunner
+import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.util.ai.MatchingModel
 import com.waicool20.wai2k.util.ai.MatchingTranslator
 import com.waicool20.waicoolutils.logging.loggerFor
@@ -43,12 +41,7 @@ import kotlin.math.pow
 import kotlin.math.roundToLong
 import kotlin.random.Random
 
-abstract class HomographyMapRunner(
-    scriptRunner: ScriptRunner,
-    region: AndroidRegion,
-    config: Wai2KConfig,
-    profile: Wai2KProfile
-) : MapRunner(scriptRunner, region, config, profile) {
+abstract class HomographyMapRunner(scriptComponent: ScriptComponent) : MapRunner(scriptComponent) {
     private val logger = loggerFor<HomographyMapRunner>()
 
     companion object {

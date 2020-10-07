@@ -27,6 +27,7 @@ import com.waicool20.wai2k.game.DollFilterRegions
 import com.waicool20.wai2k.game.TDoll
 import com.waicool20.wai2k.script.ChapterClickFailedException
 import com.waicool20.wai2k.script.Navigator
+import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.doOCRAndTrim
@@ -40,12 +41,8 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.math.roundToLong
 
 abstract class ScriptModule(
-    protected val scriptRunner: ScriptRunner,
-    protected val region: AndroidRegion,
-    protected val config: Wai2KConfig,
-    protected val profile: Wai2KProfile,
-    protected val navigator: Navigator
-) : CoroutineScope {
+    val navigator: Navigator
+) : ScriptComponent by navigator, CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = scriptRunner.coroutineContext
 
