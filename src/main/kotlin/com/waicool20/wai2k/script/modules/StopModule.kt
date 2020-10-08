@@ -73,10 +73,12 @@ class StopModule(navigator: Navigator) : ScriptModule(navigator) {
 
     private suspend fun stopScript(reason: String) {
         val msg = """
-        Script stop condition reached: $reason
-        Terminating further execution, final script statistics: 
-        ${scriptRunner.scriptStats}
-        """.trimIndent()
+            |Script stop condition reached: $reason
+            |Terminating further execution, final script statistics: 
+            |```
+            |${scriptRunner.scriptStats}
+            |```
+            """.trimMargin()
         logger.info(msg)
         if (config.notificationsConfig.onStopCondition) {
             YuuBot.postMessage(config.apiKey, "Script Terminated", msg)

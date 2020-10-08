@@ -19,6 +19,8 @@
 
 package com.waicool20.wai2k.script
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+
 data class ScriptStats(
     var logisticsSupportReceived: Int = 0,
     var logisticsSupportSent: Int = 0,
@@ -49,4 +51,7 @@ data class ScriptStats(
         combatReportsWritten = 0
         simEnergySpent = 0
     }
+
+    override fun toString(): String = jacksonObjectMapper().writerWithDefaultPrettyPrinter()
+        .writeValueAsString(this)
 }
