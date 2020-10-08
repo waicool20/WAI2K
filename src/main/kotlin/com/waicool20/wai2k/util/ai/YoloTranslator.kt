@@ -140,7 +140,7 @@ class YoloTranslator(
             height = height.coerceIn(0.0, 1.0)
 
             val c = detection.slice(5..detection.lastIndex)
-            val cMaxIdx = c.indexOf(c.max())
+            val cMaxIdx = c.indexOf(c.maxOrNull())
             val obj = try {
                 GFLObject.values[cMaxIdx].primaryConstructor?.call(p.toDouble(), Rectangle(x, y, width, height))
             } catch (e: Exception) {
@@ -155,7 +155,7 @@ class YoloTranslator(
         val input = boxes.toMutableList()
         val output = mutableListOf<GFLObject>()
         while (input.isNotEmpty()) {
-            val best = input.maxBy { it.probability } ?: continue
+            val best = input.maxByOrNull { it.probability } ?: continue
             input.remove(best)
             input.removeAll {
                 (it::class == best::class ||
