@@ -33,7 +33,7 @@ plugins {
 }
 
 group = "com.waicool20"
-version = System.getenv("APPVEYOR_REPO_COMMIT")?.take(6) ?: "v0.0.1"
+version = System.getenv("APPVEYOR_REPO_COMMIT")?.take(8) ?: "v0.0.1"
 defaultTasks = mutableListOf("build")
 
 repositories {

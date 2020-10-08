@@ -40,6 +40,6 @@
 }
 
 .version-text {
-    -fx-font-size: 25px;
-    -fx-text-fill: #888;
+    -fx-font-size: 20px;
+    -fx-text-fill: #fff;
 }

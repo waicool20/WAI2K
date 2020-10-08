@@ -40,7 +40,7 @@ class AboutView : View() {
     override fun onDock() {
         super.onDock()
         root.setOnMouseClicked { close() }
-        versionText.text = context.versionInfo.version
+        versionText.text = "Commit: ${context.versionInfo.version}"
         repoLink.setOnAction {
             DesktopUtils.browse("https://github.com/waicool20/WAI2K")
         }
