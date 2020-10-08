@@ -116,7 +116,8 @@ abstract class MapRunner(
     suspend fun execute() {
         begin()
         cleanup()
-        gameState.switchDolls = isCorpseDraggingMap
+        // Only toggle switchDolls true if false, else keep it true
+        if (isCorpseDraggingMap) gameState.switchDolls = true
     }
 
     /**
