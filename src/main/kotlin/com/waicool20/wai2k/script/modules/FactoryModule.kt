@@ -19,6 +19,7 @@
 
 package com.waicool20.wai2k.script.modules
 
+import boofcv.alg.color.ColorHsv
 import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.core.input.ITouchInterface
 import com.waicool20.cvauto.core.template.FileTemplate
@@ -35,6 +36,7 @@ import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.waicoolutils.binarizeImage
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.*
+import java.awt.Color
 import java.awt.Point
 import kotlin.random.Random
 
@@ -93,7 +95,15 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
                     // Prioritize higher level dolls
                     region.findBest(FileTemplate("doll-list/lock.png"), 20)
                         .map { it.region }
-                        .also { logger.info("Found ${it.size} dolls on screen available for enhancement") }
+                        .also { logger.info("Found ${it.size} dolls on screen") }
+                        // Only select dolls that are available by checking the brightness of their lock
+                        .filter {
+                            val c = Color(it.capture().getRGB(18, 32))
+                            val hsv = FloatArray(3)
+                            ColorHsv.rgbToHsv(c.red.toFloat(), c.green.toFloat(), c.blue.toFloat(), hsv)
+                            hsv[2] > 128
+                        }
+                        .also { logger.info("With ${it.size} available for enhancement") }
                         // Map lock region to doll region
                         .map { region.subRegion(it.x - 7, it.y, 244, it.height) }
                         .minByOrNull { it.y * 10 + it.x }
