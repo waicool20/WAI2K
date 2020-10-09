@@ -53,8 +53,6 @@
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
             <Label text="ADB Serial:" />
@@ -69,15 +67,28 @@
             <Label fx:id="manufacturerLabel" GridPane.columnIndex="1" GridPane.rowIndex="3" />
             <Label fx:id="modelLabel" GridPane.columnIndex="1" GridPane.rowIndex="4" />
             <Label fx:id="displayLabel" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-             <Button fx:id="pointerButton" mnemonicParsing="false" prefWidth="150.0" text="Toggle Pointer Info" GridPane.columnIndex="1" GridPane.rowIndex="6" />
-            <Button fx:id="takeScreenshotButton" mnemonicParsing="false" prefWidth="150.0" text="Take Screenshot" GridPane.rowIndex="7" />
-            <Button fx:id="captureSeriesButton" mnemonicParsing="false" prefWidth="150.0" text="Capture Series Start" GridPane.columnIndex="1" GridPane.rowIndex="7" />
-            <Button fx:id="touchesButton" mnemonicParsing="false" prefWidth="150.0" text="Toggle Touches" GridPane.rowIndex="6" />
          </children>
          <VBox.margin>
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
          </VBox.margin>
       </GridPane>
+      <VBox spacing="10.0">
+         <children>
+            <HBox spacing="10.0">
+               <children>
+                   <Button fx:id="pointerButton" mnemonicParsing="false" prefWidth="150.0" text="Toggle Pointer Info" />
+                  <Button fx:id="touchesButton" mnemonicParsing="false" prefWidth="150.0" text="Toggle Touches" />
+               </children>
+            </HBox>
+            <HBox spacing="10.0">
+               <children>
+                  <Button fx:id="takeScreenshotButton" mnemonicParsing="false" prefWidth="150.0" text="Take Screenshot" />
+                  <Button fx:id="captureSeriesButton" mnemonicParsing="false" prefWidth="150.0" text="Capture Series Start" />
+                  <Button fx:id="testLatencyButton" mnemonicParsing="false" prefWidth="150.0" text="Test Latency" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
       <Separator prefWidth="200.0" />
       <HBox spacing="20.0">
          <children>

@@ -42,6 +42,7 @@ import org.controlsfx.glyphfont.Glyph
 import tornadofx.*
 import java.io.File
 import javax.imageio.ImageIO
+import kotlin.system.measureTimeMillis
 
 class DeviceTabView : CoroutineScopeView(), Binder {
     override val root: VBox by fxml("/views/tabs/device-tab.fxml")
@@ -57,6 +58,7 @@ class DeviceTabView : CoroutineScopeView(), Binder {
     private val pointerButton: Button by fxid()
     private val takeScreenshotButton: Button by fxid()
     private val captureSeriesButton: Button by fxid()
+    private val testLatencyButton: Button by fxid()
 
     private val realtimePreviewCheckbox: CheckBox by fxid()
     private val deviceView: ImageView by fxid()
@@ -155,6 +157,23 @@ class DeviceTabView : CoroutineScopeView(), Binder {
                 capturingJob?.cancel()
                 capturingJob = null
                 captureSeriesButton.text = "Capture Series Start"
+            }
+        }
+        testLatencyButton.action {
+            launch(Dispatchers.IO) {
+                renderJob?.cancelAndJoin()
+                val device = deviceComboBox.selectedItem ?: return@launch
+                logger.info("Testing capture latency")
+                val times = 10
+                var total = 0L
+                repeat(times) {
+                    val time = measureTimeMillis { device.screens[0].capture() }
+                    delay(100)
+                    logger.info("Capture $it: $time ms")
+                    total += time
+                }
+                logger.info("Average: ${total / times} ms")
+                renderJob = createNewRenderJob(device)
             }
         }
         context.wai2KConfig.scriptConfig.fastScreenshotModeProperty.addListener("DeviceTabViewFSMListener") { newVal ->
