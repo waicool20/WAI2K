@@ -8,16 +8,16 @@
   },
   {
     "type": "Heliport",
-    "x": 385,
-    "y": 732,
+    "x": 294,
+    "y": 853,
     "width": 38,
     "height": 38
   },
   {
     "type": "Heliport",
-    "x": 294,
-    "y": 853,
-    "width": 38,
-    "height": 38
+    "x": 993,
+    "y": 875,
+    "width": 31,
+    "height": 31
   }
 ]
