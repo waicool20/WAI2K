@@ -182,13 +182,13 @@ abstract class MapRunner(
                     logger.info("Member ${mIndex + 1} HP: ${formatter.format(hp)} %")
                     if (hp < profile.combat.repairThreshold) {
                         logger.info("Repairing member ${mIndex + 1}")
-                        region.subRegion(360 + mIndex * 272, 286, 246, 323).click()
-                        region.subRegion(1360, 702, 290, 117)
+                        region.subRegion(360 + mIndex * 272, 228, 246, 323).click()
+                        region.subRegion(1441, 772, 250, 96)
                             .waitHas(FileTemplate("ok.png"), 3000)?.click()
                         scriptStats.repairs++
+                        delay(500)
                     }
                 }
-                delay(500)
             }
             mapRunnerRegions.deploy.click()
             delay(300)
