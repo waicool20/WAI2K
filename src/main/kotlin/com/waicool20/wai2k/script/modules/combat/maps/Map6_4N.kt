@@ -34,11 +34,13 @@ class Map6_4N(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComp
     override suspend fun begin() {
         if (gameState.requiresMapInit) {
             logger.info("Zoom out")
-            region.pinch(
-                Random.nextInt(900, 1000),
-                Random.nextInt(300, 400),
-                0.0,
-                1000)
+            repeat(2) {
+                region.pinch(
+                    Random.nextInt(900, 1000),
+                    Random.nextInt(300, 400),
+                    0.0,
+                    1000)
+            }
             delay((900 * gameState.delayCoefficient).roundToLong()) //Wait to settle
             gameState.requiresMapInit = false
         }
