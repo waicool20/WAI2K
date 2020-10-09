@@ -21,11 +21,8 @@ package com.waicool20.wai2k.script.modules
 
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.script.Navigator
-import com.waicool20.wai2k.util.YuuBot
-import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.waicoolutils.logging.loggerFor
 import java.time.*
-import kotlin.system.exitProcess
 
 class StopModule(navigator: Navigator) : ScriptModule(navigator) {
     private val logger = loggerFor<StopModule>()
@@ -68,25 +65,6 @@ class StopModule(navigator: Navigator) : ScriptModule(navigator) {
         with(profile.stop.count) {
             if (!enabled) return
             if (scriptStats.sortiesDone >= sorties) stopScript("Sorties >= $sorties")
-        }
-    }
-
-    private suspend fun stopScript(reason: String) {
-        val msg = """
-            |Script stop condition reached: $reason
-            |Terminating further execution, final script statistics: 
-            |```
-            |${scriptRunner.scriptStats}
-            |```
-            """.trimMargin()
-        logger.info(msg)
-        if (config.notificationsConfig.onStopCondition) {
-            YuuBot.postMessage(config.apiKey, "Script Terminated", msg)
-        }
-        if (profile.stop.exitProgram) {
-            exitProcess(0)
-        } else {
-            coroutineContext.cancelAndYield()
         }
     }
 }

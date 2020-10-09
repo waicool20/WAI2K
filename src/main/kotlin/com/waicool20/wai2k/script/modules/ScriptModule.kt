@@ -30,6 +30,8 @@ import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.Ocr
+import com.waicool20.wai2k.util.YuuBot
+import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.waicoolutils.filterAsync
 import com.waicool20.waicoolutils.logging.loggerFor
@@ -39,6 +41,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.yield
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.roundToLong
+import kotlin.system.exitProcess
 
 abstract class ScriptModule(
     val navigator: Navigator
@@ -159,5 +162,24 @@ abstract class ScriptModule(
             template = FileTemplate("chapters/$chapter.png", CHAPTER_SIMILARITY),
             timeout = 20
         ) { has(it) }
+    }
+
+    protected suspend fun stopScript(reason: String) {
+        val msg = """
+            |Script stop condition reached: $reason
+            |Terminating further execution, final script statistics: 
+            |```
+            |${scriptRunner.scriptStats}
+            |```
+            """.trimMargin()
+        logger.info(msg)
+        if (config.notificationsConfig.onStopCondition) {
+            YuuBot.postMessage(config.apiKey, "Script Terminated", msg)
+        }
+        if (profile.stop.exitProgram) {
+            exitProcess(0)
+        } else {
+            coroutineContext.cancelAndYield()
+        }
     }
 }
