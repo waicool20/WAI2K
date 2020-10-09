@@ -19,6 +19,7 @@
 
 package com.waicool20.wai2k.script.modules.combat
 
+import ai.djl.inference.Predictor
 import ai.djl.metric.Metrics
 import ai.djl.modality.cv.Image
 import ai.djl.modality.cv.ImageFactory
@@ -53,13 +54,7 @@ abstract class HomographyMapRunner(scriptComponent: ScriptComponent) : MapRunner
 
     private val metrics = Metrics()
 
-    private val predictor by lazy {
-        val model = MatchingModel(
-            config.assetsDirectory.resolve("models/SuperPoint.pt"),
-            config.assetsDirectory.resolve("models/SuperGlue.pt")
-        )
-        model.newPredictor(MatchingTranslator(480, 360)).also { it.setMetrics(metrics) }
-    }
+    private val predictor: Predictor<Pair<Image, Image>, Homography2D_F64>
 
     /**
      * Map homography cache
@@ -71,6 +66,16 @@ abstract class HomographyMapRunner(scriptComponent: ScriptComponent) : MapRunner
     val fullMap: Image
 
     init {
+        val p = async(Dispatchers.IO) {
+            val model = MatchingModel(
+                config.assetsDirectory.resolve("models/SuperPoint.pt"),
+                config.assetsDirectory.resolve("models/SuperGlue.pt")
+            )
+            val translator = MatchingTranslator(480, 360)
+            // Preload the model to device memory
+            translator.prepare(model.ndManager, model)
+            model.newPredictor(translator).apply { setMetrics(metrics) }
+        }
         val n = async(Dispatchers.IO) {
             val path = config.assetsDirectory.resolve("$PREFIX/map.json")
             if (Files.exists(path)) {
@@ -83,6 +88,7 @@ abstract class HomographyMapRunner(scriptComponent: ScriptComponent) : MapRunner
             ImageFactory.getInstance().fromFile(config.assetsDirectory.resolve("$PREFIX/map.png"))
         }
 
+        predictor = runBlocking { p.await() }
         nodes = runBlocking { n.await() }
         fullMap = runBlocking { fm.await() }
     }
