@@ -114,10 +114,16 @@ abstract class MapRunner(
      * Main run function that goes through whole life cycle of MapRunner
      */
     suspend fun execute() {
-        begin()
-        cleanup()
-        // Only toggle switchDolls true if false, else keep it true
-        if (isCorpseDraggingMap) gameState.switchDolls = true
+        try {
+            begin()
+        } catch (e: Exception) {
+            throw e
+        } finally {
+            cleanup()
+            _battles = 1
+            // Only toggle switchDolls true if false, else keep it true
+            if (isCorpseDraggingMap) gameState.switchDolls = true
+        }
     }
 
     /**
@@ -291,8 +297,6 @@ abstract class MapRunner(
             }
         } catch (e: TimeoutCancellationException) {
             throw ScriptTimeOutException("Waiting for battles", e)
-        } finally {
-            _battles = 1
         }
         region.waitHas(FileTemplate("combat/battle/terminate.png"), 10000)
         logger.info("Turn ended")
@@ -341,8 +345,6 @@ abstract class MapRunner(
             }
         } catch (e: TimeoutCancellationException) {
             throw ScriptTimeOutException("Waiting for turn and points", e)
-        } finally {
-            _battles = 1
         }
         if (interruptWaitFlag) {
             logger.info("Aborting Wait...")
@@ -374,8 +376,6 @@ abstract class MapRunner(
             }
         } catch (e: TimeoutCancellationException) {
             throw ScriptTimeOutException("Waiting for assets", e)
-        } finally {
-            _battles = 1
         }
         logger.info("All assets are now on screen")
         region.waitHas(FileTemplate("combat/battle/terminate.png"), 10000)
@@ -412,7 +412,6 @@ abstract class MapRunner(
             throw ScriptTimeOutException("Waiting to exit battle", e)
         } finally {
             scriptStats.sortiesDone += 1
-            _battles = 1
         }
     }
 
