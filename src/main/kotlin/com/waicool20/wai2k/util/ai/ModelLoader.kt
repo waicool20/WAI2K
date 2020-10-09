@@ -33,8 +33,7 @@ object ModelLoader {
         require(Files.exists(path)) { "Model file does not exist" }
         require("$path".endsWith(".pt")) { "Model must have .pt extension" }
         val name = "${path.fileName}".dropLastWhile { it != '.' }.dropLast(1)
-        return engine.newModel(name, Device.cpu()).apply {
-            load(path.parent, name)
-        }
+        val device = if (Device.getGpuCount() > 0) Device.gpu() else Device.cpu()
+        return engine.newModel(name, device).apply { load(path.parent, name) }
     }
 }

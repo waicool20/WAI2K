@@ -88,8 +88,7 @@ class LoaderView : CoroutineScopeView() {
         loadWai2KProfile()
         loadScriptRunner()
         FileTemplate.checkPaths.add(wai2KConfig.assetsDirectory)
-        logger.info("Loading detection model...")
-        ModelLoader.engine.newModel("Loading", Device.defaultDevice()).close()
+        loadAI()
         closeAndShowMainApp()
     }
 
@@ -131,6 +130,19 @@ class LoaderView : CoroutineScopeView() {
 
     private fun loadScriptRunner() {
         setInScope(ScriptContext(ScriptRunner(wai2KConfig, currentProfile)))
+    }
+
+    private fun loadAI() {
+        logger.info("Loading detection model...")
+        val gpus = Device.getGpuCount()
+        val device = if (gpus > 0) {
+            logger.info("Detected GPUs: $gpus")
+            Device.gpu()
+        } else {
+            logger.info("No GPU detected, make sure you have CUDA 10 installed, using CPU")
+            Device.cpu()
+        }
+        ModelLoader.engine.newModel("Loading", device).close()
     }
 
     private fun parseCommandLine() {
