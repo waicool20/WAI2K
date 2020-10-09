@@ -23,6 +23,7 @@ import ai.djl.modality.cv.Image
 import ai.djl.modality.cv.transform.Resize
 import ai.djl.ndarray.NDList
 import ai.djl.ndarray.index.NDIndex
+import ai.djl.ndarray.types.DataType
 import ai.djl.translate.Batchifier
 import ai.djl.translate.Pipeline
 import ai.djl.translate.Translator
@@ -78,8 +79,18 @@ class MatchingTranslator(
 
         var kpts1 = kpts0.zerosLike()
 
-        for ((i, j) in matches.toLongArray().withIndex()) {
-            kpts1.set(NDIndex(i.toLong()), kpts1Temp.get(j))
+        when (matches.dataType) {
+            DataType.INT32 -> {
+                for ((i, j) in matches.toIntArray().withIndex()) {
+                    kpts1.set(NDIndex(i.toLong()), kpts1Temp.get(j.toLong()))
+                }
+            }
+            DataType.INT64 -> {
+                for ((i, j) in matches.toLongArray().withIndex()) {
+                    kpts1.set(NDIndex(i.toLong()), kpts1Temp.get(j))
+                }
+            }
+            else -> error("Matches is not integer array!")
         }
 
         val scales0 = ctx.ndManager.create(floatArrayOf(img0Width.toFloat() / resizeWidth, img0Height.toFloat() / resizeHeight))
