@@ -20,12 +20,9 @@
 package com.waicool20.wai2k.script.modules
 
 import boofcv.alg.color.ColorHsv
-import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.core.input.ITouchInterface
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.cvauto.core.template.ImageTemplate
-import com.waicool20.wai2k.config.Wai2KConfig
-import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.Navigator
@@ -51,9 +48,14 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
     private suspend fun checkDollOverflow() {
         if (!gameState.dollOverflow) return
         if (profile.factory.enhancement.enabled) enhanceDolls()
+
+        if (gameState.dollOverflow && !profile.factory.disassembly.enabled) stopScript("Doll limit reached")
+
         // Bypass overflow check if always disassemble
         if (!profile.factory.alwaysDisassembleAfterEnhance && !gameState.dollOverflow) return
         if (profile.factory.disassembly.enabled) disassembleDolls()
+
+        if (gameState.dollOverflow) stopScript("Doll limit reached")
     }
 
     private suspend fun checkEquipOverflow() {
