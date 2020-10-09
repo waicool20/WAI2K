@@ -58,11 +58,11 @@ class Map6_6(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptCompo
         logger.info("Entering planning mode")
         mapRunnerRegions.planningMode.click(); yield()
 
-        logger.info("Selecting ${nodes[2]}")
-        nodes[2].findRegion().click()
-
         logger.info("Selecting ${nodes[1]}")
-        nodes[1].findRegion().click(); yield()
+        nodes[1].findRegion().click()
+
+        logger.info("Selecting ${nodes[2]}")
+        nodes[2].findRegion().click(); yield()
 
         logger.info("Executing plan")
         mapRunnerRegions.executePlan.click()
