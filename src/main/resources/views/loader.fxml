@@ -19,43 +19,41 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
+<?import java.lang.String?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import java.lang.*?>
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-            prefHeight="300.0" prefWidth="500.0" styleClass="pane" stylesheets="@../css/loader.css"
-            xmlns="http://javafx.com/javafx/8.0.162-ea" xmlns:fx="http://javafx.com/fxml/1">
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="300.0" prefWidth="500.0" styleClass="pane" stylesheets="@../css/loader.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
     <children>
-        <ImageView fitHeight="162.0" fitWidth="206.0" layoutX="-6.0" layoutY="54.0"
-                   pickOnBounds="true" preserveRatio="true">
+        <ImageView fitHeight="162.0" fitWidth="206.0" layoutX="-6.0" layoutY="54.0" pickOnBounds="true" preserveRatio="true">
             <image>
-                <Image url="@../images/wa2000.gif"/>
+                <Image url="@../images/wa2000.gif" />
             </image>
         </ImageView>
         <Label layoutX="174.0" layoutY="66.0" prefHeight="135.0" prefWidth="263.0" text="WAI2K">
             <styleClass>
-                <String fx:value="bright"/>
-                <String fx:value="title"/>
+                <String fx:value="bright" />
+                <String fx:value="title" />
             </styleClass>
         </Label>
         <Label layoutX="193.0" layoutY="165.0" text="A Girls Frontline Automation Tool">
             <styleClass>
-                <String fx:value="medium"/>
-                <String fx:value="subtitle"/>
+                <String fx:value="medium" />
+                <String fx:value="subtitle" />
             </styleClass>
         </Label>
         <Label contentDisplay="CENTER" layoutX="247.0" layoutY="182.0" text="It's just a meme!">
             <styleClass>
-                <String fx:value="dark"/>
-                <String fx:value="subsubtitle"/>
+                <String fx:value="dark" />
+                <String fx:value="subsubtitle" />
             </styleClass>
         </Label>
-        <Label fx:id="statusLabel" layoutX="30.0" layoutY="260.0" text="StatusLabel">
+        <Label fx:id="statusLabel" layoutX="30.0" layoutY="242.0" prefHeight="51.0" prefWidth="430.0" text="StatusLabel" wrapText="true">
             <styleClass>
-                <String fx:value="bright"/>
-                <String fx:value="statuslabel"/>
+                <String fx:value="bright" />
+                <String fx:value="statuslabel" />
             </styleClass>
         </Label>
     </children>
