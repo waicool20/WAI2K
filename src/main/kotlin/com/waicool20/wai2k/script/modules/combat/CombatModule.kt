@@ -233,12 +233,12 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
 
         // Temporary convenience class for storing doll regions
         class DollRegions(nameImage: BufferedImage, hpImage: BufferedImage) {
-            val tdollOcr = async {
+            val tdollOcr = run {
                 val ocr = Ocr.forConfig(config).doOCRAndTrim(nameImage.binarizeImage(0.72))
                 val tdoll = TDoll.lookup(config, ocr)
                 ocr to tdoll
             }
-            val percent = async {
+            val percent = run {
                 val image = hpImage.binarizeImage()
                 image.countColor(Color.WHITE) / image.width.toDouble() * 100
             }
@@ -260,16 +260,15 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
             val formatter = DecimalFormat("##.#")
             gameState.echelons[echelon - 1].members.forEachIndexed { j, member ->
                 val dMember = members.getOrNull(j)
-                member.name = dMember?.tdollOcr?.await()?.second?.name ?: "Unknown"
-                member.needsRepair = (dMember?.percent?.await()
-                    ?: 100.0) < profile.combat.repairThreshold
-                val sPercent = dMember?.percent?.await()?.let { formatter.format(it) } ?: "N/A"
-                logger.info("[Repair OCR] Name: ${dMember?.tdollOcr?.await()?.first} | HP (%): $sPercent")
+                member.name = dMember?.tdollOcr?.second?.name ?: "Unknown"
+                member.needsRepair = (dMember?.percent ?: 100.0) < profile.combat.repairThreshold
+                val sPercent = dMember?.percent?.let { formatter.format(it) } ?: "N/A"
+                logger.info("[Repair OCR] Name: ${dMember?.tdollOcr?.first} | HP (%): $sPercent")
             }
 
             // Checking if the ocr results were gibberish
             // Skip check if game state hasnt been initialized yet
-            val member2 = members.getOrNull(1)?.tdollOcr?.await()?.second?.name
+            val member2 = members.getOrNull(1)?.tdollOcr?.second?.name
             if (member2 == null || profile.combat.draggers.none { it.id.contains(member2) }) {
                 logger.info("Update repair status ocr failed after $i attempts, retries remaining: ${retries - i}")
                 if (i == retries) {
@@ -277,6 +276,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
                     logger.warn("Check if you set the right T doll as dragger")
                     coroutineContext.cancelAndYield()
                 }
+                delay(2000)
                 continue
             }
             break
