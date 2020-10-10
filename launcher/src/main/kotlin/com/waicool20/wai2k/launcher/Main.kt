@@ -165,14 +165,15 @@ object Main {
 
     private fun checkDependencies() {
         val depPath = appPath.resolve("dependencies.txt")
-        val text = if (Files.exists(depPath)) {
-            Files.readAllLines(depPath)
-        } else {
-            try {
-                val text = grabWebString("$url/dependencies.txt")
-                Files.write(depPath, text.toByteArray())
-                text.lines()
-            } catch (e: Exception) {
+        val text = try {
+            val text = grabWebString("$url/dependencies.txt")
+            Files.write(depPath, text.toByteArray())
+            text.lines()
+        } catch (e: Exception) {
+            if (Files.exists(depPath)) {
+                println("Could not retrieve new dependencies, using old one instead")
+                Files.readAllLines(depPath)
+            } else {
                 halt("Could not retrieve dependency list: ${e.message}")
             }
         }
