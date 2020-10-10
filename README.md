@@ -40,7 +40,10 @@ There is a certain difficulty in setting up the script due to the specificity th
 which is understandable, hopefully the articles below can help you.
 You can always join our discord community (Invite below) if you have any further questions.
 
+Useful guides:
+
 - [Emulator setup](https://github.com/waicool20/WAI2K/wiki#emulator-setup)
+- [GPU acceleration](https://github.com/waicool20/WAI2K/wiki/GPU-Acceleration)
 
 # Build Instructions
 
