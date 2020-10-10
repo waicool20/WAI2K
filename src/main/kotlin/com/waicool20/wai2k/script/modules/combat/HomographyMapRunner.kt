@@ -135,7 +135,7 @@ abstract class HomographyMapRunner(scriptComponent: ScriptComponent) : MapRunner
             logger.debug("Total: ${metrics.latestMetric("Total").value.toLong() / 1000000} ms")
             mapH = prediction
             prediction
-        } catch (e: Exception) {
+        } catch (e: MatchingTranslator.ModelMatchingFailedException) {
             return retry()
         }
 

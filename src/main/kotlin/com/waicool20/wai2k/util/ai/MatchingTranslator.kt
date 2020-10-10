@@ -38,6 +38,7 @@ class MatchingTranslator(
     private val resizeWidth: Int = 640,
     private val resizeHeight: Int = 480
 ) : Translator<Pair<Image, Image>, Homography2D_F64> {
+    class ModelMatchingFailedException : Exception()
 
     private var img0Width = -1
     private var img0Height = -1
@@ -114,7 +115,7 @@ class MatchingTranslator(
             Config.Ransac(60, 3.0)
         )
 
-        check(modelMatcher.process(pairs)) { "Model matching failed!" }
+        if (!modelMatcher.process(pairs)) throw ModelMatchingFailedException()
         return modelMatcher.modelParameters.copy()
     }
 }
