@@ -26,7 +26,7 @@ import tornadofx.*
 class ScriptConfig(
     loopDelay: Int = 15,
     baseNavigationDelay: Int = 500,
-    mouseDelay: Double = 0.15,
+    mouseDelay: Double = 0.3,
     defaultSimilarityThreshold: Double = 0.9,
     mapRunnerSimilarityThreshold: Double = 0.85,
     ocrThreshold: Double = 0.9,
