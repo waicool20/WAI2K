@@ -111,7 +111,8 @@ object Main {
         try {
             if (Files.exists(path)) {
                 val sum = grabWebString("$url/$file.md5")
-                if (sum.equals(calcCheckSum(path), true)) return
+                val chksum = calcCheckSum(path)
+                if (sum.equals(chksum, true)) return
             }
 
             client.newCall(Request.Builder().url("$url/$file").build()).execute().use {
@@ -164,6 +165,7 @@ object Main {
     }
 
     private fun checkDependencies() {
+        label.text = "Checking dependencies..."
         val depPath = appPath.resolve("dependencies.txt")
         val text = try {
             val text = grabWebString("$url/dependencies.txt")
