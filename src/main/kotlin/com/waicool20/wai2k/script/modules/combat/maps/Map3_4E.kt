@@ -20,26 +20,32 @@
 package com.waicool20.wai2k.script.modules.combat.maps
 
 import com.waicool20.wai2k.script.ScriptComponent
-import com.waicool20.wai2k.script.modules.combat.AbsoluteMapRunner
+import com.waicool20.wai2k.script.modules.combat.HomographyMapRunner
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
+import kotlin.math.roundToLong
 import kotlin.random.Random
 
-class Map3_4E(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptComponent) {
+class Map3_4E(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent) {
     private val logger = loggerFor<Map3_4E>()
     override val isCorpseDraggingMap = false
 
     override suspend fun begin() {
-        logger.info("Zoom out")
-        region.pinch(
-            Random.nextInt(700, 800),
-            Random.nextInt(250, 340),
-            0.0,
-            500
-        )
-        //Map to settle
-        delay(1000)
+        if (gameState.requiresMapInit) {
+            logger.info("Zoom out")
+            repeat(2) {
+                region.pinch(
+                    Random.nextInt(700, 800),
+                    Random.nextInt(250, 340),
+                    0.0,
+                    500
+                )
+                delay(500)
+            }
+            delay((900 * gameState.delayCoefficient).roundToLong())
+            gameState.requiresMapInit = false
+        }
 
         val rEchelons = deployEchelons(nodes[0], nodes[1])
         mapRunnerRegions.startOperation.click(); yield()
