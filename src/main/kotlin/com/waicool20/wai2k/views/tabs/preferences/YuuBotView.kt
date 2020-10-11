@@ -21,9 +21,11 @@ package com.waicool20.wai2k.views.tabs.preferences
 
 import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.util.YuuBot
+import com.waicool20.waicoolutils.DesktopUtils
 import com.waicool20.waicoolutils.javafx.listen
 import com.waicool20.waicoolutils.javafx.listenDebounced
 import javafx.scene.control.CheckBox
+import javafx.scene.control.Hyperlink
 import javafx.scene.control.TextField
 import javafx.scene.layout.VBox
 import tornadofx.*
@@ -32,6 +34,7 @@ import tornadofx.*
 class YuuBotView : View() {
     override val root: VBox by fxml("/views/tabs/preferences/yuubot.fxml")
     private val apiKeyTextField: TextField by fxid()
+    private val setupHyperlink: Hyperlink by fxid()
     private val onRestartCheckBox: CheckBox by fxid()
     private val onStopConditionCheckBox: CheckBox by fxid()
 
@@ -39,6 +42,9 @@ class YuuBotView : View() {
 
     override fun onDock() {
         super.onDock()
+        setupHyperlink.action {
+            DesktopUtils.browse("https://github.com/waicool20/WAI2K/wiki/Discord-Integration")
+        }
         apiKeyTextField.textProperty().apply {
             listen { apiKeyTextField.style = "-fx-border-color: yellow; -fx-border-width: 2px" }
             listenDebounced(1000, "ApiKeyTextFieldProperty") { newVal ->

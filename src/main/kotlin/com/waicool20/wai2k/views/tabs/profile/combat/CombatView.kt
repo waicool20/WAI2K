@@ -22,24 +22,26 @@ package com.waicool20.wai2k.views.tabs.profile.combat
 import com.waicool20.wai2k.game.CombatMap
 import com.waicool20.wai2k.script.modules.combat.MapRunner
 import com.waicool20.wai2k.views.tabs.profile.AbstractProfileView
+import com.waicool20.waicoolutils.DesktopUtils
 import com.waicool20.waicoolutils.javafx.bind
 import com.waicool20.waicoolutils.javafx.cellfactories.NoneSelectableCellFactory
-import javafx.scene.control.CheckBox
-import javafx.scene.control.ComboBox
-import javafx.scene.control.Spinner
-import javafx.scene.control.SpinnerValueFactory
+import javafx.scene.control.*
 import javafx.scene.layout.VBox
 import tornadofx.*
 
 class CombatView : AbstractProfileView() {
     override val root: VBox by fxml("/views/tabs/profile/combat/combat.fxml")
     private val enabledCheckBox: CheckBox by fxid()
+    private val mapHyperlink: Hyperlink by fxid()
     private val mapComboBox: ComboBox<String> by fxid()
     private val battleTimeoutSpinner: Spinner<Int> by fxid()
     private val repairThresholdSpinner: Spinner<Int> by fxid()
     private val enableOneClickRepairCheckBox: CheckBox by fxid()
 
     override fun setValues() {
+        mapHyperlink.action {
+            DesktopUtils.browse("https://github.com/waicool20/WAI2K/wiki/Maps-and-Echelon-Setup")
+        }
         mapComboBox.cellFactory = NoneSelectableCellFactory(Regex("--.+?--"))
         if (mapComboBox.items.isEmpty()) {
             val comparator = compareBy(String::length).then(naturalOrder())

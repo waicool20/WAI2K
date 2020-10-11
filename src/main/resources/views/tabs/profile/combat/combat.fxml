@@ -22,6 +22,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Spinner?>
 <?import javafx.scene.layout.HBox?>
@@ -32,7 +33,7 @@
         <CheckBox fx:id="enabledCheckBox" mnemonicParsing="false" text="Enabled" />
         <HBox alignment="CENTER_LEFT" spacing="10.0">
             <children>
-                <Label prefHeight="16.0" prefWidth="55.0" text="Map:" />
+            <Hyperlink fx:id="mapHyperlink" text="Map:" />
                 <ComboBox fx:id="mapComboBox" prefWidth="180.0" />
             </children>
         </HBox>
