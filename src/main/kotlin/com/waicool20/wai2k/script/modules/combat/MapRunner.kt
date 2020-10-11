@@ -310,14 +310,21 @@ abstract class MapRunner(
      *
      * @param turn Turn number
      * @param points No of action points
+     * @param endTurn Ends turn automatically after waiting if true
+     * @param timeout Time to wait before signalling timeout error and restart, 120s default
      */
-    protected suspend fun waitForTurnAndPoints(turn: Int, points: Int, endTurn: Boolean = true) = coroutineScope {
+    protected suspend fun waitForTurnAndPoints(
+        turn: Int,
+        points: Int,
+        endTurn: Boolean = true,
+        timeout: Long = 120_000
+    ) = coroutineScope {
         logger.info("Waiting for turn $turn and action points $points")
         val ocr = Ocr.forConfig(config, digitsOnly = true)
         var currentTurn = 0
         var currentPoints = 0
         try {
-            withTimeout(120_000) {
+            withTimeout(timeout) {
                 loop@ while (isActive && !interruptWaitFlag) {
                     delay(500)
                     when {
