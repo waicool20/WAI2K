@@ -1,29 +1,29 @@
 [
   {
     "type": "Heliport",
-    "x": 1138,
-    "y": 508,
-    "width": 30,
-    "height": 30
+    "x": 475,
+    "y": 163,
+    "width": 43,
+    "height": 43
   },
   {
     "type": "CommandPost",
-    "x": 1443,
-    "y": 388,
-    "width": 46,
-    "height": 46
+    "x": 745,
+    "y": 54,
+    "width": 55,
+    "height": 55
   },
   {
     "type": "CommandPost",
-    "x": 945,
-    "y": 913,
-    "width": 48,
-    "height": 48
+    "x": 307,
+    "y": 530,
+    "width": 52,
+    "height": 52
   },
   {
-    "x": 1074,
-    "y": 653,
-    "width": 29,
-    "height": 29
+    "x": 420,
+    "y": 297,
+    "width": 34,
+    "height": 34
   }
 ]

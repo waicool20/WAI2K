@@ -19,15 +19,15 @@
 
 package com.waicool20.wai2k.script.modules.combat.maps
 
-import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.wai2k.script.ScriptComponent
-import com.waicool20.wai2k.script.modules.combat.AbsoluteMapRunner
+import com.waicool20.wai2k.script.modules.combat.HomographyMapRunner
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
+import kotlin.math.roundToLong
 import kotlin.random.Random
 
-class Map4_6(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptComponent) {
+class Map4_6(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent) {
     private val logger = loggerFor<Map4_6>()
     override val isCorpseDraggingMap = false
 
@@ -37,30 +37,16 @@ class Map4_6(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptCompone
             repeat(2) {
                 region.pinch(
                     Random.nextInt(700, 800),
-                    Random.nextInt(300, 400),
+                    Random.nextInt(250, 350),
                     0.0,
                     500
                 )
-                delay(200)
+                delay(500)
             }
-            //pan down
-            val r = region.subRegionAs<AndroidRegion>(998, 624, 100, 30)
-            r.swipeTo(r.copy(y = r.y - 400))
-            delay(500)
-            deployEchelons(nodes[5])
+            delay((900 * gameState.delayCoefficient).roundToLong())
             gameState.requiresMapInit = false
-        } else {
-            nodes[0].findRegion()
-            deployEchelons(nodes[0])
         }
-        // pan up
-        val r = region.subRegionAs<AndroidRegion>(1058, 224, 100, 22)
-        repeat(2) {
-            r.swipeTo(r.copy(y = r.y + 450))
-            delay(200)
-        }
-
-        val rEchelons = deployEchelons(nodes[1])
+        val rEchelons = deployEchelons(nodes[0], nodes[1])
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
         resupplyEchelons(rEchelons)
@@ -73,8 +59,11 @@ class Map4_6(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptCompone
         logger.info("Entering planning mode")
         mapRunnerRegions.planningMode.click(); yield()
 
-        logger.info("Selecting ${nodes[4]}")
-        nodes[4].findRegion().click(); yield()
+        logger.info("Selecting ${nodes[0]}")
+        nodes[0].findRegion().click(); yield()
+
+        logger.info("Selecting ${nodes[2]}")
+        nodes[2].findRegion().click(); yield()
 
         logger.info("Executing plan")
         mapRunnerRegions.executePlan.click()

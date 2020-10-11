@@ -19,18 +19,19 @@
 
 package com.waicool20.wai2k.script.modules.combat.maps
 
-import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.wai2k.script.ScriptComponent
-import com.waicool20.wai2k.script.modules.combat.AbsoluteMapRunner
+import com.waicool20.wai2k.script.modules.combat.HomographyMapRunner
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
+import kotlin.math.roundToLong
 import kotlin.random.Random
 
-class Map4_6_Data(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptComponent) {
+class Map4_6_Data(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent) {
     private val logger = loggerFor<Map4_6>()
     override val isCorpseDraggingMap = false
 
+    // Maybe have this as an option for regular 4-6
     //Allow interruption of waiting for turn if necessary
     private var combatComplete = false
 
@@ -44,34 +45,24 @@ class Map4_6_Data(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptCo
                     0.0,
                     500
                 )
-                delay(200)
+                delay(500)
             }
-            //pan down
-            val r = region.subRegionAs<AndroidRegion>(998, 624, 100, 30)
-            r.swipeTo(r.copy(y = r.y - 400))
-            delay(500)
-            deployEchelons(nodes[5])
+            delay((900 * gameState.delayCoefficient).roundToLong())
             gameState.requiresMapInit = false
-        } else {
-            nodes[0].findRegion()
-            deployEchelons(nodes[0])
-        }
-        // pan up
-        val r = region.subRegionAs<AndroidRegion>(1058, 224, 100, 22)
-        repeat(2) {
-            r.swipeTo(r.copy(y = r.y + 450))
-            delay(200)
         }
 
-        deployEchelons(nodes[1])
+        // Will probably get get stuck if ? nodes reduce you manpower to 0
+        deployEchelons(nodes[0], nodes[1])
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
         planPath()
-        waitForTurnAndPoints(1, 0, false)
+
+        // If you get ambushed on the final ? node waitForTurnAndPoints() can be satisfied
+        // As the "You have been ambushed popup is there with a delay to get into battle
+        waitForTurnAssets(false, 0.96, "combat/battle/plan.png")
         if (interruptWaitFlag) {
             while (!combatComplete) delay(1000)
         }
-        delay(2000)
 
         interruptWaitFlag = false
         terminateMission()
@@ -90,29 +81,24 @@ class Map4_6_Data(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptCo
     }
 
     private suspend fun planPath() {
-        nodes[2].findRegion().click()
-
-        logger.info("Selecting echelon at ${nodes[5]}")
-        nodes[5].findRegion().click()
-
         logger.info("Entering planning mode")
         mapRunnerRegions.planningMode.click(); yield()
 
-        logger.info("Selecting ${nodes[6]}")
-        nodes[6].findRegion().click(); yield()
+        logger.info("Selecting echelon at ${nodes[0]}")
+        nodes[0].findRegion().click()
 
         if (Random.nextBoolean()) {
-            logger.info("Selecting ${nodes[7]}")
-            nodes[7].findRegion().click(); yield()
+            logger.info("Selecting ${nodes[3]}")
+            nodes[3].findRegion().click(); yield()
 
-            logger.info("Selecting ${nodes[8]}")
-            nodes[8].findRegion().click(); yield()
+            logger.info("Selecting ${nodes[4]}")
+            nodes[4].findRegion().click(); yield()
         } else {
-            logger.info("Selecting ${nodes[8]}")
-            nodes[8].findRegion().click(); yield()
+            logger.info("Selecting ${nodes[4]}")
+            nodes[4].findRegion().click(); yield()
 
-            logger.info("Selecting ${nodes[7]}")
-            nodes[7].findRegion().click(); yield()
+            logger.info("Selecting ${nodes[3]}")
+            nodes[3].findRegion().click(); yield()
         }
 
         logger.info("Executing plan")
