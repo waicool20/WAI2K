@@ -46,16 +46,16 @@ sealed class GFLObject {
          * All possible values of [GFLObject], must be declared in the order the model was created with
          */
         val values = listOf(
-                Node::class,
-                CommandPost::class,
-                Heliport::class,
-                Enemy::class,
-                SangvisFerri::class,
-                Military::class,
-                Radar::class,
-                Paradeus::class,
-                SupplyCrate::class,
-                Friendly::class
+            Node::class,
+            CommandPost::class,
+            Heliport::class,
+            Enemy::class,
+            SangvisFerri::class,
+            Military::class,
+            Radar::class,
+            Paradeus::class,
+            SupplyCrate::class,
+            Friendly::class
         )
     }
 
@@ -66,8 +66,8 @@ sealed class GFLObject {
 
 fun List<GFLObject>.toDetectedObjects(): DetectedObjects {
     return DetectedObjects(
-            map { it.toString() },
-            map { it.probability },
-            map { it.bbox }
+        map { it.toString() },
+        map { it.probability },
+        map { it.bbox }
     )
 }

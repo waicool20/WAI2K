@@ -24,33 +24,26 @@ import ai.djl.modality.cv.Image
 import ai.djl.modality.cv.ImageFactory
 import ai.djl.modality.cv.output.Rectangle
 import ai.djl.modality.cv.translator.BaseImageTranslator
-import ai.djl.modality.cv.util.NDImageUtils
-import ai.djl.ndarray.NDArray
 import ai.djl.ndarray.NDList
 import ai.djl.ndarray.index.NDIndex
-import ai.djl.ndarray.types.Shape
 import ai.djl.translate.Pipeline
-import ai.djl.translate.Transform
 import ai.djl.translate.TranslatorContext
 import com.waicool20.waicoolutils.createCompatibleCopy
-import com.waicool20.waicoolutils.pad
 import java.awt.Color
 import java.awt.Graphics2D
 import java.awt.RenderingHints
 import java.awt.image.BufferedImage
-import java.awt.image.ImageObserver
-import java.util.concurrent.CountDownLatch
 import kotlin.math.roundToInt
 import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.isSuperclassOf
 import kotlin.reflect.full.primaryConstructor
 
 class YoloTranslator(
-        model: Model,
-        val threshold: Double,
-        val iouThreshold: Double = 0.4
+    model: Model,
+    val threshold: Double,
+    val iouThreshold: Double = 0.4
 ) : BaseImageTranslator<List<GFLObject>>(
-        Builder().setPipeline(Pipeline(TransposeNormalizeTransform()))
+    Builder().setPipeline(Pipeline(TransposeNormalizeTransform()))
 ) {
     private val size = model.getProperty("InputSize")?.toInt()
         ?: error("Model property 'InputSize' must be set")
@@ -66,7 +59,7 @@ class YoloTranslator(
         imageWidth = input.width.toDouble()
         imageHeight = input.height.toDouble()
 
-        val inputImage= input.wrappedImage as BufferedImage
+        val inputImage = input.wrappedImage as BufferedImage
         val networkInput = inputImage.createCompatibleCopy(size, size)
         val g = (networkInput.graphics as Graphics2D).apply {
             setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR)
@@ -159,9 +152,9 @@ class YoloTranslator(
             input.remove(best)
             input.removeAll {
                 (it::class == best::class ||
-                        it::class.isSubclassOf(best::class) ||
-                        it::class.isSuperclassOf(best::class)) &&
-                        it.bbox.getIoU(best.bbox) >= iouThreshold
+                    it::class.isSubclassOf(best::class) ||
+                    it::class.isSuperclassOf(best::class)) &&
+                    it.bbox.getIoU(best.bbox) >= iouThreshold
             }
             output.add(best)
         }

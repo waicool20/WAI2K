@@ -25,8 +25,9 @@ class ProcessManager(val device: AndroidDevice) {
     /**
      * Gets the name of the currently active activity
      */
-    val currentActivity get() =
-        device.execute("dumpsys", "window", "windows", "|", "grep", "-E", "'mCurrentFocus'")
+    val currentActivity
+        get() =
+            device.execute("dumpsys", "window", "windows", "|", "grep", "-E", "'mCurrentFocus'")
                 .inputStream.bufferedReader().readText()
                 .takeLastWhile { it != ' ' }.dropLast(1)
 
@@ -40,8 +41,8 @@ class ProcessManager(val device: AndroidDevice) {
      */
     fun start(pkg: String, activity: String): Boolean {
         return !device.execute("am", "start", "-n", "$pkg/$activity")
-                .inputStream.bufferedReader().readText()
-                .contains("Error")
+            .inputStream.bufferedReader().readText()
+            .contains("Error")
     }
 
     /**
@@ -50,6 +51,6 @@ class ProcessManager(val device: AndroidDevice) {
      * @param pkg Name of the package that the app belongs to
      */
     fun kill(pkg: String) {
-        device.execute("am","force-stop", pkg)
+        device.execute("am", "force-stop", pkg)
     }
 }

@@ -32,10 +32,10 @@ import kotlin.math.ln
  * Magical code ported from: https://github.com/siavashk/pycpd/blob/master/pycpd/affine_registration.py
  */
 class AffineCPDRegistration(
-        X: NDArray,
-        Y: NDArray,
-        initB: NDArray? = null,
-        initT: NDArray? = null
+    X: NDArray,
+    Y: NDArray,
+    initB: NDArray? = null,
+    initT: NDArray? = null
 ) : CPDRegistration(X, Y) {
     private var B = initB ?: manager.eye(D.toInt())
     private var t = initT ?: manager.zeros(Shape(1, D))

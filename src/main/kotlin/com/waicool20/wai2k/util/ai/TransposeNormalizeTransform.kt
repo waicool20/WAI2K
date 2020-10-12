@@ -22,7 +22,7 @@ package com.waicool20.wai2k.util.ai
 import ai.djl.ndarray.NDArray
 import ai.djl.translate.Transform
 
-class TransposeNormalizeTransform: Transform {
+class TransposeNormalizeTransform : Transform {
     override fun transform(array: NDArray): NDArray {
         return array.transpose(2, 0, 1).div(255f)
     }

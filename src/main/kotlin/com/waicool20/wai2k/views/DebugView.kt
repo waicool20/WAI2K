@@ -22,7 +22,6 @@ package com.waicool20.wai2k.views
 import ai.djl.modality.cv.ImageFactory
 import com.waicool20.cvauto.android.ADB
 import com.waicool20.cvauto.android.AndroidDevice
-import com.waicool20.cvauto.core.Region
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.cvauto.util.asGrayF32
 import com.waicool20.wai2k.config.Wai2KContext
@@ -290,40 +289,40 @@ class DebugView : CoroutineScopeView() {
             root.appendChild(version)
 
             Files.walk(dir).asSequence()
-                    .filterNot { it.parent.endsWith("out") }
-                    .filter { "$it".endsWith(".png", true) || "$it".endsWith(".jpg", true) }
-                    .sorted()
-                    .forEachIndexed { i, path ->
-                        val image = ImageFactory.getInstance().fromFile(path)
-                        val objects = predictor.predict(image)
-                        val imageNode = doc.createElement("image").apply {
-                            setAttribute("id", "$i")
-                            setAttribute("name", "${dir.parent.relativize(path)}")
-                            setAttribute("width", "${image.width}")
-                            setAttribute("height", "${image.height}")
-                        }
-                        objects.forEach { obj ->
-                            val bbox = obj.bbox
-                            doc.createElement("box").apply {
-                                setAttribute("label", "$obj")
-                                setAttribute("occluded", "0")
-                                setAttribute("xtl", "${bbox.x * image.width}")
-                                setAttribute("ytl", "${bbox.y * image.height}")
-                                setAttribute("xbr", "${(bbox.x + bbox.width) * image.width}")
-                                setAttribute("ybr", "${(bbox.y + bbox.height) * image.height}")
-                            }.also { imageNode.appendChild(it) }
-                        }
-                        root.appendChild(imageNode)
-                        if (saveAnnotationsCheckBox.isSelected) {
-                            image.drawBoundingBoxes(objects.toDetectedObjects())
-                            image.save(Files.newOutputStream(output.resolve(path.fileName)), "png")
-                        }
-                        logger.info("Image: $path\n$objects")
+                .filterNot { it.parent.endsWith("out") }
+                .filter { "$it".endsWith(".png", true) || "$it".endsWith(".jpg", true) }
+                .sorted()
+                .forEachIndexed { i, path ->
+                    val image = ImageFactory.getInstance().fromFile(path)
+                    val objects = predictor.predict(image)
+                    val imageNode = doc.createElement("image").apply {
+                        setAttribute("id", "$i")
+                        setAttribute("name", "${dir.parent.relativize(path)}")
+                        setAttribute("width", "${image.width}")
+                        setAttribute("height", "${image.height}")
                     }
+                    objects.forEach { obj ->
+                        val bbox = obj.bbox
+                        doc.createElement("box").apply {
+                            setAttribute("label", "$obj")
+                            setAttribute("occluded", "0")
+                            setAttribute("xtl", "${bbox.x * image.width}")
+                            setAttribute("ytl", "${bbox.y * image.height}")
+                            setAttribute("xbr", "${(bbox.x + bbox.width) * image.width}")
+                            setAttribute("ybr", "${(bbox.y + bbox.height) * image.height}")
+                        }.also { imageNode.appendChild(it) }
+                    }
+                    root.appendChild(imageNode)
+                    if (saveAnnotationsCheckBox.isSelected) {
+                        image.drawBoundingBoxes(objects.toDetectedObjects())
+                        image.save(Files.newOutputStream(output.resolve(path.fileName)), "png")
+                    }
+                    logger.info("Image: $path\n$objects")
+                }
 
             TransformerFactory.newInstance().newTransformer().apply {
                 setOutputProperty(OutputKeys.INDENT, "yes")
-                setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+                setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2")
             }.transform(DOMSource(doc), StreamResult(Files.newOutputStream(output.resolve("annotations.xml"))))
 
             logger.info("All annotations done")

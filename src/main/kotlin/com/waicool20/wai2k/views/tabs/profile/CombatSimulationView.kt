@@ -23,8 +23,6 @@ import com.waicool20.wai2k.config.Wai2KProfile.CombatSimulation.Level
 import com.waicool20.waicoolutils.javafx.bind
 import javafx.scene.control.CheckBox
 import javafx.scene.control.ComboBox
-import javafx.scene.control.Spinner
-import javafx.scene.control.SpinnerValueFactory
 import javafx.scene.layout.VBox
 import tornadofx.*
 

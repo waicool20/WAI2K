@@ -61,7 +61,7 @@ class Wai2K : App(Wai2KWorkspace::class) {
     override fun start(stage: Stage) {
         super.start(stage)
         find<LoaderView>(params = arrayOf("parameters" to parameters))
-                .openModal(stageStyle = StageStyle.UNDECORATED)
+            .openModal(stageStyle = StageStyle.UNDECORATED)
     }
 
     override fun shouldShowPrimaryStage() = false

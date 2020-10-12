@@ -57,7 +57,7 @@ class Map4_4N(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComp
     private suspend fun planPath() {
         logger.info("Entering planning mode")
         mapRunnerRegions.planningMode.click(); yield()
-        
+
         logger.info("Selecting ${nodes[2]}")
         nodes[2].findRegion().click()
 

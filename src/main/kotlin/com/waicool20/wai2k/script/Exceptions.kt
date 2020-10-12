@@ -34,5 +34,5 @@ class NodeNotFoundException(node: MapNode) : ScriptException("Could not find nod
 class ChapterClickFailedException(chapter: Int) : ScriptException("Failed to find and click chapter $chapter")
 class InvalidLocationsJsonFileException : ScriptException("Bad or incomplete locations.json file")
 class UnsupportedMapException(mapName: String) : ScriptException("Unsupported map: $mapName")
-class ReplacementDollNotFoundException: ScriptException("Could not find replacement dragging doll")
-class InvalidDollException(id: String): ScriptException("Invalid doll: $id")
+class ReplacementDollNotFoundException : ScriptException("Could not find replacement dragging doll")
+class InvalidDollException(id: String) : ScriptException("Invalid doll: $id")

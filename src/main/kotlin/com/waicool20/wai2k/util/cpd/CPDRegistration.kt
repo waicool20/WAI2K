@@ -33,11 +33,11 @@ import kotlin.math.pow
  * Magical code ported from: https://github.com/siavashk/pycpd/blob/master/pycpd/emregistration.py
  */
 abstract class CPDRegistration(
-        val target: NDArray,
-        val source: NDArray,
-        initSigma2: Double? = null,
-        val tolerance: Double = 0.001,
-        private val w: Double = 0.0
+    val target: NDArray,
+    val source: NDArray,
+    initSigma2: Double? = null,
+    val tolerance: Double = 0.001,
+    private val w: Double = 0.0
 ) : Iterator<CPDRegistration>, Sequence<CPDRegistration> {
     protected val manager = NDManager.newBaseManager()
 
