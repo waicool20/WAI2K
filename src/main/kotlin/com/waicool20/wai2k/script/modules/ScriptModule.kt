@@ -32,10 +32,7 @@ import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.waicoolutils.filterAsync
 import com.waicool20.waicoolutils.logging.loggerFor
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withTimeoutOrNull
-import kotlinx.coroutines.yield
+import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.roundToLong
 import kotlin.system.exitProcess
@@ -170,10 +167,12 @@ abstract class ScriptModule(
             |```
             """.trimMargin()
         logger.info(msg)
+        val wait = Job()
         if (config.notificationsConfig.onStopCondition) {
-            YuuBot.postMessage(config.apiKey, "Script Terminated", msg)
+            YuuBot.postMessage(config.apiKey, "Script Terminated", msg) { wait.complete() }
         }
         if (profile.stop.exitProgram) {
+            wait.join()
             exitProcess(0)
         } else {
             coroutineContext.cancelAndYield()
