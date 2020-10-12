@@ -19,13 +19,11 @@
 
 package com.waicool20.wai2k.util.ai
 
-import ai.djl.Device
 import ai.djl.Model
 import ai.djl.ndarray.NDList
 import ai.djl.ndarray.NDManager
 import ai.djl.ndarray.types.Shape
 import ai.djl.nn.AbstractBlock
-import ai.djl.pytorch.engine.PtEngine
 import ai.djl.training.ParameterStore
 import ai.djl.util.PairList
 import java.nio.file.Path
@@ -33,11 +31,7 @@ import java.nio.file.Path
 class MatchingModel(
     superpointModelPath: Path,
     superglueModelPath: Path
-) : Model by engine.newModel("MatchingModel", Device.defaultDevice()) {
-    companion object {
-        private val engine by lazy { PtEngine.getInstance() }
-    }
-
+) : Model by Model.newInstance("MatchingModel", "PyTorch") {
     private val superpoint = ModelLoader.loadModel(superpointModelPath)
     private val superglue = ModelLoader.loadModel(superglueModelPath)
 
