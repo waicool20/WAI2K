@@ -49,7 +49,13 @@ object YuuBot {
     ])
     private class ScriptStatsMixin
 
-    fun postStats(apiKey: String, startTime: Instant, profile: Wai2KProfile, stats: ScriptStats) {
+    fun postStats(
+        apiKey: String,
+        startTime: Instant,
+        profile: Wai2KProfile,
+        stats: ScriptStats,
+        onComplete: () -> Unit = {}
+    ) {
         if (apiKey.isEmpty()) {
             logger.warn("API key is empty, YuuBot reporting is disabled.")
             return
@@ -85,6 +91,7 @@ object YuuBot {
                         logger.warn("Failed to post stats to YuuBot, response was: $code")
                     }
                 }
+                onComplete()
             }
 
             override fun onFailure(call: Call, e: IOException) {
@@ -93,7 +100,7 @@ object YuuBot {
         })
     }
 
-    fun postMessage(apiKey: String, title: String, body: String) {
+    fun postMessage(apiKey: String, title: String, body: String, onComplete: () -> Unit = {}) {
         if (apiKey.isEmpty()) {
             logger.warn("API key is empty, YuuBot reporting is disabled.")
             return
@@ -121,6 +128,7 @@ object YuuBot {
                         logger.warn("Failed to post message to YuuBot, response was: $code")
                     }
                 }
+                onComplete()
             }
 
             override fun onFailure(call: Call, e: IOException) {
