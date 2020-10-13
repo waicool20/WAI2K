@@ -19,17 +19,106 @@
 
 package com.waicool20.wai2k.script.modules.combat.maps
 
+import com.waicool20.cvauto.android.AndroidRegion
+import com.waicool20.cvauto.core.template.FileTemplate
+import com.waicool20.wai2k.game.Echelon
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.modules.combat.HomographyMapRunner
+import com.waicool20.waicoolutils.logging.loggerFor
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.yield
+import kotlin.math.roundToLong
+import kotlin.random.Random
 
 class EventGSGNewFork(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent), EventMapRunner {
+    private val logger = loggerFor<EventGSGNewFork>()
     override val isCorpseDraggingMap = false
 
     override suspend fun enterMap() {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
+        if (gameState.requiresMapInit) {
+            logger.info("Zoom out")
+            region.pinch(
+                Random.nextInt(900, 1000),
+                Random.nextInt(300, 400),
+                0.0,
+                1000)
+            delay((900 * gameState.delayCoefficient).roundToLong()) //Wait to settle
+        }
+        logger.info("Pan down")
+        val r = region.subRegionAs<AndroidRegion>(230, 178, 520, 150)
+        r.swipeTo(r.copy(y = r.y + 450), 500)
+        logger.info("Entering map")
+        region.subRegion(791, 450, 141, 27).click() // New Fork
+        delay(2000)
+        region.subRegion(1833, 590, 230, 109).click() // Start Mission
+        delay(1000)
+        region.waitHas(FileTemplate("combat/battle/start.png"), 10000)
     }
 
     override suspend fun begin() {
-        throw UnsupportedOperationException("Not Implemented") // TODO Implement this function
+        if (gameState.requiresMapInit) {
+            logger.info("Zoom out")
+            region.pinch(
+                Random.nextInt(900, 1000),
+                Random.nextInt(300, 400),
+                0.0,
+                1000)
+            delay((900 * gameState.delayCoefficient).roundToLong()) //Wait to settle
+            gameState.requiresMapInit = false
+        }
+        // Deploy the dummy
+        openEchelon(nodes[0], singleClick = true)
+        clickEchelon(Echelon(2))
+        mapRunnerRegions.deploy.click()
+        mapRunnerRegions.startOperation.click(); yield()
+        waitForGNKSplash()
+
+        moveDummy() // Map will pan when switching with Angelica
+        waitForTurnAssets(false, 0.96, "combat/battle/plan.png")
+
+        mapH = null
+        val rEchelons = deployEchelons(nodes[0])
+        resupplyEchelons(rEchelons)
+
+        planPath()
+        waitForTurnEnd(7, false) // Ends automatically at turn 3
+        handleBattleResults()
+    }
+
+    private suspend fun moveDummy() {
+        logger.info("Entering planning mode")
+        mapRunnerRegions.planningMode.click(); yield()
+
+        logger.info("Selecting dummy at command post")
+        nodes[0].findRegion().click()
+
+        logger.info("Moving them to rally point")
+        nodes[1].findRegion().click()
+
+        logger.info("Executing plan")
+        mapRunnerRegions.executePlan.click()
+    }
+
+    private suspend fun planPath() {
+        logger.info("Entering planning mode")
+        mapRunnerRegions.planningMode.click(); yield()
+
+        logger.info("Selecting echelon at command post")
+        nodes[0].findRegion().click()
+
+        logger.info("Selecting ${nodes[2]}")
+        nodes[2].findRegion().click()
+
+        logger.info("Selecting ${nodes[3]}")
+        nodes[3].findRegion().click()
+
+        logger.info("Selecting ${nodes[4]}")
+        nodes[4].findRegion().click()
+
+        logger.info("Selecting ${nodes[5]}")
+        nodes[5].findRegion().click()
+
+        logger.info("Executing plan")
+        mapRunnerRegions.executePlan.click()
     }
 }

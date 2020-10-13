@@ -29,6 +29,7 @@ import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.util.transformRect
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.util.ai.MatchingModel
+import com.waicool20.wai2k.game.MapRunnerRegions
 import com.waicool20.wai2k.util.ai.MatchingTranslator
 import com.waicool20.waicoolutils.logging.loggerFor
 import georegression.struct.homography.Homography2D_F64
@@ -52,18 +53,27 @@ abstract class HomographyMapRunner(scriptComponent: ScriptComponent) : MapRunner
         private const val minScroll = 75
     }
 
-    private val metrics = Metrics()
+    final override val nodes: List<MapNode>
 
-    private val predictor: Predictor<Pair<Image, Image>, Homography2D_F64>
+    /**
+     * Prediction time statistics
+     */
+    protected val metrics = Metrics()
+
+    /**
+     * Predictor that can be used to calculate homography between two images
+     */
+    protected val predictor: Predictor<Pair<Image, Image>, Homography2D_F64>
 
     /**
      * Map homography cache
      */
-    private var mapH: Homography2D_F64? = null
+    protected var mapH: Homography2D_F64? = null
 
-    final override val nodes: List<MapNode>
-
-    val fullMap: Image
+    /**
+     * Image of the whole map
+     */
+    protected val fullMap: Image
 
     init {
         val p = async(Dispatchers.IO) {
@@ -109,6 +119,14 @@ abstract class HomographyMapRunner(scriptComponent: ScriptComponent) : MapRunner
         mapH = null
     }
 
+    /**
+     * Finds and returns a region corresponding to this map node, first run will attempt
+     * to find the correspondence between the reference map image [fullMap] and
+     * on-screen content [MapRunnerRegions.window]. A homography transform is calculated and
+     * cached into [mapH]. Future runs will attempt to use the cache to find the node region which
+     * is almost instantaneous. If screen content has changed, then [mapH] should be set `null`
+     * to let this function try and find the new correspondence.
+     */
     override suspend fun MapNode.findRegion(): AndroidRegion {
         val window = mapRunnerRegions.window
 

@@ -35,11 +35,9 @@ import com.waicool20.wai2k.util.formatted
 import com.waicool20.wai2k.util.useCharFilter
 import com.waicool20.waicoolutils.DurationUtils
 import com.waicool20.waicoolutils.logging.loggerFor
-import com.waicool20.waicoolutils.mapAsync
 import com.waicool20.waicoolutils.prettyString
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 import java.time.*
 import java.time.temporal.ChronoUnit
 import kotlin.math.roundToLong
@@ -291,60 +289,6 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
 
     private suspend fun runNeuralFragment() {
         mapRunner.execute()
-    }
-
-    /**
-     * Copy from LogisticsSupportModule
-     */
-    private suspend fun clickEchelon(echelon: Echelon): Boolean {
-        logger.debug("Clicking the echelon")
-        val eRegion = region.subRegion(140, 40, 170, region.height - 140)
-        delay(100)
-
-        val start = System.currentTimeMillis()
-        while (isActive) {
-            val echelons = eRegion.findBest(FileTemplate("echelons/echelon.png"), 8)
-                .map { it.region }
-                .map { it.copyAs<AndroidRegion>(it.x + 93, it.y - 40, 60, 100) }
-                .mapAsync {
-                    Ocr.forConfig(config, true).doOCRAndTrim(it)
-                        .replace("18", "10").toInt() to it
-                }
-                .toMap()
-            logger.debug("Visible echelons: ${echelons.keys}")
-            when {
-                echelons.keys.isEmpty() -> {
-                    logger.info("No echelons available...")
-                    return false
-                }
-                echelon.number in echelons.keys -> {
-                    logger.info("Found echelon!")
-                    echelons[echelon.number]?.click()
-                    return true
-                }
-            }
-            val lEchelon = echelons.keys.minOrNull() ?: echelons.keys.firstOrNull() ?: continue
-            val hEchelon = echelons.keys.maxOrNull() ?: echelons.keys.lastOrNull() ?: continue
-            val lEchelonRegion = echelons[lEchelon] ?: continue
-            val hEchelonRegion = echelons[hEchelon] ?: continue
-            when {
-                echelon.number <= lEchelon -> {
-                    logger.debug("Swiping down the echelons")
-                    lEchelonRegion.swipeTo(hEchelonRegion)
-                }
-                echelon.number >= hEchelon -> {
-                    logger.debug("Swiping up the echelons")
-                    hEchelonRegion.swipeTo(lEchelonRegion)
-                }
-            }
-            delay(300)
-            if (System.currentTimeMillis() - start > 45000) {
-                gameState.requiresUpdate = true
-                logger.warn("Failed to find echelon, maybe ocr failed?")
-                break
-            }
-        }
-        return false
     }
 
     /**
