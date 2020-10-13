@@ -19,9 +19,6 @@
 
 package com.waicool20.wai2k.script.modules.combat.maps
 
-import com.waicool20.wai2k.script.ScriptComponent
-import com.waicool20.wai2k.script.modules.combat.MapRunner
-
-abstract class EventMapRunner(scriptComponent: ScriptComponent) : MapRunner(scriptComponent) {
-    abstract suspend fun enterMap()
+interface EventMapRunner {
+    suspend fun enterMap()
 }

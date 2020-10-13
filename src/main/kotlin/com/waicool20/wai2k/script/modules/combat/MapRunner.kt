@@ -61,6 +61,7 @@ abstract class MapRunner(
                 .getSubTypesOf(MapRunner::class.java)
             for (mapClass in mapClasses) {
                 if (Modifier.isAbstract(mapClass.modifiers)) continue
+                if (Modifier.isInterface(mapClass.modifiers)) continue
                 if (EventMapRunner::class.java.isAssignableFrom(mapClass)) {
                     val name = mapClass.simpleName.replaceFirst("Event", "")
                     list[CombatMap.EventMap(name)] = mapClass.kotlin
