@@ -59,7 +59,7 @@ abstract class HomographyMapRunner(scriptComponent: ScriptComponent) : MapRunner
     /**
      * Map homography cache
      */
-    private var mapH: Homography2D_F64? = null
+    protected var mapH: Homography2D_F64? = null
 
     final override val nodes: List<MapNode>
 

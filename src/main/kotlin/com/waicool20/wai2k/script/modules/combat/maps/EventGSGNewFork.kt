@@ -19,6 +19,7 @@
 
 package com.waicool20.wai2k.script.modules.combat.maps
 
+import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.game.Echelon
 import com.waicool20.wai2k.script.ScriptComponent
@@ -35,16 +36,12 @@ class EventGSGNewFork(scriptComponent: ScriptComponent) : HomographyMapRunner(sc
 
 
     override suspend fun enterMap() {
-        logger.info("Zoom out")
-        region.pinch(
-            Random.nextInt(900, 1000),
-            Random.nextInt(300, 400),
-            0.0,
-            500)
-        delay(900)
+        logger.info("Pan down")
+        val r = region.subRegionAs<AndroidRegion>(230, 178, 520, 150)
+        r.swipeTo(r.copy(y = r.y + 450), 500)
         logger.info("Entering map")
-        region.findBest(FileTemplate("$PREFIX/entrance.png"))?.region?.click()
-        delay(500)
+        region.subRegion(791, 450, 141, 27).click() // New Fork
+        delay(1000)
         region.subRegion(1833, 590, 230, 109).click() // Start Mission
         delay(500)
         region.waitHas(FileTemplate("combat/battle/start.png"), 5000)
@@ -70,6 +67,8 @@ class EventGSGNewFork(scriptComponent: ScriptComponent) : HomographyMapRunner(sc
 
         moveDummy() // Map will pan when switching with Angelica
         waitForTurnAssets(false, 0.96, "combat/battle/plan.png")
+
+        mapH = null
         val rEchelons = deployEchelons(nodes[0])
         resupplyEchelons(rEchelons)
 
