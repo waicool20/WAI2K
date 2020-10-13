@@ -34,17 +34,25 @@ class EventGSGNewFork(scriptComponent: ScriptComponent) : HomographyMapRunner(sc
     private val logger = loggerFor<EventGSGNewFork>()
     override val isCorpseDraggingMap = false
 
-
     override suspend fun enterMap() {
+        if (gameState.requiresMapInit) {
+            logger.info("Zoom out")
+            region.pinch(
+                Random.nextInt(900, 1000),
+                Random.nextInt(300, 400),
+                0.0,
+                1000)
+            delay((900 * gameState.delayCoefficient).roundToLong()) //Wait to settle
+        }
         logger.info("Pan down")
         val r = region.subRegionAs<AndroidRegion>(230, 178, 520, 150)
         r.swipeTo(r.copy(y = r.y + 450), 500)
         logger.info("Entering map")
         region.subRegion(791, 450, 141, 27).click() // New Fork
-        delay(1000)
+        delay(2000)
         region.subRegion(1833, 590, 230, 109).click() // Start Mission
-        delay(500)
-        region.waitHas(FileTemplate("combat/battle/start.png"), 5000)
+        delay(1000)
+        region.waitHas(FileTemplate("combat/battle/start.png"), 10000)
     }
 
     override suspend fun begin() {
