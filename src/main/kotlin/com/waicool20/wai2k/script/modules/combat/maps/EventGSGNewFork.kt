@@ -77,8 +77,9 @@ class EventGSGNewFork(scriptComponent: ScriptComponent) : HomographyMapRunner(sc
         waitForTurnAssets(false, 0.96, "combat/battle/plan.png")
 
         mapH = null
-        val rEchelons = deployEchelons(nodes[0])
-        resupplyEchelons(rEchelons)
+        deployEchelons(nodes[0])
+        delay(1000)
+        resupplyEchelons(nodes[0])
 
         planPath()
         waitForTurnEnd(7, false) // Ends automatically at turn 3
