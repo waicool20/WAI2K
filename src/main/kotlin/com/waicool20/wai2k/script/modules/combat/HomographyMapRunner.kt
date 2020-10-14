@@ -23,13 +23,14 @@ import ai.djl.inference.Predictor
 import ai.djl.metric.Metrics
 import ai.djl.modality.cv.Image
 import ai.djl.modality.cv.ImageFactory
+import ai.djl.translate.TranslateException
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.util.transformRect
+import com.waicool20.wai2k.game.MapRunnerRegions
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.util.ai.MatchingModel
-import com.waicool20.wai2k.game.MapRunnerRegions
 import com.waicool20.wai2k.util.ai.MatchingTranslator
 import com.waicool20.waicoolutils.logging.loggerFor
 import georegression.struct.homography.Homography2D_F64
@@ -153,7 +154,7 @@ abstract class HomographyMapRunner(scriptComponent: ScriptComponent) : MapRunner
             logger.debug("Total: ${metrics.latestMetric("Total").value.toLong() / 1000000} ms")
             mapH = prediction
             prediction
-        } catch (e: MatchingTranslator.ModelMatchingFailedException) {
+        } catch (e: TranslateException) {
             return retry()
         }
 
