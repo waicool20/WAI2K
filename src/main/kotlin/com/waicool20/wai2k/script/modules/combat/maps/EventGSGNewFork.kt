@@ -67,9 +67,7 @@ class EventGSGNewFork(scriptComponent: ScriptComponent) : HomographyMapRunner(sc
             gameState.requiresMapInit = false
         }
         // Deploy the dummy
-        openEchelon(nodes[0], singleClick = true)
-        clickEchelon(Echelon(2))
-        mapRunnerRegions.deploy.click()
+        deployEchelons(2 at nodes[0])
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
 

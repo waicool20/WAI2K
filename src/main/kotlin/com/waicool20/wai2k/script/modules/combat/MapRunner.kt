@@ -48,8 +48,10 @@ import kotlin.reflect.KClass
 abstract class MapRunner(
     scriptComponent: ScriptComponent
 ) : ScriptComponent by scriptComponent, CoroutineScope {
-    private val logger = loggerFor<MapRunner>()
-    private var _battles = 1
+
+    class Deployment(val echelon: Int, val mapNode: MapNode)
+
+    infix fun Int.at(mapNode: MapNode) = Deployment(this, mapNode)
 
     companion object {
         val list = mutableMapOf<CombatMap, KClass<out MapRunner>>()
@@ -71,6 +73,9 @@ abstract class MapRunner(
             }
         }
     }
+
+    private val logger = loggerFor<MapRunner>()
+    private var _battles = 1
 
     override val coroutineContext: CoroutineContext
         get() = scriptRunner.coroutineContext
@@ -148,14 +153,33 @@ abstract class MapRunner(
     /**
      * Deploys the given echelons to the given locations using click regions
      *
-     * @param nodes Nodes to deploy to
+     * @param deployments Either a [MapNode] or [Deployment]
      *
      * @return Deployments that need resupply, can be used in conjunction with [resupplyEchelons]
      */
-    protected suspend fun deployEchelons(vararg nodes: MapNode): Array<MapNode> = coroutineScope {
-        val needsResupply = nodes.filterIndexed { i, node ->
+    protected suspend fun deployEchelons(vararg deployments: Any): Array<MapNode> = coroutineScope {
+        val needsResupply = mutableListOf<MapNode>()
+        deployments.forEachIndexed { i, d ->
+            val echelon: Int
+            val node: MapNode
+
+            when (d) {
+                is MapNode -> {
+                    echelon = -1
+                    node = d
+                }
+                is Deployment -> {
+                    echelon = d.echelon
+                    node = d.mapNode
+                }
+                else -> throw IllegalArgumentException("Deploying echelons, expected MapNode or Deployment but got ${d::class.simpleName}")
+            }
+
             logger.info("Deploying echelon ${i + 1} to $node")
             openEchelon(node, singleClick = true)
+            if (echelon in 1..10) {
+                while (!clickEchelon(Echelon(echelon))) delay(200)
+            }
             val screenshot = region.capture()
             val formatter = DecimalFormat("##.#")
 
@@ -197,7 +221,9 @@ abstract class MapRunner(
             }
             mapRunnerRegions.deploy.click()
             delay(300)
-            ammoNeedsSupply.await() && rationNeedsSupply.await()
+            if (ammoNeedsSupply.await() || rationNeedsSupply.await()) {
+                needsResupply += node
+            }
         }
         needsResupply.forEach { logger.info("Echelon at $it needs resupply!") }
         delay(200)
