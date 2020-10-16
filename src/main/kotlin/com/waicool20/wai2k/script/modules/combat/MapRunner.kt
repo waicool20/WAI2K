@@ -204,17 +204,16 @@ abstract class MapRunner(
             val ammoNeedsSupply = async {
                 if (!hasMember2) return@async false
                 val image = screenshot.getSubimage(645, 820, 218, 1).binarizeImage()
-                val ammoCount = image.countColor(Color.WHITE) / image.width.toDouble() * 100
-                logger.info("Second member ammo: ${formatter.format(ammoCount)} %")
-                image.countColor(Color.WHITE) / image.width >= ammoResupplyThreshold
+                val ammoCount = image.countColor(Color.WHITE) / image.width.toDouble()
+                logger.info("Second member ammo: ${formatter.format(ammoCount * 100)} %")
+                ammoCount < ammoResupplyThreshold
             }
             val rationNeedsSupply = async {
                 if (!hasMember2) return@async false
                 val image = screenshot.getSubimage(645, 860, 218, 1).binarizeImage()
-                val rationCount = image.countColor(Color.WHITE) / image.width.toDouble() * 100
-                logger.info("Second member rations: ${formatter.format(rationCount)} %")
-                // Make threshold overridable?
-                image.countColor(Color.WHITE) / image.width >= rationsResupplyThreshold
+                val rationCount = image.countColor(Color.WHITE) / image.width.toDouble()
+                logger.info("Second member rations: ${formatter.format(rationCount * 100)} %")
+                rationCount < rationsResupplyThreshold
             }
             if (!isCorpseDraggingMap) {
                 for (mIndex in 0..5) {

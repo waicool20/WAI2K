@@ -21,7 +21,6 @@ package com.waicool20.wai2k.script.modules.combat.maps
 
 import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.core.template.FileTemplate
-import com.waicool20.wai2k.game.Echelon
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.modules.combat.HomographyMapRunner
 import com.waicool20.waicoolutils.logging.loggerFor
@@ -33,6 +32,8 @@ import kotlin.random.Random
 class EventGSGNewFork(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent), EventMapRunner {
     private val logger = loggerFor<EventGSGNewFork>()
     override val isCorpseDraggingMap = false
+
+    override val rationsResupplyThreshold = 0.5
 
     override suspend fun enterMap() {
         if (gameState.requiresMapInit) {
