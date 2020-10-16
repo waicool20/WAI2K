@@ -201,7 +201,8 @@ abstract class MapRunner(
                 val image = screenshot.getSubimage(645, 860, 218, 1).binarizeImage()
                 val rationCount = image.countColor(Color.WHITE) / image.width.toDouble() * 100
                 logger.info("Second member rations: ${formatter.format(rationCount)} %")
-                image.countColor(Color.WHITE) != image.width
+                // Make threshold overridable?
+                image.countColor(Color.WHITE) / image.width > 0.8
             }
             if (!isCorpseDraggingMap) {
                 for (mIndex in 0..5) {
