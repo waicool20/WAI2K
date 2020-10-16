@@ -115,6 +115,18 @@ abstract class MapRunner(
     abstract val isCorpseDraggingMap: Boolean
 
     /**
+     * Dragger ammo resupply threshold, if ammo level is below this level during deployment,
+     * the echelon will be resupplied.
+     */
+    protected open val ammoResupplyThreshold = 1.0
+
+    /**
+     * Dragger rations resupply threshold, if rations level is below this level during deployment,
+     * the echelon will be resupplied.
+     */
+    protected open val rationsResupplyThreshold = 0.8
+
+    /**
      * Main run function that goes through whole life cycle of MapRunner
      */
     suspend fun execute() {
@@ -194,7 +206,7 @@ abstract class MapRunner(
                 val image = screenshot.getSubimage(645, 820, 218, 1).binarizeImage()
                 val ammoCount = image.countColor(Color.WHITE) / image.width.toDouble() * 100
                 logger.info("Second member ammo: ${formatter.format(ammoCount)} %")
-                image.countColor(Color.WHITE) != image.width
+                image.countColor(Color.WHITE) / image.width >= ammoResupplyThreshold
             }
             val rationNeedsSupply = async {
                 if (!hasMember2) return@async false
@@ -202,7 +214,7 @@ abstract class MapRunner(
                 val rationCount = image.countColor(Color.WHITE) / image.width.toDouble() * 100
                 logger.info("Second member rations: ${formatter.format(rationCount)} %")
                 // Make threshold overridable?
-                image.countColor(Color.WHITE) / image.width > 0.8
+                image.countColor(Color.WHITE) / image.width >= rationsResupplyThreshold
             }
             if (!isCorpseDraggingMap) {
                 for (mIndex in 0..5) {
