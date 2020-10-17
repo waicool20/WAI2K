@@ -62,7 +62,6 @@ dependencies {
     implementation("org.controlsfx", "controlsfx", "8.40.14")
     implementation("org.reflections", "reflections", "0.9.12")
     implementation("com.squareup.okhttp3:okhttp:4.9.0")
-    implementation("ai.djl:api:0.9.0-SNAPSHOT")
     implementation("ai.djl.pytorch:pytorch-engine:0.8.0")
     implementation("ai.djl.pytorch:pytorch-native-auto:1.6.0")
 
