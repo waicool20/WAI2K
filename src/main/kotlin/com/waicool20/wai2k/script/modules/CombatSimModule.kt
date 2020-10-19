@@ -128,7 +128,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
             heliport.click(); delay(500)
             endNode.click(); delay(500)
             mapRunnerRegions.executePlan.click(); delay(7000)
-            waitForTurnEnd(1)
+            waitForTurnEnd(1, timeout = 60_000)
 
             while (true) {
                 mapRunnerRegions.battleEndClick.click()
@@ -146,7 +146,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
                         region.subRegion(1115, 695, 250, 96).click() // ok
                         logger.info("Done one cycle, remaining: $times")
                         delay(7000)
-                        waitForTurnEnd(1)
+                        waitForTurnEnd(1, timeout = 60_000)
                     }
                 }
             }
