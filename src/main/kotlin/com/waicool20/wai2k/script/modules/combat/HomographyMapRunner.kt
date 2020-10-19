@@ -35,13 +35,31 @@ import com.waicool20.wai2k.util.ai.MatchingModel
 import com.waicool20.wai2k.util.ai.MatchingTranslator
 import com.waicool20.waicoolutils.logging.loggerFor
 import georegression.struct.homography.Homography2D_F64
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import java.nio.file.Files
 import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.roundToLong
 import kotlin.random.Random
 
+/**
+ * HomographyMapRunner is a base abstract class that implements [nodes] and [findRegion]
+ * by using an feature matching neural network model and homography calculation to locate clickable
+ * regions.
+ *
+ * To implement a HomographyMapRunner, both map.json and map.png must be present in the maps
+ * assets. Where:
+ *
+ * - map.json is a json file containing [MapNode] definitions of node relative to the location inside map.png
+ * - map.png is typically an image containing the whole map
+ *
+ *
+ * Any overrides to [cleanup] must call the super method as [HomographyMapRunner] has
+ * some custom cleanup behaviour. Failure to call it will result in undefined behaviour.
+ */
 abstract class HomographyMapRunner(scriptComponent: ScriptComponent) : MapRunner(scriptComponent) {
     private val logger = loggerFor<HomographyMapRunner>()
 

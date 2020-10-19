@@ -25,6 +25,15 @@ import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.wai2k.script.ScriptComponent
 import java.nio.file.Files
 
+/**
+ * AbsoluteMapRunner is a base abstract class that implements [nodes] and [findRegion], it simply
+ * clicks predefined locations.
+ *
+ * To implement a AbsoluteMapRunner, only map.json must be present in the maps
+ * assets. Where:
+ *
+ * - map.json is a json file containing [MapNode] definitions relative to the on screen location
+ */
 abstract class AbsoluteMapRunner(scriptComponent: ScriptComponent) : MapRunner(scriptComponent) {
 
     override val nodes = run {

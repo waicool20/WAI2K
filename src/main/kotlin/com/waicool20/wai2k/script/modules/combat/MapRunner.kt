@@ -53,6 +53,9 @@ import kotlin.reflect.KClass
  * The main entry method is [begin] which is called after entering the map, [cleanup] is called
  * after the end of the [begin] method before handing control back to the main script
  * loop. [cleanup] is also called in case any exceptions (e.g Timeouts) occur during a MapRunner cycle.
+ *
+ * Assets specific to a MapRunner can be put in `/combat/maps/<map-name>`, for
+ * convenient access a variable called [PREFIX] is defined for each map.
  */
 abstract class MapRunner(
     scriptComponent: ScriptComponent
