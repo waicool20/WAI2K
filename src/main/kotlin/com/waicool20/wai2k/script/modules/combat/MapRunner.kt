@@ -22,6 +22,7 @@ package com.waicool20.wai2k.script.modules.combat
 import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.core.asCachedRegion
 import com.waicool20.cvauto.core.template.FileTemplate
+import com.waicool20.cvauto.core.template.ITemplate
 import com.waicool20.wai2k.game.*
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.ScriptTimeOutException
@@ -44,7 +45,15 @@ import kotlin.math.roundToInt
 import kotlin.random.Random
 import kotlin.reflect.KClass
 
-
+/**
+ * Base class containing most of the scripting framework required to script a map, this includes
+ * common actions such as deploying, resupplying and retreating echelons. It also keeps track
+ * whenever an echelon enters battle after calling any of the waitFor* functions.
+ *
+ * The main entry method is [begin] which is called after entering the map, [cleanup] is called
+ * after the end of the [begin] method before handing control back to the main script
+ * loop. [cleanup] is also called in case any exceptions (e.g Timeouts) occur during a MapRunner cycle.
+ */
 abstract class MapRunner(
     scriptComponent: ScriptComponent
 ) : ScriptComponent by scriptComponent, CoroutineScope {
@@ -374,12 +383,18 @@ abstract class MapRunner(
      * then ends the turn. This also clicks through any battle results when node battle ends
      *
      * @param battles Amount of battles expected in this turn
+     * @param endTurn Ends current turn if true (default)
+     * @param timeout Extra timeout duration per battle on top of user configuration. 0s default
      */
-    protected suspend fun waitForTurnEnd(battles: Int, endTurn: Boolean = true) {
+    protected suspend fun waitForTurnEnd(
+        battles: Int,
+        endTurn: Boolean = true,
+        timeout: Long = 0
+    ) {
         logger.info("Waiting for turn to end, expected battles: $battles")
         var battlesPassed = 0
         try {
-            withTimeout(battles * profile.combat.battleTimeout * 1000L) {
+            withTimeout(battles * (profile.combat.battleTimeout * 1000L + timeout)) {
                 while (isActive && battlesPassed < battles) {
                     if (isInBattle()) {
                         clickThroughBattle()
@@ -461,16 +476,24 @@ abstract class MapRunner(
 
     /**
      * Waits for the assets to appear and assumes that the turn is complete
+     *
+     * @param assets List of assets to wait for
+     * @param endTurn Ends turn automatically after waiting if true
+     * @param timeout Time to wait before signalling timeout error and restart, 120s default
      */
-    protected suspend fun waitForTurnAssets(endTurn: Boolean = true, threshold: Double = 0.98, vararg assets: String) {
+    protected suspend fun waitForTurnAssets(
+        assets: List<ITemplate>,
+        endTurn: Boolean = true,
+        timeout: Long = 120_000
+    ) {
         logger.info("Waiting for ${assets.size} assets to appear:")
         assets.forEach { logger.info("Waiting on: $it") }
         try {
-            withTimeout(120_000) {
+            withTimeout(timeout) {
                 while (isActive) {
                     if (isInBattle()) clickThroughBattle()
                     val r = region.asCachedRegion()
-                    if (assets.all { r.has(FileTemplate(it, threshold)) }) break
+                    if (assets.all { r.has(it) }) break
                     yield()
                 }
             }

@@ -76,7 +76,7 @@ class Map10_4E_Drag(scriptComponent: ScriptComponent) : AbsoluteMapRunner(script
 
         planPath()
         waitForTurnEnd(5, false); delay(1000)
-        waitForTurnAssets(false, 0.96, "combat/battle/plan.png")
+        waitForTurnAssets(listOf(FileTemplate("combat/battle/plan.png", 0.96)), false)
         retreatEchelons(nodes[5])
         terminateMission() // Make a restart option for speed ;)
     }

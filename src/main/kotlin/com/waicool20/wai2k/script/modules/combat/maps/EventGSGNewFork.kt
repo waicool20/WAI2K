@@ -73,7 +73,7 @@ class EventGSGNewFork(scriptComponent: ScriptComponent) : HomographyMapRunner(sc
         waitForGNKSplash()
 
         moveDummy() // Map will pan when switching with Angelica
-        waitForTurnAssets(false, 0.96, "combat/battle/plan.png")
+        waitForTurnAssets(listOf(FileTemplate("combat/battle/plan.png", 0.96)), false)
 
         mapH = null
         deployEchelons(nodes[0])

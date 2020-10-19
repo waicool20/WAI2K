@@ -20,6 +20,7 @@
 package com.waicool20.wai2k.script.modules.combat.maps
 
 
+import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.modules.combat.HomographyMapRunner
 import com.waicool20.waicoolutils.logging.loggerFor
@@ -58,7 +59,7 @@ class Map1_6(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptCompo
         // Max points you could have
         waitForTurnAndPoints(4, 1, false, timeout = 180000); delay(500)
         // In case these is 1 more node
-        waitForTurnAssets(true, 0.96, "combat/battle/plan.png")
+        waitForTurnAssets(listOf(FileTemplate("combat/battle/plan.png", 0.96)), false)
         handleBattleResults()
     }
 

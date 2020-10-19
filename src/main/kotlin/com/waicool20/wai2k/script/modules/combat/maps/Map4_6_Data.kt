@@ -19,6 +19,7 @@
 
 package com.waicool20.wai2k.script.modules.combat.maps
 
+import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.modules.combat.HomographyMapRunner
 import com.waicool20.waicoolutils.logging.loggerFor
@@ -59,7 +60,7 @@ class Map4_6_Data(scriptComponent: ScriptComponent) : HomographyMapRunner(script
 
         // If you get ambushed on the final ? node waitForTurnAndPoints() can be satisfied
         // As the "You have been ambushed popup is there with a delay to get into battle
-        waitForTurnAssets(false, 0.96, "combat/battle/plan.png")
+        waitForTurnAssets(listOf(FileTemplate("combat/battle/plan.png", 0.96)), false)
         if (interruptWaitFlag) {
             while (!combatComplete) delay(1000)
         }

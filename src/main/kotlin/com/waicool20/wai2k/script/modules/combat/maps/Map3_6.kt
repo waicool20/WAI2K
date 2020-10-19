@@ -20,6 +20,7 @@
 package com.waicool20.wai2k.script.modules.combat.maps
 
 
+import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.modules.combat.HomographyMapRunner
 import com.waicool20.waicoolutils.logging.loggerFor
@@ -56,7 +57,7 @@ class Map3_6(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptCompo
         // Possible to get ambushed, so battle count unreliable
         waitForTurnAndPoints(1, 1, false); delay(500)
         // Need to stop these turn end methods triggering before the battle
-        waitForTurnAssets(false, 0.96, "combat/battle/plan.png")
+        waitForTurnAssets(listOf(FileTemplate("combat/battle/plan.png", 0.96)), false)
         handleBattleResults()
     }
 

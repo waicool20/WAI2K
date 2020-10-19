@@ -20,6 +20,7 @@
 package com.waicool20.wai2k.script.modules.combat.maps
 
 import com.waicool20.cvauto.android.AndroidRegion
+import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.modules.combat.AbsoluteMapRunner
 import com.waicool20.waicoolutils.logging.loggerFor
@@ -90,7 +91,7 @@ class Map10_4E(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptCompo
         //resupplyEchelons(nodes[0])
         planPath()
         waitForTurnEnd(5, false); delay(1000)
-        waitForTurnAssets(false, 0.96, "combat/battle/plan.png")
+        waitForTurnAssets(listOf(FileTemplate("combat/battle/plan.png", 0.96)), false)
 
         //Reset Map Zoom State
         repeat(1) {
