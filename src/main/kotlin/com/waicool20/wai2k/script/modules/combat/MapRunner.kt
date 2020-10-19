@@ -490,7 +490,7 @@ abstract class MapRunner(
         timeout: Long = 120_000
     ) {
         logger.info("Waiting for ${assets.size} assets to appear:")
-        assets.forEach { logger.info("Waiting on: $it") }
+        assets.forEach { logger.info("Waiting on: ${it.source}") }
         try {
             withTimeout(timeout) {
                 while (isActive) {
