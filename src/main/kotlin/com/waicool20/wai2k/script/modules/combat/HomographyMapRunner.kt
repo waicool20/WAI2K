@@ -170,6 +170,7 @@ abstract class HomographyMapRunner(scriptComponent: ScriptComponent) : MapRunner
                 mapH = prediction
                 prediction
             } catch (e: TranslateException) {
+                logger.warn("Could not find map transformation: ${e.message}")
                 resetView()
                 continue
             }
