@@ -40,7 +40,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import java.nio.file.Files
-import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.roundToLong
 import kotlin.random.Random
@@ -210,38 +209,37 @@ abstract class HomographyMapRunner(scriptComponent: ScriptComponent) : MapRunner
                 )
                 // Add some randomness
                 center.translate(Random.nextInt(-50, 50), Random.nextInt(-50, 50))
+                val from = center.copyAs<AndroidRegion>()
+                val to = center.copyAs<AndroidRegion>()
                 when {
                     roi.y < window.y -> {
-                        val dist = max(window.y - roi.y, minScroll)
-                        val from = center.copyAs<AndroidRegion>().apply { translate(0, -dist) }
-                        val to = center.copyAs<AndroidRegion>().apply { translate(0, dist) }
+                        val dist = (window.y - roi.y).coerceAtLeast(minScroll)
+                        from.translate(0, -dist)
+                        to.translate(0, dist)
                         logger.info("Scroll up $dist px")
-                        from.swipeTo(to)
                     }
-                    roi.y > window.y + window.height -> {
-                        val dist = max(roi.y - (window.y + window.height), minScroll)
-                        val from = center.copyAs<AndroidRegion>().apply { translate(0, dist) }
-                        val to = center.copyAs<AndroidRegion>().apply { translate(0, -dist) }
+                    roi.y + roi.height > window.y + window.height -> {
+                        val dist = ((roi.y + roi.height) - (window.y + window.height)).coerceAtLeast(minScroll)
+                        from.translate(0, dist)
+                        to.translate(0, -dist)
                         logger.info("Scroll down $dist px")
-                        from.swipeTo(to)
                     }
                 }
                 when {
                     roi.x < window.x -> {
-                        val dist = max(window.x - roi.x, minScroll)
-                        val from = center.copyAs<AndroidRegion>().apply { translate(-dist, 0) }
-                        val to = center.copyAs<AndroidRegion>().apply { translate(dist, 0) }
+                        val dist = (window.x - roi.x).coerceAtLeast(minScroll)
+                        from.translate(-dist, 0)
+                        to.translate(dist, 0)
                         logger.info("Scroll left $dist px")
-                        from.swipeTo(to)
                     }
-                    roi.x > window.x + window.width -> {
-                        val dist = max(roi.x - (window.x + window.width), minScroll)
-                        val from = center.copyAs<AndroidRegion>().apply { translate(dist, 0) }
-                        val to = center.copyAs<AndroidRegion>().apply { translate(-dist, 0) }
+                    roi.x + roi.width > window.x + window.width -> {
+                        val dist = ((roi.x + roi.width) - (window.x + window.width)).coerceAtLeast(minScroll)
+                        from.translate(dist, 0)
+                        to.translate(-dist, 0)
                         logger.info("Scroll right $dist px")
-                        from.swipeTo(to)
                     }
                 }
+                from.swipeTo(to)
                 mapH = null
                 delay(200)
                 return findRegion()
