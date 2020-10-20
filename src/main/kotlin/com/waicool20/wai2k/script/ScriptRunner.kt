@@ -125,7 +125,9 @@ class ScriptRunner(
             currentDevice?.input?.touchInterface?.settings?.postTapDelay = (mouseDelay * 1000).roundToLong()
         }
 
-        currentDevice = ADB.getDevices().find { it.serial == currentConfig.lastDeviceSerial }
+        if (currentDevice == null || currentDevice?.serial != currentConfig.lastDeviceSerial) {
+            currentDevice = ADB.getDevices().find { it.serial == currentConfig.lastDeviceSerial }
+        }
         val region = currentDevice?.screens?.firstOrNull() ?: run {
             logger.info("Could not start due to invalid device")
             return
@@ -179,7 +181,7 @@ class ScriptRunner(
             while (isPaused) delay(currentConfig.scriptConfig.loopDelay * 1000L)
             logger.info("Script will now resume")
         } else {
-            delay(currentConfig.scriptConfig.loopDelay * 1000L)
+            delay((currentConfig.scriptConfig.loopDelay * 1000L).coerceAtLeast(500))
         }
     }
 
