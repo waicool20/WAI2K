@@ -48,6 +48,7 @@ class LogisticsSupportModule(navigator: Navigator) : ScriptModule(navigator) {
      * Checks if any echelons require dispatching then dispatches them
      */
     private suspend fun checkAndDispatchEchelons() {
+        if (logisticSupportLimitReached()) return
         val queue = profile.logistics.assignments
             // Map to echelon
             .mapKeys { gameState.echelons[it.key - 1] }
@@ -60,7 +61,7 @@ class LogisticsSupportModule(navigator: Navigator) : ScriptModule(navigator) {
             // Remove all the echelons that have repairs ongoing
             .filterNot { it.key.hasRepairs() }
         // Return if no echelons to dispatch or logistic support 4/4 was reached
-        if (queue.isEmpty() || logisticSupportLimitReached()) return
+        if (queue.isEmpty()) return
         navigator.navigateTo(LocationId.LOGISTICS_SUPPORT)
         queue.entries.shuffled().forEach { (echelon, ls) ->
             if (logisticSupportLimitReached()) {
@@ -75,7 +76,6 @@ class LogisticsSupportModule(navigator: Navigator) : ScriptModule(navigator) {
                 // Choose a random logistic support
                 .shuffled().firstOrNull()
             if (assignment != null) dispatchEchelon(echelon, assignment)
-            yield()
         }
     }
 
@@ -246,6 +246,6 @@ class LogisticsSupportModule(navigator: Navigator) : ScriptModule(navigator) {
      * Checks if the amount of ongoing logistic support is 4
      */
     private fun logisticSupportLimitReached(): Boolean {
-        return gameState.echelons.mapNotNull { it.logisticsSupportAssignment }.size >= 4
+        return gameState.echelons.count { it.logisticsSupportAssignment?.eta?.isAfter(Instant.now()) == true } > 4
     }
 }
