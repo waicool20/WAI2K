@@ -78,9 +78,7 @@ class DeviceTabView : CoroutineScopeView(), Binder {
         reloadDevicesButton.setOnAction {
             refreshDeviceLists()
             if (renderJob?.isActive == false) {
-                deviceComboBox.selectedItem?.let {
-                    renderJob = createNewRenderJob(it)
-                }
+                createNewRenderJob(deviceComboBox.selectedItem ?: return@setOnAction)
             }
         }
         deviceComboBox.converter = object : StringConverter<AndroidDevice>() {
@@ -173,12 +171,17 @@ class DeviceTabView : CoroutineScopeView(), Binder {
                     total += time
                 }
                 logger.info("Average: ${total / times} ms")
-                renderJob = createNewRenderJob(device)
+                createNewRenderJob(device)
             }
         }
         context.wai2KConfig.scriptConfig.fastScreenshotModeProperty.addListener("DeviceTabViewFSMListener") { newVal ->
             deviceComboBox.selectedItem?.screens?.firstOrNull()?.fastCaptureMode = newVal
         }
+    }
+
+    override fun onTabSelected() {
+        super.onTabSelected()
+        createNewRenderJob(deviceComboBox.selectedItem ?: return)
     }
 
     private fun refreshDeviceLists(action: (List<AndroidDevice>) -> Unit = {}) {
@@ -205,30 +208,28 @@ class DeviceTabView : CoroutineScopeView(), Binder {
             context.wai2KConfig.save()
             device.screens[0].fastCaptureMode = context.wai2KConfig.scriptConfig.fastScreenshotMode
             // Cancel the current job before starting a new one
-            renderJob?.cancel()
-            renderJob = createNewRenderJob(device)
+            createNewRenderJob(device)
         }
     }
 
-    private fun createNewRenderJob(device: AndroidDevice): Job {
-        return launch(Dispatchers.IO + CoroutineName("Device Tab Render Job")) {
+    private fun createNewRenderJob(device: AndroidDevice) {
+        renderJob?.cancel()
+        renderJob = launch(Dispatchers.IO + CoroutineName("Device Tab Render Job")) {
             var lastCaptureTime = System.currentTimeMillis()
-            while (isActive) {
+            while (isActive && owningTab?.isSelected == true) {
                 try {
-                    if (owningTab?.isSelected == true) {
-                        val image = if (realtimePreviewCheckbox.isSelected && device.screens[0].fastCaptureMode) {
+                    val image = if (realtimePreviewCheckbox.isSelected && device.screens[0].fastCaptureMode) {
+                        device.screens[0].capture()
+                    } else {
+                        device.screens[0].getLastScreenCapture()?.takeIf {
+                            System.currentTimeMillis() - lastCaptureTime < 3000
+                        } ?: run {
+                            lastCaptureTime = System.currentTimeMillis()
                             device.screens[0].capture()
-                        } else {
-                            device.screens[0].getLastScreenCapture()?.takeIf {
-                                System.currentTimeMillis() - lastCaptureTime < 3000
-                            } ?: run {
-                                lastCaptureTime = System.currentTimeMillis()
-                                device.screens[0].capture()
-                            }
                         }
-                        withContext(Dispatchers.Main) {
-                            deviceView.image = SwingFXUtils.toFXImage(image, null)
-                        }
+                    }
+                    withContext(Dispatchers.Main) {
+                        deviceView.image = SwingFXUtils.toFXImage(image, null)
                     }
                 } catch (e: Exception) {
                     logger.warn("Failed to get frame for device $device", e)
