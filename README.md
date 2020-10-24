@@ -24,26 +24,9 @@ If you understand this then read on
 - Can run in background without taking over desktop mouse
 - More to come
 
-# Setup
+# How do I get this running?
 
-Prerequisites:
-
-* [Java JDK 11 or above](https://adoptopenjdk.net/)
-* [WAI2K-Launcher.jar](https://github.com/waicool20/WAI2K/releases/latest)
-* Emulator, must be 2160x1080 resolution
-
-Start the app by running the launcher jar file (Double click on windows), first launch will be longer due to automatic downloading of necessary files!
-
-It is recommended to use the Android Studio Emulator to run the game.
-
-There is a certain difficulty in setting up the script due to the specificity that the script requires in the environment it runs in
-which is understandable, hopefully the articles below can help you.
-You can always join our discord community (Invite below) if you have any further questions.
-
-Useful guides:
-
-- [Emulator setup](https://github.com/waicool20/WAI2K/wiki#emulator-setup)
-- [GPU acceleration](https://github.com/waicool20/WAI2K/wiki/GPU-Acceleration)
+[Read the full setup guide here](https://github.com/waicool20/WAI2K/wiki#wai2k---setup-guide)
 
 # Build Instructions
 
