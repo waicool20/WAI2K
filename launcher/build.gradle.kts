@@ -32,7 +32,7 @@ import java.security.MessageDigest
 plugins {
     java
     kotlin("jvm") version "1.4.0"
-    id("com.github.johnrengelman.shadow") version "5.0.0"
+    id("com.github.johnrengelman.shadow") version "5.2.0"
 }
 
 group = "com.waicool20"
