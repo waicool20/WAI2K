@@ -80,6 +80,12 @@ dependencies {
     implementation("com.waicool20:cvauto-android")
 }
 
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(14))
+    }
+}
+
 tasks {
     processResources {
         dependsOn("versioning")
