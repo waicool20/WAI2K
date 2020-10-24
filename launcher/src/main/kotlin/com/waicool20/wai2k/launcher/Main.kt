@@ -106,7 +106,7 @@ object Main {
                     mainFiles.forEach(::checkFile)
                 }
                 if (!args.contains("--skip-dependencies-check")) {
-                    checkDependencies()
+                    checkDependencies(args.contains("--use-local-dep-list"))
                 }
             } catch (e: Exception) {
                 println("Exception during update check")
@@ -179,7 +179,7 @@ object Main {
         }
     }
 
-    private fun checkDependencies() {
+    private fun checkDependencies(useLocalDepList: Boolean) {
         label.text = "Checking dependencies..."
 
         // Download libs to local
@@ -187,9 +187,13 @@ object Main {
 
         val depPath = appPath.resolve("dependencies.txt")
         val text = try {
-            val text = grabWebString("$url/dependencies.txt")
-            Files.write(depPath, text.toByteArray())
-            text.lines()
+            if (useLocalDepList && Files.exists(depPath)) {
+                Files.readAllLines(depPath)
+            } else {
+                val text = grabWebString("$url/dependencies.txt")
+                Files.write(depPath, text.toByteArray())
+                text.lines()
+            }
         } catch (e: Exception) {
             if (Files.exists(depPath)) {
                 println("Could not retrieve new dependencies, using old one instead")
@@ -302,6 +306,8 @@ object Main {
         val jars = Files.walk(libPath)
             .filter { Files.isRegularFile(it) && "$it".endsWith(".jar") }
             .toList()
+            // Prioritize higher versioned libraries
+            .sortedDescending()
 
         val classpath = if (System.getProperty("os.name").contains("win", true)) {
             jars.joinToString(";", postfix = ";") + "$appPath\\WAI2K.jar"
