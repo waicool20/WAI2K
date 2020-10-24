@@ -97,6 +97,7 @@ object Main {
 
     @JvmStatic
     fun main(args: Array<String>) {
+        checkJavaVersion()
         if (!args.contains("--skip-checks")) {
             try {
                 if (!args.contains("--skip-launcher-check")) {
@@ -150,6 +151,15 @@ object Main {
         }
     }
 
+    private fun checkJavaVersion() {
+        val v = System.getProperty("java.version")
+        if (v.takeWhile { it != '.' }.toInt() < 11) {
+            browseLink("https://adoptopenjdk.net/")
+            halt("WAI2K has updated to Java 11+, you have version $v")
+        }
+        println("Java OK: $v")
+    }
+
     private fun checkLauncherUpdate() {
         // Skip update check if running from code
         if (!"${Main.javaClass.getResource(Main.javaClass.simpleName + ".class")}".startsWith("jar")) return
@@ -159,19 +169,7 @@ object Main {
             val chksum0 = grabWebString("https://github.com/waicool20/WAI2K/releases/download/Latest/WAI2K-Launcher.jar.md5")
             val chksum1 = calcCheckSum(jarPath, Hash.MD5)
             if (chksum0.equals(chksum1, true)) return
-
-            val uri = URI("https://github.com/waicool20/WAI2K/releases/tag/Latest")
-            thread {
-                try {
-                    Desktop.getDesktop().browse(uri)
-                } catch (e: Exception) {
-                    if (System.getProperty("os.name").toLowerCase().contains("linux")) {
-                        ProcessBuilder("xdg-open", "$uri").start()
-                    } else {
-                        throw e
-                    }
-                }
-            }
+            browseLink("https://github.com/waicool20/WAI2K/releases/tag/Latest")
             halt("Launcher update available, please download it and try again")
         } catch (e: Exception) {
             println("Skipping launcher update check due to exception")
@@ -244,6 +242,21 @@ object Main {
                 }
             }
             println("Found dependency @ ${paths.firstOrNull()}")
+        }
+    }
+
+    private fun browseLink(link: String) {
+        val uri = URI(link)
+        thread {
+            try {
+                Desktop.getDesktop().browse(uri)
+            } catch (e: Exception) {
+                if (System.getProperty("os.name").toLowerCase().contains("linux")) {
+                    ProcessBuilder("xdg-open", "$uri").start()
+                } else {
+                    throw e
+                }
+            }
         }
     }
 
