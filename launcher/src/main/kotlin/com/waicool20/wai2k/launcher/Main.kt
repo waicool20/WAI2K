@@ -207,14 +207,15 @@ object Main {
 
         var isRepo = false
 
-        for (line in text) {
+        for ((i, line) in text.withIndex()) {
             when {
                 line.startsWith("Repositories:") -> isRepo = true
                 line.startsWith("Dependencies") -> isRepo = false
                 line.startsWith("- ") -> {
                     val entry = line.drop(2)
                     if (isRepo) {
-                        maven = maven.withRemoteRepo(entry, entry, "default")
+                        println("Register repository: $line")
+                        maven = maven.withRemoteRepo(i.toString(), entry, "default")
                     } else {
                         dependencies.add(entry)
                     }
@@ -222,20 +223,23 @@ object Main {
             }
         }
 
-        dependencies.forEach {
-            label.text = "Checking dependency: $it"
-            println("Resolving dependency $it")
-            var path: Path
+        dependencies.forEach { d ->
+            label.text = "Checking dependency: $d"
+            println("Resolving dependency $d")
+            var paths: List<Path>
             while (true) {
-                path = maven.resolve(it).withoutTransitivity().asSingleFile().toPath()
-                if (verifyCheckSum(path, Hash.SHA1)) {
-                    break
-                } else {
-                    Files.delete(path)
-                    Files.delete(Paths.get("${path}.sha1"))
+                paths = maven.resolve(d).withTransitivity().asFile().map { it.toPath() }
+
+                // Skip sha1 check on snapshots
+                if (d.contains("snapshot", true)) break
+                val failedChecks = paths.filterNot { verifyCheckSum(it, Hash.SHA1) }
+                if (failedChecks.isEmpty()) break
+                failedChecks.forEach {
+                    Files.deleteIfExists(it)
+                    Files.deleteIfExists(Paths.get("${it}.sha1"))
                 }
             }
-            println("Found dependency @ $path")
+            println("Found dependency @ ${paths.firstOrNull()}")
         }
     }
 
