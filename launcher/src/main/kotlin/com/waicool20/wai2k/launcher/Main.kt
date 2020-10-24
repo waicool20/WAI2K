@@ -19,17 +19,18 @@
 
 package com.waicool20.wai2k.launcher
 
-import okhttp3.*
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import org.jboss.shrinkwrap.resolver.api.maven.Maven
+import org.slf4j.LoggerFactory
 import java.awt.Desktop
 import java.awt.Dimension
 import java.awt.FlowLayout
-import java.io.IOException
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.security.MessageDigest
-import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.zip.ZipInputStream
 import javax.swing.BorderFactory
@@ -38,6 +39,7 @@ import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.xml.bind.DatatypeConverter
 import kotlin.concurrent.thread
+import kotlin.streams.toList
 import kotlin.system.exitProcess
 
 /*
@@ -60,6 +62,13 @@ import kotlin.system.exitProcess
  */
 
 object Main {
+    private val logger = LoggerFactory.getLogger(javaClass)
+
+    enum class Hash(val length: Int) {
+        MD5(32),
+        SHA1(40)
+    }
+
     private val client = OkHttpClient()
     private val url = "https://wai2k.waicool20.com/files"
     private val appPath = Paths.get(System.getProperty("user.home")).resolve(".wai2k").toAbsolutePath()
@@ -94,11 +103,18 @@ object Main {
     fun main(args: Array<String>) {
         if (!args.contains("--skip-checks")) {
             try {
-                checkLauncherUpdate()
-                mainFiles.forEach(::checkFile)
-                checkDependencies()
+                if (!args.contains("--skip-launcher-check")) {
+                    checkLauncherUpdate()
+                }
+                if (!args.contains("--skip-main-check")) {
+                    mainFiles.forEach(::checkFile)
+                }
+                if (!args.contains("--skip-dependencies-check")) {
+                    checkDependencies()
+                }
             } catch (e: Exception) {
-                println("Exception during update check ${e.message}")
+                println("Exception during update check")
+                e.printStackTrace()
                 // Just try to launch wai2k anyways if anything unexpected happens ¯\_(ツ)_/¯
             }
         }
@@ -110,9 +126,9 @@ object Main {
         val path = appPath.resolve(file)
         try {
             if (Files.exists(path)) {
-                val sum = grabWebString("$url/$file.md5")
-                val chksum = calcCheckSum(path)
-                if (sum.equals(chksum, true)) return
+                val chksum0 = grabWebString("$url/$file.md5")
+                val chksum1 = calcCheckSum(path, Hash.MD5)
+                if (chksum0.equals(chksum1, true)) return
             }
 
             client.newCall(Request.Builder().url("$url/$file").build()).execute().use {
@@ -129,7 +145,8 @@ object Main {
             if ("$path".endsWith(".zip")) unzip(path, appPath.resolve("wai2k"))
         } catch (e: Exception) {
             if (Files.exists(path)) {
-                println("Skipping $file update check due to exception: ${e.message}")
+                println("Skipping $file update check due to exception")
+                e.printStackTrace()
                 return
             } else {
                 halt("Could not grab initial copy of $file")
@@ -143,8 +160,9 @@ object Main {
         val jarPath = Paths.get(Main::class.java.protectionDomain.codeSource.location.toURI())
 
         try {
-            val sum = grabWebString("https://github.com/waicool20/WAI2K/releases/download/Latest/WAI2K-Launcher.jar.md5")
-            if (sum.equals(calcCheckSum(jarPath), true)) return
+            val chksum0 = grabWebString("https://github.com/waicool20/WAI2K/releases/download/Latest/WAI2K-Launcher.jar.md5")
+            val chksum1 = calcCheckSum(jarPath, Hash.MD5)
+            if (chksum0.equals(chksum1, true)) return
 
             val uri = URI("https://github.com/waicool20/WAI2K/releases/tag/Latest")
             thread {
@@ -160,12 +178,17 @@ object Main {
             }
             halt("Launcher update available, please download it and try again")
         } catch (e: Exception) {
-            println("Skipping launcher update check due to exception: ${e.message}")
+            println("Skipping launcher update check due to exception")
+            e.printStackTrace()
         }
     }
 
     private fun checkDependencies() {
         label.text = "Checking dependencies..."
+
+        // Download libs to local
+        System.setProperty("maven.repo.local", libPath.toString())
+
         val depPath = appPath.resolve("dependencies.txt")
         val text = try {
             val text = grabWebString("$url/dependencies.txt")
@@ -174,14 +197,17 @@ object Main {
         } catch (e: Exception) {
             if (Files.exists(depPath)) {
                 println("Could not retrieve new dependencies, using old one instead")
+                e.printStackTrace()
                 Files.readAllLines(depPath)
             } else {
                 halt("Could not retrieve dependency list: ${e.message}")
             }
         }
 
-        val repos = mutableListOf<String>()
-        val depsString = mutableListOf<String>()
+        var maven = Maven.configureResolver()
+            // Disabled for easier debugging since it resolves jars from launcher classpath
+            .withClassPathResolution(false)
+        val dependencies = mutableListOf<String>()
 
         var isRepo = false
 
@@ -192,80 +218,29 @@ object Main {
                 line.startsWith("- ") -> {
                     val entry = line.drop(2)
                     if (isRepo) {
-                        repos.add(entry)
+                        maven = maven.withRemoteRepo(entry, entry, "default")
                     } else {
-                        depsString.add(entry)
+                        dependencies.add(entry)
                     }
                 }
             }
         }
 
-        for (i in 0 until 10) {
-            val deps = depsString
-                .map { it.split(":") }
-                .filterNot { (_, name, version) ->
-                    verifyCheckSum(libPath.resolve("$name-$version.jar"))
-                }
-
-            val depsTotal = deps.size * 2
-            if (depsTotal == 0) {
-                return
-            } else {
-                if (i > 0) TimeUnit.SECONDS.sleep(1)
-            }
-            val latch = CountDownLatch(depsTotal)
-
-            fun downloadFile(path: Path, response: Response) {
-                println("[DOWNLOAD] $path")
-                val input = response.body!!.byteStream()
-                val output = Files.newOutputStream(path)
-                input.copyTo(output)
-                input.close()
-                output.close()
-                println("[OK] $path")
-                latch.countDown()
-                label.text = "Downloading libraries: ${depsTotal - latch.count}/${depsTotal}"
-            }
-
-            label.text = "Downloading libraries: ${depsTotal - latch.count}/${depsTotal}"
-            for ((grp, name, version) in deps) {
-                val group = grp.replace(".", "/")
-                for (repo in repos) {
-                    val url = if (repo.endsWith("/")) repo else "$repo/"
-                    val filename = "$name-$version.jar"
-                    val path = libPath.resolve(filename)
-                    if (verifyCheckSum(path)) {
-                        println("[OK] $path")
-                        break
-                    }
-
-                    client.newCall(Request.Builder().url("$url$group/$name/$version/$filename").build())
-                        .enqueue(object : Callback {
-                            override fun onResponse(call: Call, response: Response) {
-                                if (response.isSuccessful) downloadFile(path, response)
-                            }
-
-                            override fun onFailure(call: Call, e: IOException) {
-                                // Do Nothing
-                            }
-                        })
-                    client.newCall(Request.Builder().url("$url$group/$name/$version/$filename.md5").build())
-                        .enqueue(object : Callback {
-                            override fun onResponse(call: Call, response: Response) {
-                                if (response.isSuccessful) downloadFile(libPath.resolve("$filename.md5"), response)
-                            }
-
-                            override fun onFailure(call: Call, e: IOException) {
-                                // Do Nothing
-                            }
-                        })
+        dependencies.forEach {
+            label.text = "Checking dependency: $it"
+            println("Resolving dependency $it")
+            var path: Path
+            while (true) {
+                path = maven.resolve(it).withoutTransitivity().asSingleFile().toPath()
+                if (verifyCheckSum(path, Hash.SHA1)) {
                     break
+                } else {
+                    Files.delete(path)
+                    Files.delete(Paths.get("${path}.sha1"))
                 }
             }
-            latch.await()
+            println("Found dependency @ $path")
         }
-
-        halt("Failed to download libraries, try deleting .wai2k/libs and try again")
     }
 
     private fun grabWebString(url: String): String {
@@ -281,17 +256,24 @@ object Main {
         while (true) TimeUnit.SECONDS.sleep(1)
     }
 
-    private fun verifyCheckSum(file: Path): Boolean {
+    private fun verifyCheckSum(file: Path, hash: Hash): Boolean {
         if (Files.notExists(file)) return false
-        val md5sumFile = Paths.get("$file.md5")
-        if (Files.notExists(md5sumFile)) return false
-        return calcCheckSum(file).equals(Files.readAllBytes(md5sumFile)
-            .toString(Charsets.UTF_8).take(32), ignoreCase = true)
+        val sumPath = when (hash) {
+            Hash.MD5 -> Paths.get("$file.md5")
+            Hash.SHA1 -> Paths.get("$file.sha1")
+        }
+        if (Files.notExists(sumPath)) return false
+        val chksum0 = Files.readAllBytes(sumPath).toString(Charsets.UTF_8).take(hash.length)
+        val chksum1 = calcCheckSum(file, hash)
+        return chksum0.equals(chksum1, true)
     }
 
-    private fun calcCheckSum(file: Path): String {
-        return MessageDigest.getInstance("MD5")
-            .digest(Files.readAllBytes(file))
+    private fun calcCheckSum(file: Path, hash: Hash): String {
+        val digest = when (hash) {
+            Hash.MD5 -> MessageDigest.getInstance("MD5")
+            Hash.SHA1 -> MessageDigest.getInstance("SHA-1")
+        }
+        return digest.digest(Files.readAllBytes(file))
             .let { DatatypeConverter.printHexBinary(it) }
     }
 
@@ -316,10 +298,15 @@ object Main {
     private fun launchWai2K(args: Array<String>) {
         frame.isVisible = false
         frame.dispose()
+
+        val jars = Files.walk(libPath)
+            .filter { Files.isRegularFile(it) && "$it".endsWith(".jar") }
+            .toList()
+
         val classpath = if (System.getProperty("os.name").contains("win", true)) {
-            "$libPath\\*;$appPath\\WAI2K.jar"
+            jars.joinToString(";", postfix = ";") + "$appPath\\WAI2K.jar"
         } else {
-            "$libPath/*:$appPath/WAI2K.jar"
+            jars.joinToString(":", postfix = ":") + "$appPath/WAI2K.jar"
         }
         println("Launching WAI2K")
         println("Classpath: $classpath")

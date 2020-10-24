@@ -46,12 +46,10 @@ repositories {
 dependencies {
     val versions = object {
         val Kotlin by lazy { plugins.getPlugin(KotlinPluginWrapper::class).kotlinPluginVersion }
-        val Jackson = "2.11.1"
     }
 
     implementation("com.squareup.okhttp3:okhttp:4.7.2")
-    implementation("com.fasterxml.jackson.core", "jackson-core", versions.Jackson)
-    implementation("com.fasterxml.jackson.core", "jackson-databind", versions.Jackson)
+    implementation("org.jboss.shrinkwrap.resolver:shrinkwrap-resolver-impl-maven:3.1.4")
 
     /* --- */
     testImplementation("junit", "junit", "4.12")
@@ -73,6 +71,9 @@ tasks {
         isReproducibleFileOrder = true
     }
     withType<ShadowJar> {
+        minimize {
+            exclude(dependency("org.jboss.shrinkwrap.resolver:.*:.*"))
+        }
         archiveClassifier.value("")
         archiveVersion.value("")
         exclude("kotlin/reflect/**")
