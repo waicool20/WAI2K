@@ -28,7 +28,7 @@ If you understand this then read on
 
 Prerequisites:
 
-* [Java JDK 8 ( Get the Full Version! )](https://bell-sw.com/pages/downloads/)
+* [Java JDK 11 or above](https://adoptopenjdk.net/)
 * [WAI2K-Launcher.jar](https://github.com/waicool20/WAI2K/releases/latest)
 * Emulator, must be 2160x1080 resolution
 
@@ -46,10 +46,6 @@ Useful guides:
 - [GPU acceleration](https://github.com/waicool20/WAI2K/wiki/GPU-Acceleration)
 
 # Build Instructions
-
-Prerequisites: 
-
-* [Java JDK 8 ( Get the Full Version! )](https://bell-sw.com/pages/downloads/)
 
 Git clone instructions: 
 
