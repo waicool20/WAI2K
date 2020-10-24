@@ -82,7 +82,7 @@ class DeviceTabView : CoroutineScopeView(), Binder {
             }
         }
         deviceComboBox.converter = object : StringConverter<AndroidDevice>() {
-            override fun toString(device: AndroidDevice) = device.properties.name
+            override fun toString(device: AndroidDevice?) = device?.properties?.name ?: "No device selected"
             override fun fromString(string: String) = null
         }
 
