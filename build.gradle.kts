@@ -29,6 +29,7 @@ plugins {
     java
     kotlin("jvm") version "1.4.0"
     id("com.github.johnrengelman.shadow") version "5.0.0"
+    id("org.openjfx.javafxplugin") version "0.0.8"
 }
 
 group = "com.waicool20"
@@ -41,6 +42,11 @@ repositories {
     maven("https://jitpack.io")
 }
 
+javafx {
+    version = "15"
+    modules = listOf("javafx.controls", "javafx.fxml", "javafx.swing")
+}
+
 dependencies {
     val versions = object {
         val Kotlin by lazy { plugins.getPlugin(KotlinPluginWrapper::class).kotlinPluginVersion }
@@ -51,14 +57,14 @@ dependencies {
     implementation("org.jetbrains.kotlin", "kotlin-reflect", versions.Kotlin)
     implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-core", versions.KotlinCoroutines)
     implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-javafx", versions.KotlinCoroutines)
-    implementation("no.tornado", "tornadofx", "1.7.20")
     implementation("com.fasterxml.jackson.core", "jackson-core", versions.Jackson)
     implementation("com.fasterxml.jackson.core", "jackson-databind", versions.Jackson)
     implementation("com.fasterxml.jackson.core", "jackson-annotations", versions.Jackson)
     implementation("com.fasterxml.jackson.module", "jackson-module-kotlin", versions.Jackson)
     implementation("com.fasterxml.jackson.datatype", "jackson-datatype-jsr310", versions.Jackson)
     implementation("ch.qos.logback", "logback-classic", "1.2.3")
-    implementation("org.controlsfx", "controlsfx", "8.40.14")
+    implementation ("no.tornado:tornadofx:2.0.0-SNAPSHOT")
+    implementation("org.controlsfx:controlsfx:11.0.2")
     implementation("org.reflections", "reflections", "0.9.12")
     implementation("com.squareup.okhttp3:okhttp:4.9.0")
     implementation("ai.djl.pytorch:pytorch-engine:0.8.0")
