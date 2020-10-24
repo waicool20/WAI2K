@@ -24,7 +24,6 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
 import java.security.MessageDigest
-import javax.xml.bind.DatatypeConverter
 
 plugins {
     java
@@ -176,6 +175,6 @@ fun md5sum(file: RegularFile) {
     val md5File = Paths.get("$path.md5")
     val md5sum = MessageDigest.getInstance("MD5")
         .digest(Files.readAllBytes(path))
-        .let { DatatypeConverter.printHexBinary(it) }
+        .joinToString("") { String.format("%02x", it) }
     Files.write(md5File, md5sum.toByteArray())
 }

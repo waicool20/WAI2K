@@ -22,7 +22,6 @@ package com.waicool20.wai2k.launcher
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.jboss.shrinkwrap.resolver.api.maven.Maven
-import org.slf4j.LoggerFactory
 import java.awt.Desktop
 import java.awt.Dimension
 import java.awt.FlowLayout
@@ -37,7 +36,6 @@ import javax.swing.BorderFactory
 import javax.swing.JFrame
 import javax.swing.JLabel
 import javax.swing.JPanel
-import javax.xml.bind.DatatypeConverter
 import kotlin.concurrent.thread
 import kotlin.streams.toList
 import kotlin.system.exitProcess
@@ -62,8 +60,6 @@ import kotlin.system.exitProcess
  */
 
 object Main {
-    private val logger = LoggerFactory.getLogger(javaClass)
-
     enum class Hash(val length: Int) {
         MD5(32),
         SHA1(40)
@@ -274,7 +270,7 @@ object Main {
             Hash.SHA1 -> MessageDigest.getInstance("SHA-1")
         }
         return digest.digest(Files.readAllBytes(file))
-            .let { DatatypeConverter.printHexBinary(it) }
+            .joinToString("") { String.format("%02x", it) }
     }
 
     private fun unzip(file: Path, destination: Path) {
