@@ -19,9 +19,12 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<?import javafx.scene.control.*?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.input.KeyCodeCombination?>
-<MenuBar xmlns="http://javafx.com/javafx/8.0.162-ea" xmlns:fx="http://javafx.com/fxml/1">
+
+<MenuBar xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
    <menus>
       <Menu mnemonicParsing="false" text="File">
          <items>
@@ -37,13 +40,20 @@
                <accelerator>
                   <KeyCodeCombination alt="UP" code="D" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                </accelerator></MenuItem>
-             <MenuItem fx:id="toolsItem" mnemonicParsing="false" text="Debug Tools"/>
+             <MenuItem fx:id="toolsItem" mnemonicParsing="false" text="Debug Tools" />
          </items>
       </Menu>
       <Menu mnemonicParsing="false" text="Help">
          <items>
+            <MenuItem fx:id="wikiItem" mnemonicParsing="false" text="Wiki" />
             <MenuItem fx:id="aboutItem" mnemonicParsing="false" text="About" />
          </items>
+      </Menu>
+      <Menu mnemonicParsing="false" text="Support Us!">
+        <items>
+            <MenuItem fx:id="contributeItem" mnemonicParsing="false" text="Contribute!" />
+          <MenuItem fx:id="donateItem" mnemonicParsing="false" text="Donate!" />
+        </items>
       </Menu>
    </menus>
 </MenuBar>

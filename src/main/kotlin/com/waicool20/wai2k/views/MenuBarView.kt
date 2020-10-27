@@ -19,6 +19,7 @@
 
 package com.waicool20.wai2k.views
 
+import com.waicool20.waicoolutils.DesktopUtils
 import javafx.scene.control.MenuBar
 import javafx.scene.control.MenuItem
 import javafx.stage.StageStyle
@@ -29,7 +30,10 @@ class MenuBarView : View() {
     override val root: MenuBar by fxml("/views/menu.fxml")
     private val quitItem: MenuItem by fxid()
     private val consoleItem: MenuItem by fxid()
+    private val wikiItem: MenuItem by fxid()
     private val aboutItem: MenuItem by fxid()
+    private val contributeItem: MenuItem by fxid()
+    private val donateItem: MenuItem by fxid()
     private val toolsItem: MenuItem by fxid()
 
     override fun onDock() {
@@ -38,5 +42,8 @@ class MenuBarView : View() {
         consoleItem.setOnAction { find<ConsoleView>().openWindow(owner = null)?.toFront() }
         aboutItem.setOnAction { find<AboutView>().openModal(stageStyle = StageStyle.UNDECORATED) }
         toolsItem.setOnAction { find<DebugView>().openWindow(owner = null)?.toFront() }
+        contributeItem.setOnAction { DesktopUtils.browse("https://github.com/waicool20/WAI2K") }
+        wikiItem.setOnAction { DesktopUtils.browse("https://github.com/waicool20/WAI2K/wiki") }
+        donateItem.setOnAction { DesktopUtils.browse("https://ko-fi.com/waicool20") }
     }
 }
