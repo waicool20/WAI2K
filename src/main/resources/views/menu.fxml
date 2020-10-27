@@ -45,6 +45,7 @@
       </Menu>
       <Menu mnemonicParsing="false" text="Help">
          <items>
+            <MenuItem fx:id="discordItem" mnemonicParsing="false" text="Discord" />
             <MenuItem fx:id="wikiItem" mnemonicParsing="false" text="Wiki" />
             <MenuItem fx:id="aboutItem" mnemonicParsing="false" text="About" />
          </items>
