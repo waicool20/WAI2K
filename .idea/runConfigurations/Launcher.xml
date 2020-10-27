@@ -1,0 +1,18 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Launcher" type="JetRunConfigurationType">
+    <module name="WAI2K-Launcher.main" />
+    <option name="VM_PARAMETERS" value="-Dsun.awt.disablegrab=true" />
+    <option name="PROGRAM_PARAMETERS" value="" />
+    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+    <option name="ALTERNATIVE_JRE_PATH" />
+    <option name="PASS_PARENT_ENVS" value="true" />
+    <option name="MAIN_CLASS_NAME" value="com.waicool20.wai2k.launcher.Main" />
+    <option name="WORKING_DIRECTORY" value="" />
+    <envs>
+      <env name="WAI2K_ENDPOINT" value="localhost" />
+    </envs>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
