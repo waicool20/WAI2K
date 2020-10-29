@@ -274,7 +274,11 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
                 if (i == retries) {
                     logger.warn("Could not update repair status after $retries attempts")
                     logger.warn("Check if you set the right T doll as dragger")
-                    coroutineContext.cancelAndYield()
+                    if (scriptStats.sortiesDone > 1 && members.map { it.tdollOcr.second }.all { it == null }) {
+                        throw RepairUpdateException()
+                    } else {
+                        coroutineContext.cancelAndYield()
+                    }
                 }
                 delay(2000)
                 continue
