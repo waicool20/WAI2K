@@ -50,7 +50,7 @@ javafx {
 dependencies {
     val versions = object {
         val Kotlin by lazy { plugins.getPlugin(KotlinPluginWrapper::class).kotlinPluginVersion }
-        val KotlinCoroutines = "1.3.9"
+        val KotlinCoroutines = "1.4.0"
         val Jackson = "2.10.1" // Higher version break loading javafx compatibility
     }
 
