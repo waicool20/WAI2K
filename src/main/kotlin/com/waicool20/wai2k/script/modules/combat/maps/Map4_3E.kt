@@ -63,7 +63,7 @@ class Map4_3E(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComp
         mapRunnerRegions.planningMode.click(); yield()
 
         logger.info("Selecting ${nodes[0]}")
-        nodes[1].findRegion().click()
+        nodes[0].findRegion().click()
 
         logger.info("Selecting ${nodes[2]}")
         nodes[2].findRegion().click()
