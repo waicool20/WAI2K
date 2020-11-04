@@ -9,7 +9,7 @@
     <option name="MAIN_CLASS_NAME" value="com.waicool20.wai2k.launcher.Main" />
     <option name="WORKING_DIRECTORY" value="" />
     <envs>
-      <env name="WAI2K_ENDPOINT" value="localhost" />
+      <env name="WAI2K_ENDPOINT" value="http://localhost" />
     </envs>
     <method v="2">
       <option name="Make" enabled="true" />
