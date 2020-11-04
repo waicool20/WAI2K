@@ -19,7 +19,6 @@
 
 package com.waicool20.wai2k.script.modules.combat.maps
 
-import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.modules.combat.HomographyMapRunner
@@ -29,8 +28,8 @@ import kotlinx.coroutines.yield
 import kotlin.math.roundToLong
 import kotlin.random.Random
 
-class EventHalloweenSoap(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent), EventMapRunner {
-    private val logger = loggerFor<EventHalloweenSoap>()
+class EventSpoiledStaccato(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent), EventMapRunner {
+    private val logger = loggerFor<EventSpoiledStaccato>()
     override val isCorpseDraggingMap = false
 
     override val rationsResupplyThreshold = 0.5
@@ -57,7 +56,7 @@ class EventHalloweenSoap(scriptComponent: ScriptComponent) : HomographyMapRunner
 
         }
 
-        deployEchelons(nodes[0], nodes[1]) //teams with only 1 dol in them viable here
+        deployEchelons(nodes[0], nodes[1]) //teams with only 1 doll in them viable here
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
         resupplyEchelons(nodes[0], nodes[1]) // Cant check supplies on teams with only 1 doll
