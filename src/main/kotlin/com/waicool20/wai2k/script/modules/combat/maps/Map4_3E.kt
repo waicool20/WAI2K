@@ -49,9 +49,11 @@ class Map4_3E(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComp
             gameState.requiresMapInit = false
         }
 
-        val rEchelons = deployEchelons(nodes[0], nodes[1])
+        val rEchelons = deployEchelons(nodes[0])
+        deployEchelons(nodes[1])
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
+        resupplyEchelons(rEchelons)
         planPath()
         waitForTurnEnd(4)
         handleBattleResults()
