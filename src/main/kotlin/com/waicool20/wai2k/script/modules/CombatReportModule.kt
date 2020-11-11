@@ -64,12 +64,12 @@ class CombatReportModule(navigator: Navigator) : ScriptModule(navigator) {
         val reportRegion = when (profile.combatReport.type) {
             CombatReport.Type.NORMAL -> {
                 logger.info("Selecting normal combat reports")
-                region.subRegion(583, 399, 465, 148).click()
+                region.subRegion(583, 399, 155, 148).click()
                 region.subRegion(842, 474, 115, 48)
             }
             CombatReport.Type.SPECIAL -> {
                 logger.info("Selecting special combat reports")
-                region.subRegion(1160, 399, 465, 148).click()
+                region.subRegion(1160, 399, 155, 148).click()
                 region.subRegion(1420, 474, 115, 48)
             }
             else -> error("No such combat report type!")
