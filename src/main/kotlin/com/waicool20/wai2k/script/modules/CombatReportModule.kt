@@ -20,6 +20,7 @@
 package com.waicool20.wai2k.script.modules
 
 import com.waicool20.cvauto.core.template.FileTemplate
+import com.waicool20.cvauto.core.template.ImageTemplate
 import com.waicool20.wai2k.config.Wai2KProfile.CombatReport
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.Navigator
@@ -85,8 +86,15 @@ class CombatReportModule(navigator: Navigator) : ScriptModule(navigator) {
             logger.warn("Could not determine amount of reports to write")
         }
         logger.info("Confirming selection")
-        region.subRegion(1144, 749, 268, 103).click()
+        region.subRegion(1144, 749, 268, 103).click(); delay(1000) // OK button
         lastCheck = Instant.now()
         logger.info("Next check is in one hour (${lastCheck.formatted()})")
+
+        if (region.has(FileTemplate("ok.png"))) {
+            logger.info("Warning: Battery at <1%, exiting")
+            region.subRegion(795, 749, 268, 103).click(); delay(500) // Cancel
+            region.subRegion(314, 114, 158, 81).click(); delay(500) // Back
+        }
+
     }
 }
