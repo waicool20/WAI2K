@@ -61,7 +61,8 @@ abstract class MapRunner(
     scriptComponent: ScriptComponent
 ) : ScriptComponent by scriptComponent, CoroutineScope {
 
-    class Deployment(val echelon: Int, val mapNode: MapNode)
+    class Deployment(val echelon: Int, val mapNode: MapNode): Deployable
+    class Retreat(val mapNode: MapNode, val singleClick: Boolean): Retreatable
 
     infix fun Int.at(mapNode: MapNode) = Deployment(this, mapNode)
 
@@ -181,7 +182,7 @@ abstract class MapRunner(
      *
      * @return Deployments that need resupply, can be used in conjunction with [resupplyEchelons]
      */
-    protected suspend fun deployEchelons(vararg deployments: Any): Array<MapNode> = coroutineScope {
+    protected suspend fun deployEchelons(vararg deployments: Deployable): Array<MapNode> = coroutineScope {
         val needsResupply = mutableListOf<MapNode>()
         deployments.forEachIndexed { i, d ->
             val echelon: Int
@@ -333,25 +334,38 @@ abstract class MapRunner(
     }
 
     @JvmName("retreatEchelonsArray")
-    protected suspend fun retreatEchelons(nodes: Array<MapNode>) = retreatEchelons(*nodes)
+    protected suspend fun retreatEchelons(nodes: Array<Retreatable>) = retreatEchelons(*nodes)
 
     /**
      * Retreats an echelon at the given nodes, skips normal type nodes
      *
-     * @param nodes Nodes to retreat
+     * @param retreats Nodes to retreat
      */
-    protected suspend fun retreatEchelons(vararg nodes: MapNode) {
-        for (node in nodes.distinct()) {
-            if (node.type == MapNode.Type.Normal) continue
-            logger.info("Retreat echelon at $node")
+    protected suspend fun retreatEchelons(vararg retreats: Retreatable) {
+        suspend fun retreatEchelon(mapNode: MapNode, singleClick: Boolean = false) {
+            if (mapNode.type == MapNode.Type.Normal) return
+            logger.info("Retreat echelon at $mapNode")
             logger.info("Selecting echelon")
-            openEchelon(node)
+            openEchelon(mapNode, singleClick)
             logger.info("Retreating")
             mapRunnerRegions.retreat.click()
             delay(1000)
             region.subRegion(1115, 696, 250, 95).click()
             logger.info("Retreat complete")
             delay(1000)
+        }
+        val rl = retreats.distinctBy {
+            when (it) {
+                is MapNode -> it
+                is Retreat -> it.mapNode
+                else -> throw IllegalArgumentException("Retreating echelons, expected MapNode or Retreat but got ${it::class.simpleName}")
+            }
+        }
+        for (retreat in rl) {
+            when (retreat) {
+                is MapNode -> retreatEchelon(retreat)
+                is Retreat -> retreatEchelon(retreat.mapNode, retreat.singleClick)
+            }
         }
     }
 

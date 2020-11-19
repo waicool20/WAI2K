@@ -19,18 +19,5 @@
 
 package com.waicool20.wai2k.script.modules.combat
 
-import com.fasterxml.jackson.annotation.JsonInclude
-import java.awt.Rectangle
-
-@JsonInclude(JsonInclude.Include.NON_NULL)
-data class MapNode(
-    val x: Int,
-    val y: Int,
-    val width: Int,
-    val height: Int,
-    val type: Type = Type.Normal
-): Deployable, Retreatable {
-    enum class Type { Normal, CommandPost, Heliport, HeavyHeliport }
-
-    val rect by lazy { Rectangle(x, y, width, height) }
-}
+interface Deployable
+interface Retreatable
