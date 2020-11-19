@@ -342,18 +342,6 @@ abstract class MapRunner(
      * @param retreats Nodes to retreat
      */
     protected suspend fun retreatEchelons(vararg retreats: Retreatable) {
-        suspend fun retreatEchelon(mapNode: MapNode, singleClick: Boolean = false) {
-            if (mapNode.type == MapNode.Type.Normal) return
-            logger.info("Retreat echelon at $mapNode")
-            logger.info("Selecting echelon")
-            openEchelon(mapNode, singleClick)
-            logger.info("Retreating")
-            mapRunnerRegions.retreat.click()
-            delay(1000)
-            region.subRegion(1115, 696, 250, 95).click()
-            logger.info("Retreat complete")
-            delay(1000)
-        }
         val rl = retreats.distinctBy {
             when (it) {
                 is MapNode -> it
@@ -367,6 +355,19 @@ abstract class MapRunner(
                 is Retreat -> retreatEchelon(retreat.mapNode, retreat.singleClick)
             }
         }
+    }
+
+    private suspend fun retreatEchelon(mapNode: MapNode, singleClick: Boolean = false) {
+        if (mapNode.type == MapNode.Type.Normal) return
+        logger.info("Retreat echelon at $mapNode")
+        logger.info("Selecting echelon")
+        openEchelon(mapNode, singleClick)
+        logger.info("Retreating")
+        mapRunnerRegions.retreat.click()
+        delay(1000)
+        region.subRegion(1115, 696, 250, 95).click()
+        logger.info("Retreat complete")
+        delay(1000)
     }
 
     /**
