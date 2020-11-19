@@ -40,7 +40,7 @@ class ProfileTabView : View() {
     }
 
     private val defaultDetailsNode = hbox(alignment = Pos.CENTER) {
-        label("Go away, don't look")
+        label("Go away, don't look ヽ( `д´*)ノ")
     }
 
     private val context: Wai2KContext by inject()
@@ -48,6 +48,7 @@ class ProfileTabView : View() {
     init {
         title = "Profile"
         profilePane.masterNode = defaultMasterNode
+        profilePane.detailNode = defaultDetailsNode
     }
 
     override fun onDock() {

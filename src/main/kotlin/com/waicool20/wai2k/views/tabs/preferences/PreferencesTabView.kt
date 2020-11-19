@@ -43,12 +43,13 @@ class PreferencesTabView : View() {
     }
 
     private val defaultDetailsNode = hbox(alignment = Pos.CENTER) {
-        label("Go away, don't look")
+        label("Go away, don't look ヽ( `д´*)ノ")
     }
 
     init {
         title = "Preferences"
         preferencesPane.masterNode = defaultMasterNode
+        preferencesPane.detailNode = defaultDetailsNode
         saveButton.setOnAction {
             context.wai2KConfig.save()
             AlertFactory.info(content = "Preferences saved!").showAndWait()
