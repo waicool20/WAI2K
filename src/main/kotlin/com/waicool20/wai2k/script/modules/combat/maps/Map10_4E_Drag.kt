@@ -38,36 +38,33 @@ class Map10_4E_Drag(scriptComponent: ScriptComponent) : AbsoluteMapRunner(script
 
     override suspend fun begin() {
 
-        // Mostly empty region to the left
-        val r = region.subRegionAs<AndroidRegion>(300, 500, 150, 8)
+        val r = region.subRegionAs<AndroidRegion>(1058, 700, 100, 3)
         if (gameState.requiresMapInit) {
             logger.info("Zoom out")
-            region.pinch(
-                Random.nextInt(700, 800),
-                Random.nextInt(200, 300),
-                0.0,
-                500
-            ) // It's pretty close to the post init zoom
-            delay((1000 * gameState.delayCoefficient).roundToLong())
-            r.swipeTo(r.copy(y = r.y + 14)) // Nudge it anyway
+            repeat(2) {
+                region.pinch(
+                    Random.nextInt(700, 800),
+                    Random.nextInt(300, 400),
+                    0.0,
+                    500
+                )
+                delay(200)
+            }
+            logger.info("Pan uo")
+            repeat(2) {
+                r.swipeTo(r.copy(y = r.y + 400))
+                delay(200)
+            }
+            logger.info("Pan down")
+            r.swipeTo(r.copy(y = r.y - 690))
+            logger.info("Map hopefully aligned")
         }
-
-        delay((800 * gameState.delayCoefficient).roundToLong()) // Map sometimes lags when starting
-        val rEchelons = deployEchelons(nodes[0])
-        openEchelon(nodes[1], singleClick = true); delay(300)
+        delay((900 * gameState.delayCoefficient).roundToLong()) //Wait to settle
+        val rEchelons = deployEchelons(nodes[0]) //combat team
+        openEchelon(nodes[1], singleClick = true); delay(300) //dps to resupply
         checkDragRepairs()
-
-        logger.info("Panning down")
-        r.swipeTo(r.copy(y = r.y - 200)) // Random, the nodes should still line up
-
-        delay(500)
-        deployEchelons(nodes[2])
-
-        logger.info("Panning up")
-        r.swipeTo(r.copy(y = r.y + 200))
-        delay(500)
-
-        gameState.requiresMapInit = false // Yes this gets set every time
+        deployEchelons(nodes[2]) //dummy
+        gameState.requiresMapInit = false
 
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
@@ -77,11 +74,16 @@ class Map10_4E_Drag(scriptComponent: ScriptComponent) : AbsoluteMapRunner(script
         planPath()
         waitForTurnEnd(5, false); delay(1000)
         waitForTurnAssets(listOf(FileTemplate("combat/battle/plan.png", 0.96)), false)
+
+        delay(500)
+        r.click()
         retreatEchelons(nodes[5])
-        terminateMission() // Make a restart option for speed ;)
+        terminateMission()
     }
 
     private suspend fun planPath() {
+        //randomize the route
+        val ranNodes = listOf(3, 4).shuffled()
 
         logger.info("Entering planning mode")
         mapRunnerRegions.planningMode.click(); yield()
@@ -89,17 +91,17 @@ class Map10_4E_Drag(scriptComponent: ScriptComponent) : AbsoluteMapRunner(script
         logger.info("Selecting echelon at ${nodes[0]}")
         nodes[0].findRegion().click()
 
-        logger.info("Selecting ${nodes[3]}")
-        nodes[3].findRegion().click()
+        logger.info("Selecting ${nodes[ranNodes[0]]}")
+        nodes[ranNodes[0]].findRegion().click()
 
-        logger.info("Selecting ${nodes[0]}")
-        nodes[0].findRegion().click(); yield()
+        logger.info("Selecting echelon at ${nodes[0]}")
+        nodes[0].findRegion().click()
 
-        logger.info("Selecting ${nodes[4]}")
-        nodes[4].findRegion().click(); yield()
+        logger.info("Selecting ${nodes[ranNodes[1]]}")
+        nodes[ranNodes[1]].findRegion().click(); yield()
 
-        logger.info("Selecting ${nodes[0]}")
-        nodes[0].findRegion().click(); yield()
+        logger.info("Selecting echelon at ${nodes[0]}")
+        nodes[0].findRegion().click()
 
         logger.info("Executing plan")
         mapRunnerRegions.executePlan.click()
