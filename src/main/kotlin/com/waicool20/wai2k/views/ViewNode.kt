@@ -23,4 +23,9 @@ import javafx.scene.control.TreeItem
 import tornadofx.*
 import kotlin.reflect.KClass
 
-class ViewNode(val title: String, val view: KClass<out View>, val parent: KClass<out View>? = null) : TreeItem<String>(title)
+class ViewNode(
+    val title: String,
+    val masterView: KClass<out View>,
+    val detailsView: KClass<out View>? = null,
+    val parent: KClass<out View>? = null,
+) : TreeItem<String>(title)
