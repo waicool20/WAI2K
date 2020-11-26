@@ -45,7 +45,19 @@ class InitModule(navigator: Navigator) : ScriptModule(navigator) {
     override suspend fun execute() {
         navigator.checkRequiresRestart()
         navigator.checkLogistics()
-        if (gameState.requiresUpdate) updateGameState()
+        if (gameState.requiresUpdate) {
+            updateGameState()
+            if (profile.logistics.enabled && !profile.combat.enabled) {
+                // Workaround for GFL game freeze at home screen if there are dolls training,
+                // remove when MICA finally fixes this
+                listOf(LocationId.FORMATION, LocationId.COMBAT_MENU)
+                    .random()
+                    .let {
+                        logger.info("Idling @ $it")
+                        navigator.navigateTo(it)
+                    }
+            }
+        }
     }
 
     private suspend fun updateGameState() {
