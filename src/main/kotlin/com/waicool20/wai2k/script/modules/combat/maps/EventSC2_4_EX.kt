@@ -125,7 +125,7 @@ class EventSC2_4_EX(scriptComponent: ScriptComponent) : HomographyMapRunner(scri
 
         turn1()
         waitForTurnAssets(listOf(FileTemplate("combat/battle/plan.png", 0.96)), false)
-        delay(5000)
+        delay(1500)
         mapRunnerRegions.endBattle.click()
 
         // Map will pan after battle
