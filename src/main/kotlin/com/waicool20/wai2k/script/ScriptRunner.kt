@@ -25,6 +25,7 @@ import com.waicool20.cvauto.android.ADB
 import com.waicool20.cvauto.android.AndroidDevice
 import com.waicool20.cvauto.core.Region
 import com.waicool20.cvauto.core.template.FileTemplate
+import com.waicool20.wai2k.Wai2K
 import com.waicool20.wai2k.android.ProcessManager
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
@@ -40,7 +41,11 @@ import com.waicool20.waicoolutils.distanceTo
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.*
 import org.reflections.Reflections
+import java.nio.file.Files
 import java.time.Instant
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import javax.imageio.ImageIO
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.roundToLong
 import kotlin.reflect.full.primaryConstructor
@@ -159,7 +164,7 @@ class ScriptRunner(
         scriptJob?.cancel()
     }
 
-    private suspend fun runScriptCycle() {
+    private suspend fun runScriptCycle() = coroutineScope {
         reload()
         if (modules.isEmpty()) coroutineContext.cancelAndYield()
         try {
@@ -167,7 +172,17 @@ class ScriptRunner(
             justRestarted = false
         } catch (e: ScriptException) {
             logger.warn("Fault detected, restarting game")
+            val now = LocalDateTime.now()
             e.printStackTrace()
+            val device = requireNotNull(currentDevice)
+            val screenshot = device.screens.first().capture()
+            val output = Wai2K.CONFIG_DIR.resolve("debug")
+                .resolve("${DateTimeFormatter.ofPattern("yyyy-MM-dd HH-mm-ss").format(now)}.png")
+            launch(Dispatchers.IO) {
+                Files.createDirectories(output.parent)
+                ImageIO.write(screenshot, "PNG", output.toFile())
+                logger.info("Saved debug image to: ${output.toAbsolutePath()}")
+            }
             if (currentConfig.gameRestartConfig.enabled) {
                 restartGame(e.localizedMessage)
             } else {
