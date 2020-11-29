@@ -31,21 +31,12 @@ import kotlin.random.Random
 object SCUtils {
     private val logger = loggerFor<SCUtils>()
 
-    enum class Difficulty {
-        NORMAL, HARD
-    }
-
-    suspend fun setDifficulty(sc: ScriptComponent, difficulty: Difficulty) {
+    suspend fun setDifficulty(sc: ScriptComponent) {
         val ocrRegion = sc.region.subRegion(192, 983, 86, 84)
+        val target = sc::class.simpleName!!.endsWith("EX")
         logger.info("Checking difficulty")
-        val current = if (Ocr.forConfig(sc.config)
-                .doOCRAndTrim(ocrRegion)
-                .contains("Hard", ignoreCase = true)) {
-            Difficulty.HARD
-        } else {
-            Difficulty.NORMAL
-        }
-        if (difficulty != current) {
+        val current = Ocr.forConfig(sc.config).doOCRAndTrim(ocrRegion).contains("Hard", ignoreCase = true)
+        if (current != target) {
             logger.info("Changing difficulty")
             ocrRegion.click()
             delay(500)

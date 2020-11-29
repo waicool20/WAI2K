@@ -38,7 +38,7 @@ class EventSC2_4_EX(scriptComponent: ScriptComponent) : HomographyMapRunner(scri
 
     override suspend fun enterMap() {
         SCUtils.enterChapter(this)
-        SCUtils.setDifficulty(this, SCUtils.Difficulty.HARD)
+        SCUtils.setDifficulty(this)
 
         val r = region.subRegionAs<AndroidRegion>(1250, 325, 250, 150)
         while (isActive) {
