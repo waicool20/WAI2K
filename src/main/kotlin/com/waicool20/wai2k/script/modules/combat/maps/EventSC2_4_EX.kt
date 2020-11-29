@@ -24,8 +24,6 @@ import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.script.modules.combat.HomographyMapRunner
-import com.waicool20.wai2k.util.Ocr
-import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -39,22 +37,13 @@ class EventSC2_4_EX(scriptComponent: ScriptComponent) : HomographyMapRunner(scri
     override val ammoResupplyThreshold = 0.2
 
     override suspend fun enterMap() {
-        // Scrolling region on the left
+        SCUtils.enterChapter(this)
+        SCUtils.setDifficulty(this, SCUtils.Difficulty.HARD)
+
         val r = region.subRegionAs<AndroidRegion>(1250, 325, 250, 150)
-        r.swipeTo(r.copy(x = r.x - 500), 500)
-
-        val ocrRegion = region.subRegion(192, 983, 86, 84)
-        logger.info("Checking difficulty")
-        if (!Ocr.forConfig(config)
-                .doOCRAndTrim(ocrRegion)
-                .contains("Hard", ignoreCase = true)) {
-            logger.info("Changing difficulty")
-            ocrRegion.click()
-            delay(500)
-        }
-
         while (isActive) {
             logger.info("Entering map")
+
             region.matcher.settings.matchDimension = ScriptRunner.HIGH_RES
             val entrance = region.findBest(FileTemplate("$PREFIX/map-entrance.png", 0.80))
             region.matcher.settings.matchDimension = ScriptRunner.NORMAL_RES
@@ -67,10 +56,11 @@ class EventSC2_4_EX(scriptComponent: ScriptComponent) : HomographyMapRunner(scri
                 break
             }
 
-            delay(1000)
-            // In case we in the wrong chapter
-            selectChapter(2)
-            region.pinch(500, 100, 0.0, 500)
+            region.pinch(
+                Random.nextInt(900, 1000),
+                Random.nextInt(300, 400),
+                0.0,
+                1000)
             logger.info("Panning right")
             repeat(2) {
                 r.swipeTo(r.copy(x = r.x - 1000))
@@ -78,28 +68,6 @@ class EventSC2_4_EX(scriptComponent: ScriptComponent) : HomographyMapRunner(scri
             delay(1000)
         }
         region.waitHas(FileTemplate("combat/battle/start.png"), 8000)
-    }
-
-    private suspend fun selectChapter(chapter: Int) {
-        region.subRegion(31, 456, 135, 98).click() // Back Arrow if chapter selected
-        delay(2000)
-        val down = region.subRegionAs<AndroidRegion>(300, 160, 250, 100)
-        val up = down.copyAs<AndroidRegion>(y = down.y + 500)
-        logger.info("Swiping down")
-        repeat(3) {
-            up.swipeTo(down)
-            delay(300)
-        }
-        logger.info("At bottom, Selecting chapter: $chapter")
-/*        repeat(chapter-1) {
-            down.swipeTo(up)
-        }*/
-        // close enough
-        val chapterEntrance = listOf(
-            region.subRegion(1300, 510, 330, 170),
-            region.subRegion(1540, 250, 300, 150))
-        chapterEntrance[chapter - 1].click()
-        delay(2000)
     }
 
     override suspend fun begin() {
