@@ -131,7 +131,7 @@ class EventSC2_4_EX(scriptComponent: ScriptComponent) : HomographyMapRunner(scri
         nodes[0].findRegion().click(); delay(1000)
 
         logger.info("Switching")
-        region.findBest(FileTemplate("assets/combat/battle/switch.png", 0.90))?.region?.click()
+        region.findBest(FileTemplate("combat/battle/switch.png", 0.90))?.region?.click()
         delay(3000)
     }
 }
