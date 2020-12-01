@@ -31,17 +31,18 @@ import kotlinx.coroutines.yield
 import kotlin.math.roundToLong
 import kotlin.random.Random
 
-class EventSC2_4_EX(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent), EventMapRunner {
-    private val logger = loggerFor<EventSC2_4_EX>()
+class EventSC2_1(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent), EventMapRunner {
+    private val logger = loggerFor<EventSC2_1>()
     override val isCorpseDraggingMap = false
-    override val ammoResupplyThreshold = 0.2
-    override val rationsResupplyThreshold = 0.2
+
+    // To deselect current team
+    private val emptyNode = region.subRegionAs<AndroidRegion>(230, 510, 100, 100)
 
     override suspend fun enterMap() {
         SCUtils.enterChapter(this)
         SCUtils.setDifficulty(this)
 
-        val r = region.subRegionAs<AndroidRegion>(1250, 325, 250, 150)
+        val r = region.subRegionAs<AndroidRegion>(550, 240, 250, 150)
         while (isActive) {
             logger.info("Entering map")
 
@@ -57,15 +58,8 @@ class EventSC2_4_EX(scriptComponent: ScriptComponent) : HomographyMapRunner(scri
                 break
             }
 
-            region.pinch(
-                Random.nextInt(900, 1000),
-                Random.nextInt(300, 400),
-                0.0,
-                1000)
-            logger.info("Panning right")
-            repeat(2) {
-                r.swipeTo(r.copy(x = r.x - 1000))
-            }
+            logger.info("Panning left")
+            r.swipeTo(r.copy(x = r.x + 1000))
             delay(1000)
         }
         region.waitHas(FileTemplate("combat/battle/start.png"), 8000)
@@ -73,7 +67,6 @@ class EventSC2_4_EX(scriptComponent: ScriptComponent) : HomographyMapRunner(scri
 
     override suspend fun begin() {
         if (gameState.requiresMapInit) {
-            val r = region.subRegionAs<AndroidRegion>(300, 150, 250, 250)
             logger.info("Zoom out")
             region.pinch(
                 Random.nextInt(900, 1000),
@@ -81,58 +74,78 @@ class EventSC2_4_EX(scriptComponent: ScriptComponent) : HomographyMapRunner(scri
                 0.0,
                 1000)
 
-            logger.info("pan up")
-            r.swipeTo(r.copy(y = r.y + 600))
+            delay(500)
+            logger.info("Pan up")
+            emptyNode.swipeTo(emptyNode.copy(y = emptyNode.y + 150))
             gameState.requiresMapInit = false
         }
         delay((900 * gameState.delayCoefficient).roundToLong())
 
-        val rEchelons = deployEchelons(nodes[0])
+        var rEchelons = deployEchelons(nodes[0])
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
         resupplyEchelons(rEchelons)
 
         turn1()
         waitForTurnAssets(listOf(FileTemplate("combat/battle/plan.png", 0.96)), false)
-        delay(1500)
-        mapRunnerRegions.endBattle.click()
 
-        // Map will pan after battle
-        waitForGNKSplash(20000); delay(2000)
-        mapH = null
+        rEchelons = deployEchelons(nodes[0])
+        resupplyEchelons(rEchelons)
+
         turn2()
-
-        retreatEchelons(Retreat(nodes[0], true))
-        terminateMission()
+        waitForTurnAndPoints(3, 0, false, 180000) // Auto ends on node capture
+        handleBattleResults()
     }
 
     private suspend fun turn1() {
-        logger.info("Enter planning")
-        mapRunnerRegions.planningMode.click()
+        logger.info("Moving combat team up")
+        emptyNode.click(); delay(500)
 
-        logger.info("Selecting combat team at command center")
-        nodes[0].findRegion().click()
+        logger.info("Selecting echelon at ${nodes[0]}")
+        nodes[0].findRegion().click(); delay(500)
 
-        logger.info("Selecting node: ${nodes[2]}")
-        nodes[2].findRegion().click()
-
-        logger.info("Selecting node: ${nodes[1]}")
+        logger.info("Selecting node at ${nodes[1]}")
         nodes[1].findRegion().click()
+        delay((2500 * gameState.delayCoefficient).roundToLong())
 
-        mapRunnerRegions.executePlan.click()
+        emptyNode.click(); delay(800)
     }
 
     private suspend fun turn2() {
-        deployEchelons(nodes[0]); delay(1000)
+        emptyNode.click(); delay(500)
 
-        logger.info("Select combat team")
-        nodes[1].findRegion().click(); delay(1000)
+        mapRunnerRegions.planningMode.click(); delay(500)
 
-        logger.info("Select dummy")
-        nodes[0].findRegion().click(); delay(1000)
+        logger.info("Selecting team 1 at ${nodes[1]}")
+        nodes[1].findRegion().click()
 
-        logger.info("Switching")
-        region.findBest(FileTemplate("combat/battle/switch.png", 0.90))?.region?.click()
-        delay(3000)
+        logger.info("Selecting node at ${nodes[2]}")
+        nodes[2].findRegion().click()
+
+        emptyNode.click(); delay(500)
+        logger.info("Selecting team 2 at ${nodes[0]}")
+        nodes[0].findRegion().click()
+
+        logger.info("Selecting node at ${nodes[3]}")
+        nodes[3].findRegion().click()
+
+        emptyNode.click(); delay(500)
+        logger.info("Selecting team 1 at ${nodes[1]}")
+        nodes[1].findRegion().click()
+
+        logger.info("Selecting node at ${nodes[4]}")
+        nodes[4].findRegion().click()
+
+        emptyNode.click(); delay(500)
+        logger.info("Selecting team 2 at ${nodes[0]}")
+        nodes[0].findRegion().click()
+
+        logger.info("Selecting node at ${nodes[5]}")
+        nodes[5].findRegion().click()
+
+        logger.info("Selecting node at ${nodes[6]}")
+        nodes[6].findRegion().click()
+
+        mapRunnerRegions.executePlan.click()
     }
 }
