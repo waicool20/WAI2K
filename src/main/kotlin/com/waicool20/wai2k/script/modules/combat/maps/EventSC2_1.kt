@@ -93,7 +93,7 @@ class EventSC2_1(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptC
         resupplyEchelons(rEchelons)
 
         turn2()
-        waitForTurnAndPoints(3, 0, false, 180000) // Auto ends on node capture
+        waitForTurnAndPoints(3, 0, false, 240_000) // Auto ends on node capture
         handleBattleResults()
     }
 
