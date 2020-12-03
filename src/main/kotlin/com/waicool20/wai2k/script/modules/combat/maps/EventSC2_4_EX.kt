@@ -100,7 +100,8 @@ class EventSC2_4_EX(scriptComponent: ScriptComponent) : HomographyMapRunner(scri
         // Map will pan after battle
         waitForGNKSplash(20000); delay(2000)
         mapH = null
-        turn2()
+        deployEchelons(nodes[0]); delay(1000)
+        swapEchelons(nodes[1], nodes[2])
 
         retreatEchelons(Retreat(nodes[0], true))
         terminateMission()
@@ -120,19 +121,5 @@ class EventSC2_4_EX(scriptComponent: ScriptComponent) : HomographyMapRunner(scri
         nodes[1].findRegion().click()
 
         mapRunnerRegions.executePlan.click()
-    }
-
-    private suspend fun turn2() {
-        deployEchelons(nodes[0]); delay(1000)
-
-        logger.info("Select combat team")
-        nodes[1].findRegion().click(); delay(1000)
-
-        logger.info("Select dummy")
-        nodes[0].findRegion().click(); delay(1000)
-
-        logger.info("Switching")
-        region.findBest(FileTemplate("combat/battle/switch.png", 0.90))?.region?.click()
-        delay(3000)
     }
 }

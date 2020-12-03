@@ -372,6 +372,23 @@ abstract class MapRunner(
     }
 
     /**
+     * Swaps two adjacent echelons on the map.
+     * May cause map panning if nodes are close to edge of viewport or causes a map event.
+     *
+     * @param node1 First node to select
+     * @param node2 Node to be swapped onto
+     */
+    protected suspend fun swapEchelons(node1: MapNode, node2: MapNode) {
+        logger.info("Swapping node $node1 with node $node2")
+        // If this node or a different adjacent node is already 'selected' may cause issues
+        node1.findRegion().click()
+        delay(500)
+        node2.findRegion().click()
+        region.waitHas(FileTemplate("combat/battle/switch.png", 0.95), 2000)?.click()
+        delay(3000)
+    }
+
+    /**
      * Waits for the G&K splash animation that appears at the beginning of the turn to appear
      * and waits for it to disappear
      *
