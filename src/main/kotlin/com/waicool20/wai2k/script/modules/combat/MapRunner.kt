@@ -375,10 +375,10 @@ abstract class MapRunner(
      * Swaps two adjacent echelons on the map.
      * May cause map panning if nodes are close to edge of viewport or causes a map event.
      *
-     * @param node1 First node to select
-     * @param node2 Node to be swapped onto
+     * @param nodes Swaps from first to second
      */
-    protected suspend fun swapEchelons(node1: MapNode, node2: MapNode) {
+    protected suspend fun swapEchelons(nodes: Pair<MapNode, MapNode>) {
+        val (node1, node2) = nodes
         logger.info("Swapping node $node1 with node $node2")
         // If this node or a different adjacent node is already 'selected' may cause issues
         node1.findRegion().click()

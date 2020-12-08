@@ -101,7 +101,7 @@ class EventSC2_4_EX(scriptComponent: ScriptComponent) : HomographyMapRunner(scri
         waitForGNKSplash(20000); delay(2000)
         mapH = null
         deployEchelons(nodes[0]); delay(1000)
-        swapEchelons(nodes[1], nodes[2])
+        swapEchelons(nodes[1] to nodes[2])
 
         retreatEchelons(Retreat(nodes[0], true))
         terminateMission()

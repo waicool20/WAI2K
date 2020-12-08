@@ -98,7 +98,7 @@ class EventSC5_7_EX(scriptComponent: ScriptComponent) : HomographyMapRunner(scri
 
         r.click(); delay(500) // Deselect combat team
         deployEchelons(nodes[0]); delay(1000)
-        swapEchelons(nodes[0], nodes[4])
+        swapEchelons(nodes[0] to nodes[4])
 
         retreatEchelons(Retreat(nodes[1], false), Retreat(nodes[0], false))
         delay(500)
