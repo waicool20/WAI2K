@@ -114,6 +114,14 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
     }
 
     private suspend fun runEventCombatCycle() {
+        if (mapRunner.isCorpseDraggingMap && !wasCancelled) {
+            switchDolls()
+            // Check if there was a bad switch
+            if (wasCancelled) {
+                logger.info("Bad switch, maybe the doll positions got shifted, cancelling this run")
+                return
+            }
+        }
         checkRepairs()
         // Cancel further execution if any of the dolls needed to repair but were not able to
         wasCancelled = gameState.echelons.any { it.needsRepairs() }
