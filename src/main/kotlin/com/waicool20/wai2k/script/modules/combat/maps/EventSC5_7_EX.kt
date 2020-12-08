@@ -87,7 +87,7 @@ class EventSC5_7_EX(scriptComponent: ScriptComponent) : HomographyMapRunner(scri
         if (rEchelons.isNotEmpty()) {
             r.click(); delay(500) // Adjacent nodes
         }
-        resupplyEchelons(nodes[1])
+        resupplyEchelons(nodes[1]); delay(500)
 
         setAiEchelon()
         planPath()
@@ -101,6 +101,7 @@ class EventSC5_7_EX(scriptComponent: ScriptComponent) : HomographyMapRunner(scri
         swapEchelons(nodes[0], nodes[4])
 
         retreatEchelons(Retreat(nodes[1], false), Retreat(nodes[0], false))
+        delay(500)
         terminateMission()
     }
 
