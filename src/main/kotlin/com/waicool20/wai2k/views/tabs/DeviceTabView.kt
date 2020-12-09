@@ -23,6 +23,7 @@ import com.waicool20.cvauto.android.ADB
 import com.waicool20.cvauto.android.AndroidDevice
 import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.util.Binder
+import com.waicool20.wai2k.views.ControlView
 import com.waicool20.waicoolutils.javafx.CoroutineScopeView
 import com.waicool20.waicoolutils.javafx.addListener
 import com.waicool20.waicoolutils.logging.loggerFor
@@ -56,6 +57,7 @@ class DeviceTabView : CoroutineScopeView(), Binder {
     private val reloadDevicesButton: Button by fxid()
     private val touchesButton: Button by fxid()
     private val pointerButton: Button by fxid()
+    private val controlButton: Button by fxid()
     private val takeScreenshotButton: Button by fxid()
     private val captureSeriesButton: Button by fxid()
     private val testLatencyButton: Button by fxid()
@@ -174,6 +176,7 @@ class DeviceTabView : CoroutineScopeView(), Binder {
                 createNewRenderJob(device)
             }
         }
+        controlButton.action { find<ControlView>().openWindow(owner = null)?.toFront() }
         context.wai2KConfig.scriptConfig.fastScreenshotModeProperty.addListener("DeviceTabViewFSMListener") { newVal ->
             deviceComboBox.selectedItem?.screens?.firstOrNull()?.fastCaptureMode = newVal
         }
