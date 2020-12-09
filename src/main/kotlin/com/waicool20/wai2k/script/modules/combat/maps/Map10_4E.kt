@@ -31,7 +31,6 @@ import kotlin.random.Random
 
 class Map10_4E(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptComponent) {
     private val logger = loggerFor<Map10_4E>()
-    override val isCorpseDraggingMap = false
 
     override suspend fun begin() {
         val r = region.subRegionAs<AndroidRegion>(1058, 700, 100, 3)

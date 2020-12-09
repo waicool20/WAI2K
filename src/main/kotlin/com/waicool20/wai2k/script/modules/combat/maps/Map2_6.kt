@@ -30,7 +30,6 @@ import kotlin.random.Random
 
 class Map2_6(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent) {
     private val logger = loggerFor<Map2_6>()
-    override val isCorpseDraggingMap = false
 
     override suspend fun begin() {
         if (gameState.requiresMapInit) {

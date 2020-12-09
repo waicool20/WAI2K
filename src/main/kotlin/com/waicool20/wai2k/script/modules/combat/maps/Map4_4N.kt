@@ -29,7 +29,6 @@ import kotlin.random.Random
 
 class Map4_4N(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent) {
     private val logger = loggerFor<Map4_4N>()
-    override val isCorpseDraggingMap = false
 
     override suspend fun begin() {
         if (gameState.requiresMapInit) {

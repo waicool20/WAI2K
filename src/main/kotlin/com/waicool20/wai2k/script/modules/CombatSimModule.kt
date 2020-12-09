@@ -52,8 +52,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
     private var rechargeTime = Duration.ZERO
 
     private val mapRunner = object : AbsoluteMapRunner(this@CombatSimModule) {
-        override val isCorpseDraggingMap = false
-        override suspend fun begin() {
+            override suspend fun begin() {
             if (profile.combatSimulation.neuralFragment == Level.OFF) return
 
             if (OffsetDateTime.now(ZoneOffset.ofHours(-8)).dayOfWeek !in dataSimDays) {

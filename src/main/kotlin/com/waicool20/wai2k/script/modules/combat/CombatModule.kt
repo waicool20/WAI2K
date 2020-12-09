@@ -68,7 +68,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
         // Return if echelon 1 has repairs
         if (gameState.echelons[0].hasRepairs()) return
         // Also Return if its a corpse dragging map and echelon 2 has repairs
-        if (mapRunner.isCorpseDraggingMap && gameState.echelons[1].hasRepairs()) return
+        if (mapRunner is CorpseDragging && gameState.echelons[1].hasRepairs()) return
         when (map) {
             is CombatMap.EventMap -> runEventCombatCycle()
             is CombatMap.StoryMap -> runCombatCycle()
@@ -82,7 +82,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
     private suspend fun runCombatCycle() {
         // Don't need to switch dolls if previous run was cancelled
         // or the map is not meant for corpse dragging
-        if (mapRunner.isCorpseDraggingMap && !wasCancelled) {
+        if (mapRunner is CorpseDragging && !wasCancelled) {
             switchDolls()
             // Check if there was a bad switch
             if (wasCancelled) {
@@ -114,7 +114,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
     }
 
     private suspend fun runEventCombatCycle() {
-        if (mapRunner.isCorpseDraggingMap && !wasCancelled) {
+        if (mapRunner is CorpseDragging && !wasCancelled) {
             switchDolls()
             // Check if there was a bad switch
             if (wasCancelled) {

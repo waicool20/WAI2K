@@ -23,6 +23,7 @@ import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.modules.combat.AbsoluteMapRunner
+import com.waicool20.wai2k.script.modules.combat.CorpseDragging
 import com.waicool20.waicoolutils.binarizeImage
 import com.waicool20.waicoolutils.countColor
 import com.waicool20.waicoolutils.logging.loggerFor
@@ -32,12 +33,10 @@ import java.awt.Color
 import kotlin.math.roundToLong
 import kotlin.random.Random
 
-class Map10_4E_Drag(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptComponent) {
+class Map10_4E_Drag(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptComponent), CorpseDragging {
     private val logger = loggerFor<Map10_4E_Drag>()
-    override val isCorpseDraggingMap = true
 
     override suspend fun begin() {
-
         val r = region.subRegionAs<AndroidRegion>(1058, 700, 100, 3)
         if (gameState.requiresMapInit) {
             logger.info("Zoom out")

@@ -30,7 +30,6 @@ import kotlin.random.Random
 
 class Map4_6_Data(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent) {
     private val logger = loggerFor<Map4_6>()
-    override val isCorpseDraggingMap = false
 
     // Maybe have this as an option for regular 4-6
     //Allow interruption of waiting for turn if necessary

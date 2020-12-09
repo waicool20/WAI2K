@@ -23,6 +23,7 @@ import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.ScriptRunner
+import com.waicool20.wai2k.script.modules.combat.CorpseDragging
 import com.waicool20.wai2k.script.modules.combat.HomographyMapRunner
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
@@ -33,7 +34,6 @@ import kotlin.random.Random
 
 class EventSC2_1(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent), EventMapRunner {
     private val logger = loggerFor<EventSC2_1>()
-    override val isCorpseDraggingMap = false
 
     // To deselect current team
     private val emptyNode = region.subRegionAs<AndroidRegion>(230, 510, 100, 100)

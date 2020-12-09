@@ -123,12 +123,6 @@ abstract class MapRunner(
     val battles get() = _battles
 
     /**
-     * Set to true to signify the map is a map used for corpse dragging, setting it to false
-     * will disable the doll switching
-     */
-    abstract val isCorpseDraggingMap: Boolean
-
-    /**
      * Dragger ammo resupply threshold, if ammo level is below this level during deployment,
      * the echelon will be resupplied.
      */
@@ -152,7 +146,7 @@ abstract class MapRunner(
             cleanup()
             _battles = 1
             // Only toggle switchDolls true if false, else keep it true
-            if (isCorpseDraggingMap) gameState.switchDolls = true
+            if (this is CorpseDragging) gameState.switchDolls = true
         }
     }
 
@@ -229,7 +223,7 @@ abstract class MapRunner(
                 logger.info("Second member rations: ${formatter.format(rationCount * 100)} %")
                 rationCount < rationsResupplyThreshold
             }
-            if (!isCorpseDraggingMap) {
+            if (this !is CorpseDragging) {
                 for (mIndex in 0..5) {
                     if (!hasMember(mIndex)) continue
                     val hpImage = screenshot.getSubimage(373 + mIndex * 272, 778, 217, 1).binarizeImage()

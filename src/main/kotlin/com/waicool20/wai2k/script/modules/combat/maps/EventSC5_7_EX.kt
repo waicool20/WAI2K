@@ -23,6 +23,7 @@ import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.ScriptRunner
+import com.waicool20.wai2k.script.modules.combat.CorpseDragging
 import com.waicool20.wai2k.script.modules.combat.HomographyMapRunner
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
@@ -31,9 +32,8 @@ import kotlinx.coroutines.yield
 import kotlin.math.roundToLong
 import kotlin.random.Random
 
-class EventSC5_7_EX(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent), EventMapRunner {
+class EventSC5_7_EX(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent), EventMapRunner, CorpseDragging {
     private val logger = loggerFor<EventSC5_7_EX>()
-    override val isCorpseDraggingMap = true
     override val ammoResupplyThreshold = 0.5
     override val rationsResupplyThreshold = 0.5
 

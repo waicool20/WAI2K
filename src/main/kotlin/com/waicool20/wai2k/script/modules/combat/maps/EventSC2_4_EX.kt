@@ -33,7 +33,6 @@ import kotlin.random.Random
 
 class EventSC2_4_EX(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent), EventMapRunner {
     private val logger = loggerFor<EventSC2_4_EX>()
-    override val isCorpseDraggingMap = false
     override val ammoResupplyThreshold = 0.2
     override val rationsResupplyThreshold = 0.2
 

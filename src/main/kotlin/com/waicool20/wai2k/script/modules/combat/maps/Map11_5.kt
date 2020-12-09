@@ -21,14 +21,14 @@ package com.waicool20.wai2k.script.modules.combat.maps
 
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.modules.combat.AbsoluteMapRunner
+import com.waicool20.wai2k.script.modules.combat.CorpseDragging
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
 import kotlin.math.roundToLong
 
-class Map11_5(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptComponent) {
+class Map11_5(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptComponent), CorpseDragging {
     private val logger = loggerFor<Map11_5>()
-    override val isCorpseDraggingMap = true
 
     override suspend fun begin() {
         // No need to zoom, delay for map lag
