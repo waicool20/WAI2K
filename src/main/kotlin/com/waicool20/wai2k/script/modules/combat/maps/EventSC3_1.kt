@@ -36,7 +36,7 @@ class EventSC3_1(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptC
     override val ammoResupplyThreshold = 0.9
     override val rationsResupplyThreshold = 0.9
 
-override suspend fun enterMap() {
+    override suspend fun enterMap() {
         SCUtils.enterChapter(this)
         SCUtils.setDifficulty(this)
 
@@ -55,11 +55,11 @@ override suspend fun enterMap() {
                 region.subRegion(1834, 590, 229, 109).click() // Confirm start
                 break
             }
-            
+
             logger.info("Panning left")
             r.swipeTo(r.copy(x = r.x + 1000))
             delay(1000)
-        }    
+        }
         region.waitHas(FileTemplate("combat/battle/start.png"), 8000)
     }
 
@@ -85,7 +85,7 @@ override suspend fun enterMap() {
         resupplyEchelons(nodes[1])
         planPath()
         waitForTurnAssets(listOf(FileTemplate("combat/battle/plan.png", 0.90)), false)
-        
+
         mapH = null
         retreatEchelons(nodes[3])
         terminateMission()
