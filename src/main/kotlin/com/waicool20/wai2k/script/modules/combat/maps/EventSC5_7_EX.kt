@@ -87,12 +87,12 @@ class EventSC5_7_EX(scriptComponent: ScriptComponent) : HomographyMapRunner(scri
         if (rEchelons.isNotEmpty()) {
             r.click(); delay(500) // Adjacent nodes
         }
-        resupplyEchelons(nodes[1]); delay(500)
+        resupplyEchelons(nodes[1]); delay(800)
 
         setAiEchelon()
         planPath()
 
-        waitForTurnAndPoints(2, 3, false)
+        waitForTurnAndPoints(2, 3, false, 180000)
         delay((900 * gameState.delayCoefficient).roundToLong())
         mapH = null // Scrolls after turn
 
@@ -112,7 +112,7 @@ class EventSC5_7_EX(scriptComponent: ScriptComponent) : HomographyMapRunner(scri
         delay(500)
         nodes[2].findRegion().click()
         region.waitHas(FileTemplate("combat/battle/capture-hq-ai.png"), 3000)?.click()
-        delay(500)
+        delay(1000)
     }
 
     private suspend fun planPath() {
