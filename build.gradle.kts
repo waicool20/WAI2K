@@ -67,8 +67,8 @@ dependencies {
     implementation("org.controlsfx:controlsfx:11.0.2")
     implementation("org.reflections", "reflections", "0.9.12")
     implementation("com.squareup.okhttp3:okhttp:4.9.0")
-    implementation("ai.djl.pytorch:pytorch-engine:0.8.0")
-    implementation("ai.djl.pytorch:pytorch-native-auto:1.6.0")
+    implementation("ai.djl.pytorch:pytorch-engine:0.9.0")
+    implementation("ai.djl.pytorch:pytorch-native-auto:1.7.0")
 
     implementation("net.sourceforge.tess4j", "tess4j", "4.5.3") {
         exclude("org.ghost4j")
