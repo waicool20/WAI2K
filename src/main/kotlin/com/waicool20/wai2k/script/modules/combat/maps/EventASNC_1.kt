@@ -58,11 +58,11 @@ class EventASNC_1(scriptComponent: ScriptComponent) : HomographyMapRunner(script
 
 
         // Teams with only 1 doll can farm this so resupplies are never gonna be perfect
-        val rEchelons = deployEchelons(nodes[0], nodes[1], nodes[2])
+        deployEchelons(nodes[0], nodes[1], nodes[2])
         mapRunnerRegions.startOperation.click()
         waitForGNKSplash()
 
-        resupplyEchelons(rEchelons)
+        resupplyEchelons(nodes[0], nodes[1])
         planPath()
 
         waitForTurnEnd(4, false) // Ends when all are wiped

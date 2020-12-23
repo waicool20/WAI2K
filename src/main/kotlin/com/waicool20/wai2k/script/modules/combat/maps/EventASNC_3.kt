@@ -23,7 +23,6 @@ import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.modules.combat.EventMapRunner
 import com.waicool20.wai2k.script.modules.combat.HomographyMapRunner
-import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
@@ -31,7 +30,8 @@ import kotlin.math.roundToLong
 import kotlin.random.Random
 
 
-class EventASNC_3(scriptComponent: ScriptComponent): HomographyMapRunner(scriptComponent), EventMapRunner {
+class EventASNC_3(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent),
+    EventMapRunner {
     private val logger = loggerFor<EventASNC_3>()
     private val deadzone = region.subRegion(60, 420, 65, 65)
 
@@ -50,7 +50,8 @@ class EventASNC_3(scriptComponent: ScriptComponent): HomographyMapRunner(scriptC
                 Random.nextInt(900, 1000),
                 Random.nextInt(300, 400),
                 0.0,
-                1000)
+                1000
+            )
             delay((900 * gameState.delayCoefficient).roundToLong()) //Wait to settle
             gameState.requiresMapInit = false
         }
