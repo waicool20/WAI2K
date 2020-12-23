@@ -70,7 +70,7 @@ dependencies {
     implementation("ai.djl.pytorch:pytorch-engine:0.9.0")
     implementation("ai.djl.pytorch:pytorch-native-auto:1.7.0")
 
-    implementation("net.sourceforge.tess4j", "tess4j", "4.5.3") {
+    implementation("net.sourceforge.tess4j", "tess4j", "4.5.4") {
         exclude("org.ghost4j")
         exclude("org.apache.pdfbox")
         exclude("org.jboss")
