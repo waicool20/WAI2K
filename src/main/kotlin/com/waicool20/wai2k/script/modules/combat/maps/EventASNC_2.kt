@@ -61,9 +61,7 @@ class EventASNC_2(scriptComponent: ScriptComponent) : HomographyMapRunner(script
         mapRunnerRegions.startOperation.click()
         waitForGNKSplash()
         resupplyEchelons(rEchelons)
-        waitForTurnAndPoints(1, 2, false)
         turn1() // move combat echelon to the right
-        waitForTurnAndPoints(1, 1, false)
         deployEchelons(nodes[0]) // deploy dummy, needs to be twice for some reason
         mapRunnerRegions.endBattle.click() // end turn
         waitForTurnAndPoints(2, 3, false)
@@ -79,13 +77,13 @@ class EventASNC_2(scriptComponent: ScriptComponent) : HomographyMapRunner(script
     }
 
     private suspend fun turn1() {
-        val r = region.subRegion(80, 350, 250, 250) // Hopefully empty for deselecting
-
         logger.info("Moving combat echelon to ${nodes[1]}")
         nodes[1].findRegion().click(); yield()
 
-        r.click(); delay(500)
-        r.click(); delay(500) // two clicks for reliability
+        waitForTurnAndPoints(1, 1, false)
+
+        // Deadzone
+        region.subRegion(80, 350, 250, 250).click()
     }
 
     private suspend fun planPath() {
