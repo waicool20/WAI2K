@@ -27,7 +27,7 @@ import java.security.MessageDigest
 
 plugins {
     java
-    kotlin("jvm") version "1.4.10"
+    kotlin("jvm") version "1.4.20"
     id("com.github.johnrengelman.shadow") version "5.2.0"
     id("org.openjfx.javafxplugin") version "0.0.8"
 }
@@ -50,7 +50,7 @@ javafx {
 dependencies {
     val versions = object {
         val Kotlin by lazy { plugins.getPlugin(KotlinPluginWrapper::class).kotlinPluginVersion }
-        val KotlinCoroutines = "1.4.0"
+        val KotlinCoroutines = "1.4.2"
         val Jackson = "2.10.1" // Higher version break loading javafx compatibility
     }
 
@@ -67,10 +67,10 @@ dependencies {
     implementation("org.controlsfx:controlsfx:11.0.2")
     implementation("org.reflections", "reflections", "0.9.12")
     implementation("com.squareup.okhttp3:okhttp:4.9.0")
-    implementation("ai.djl.pytorch:pytorch-engine:0.8.0")
-    implementation("ai.djl.pytorch:pytorch-native-auto:1.6.0")
+    implementation("ai.djl.pytorch:pytorch-engine:0.9.0")
+    implementation("ai.djl.pytorch:pytorch-native-auto:1.7.0")
 
-    implementation("net.sourceforge.tess4j", "tess4j", "4.5.3") {
+    implementation("net.sourceforge.tess4j", "tess4j", "4.5.4") {
         exclude("org.ghost4j")
         exclude("org.apache.pdfbox")
         exclude("org.jboss")

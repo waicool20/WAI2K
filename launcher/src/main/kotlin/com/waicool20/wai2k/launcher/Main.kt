@@ -69,6 +69,7 @@ object Main {
     private val url = "https://wai2k.waicool20.com/files"
     private val appPath = Paths.get(System.getProperty("user.home")).resolve(".wai2k").toAbsolutePath()
     private val libPath = appPath.resolve("libs")
+    private val depPath = appPath.resolve("dependencies.txt")
 
     val mainFiles = listOf("WAI2K.jar", "assets.zip", "models.zip")
 
@@ -183,12 +184,16 @@ object Main {
         // Download libs to local
         System.setProperty("maven.repo.local", libPath.toString())
 
-        val depPath = appPath.resolve("dependencies.txt")
         val text = try {
             if (useLocalDepList && Files.exists(depPath)) {
                 Files.readAllLines(depPath)
             } else {
                 val text = grabWebString("$url/dependencies.txt")
+                val oldText = Files.readAllBytes(depPath).toString(Charsets.UTF_8)
+                if (oldText != text) {
+                    println("Dependencies changed, deleting old ones...")
+                    Files.walk(libPath).sorted(Comparator.reverseOrder()).forEach { Files.delete(it) }
+                }
                 Files.write(depPath, text.toByteArray())
                 text.lines()
             }

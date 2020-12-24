@@ -22,15 +22,15 @@ package com.waicool20.wai2k.script.modules.combat.maps
 import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.modules.combat.AbsoluteMapRunner
+import com.waicool20.wai2k.script.modules.combat.CorpseDragging
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
 import kotlin.math.roundToLong
 import kotlin.random.Random
 
-class Map8_1N(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptComponent) {
+class Map8_1N(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptComponent), CorpseDragging {
     private val logger = loggerFor<Map8_1N>()
-    override val isCorpseDraggingMap = true
 
     override suspend fun begin() {
         if (gameState.requiresMapInit) {

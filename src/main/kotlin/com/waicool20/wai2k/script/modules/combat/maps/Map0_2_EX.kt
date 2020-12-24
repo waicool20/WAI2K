@@ -22,18 +22,17 @@ package com.waicool20.wai2k.script.modules.combat.maps
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.modules.combat.AbsoluteMapRunner
+import com.waicool20.wai2k.script.modules.combat.CorpseDragging
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
 import kotlin.math.roundToLong
 import kotlin.random.Random
 
-class Map0_2_EX(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptComponent) {
+class Map0_2_EX(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptComponent), CorpseDragging {
     private val logger = loggerFor<Map0_2_EX>()
-    override val isCorpseDraggingMap = true
 
     override suspend fun begin() {
-
         if (gameState.requiresMapInit) {
             // Check to see if its already good
             logger.info("Checking map zoom")

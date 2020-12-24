@@ -38,11 +38,17 @@ class ProfileTabView : View() {
     private val defaultMasterNode = hbox(alignment = Pos.CENTER) {
         label("Choose something to configure on the left!")
     }
+
+    private val defaultDetailsNode = hbox(alignment = Pos.CENTER) {
+        label("Go away, don't look ヽ( `д´*)ノ")
+    }
+
     private val context: Wai2KContext by inject()
 
     init {
         title = "Profile"
         profilePane.masterNode = defaultMasterNode
+        profilePane.detailNode = defaultDetailsNode
     }
 
     override fun onDock() {
@@ -63,19 +69,21 @@ class ProfileTabView : View() {
             if (node.parent == null) {
                 profileTreeView.root.children.add(node)
             } else {
-                ProfileViewMappings.list.find { it.view == node.parent }?.children?.add(node)
+                ProfileViewMappings.list.find { it.masterView == node.parent }?.children?.add(node)
             }
         }
         profileTreeView.focusModel.focusedItemProperty().addListener("ProfileFocused") { newVal ->
             profilePane.apply {
                 if (newVal is ViewNode) {
                     val pos = profilePane.dividerPosition
-                    masterNode = find(newVal.view).root
+                    masterNode = find(newVal.masterView).root
+                    detailNode = newVal.detailsView?.let { find(it).root } ?: defaultDetailsNode
                     dividerPosition = pos
                     isAnimated = true
                     isShowDetailNode = true
                 } else {
                     masterNode = defaultMasterNode
+                    detailNode = defaultDetailsNode
                     isAnimated = false
                     isShowDetailNode = false
                 }

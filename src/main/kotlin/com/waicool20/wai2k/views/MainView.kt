@@ -24,6 +24,7 @@ import com.waicool20.wai2k.views.tabs.StatusTabView
 import com.waicool20.wai2k.views.tabs.preferences.PreferencesTabView
 import com.waicool20.wai2k.views.tabs.profile.ProfileTabView
 import javafx.scene.control.TabPane
+import javafx.scene.image.Image
 import tornadofx.*
 
 class MainView : View() {
@@ -31,6 +32,7 @@ class MainView : View() {
 
     init {
         title = "WAI2K - Girls Frontline Automation Tool"
+        addStageIcon(Image("/images/wai2k-icon.png"))
         root.apply {
             tab(StatusTabView::class)
             tab(DeviceTabView::class)

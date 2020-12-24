@@ -31,7 +31,6 @@ import kotlin.random.Random
 
 class Map4_3E(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent) {
     private val logger = loggerFor<Map4_3E>()
-    override val isCorpseDraggingMap = false
 
     override suspend fun begin() {
         if (gameState.requiresMapInit) {
@@ -49,9 +48,11 @@ class Map4_3E(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComp
             gameState.requiresMapInit = false
         }
 
-        val rEchelons = deployEchelons(nodes[0], nodes[1])
+        val rEchelons = deployEchelons(nodes[0])
+        deployEchelons(nodes[1])
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
+        resupplyEchelons(rEchelons)
         planPath()
         waitForTurnEnd(4)
         handleBattleResults()

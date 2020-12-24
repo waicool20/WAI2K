@@ -21,6 +21,7 @@ package com.waicool20.wai2k.script.modules.combat.maps
 
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.script.ScriptComponent
+import com.waicool20.wai2k.script.modules.combat.EventMapRunner
 import com.waicool20.wai2k.script.modules.combat.HomographyMapRunner
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
@@ -28,18 +29,16 @@ import kotlinx.coroutines.yield
 import kotlin.math.roundToLong
 import kotlin.random.Random
 
-class EventOpenBagSurprise(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent), EventMapRunner {
-    private val logger = loggerFor<EventOpenBagSurprise>()
-    override val isCorpseDraggingMap = false
 
-    override val rationsResupplyThreshold = 0.5
+class EventASNC_1(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent),
+    EventMapRunner {
+    private val logger = loggerFor<EventASNC_1>()
+    override val ammoResupplyThreshold = 0.6
 
     override suspend fun enterMap() {
-        logger.info("Entering map")
-        region.subRegion(1430, 332, 452, 216).click() // Open Bag Surprise
-        delay(2000)
-        region.subRegion(1454, 842, 327, 112).click() // Normal Battle
-        delay(1000)
+        region.subRegion(775, 240, 460, 226).click()
+        delay((900 * gameState.delayCoefficient).roundToLong())
+        region.subRegion(1454, 844, 327, 110).click()
         region.waitHas(FileTemplate("combat/battle/start.png"), 8000)
     }
 
@@ -47,35 +46,53 @@ class EventOpenBagSurprise(scriptComponent: ScriptComponent) : HomographyMapRunn
         if (gameState.requiresMapInit) {
             logger.info("Zoom out")
             region.pinch(
-                Random.nextInt(900, 1000),
+                Random.nextInt(800, 900),
                 Random.nextInt(300, 400),
                 0.0,
-                1000)
-            delay((1000 * gameState.delayCoefficient).roundToLong())
+                800
+            )
+            delay(500)
             gameState.requiresMapInit = false
-
         }
+        delay((900 * gameState.delayCoefficient).roundToLong())
 
-        deployEchelons(nodes[0], nodes[1])
-        mapRunnerRegions.startOperation.click(); yield()
+
+        // Teams with only 1 doll can farm this so resupplies are never gonna be perfect
+        deployEchelons(nodes[0], nodes[1], nodes[2])
+        mapRunnerRegions.startOperation.click()
         waitForGNKSplash()
-        resupplyEchelons(nodes[0]) // Cant check supplies on teams with only 1 doll
 
+        resupplyEchelons(nodes[0], nodes[1])
         planPath()
-        waitForTurnEnd(2, true)
-        delay(1000)
-        handleBattleResults() // ends automatically when enemies killed
+
+        waitForTurnEnd(4, false) // Ends when all are wiped
+        handleBattleResults()
     }
 
     private suspend fun planPath() {
-        logger.info("Entering planning mode")
-        mapRunnerRegions.planningMode.click(); yield()
+        val r = region.subRegion(80, 350, 250, 250) // Hopefully empty for deselecting
 
-        logger.info("Selecting echelon at Command Post")
+        logger.info("Entering planning mode")
+        mapRunnerRegions.planningMode.click(); delay(500)
+
+        r.click(); delay(500)
+
+        logger.info("Selecting echelon at ${nodes[0]}")
         nodes[0].findRegion().click()
 
-        logger.info("Selecting ${nodes[2]}"); yield()
-        nodes[2].findRegion().click()
+        logger.info("Selecting node ${nodes[3]}")
+        nodes[3].findRegion().click(); yield()
+
+        r.click(); delay(500)
+
+        logger.info("Selecting echelon at ${nodes[1]}")
+        nodes[1].findRegion().click()
+
+        logger.info("Selecting node ${nodes[4]}")
+        nodes[4].findRegion().click(); yield()
+
+        logger.info("Selecting node ${nodes[4]}")
+        nodes[5].findRegion().click(); yield()
 
         logger.info("Executing plan")
         mapRunnerRegions.executePlan.click()

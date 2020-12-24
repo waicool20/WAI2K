@@ -29,7 +29,7 @@ import kotlin.random.Random
 
 class Map3_4E(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent) {
     private val logger = loggerFor<Map3_4E>()
-    override val isCorpseDraggingMap = false
+    override val rationsResupplyThreshold = 0.5
 
     override suspend fun begin() {
         if (gameState.requiresMapInit) {

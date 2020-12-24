@@ -30,7 +30,6 @@ import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.game.TDoll
 import com.waicool20.wai2k.script.*
 import com.waicool20.wai2k.script.modules.ScriptModule
-import com.waicool20.wai2k.script.modules.combat.maps.EventMapRunner
 import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.wai2k.util.doOCRAndTrim
@@ -68,7 +67,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
         // Return if echelon 1 has repairs
         if (gameState.echelons[0].hasRepairs()) return
         // Also Return if its a corpse dragging map and echelon 2 has repairs
-        if (mapRunner.isCorpseDraggingMap && gameState.echelons[1].hasRepairs()) return
+        if (mapRunner is CorpseDragging && gameState.echelons[1].hasRepairs()) return
         when (map) {
             is CombatMap.EventMap -> runEventCombatCycle()
             is CombatMap.StoryMap -> runCombatCycle()
@@ -82,7 +81,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
     private suspend fun runCombatCycle() {
         // Don't need to switch dolls if previous run was cancelled
         // or the map is not meant for corpse dragging
-        if (mapRunner.isCorpseDraggingMap && !wasCancelled) {
+        if (mapRunner is CorpseDragging && !wasCancelled) {
             switchDolls()
             // Check if there was a bad switch
             if (wasCancelled) {
@@ -114,6 +113,14 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
     }
 
     private suspend fun runEventCombatCycle() {
+        if (mapRunner is CorpseDragging && !wasCancelled) {
+            switchDolls()
+            // Check if there was a bad switch
+            if (wasCancelled) {
+                logger.info("Bad switch, maybe the doll positions got shifted, cancelling this run")
+                return
+            }
+        }
         checkRepairs()
         // Cancel further execution if any of the dolls needed to repair but were not able to
         wasCancelled = gameState.echelons.any { it.needsRepairs() }

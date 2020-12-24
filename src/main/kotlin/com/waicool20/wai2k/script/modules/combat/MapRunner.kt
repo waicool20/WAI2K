@@ -26,7 +26,6 @@ import com.waicool20.cvauto.core.template.ITemplate
 import com.waicool20.wai2k.game.*
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.ScriptTimeOutException
-import com.waicool20.wai2k.script.modules.combat.maps.EventMapRunner
 import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.waicoolutils.binarizeImage
@@ -61,7 +60,8 @@ abstract class MapRunner(
     scriptComponent: ScriptComponent
 ) : ScriptComponent by scriptComponent, CoroutineScope {
 
-    class Deployment(val echelon: Int, val mapNode: MapNode)
+    class Deployment(val echelon: Int, val mapNode: MapNode): Deployable
+    class Retreat(val mapNode: MapNode, val singleClick: Boolean): Retreatable
 
     infix fun Int.at(mapNode: MapNode) = Deployment(this, mapNode)
 
@@ -76,6 +76,7 @@ abstract class MapRunner(
                 if (Modifier.isInterface(mapClass.modifiers)) continue
                 if (EventMapRunner::class.java.isAssignableFrom(mapClass)) {
                     val name = mapClass.simpleName.replaceFirst("Event", "")
+                        .replace("_", "-")
                     list[CombatMap.EventMap(name)] = mapClass.kotlin
                 } else {
                     val name = mapClass.simpleName.replaceFirst("Map", "")
@@ -121,12 +122,6 @@ abstract class MapRunner(
     val battles get() = _battles
 
     /**
-     * Set to true to signify the map is a map used for corpse dragging, setting it to false
-     * will disable the doll switching
-     */
-    abstract val isCorpseDraggingMap: Boolean
-
-    /**
      * Dragger ammo resupply threshold, if ammo level is below this level during deployment,
      * the echelon will be resupplied.
      */
@@ -150,7 +145,7 @@ abstract class MapRunner(
             cleanup()
             _battles = 1
             // Only toggle switchDolls true if false, else keep it true
-            if (isCorpseDraggingMap) gameState.switchDolls = true
+            if (this is CorpseDragging) gameState.switchDolls = true
         }
     }
 
@@ -181,7 +176,7 @@ abstract class MapRunner(
      *
      * @return Deployments that need resupply, can be used in conjunction with [resupplyEchelons]
      */
-    protected suspend fun deployEchelons(vararg deployments: Any): Array<MapNode> = coroutineScope {
+    protected suspend fun deployEchelons(vararg deployments: Deployable): Array<MapNode> = coroutineScope {
         val needsResupply = mutableListOf<MapNode>()
         deployments.forEachIndexed { i, d ->
             val echelon: Int
@@ -227,7 +222,7 @@ abstract class MapRunner(
                 logger.info("Second member rations: ${formatter.format(rationCount * 100)} %")
                 rationCount < rationsResupplyThreshold
             }
-            if (!isCorpseDraggingMap) {
+            if (this !is CorpseDragging) {
                 for (mIndex in 0..5) {
                     if (!hasMember(mIndex)) continue
                     val hpImage = screenshot.getSubimage(373 + mIndex * 272, 778, 217, 1).binarizeImage()
@@ -333,26 +328,57 @@ abstract class MapRunner(
     }
 
     @JvmName("retreatEchelonsArray")
-    protected suspend fun retreatEchelons(nodes: Array<MapNode>) = retreatEchelons(*nodes)
+    protected suspend fun retreatEchelons(nodes: Array<Retreatable>) = retreatEchelons(*nodes)
 
     /**
      * Retreats an echelon at the given nodes, skips normal type nodes
      *
-     * @param nodes Nodes to retreat
+     * @param retreats Nodes to retreat
      */
-    protected suspend fun retreatEchelons(vararg nodes: MapNode) {
-        for (node in nodes.distinct()) {
-            if (node.type == MapNode.Type.Normal) continue
-            logger.info("Retreat echelon at $node")
-            logger.info("Selecting echelon")
-            openEchelon(node)
-            logger.info("Retreating")
-            mapRunnerRegions.retreat.click()
-            delay(1000)
-            region.subRegion(1115, 696, 250, 95).click()
-            logger.info("Retreat complete")
-            delay(1000)
+    protected suspend fun retreatEchelons(vararg retreats: Retreatable) {
+        val rl = retreats.distinctBy {
+            when (it) {
+                is MapNode -> it
+                is Retreat -> it.mapNode
+                else -> throw IllegalArgumentException("Retreating echelons, expected MapNode or Retreat but got ${it::class.simpleName}")
+            }
         }
+        for (retreat in rl) {
+            when (retreat) {
+                is MapNode -> retreatEchelon(retreat)
+                is Retreat -> retreatEchelon(retreat.mapNode, retreat.singleClick)
+            }
+        }
+    }
+
+    private suspend fun retreatEchelon(mapNode: MapNode, singleClick: Boolean = false) {
+        if (mapNode.type == MapNode.Type.Normal) return
+        logger.info("Retreat echelon at $mapNode")
+        logger.info("Selecting echelon")
+        openEchelon(mapNode, singleClick)
+        logger.info("Retreating")
+        mapRunnerRegions.retreat.click()
+        delay(1000)
+        region.subRegion(1115, 696, 250, 95).click()
+        logger.info("Retreat complete")
+        delay(1000)
+    }
+
+    /**
+     * Swaps two adjacent echelons on the map.
+     * May cause map panning if nodes are close to edge of viewport or causes a map event.
+     *
+     * @param nodes Swaps from first to second
+     */
+    protected suspend fun swapEchelons(nodes: Pair<MapNode, MapNode>) {
+        val (node1, node2) = nodes
+        logger.info("Swapping node $node1 with node $node2")
+        // If this node or a different adjacent node is already 'selected' may cause issues
+        node1.findRegion().click()
+        delay(500)
+        node2.findRegion().click()
+        region.waitHas(FileTemplate("combat/battle/switch.png", 0.95), 2000)?.click()
+        delay(3000)
     }
 
     /**
@@ -585,7 +611,7 @@ abstract class MapRunner(
             r.click(); delay(1500)
         }
         if (node.type == MapNode.Type.HeavyHeliport && gameState.requiresMapInit) {
-            mapRunnerRegions.chooseEchelon.click()
+            mapRunnerRegions.chooseEchelon.click(); delay(2000)
         }
     }
 

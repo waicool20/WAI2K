@@ -17,15 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.waicool20.wai2k.views
+package com.waicool20.wai2k.script.modules.combat
 
-import javafx.scene.control.TreeItem
-import tornadofx.*
-import kotlin.reflect.KClass
-
-class ViewNode(
-    val title: String,
-    val masterView: KClass<out View>,
-    val detailsView: KClass<out View>? = null,
-    val parent: KClass<out View>? = null,
-) : TreeItem<String>(title)
+interface EventMapRunner {
+    suspend fun enterMap()
+}
