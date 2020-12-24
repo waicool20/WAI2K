@@ -61,18 +61,19 @@ class EventASNC_2(scriptComponent: ScriptComponent) : HomographyMapRunner(script
         mapRunnerRegions.startOperation.click()
         waitForGNKSplash()
         resupplyEchelons(rEchelons)
-        delay(1500)
+        waitForTurnAndPoints(1, 2, false)
         turn1() // move combat echelon to the right
-        delay(1500) // necessary to deploy the second echelon
+        waitForTurnAndPoints(1, 1, false)
         deployEchelons(nodes[0]) // deploy dummy, needs to be twice for some reason
         mapRunnerRegions.endBattle.click() // end turn
-        waitForTurnEnd(1)
+        waitForTurnAndPoints(2, 3, false)
 
         // turn 2
         waitForGNKSplash()
         swapEchelons(nodes[1] to nodes[0])
         planPath() // clear left node then go to command HQ
         waitForTurnAndPoints(2, 1, false) // turn does not end so wait for plan to be executed
+        mapH = null // map moves after planned path, force rescan of map
         retreatEchelons(Retreat(nodes[0], true))
         terminateMission()
     }
@@ -84,7 +85,7 @@ class EventASNC_2(scriptComponent: ScriptComponent) : HomographyMapRunner(script
         nodes[1].findRegion().click(); yield()
 
         r.click(); delay(500)
-        r.click(); delay(500) // two clicks required for reliability
+        r.click(); delay(500) // two clicks for reliability
     }
 
     private suspend fun planPath() {
