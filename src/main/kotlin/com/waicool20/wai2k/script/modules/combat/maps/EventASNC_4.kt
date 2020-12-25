@@ -53,7 +53,7 @@ class EventASNC_4(scriptComponent: ScriptComponent) : HomographyMapRunner(script
                 800
             )
             delay(500)
-            logger.info("Pan up") // top will be too far up, need to move down
+            logger.info("Pan up") // top will be obscured need to pan up
             r.swipeTo(r.copy(y = r.y + 150))
             delay(500)
             gameState.requiresMapInit = false
@@ -64,7 +64,7 @@ class EventASNC_4(scriptComponent: ScriptComponent) : HomographyMapRunner(script
         mapRunnerRegions.startOperation.click()
         waitForGNKSplash()
         resupplyEchelons(nodes[0])
-        planPath() // clear left node then go to command HQ
+        planPath() // clear right node then go back to heliport
         waitForTurnAndPoints(1, 0, false) // turn does not end so wait for plan to be executed
         mapH = null // map moves after planned path, force rescan of map
         retreatEchelons(Retreat(nodes[0], true))
