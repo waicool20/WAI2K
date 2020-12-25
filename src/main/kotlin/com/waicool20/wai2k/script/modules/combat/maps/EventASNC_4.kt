@@ -54,7 +54,7 @@ class EventASNC_4(scriptComponent: ScriptComponent) : HomographyMapRunner(script
             )
             delay(500)
             logger.info("Pan up") // top will be obscured need to pan up
-            r.swipeTo(r.copy(y = r.y + 150))
+            r.swipeTo(r.copy(y = r.y + 200))
             delay(500)
             gameState.requiresMapInit = false
         }
