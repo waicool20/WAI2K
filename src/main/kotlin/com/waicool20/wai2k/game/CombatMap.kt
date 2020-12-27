@@ -31,20 +31,14 @@ sealed class CombatMap(val name: String) {
             private val regex = Regex("(\\d{1,2})-(\\d)([eEnN]?)-?(.*)?")
         }
 
-        private val matches: List<String>
-        val chapter: Int
-        val number: Int
-        val type: Type
-
-        init {
-            matches = regex.matchEntire(name)?.groupValues ?: throw InvalidMapNameException(name)
-            chapter = matches[1].toInt()
-            number = matches[2].toInt()
-            type = when (matches.getOrNull(3)) {
-                "e", "E" -> Type.EMERGENCY
-                "n", "N" -> Type.NIGHT
-                else -> Type.NORMAL
-            }
+        private val matches: List<String> =
+            regex.matchEntire(name)?.groupValues ?: throw InvalidMapNameException(name)
+        val chapter: Int = matches[1].toInt()
+        val number: Int = matches[2].toInt()
+        val type: Type = when (matches.getOrNull(3)) {
+            "e", "E" -> Type.EMERGENCY
+            "n", "N" -> Type.NIGHT
+            else -> Type.NORMAL
         }
 
         override fun toString() = "StoryMap(name=$name)"
@@ -52,5 +46,9 @@ sealed class CombatMap(val name: String) {
 
     class EventMap(name: String) : CombatMap(name) {
         override fun toString() = "EventMap(name=$name)"
+    }
+
+    class CampaignMap(name: String) : CombatMap(name) {
+        override fun toString() = "CampaignMap(name=$name)"
     }
 }

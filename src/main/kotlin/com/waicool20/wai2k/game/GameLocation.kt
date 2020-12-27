@@ -40,7 +40,14 @@ import java.util.*
  * @param isIntermediate If this is intermediate then that means this location
  * can potentially be skipped to get to a destination when traversing a path.
  */
-data class GameLocation(val id: LocationId, val isIntermediate: Boolean = false) {
+data class GameLocation(
+    val id: LocationId,
+    val isIntermediate: Boolean = false,
+    val matchingMode: Mode = Mode.AND
+) {
+    enum class Mode {
+        AND, OR
+    }
     /**
      * List of [Landmark] of this [GameLocation], if all landmarks are present on screen
      * then the game location is on screen
@@ -106,7 +113,10 @@ data class GameLocation(val id: LocationId, val isIntermediate: Boolean = false)
      */
     fun isInRegion(region: Region<AndroidDevice>): Boolean {
         if (landmarks.isEmpty()) return false
-        return landmarks.all { it.asset.getSubRegionFor(region).has(FileTemplate(it.asset.imagePath, 0.98)) }
+        return when (matchingMode) {
+            Mode.AND -> landmarks.all { it.asset.getSubRegionFor(region).has(FileTemplate(it.asset.imagePath, 0.98)) }
+            Mode.OR -> landmarks.any { it.asset.getSubRegionFor(region).has(FileTemplate(it.asset.imagePath, 0.98)) }
+        }
     }
 
     /**

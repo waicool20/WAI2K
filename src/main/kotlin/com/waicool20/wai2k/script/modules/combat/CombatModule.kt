@@ -68,9 +68,10 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
         if (gameState.echelons[0].hasRepairs()) return
         // Also Return if its a corpse dragging map and echelon 2 has repairs
         if (mapRunner is CorpseDragging && gameState.echelons[1].hasRepairs()) return
-        when (map) {
-            is CombatMap.EventMap -> runEventCombatCycle()
-            is CombatMap.StoryMap -> runCombatCycle()
+        if (map is CombatMap.StoryMap) {
+            runCombatCycle()
+        } else {
+            runOtherCombatCycle()
         }
     }
 
@@ -112,7 +113,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
         navigator.checkLogistics()
     }
 
-    private suspend fun runEventCombatCycle() {
+    private suspend fun runOtherCombatCycle() {
         if (mapRunner is CorpseDragging && !wasCancelled) {
             switchDolls()
             // Check if there was a bad switch
@@ -125,7 +126,12 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
         // Cancel further execution if any of the dolls needed to repair but were not able to
         wasCancelled = gameState.echelons.any { it.needsRepairs() }
         if (wasCancelled) return
-        navigator.navigateTo(LocationId.EVENT)
+
+        when (map) {
+            is CombatMap.EventMap -> navigator.navigateTo(LocationId.EVENT)
+            is CombatMap.CampaignMap -> navigator.navigateTo(LocationId.CAMPAIGN)
+            else -> error("Expected Event or Campaign map")
+        }
 
         (mapRunner as EventMapRunner).enterMap()
         if (checkNeedsEnhancement()) return
