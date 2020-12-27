@@ -33,7 +33,8 @@ import kotlin.random.Random
 class EventASNC_4(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent),
     EventMapRunner {
     private val logger = loggerFor<EventASNC_4>()
-    override val ammoResupplyThreshold = 0.6
+    override val rationsResupplyThreshold = 0.2
+    override val ammoResupplyThreshold = 0.2
 
     override suspend fun enterMap() {
         region.subRegion(1334, 704, 468, 234).click() // click ASNC map 4
@@ -60,10 +61,11 @@ class EventASNC_4(scriptComponent: ScriptComponent) : HomographyMapRunner(script
         }
         delay((900 * gameState.delayCoefficient).roundToLong())
 
-        deployEchelons(nodes[0], nodes[1])
+        val rEchelons = deployEchelons(nodes[0]) // dynamically resupply echelon 1
+        deployEchelons(nodes[1])
         mapRunnerRegions.startOperation.click()
         waitForGNKSplash()
-        resupplyEchelons(nodes[0])
+        resupplyEchelons(rEchelons)
         planPath() // clear right node then go back to heliport
         waitForTurnAndPoints(1, 0, false) // turn does not end so wait for plan to be executed
         mapH = null // map moves after planned path, force rescan of map
@@ -74,6 +76,9 @@ class EventASNC_4(scriptComponent: ScriptComponent) : HomographyMapRunner(script
     private suspend fun planPath() {
         logger.info("Entering planning mode")
         mapRunnerRegions.planningMode.click(); yield()
+
+        logger.info("Selecting ${nodes[0]}")
+        nodes[0].findRegion().click()
 
         logger.info("Selecting ${nodes[2]}")
         nodes[2].findRegion().click()
