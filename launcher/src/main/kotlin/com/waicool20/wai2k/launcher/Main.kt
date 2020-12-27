@@ -189,10 +189,13 @@ object Main {
                 Files.readAllLines(depPath)
             } else {
                 val text = grabWebString("$url/dependencies.txt")
-                val oldText = Files.readAllBytes(depPath).toString(Charsets.UTF_8)
-                if (oldText != text) {
-                    println("Dependencies changed, deleting old ones...")
-                    Files.walk(libPath).sorted(Comparator.reverseOrder()).forEach { Files.delete(it) }
+                if (Files.exists(depPath)) {
+                    val oldText = Files.readAllBytes(depPath).toString(Charsets.UTF_8)
+                    if (oldText != text) {
+                        println("Dependencies changed, deleting old ones...")
+                        Files.walk(libPath).sorted(Comparator.reverseOrder())
+                            .forEach { Files.delete(it) }
+                    }
                 }
                 Files.write(depPath, text.toByteArray())
                 text.lines()
