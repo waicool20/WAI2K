@@ -342,7 +342,7 @@ object Main {
             classpath,
             "com.waicool20.wai2k.LauncherKt",
             *args
-        ).inheritIO().start()
+        ).directory(appPath.toFile()).inheritIO().start()
         process.waitFor()
         exitProcess(process.exitValue())
     }
