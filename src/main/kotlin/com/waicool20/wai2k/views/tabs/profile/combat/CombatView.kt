@@ -47,6 +47,7 @@ class CombatView : AbstractProfileView() {
             val comparator = compareBy(String::length).then(naturalOrder())
             val storyMaps = MapRunner.list.keys.filterIsInstance<CombatMap.StoryMap>()
             val eventMaps = MapRunner.list.keys.filterIsInstance<CombatMap.EventMap>()
+            val campaignMaps = MapRunner.list.keys.filterIsInstance<CombatMap.CampaignMap>()
             mapComboBox.items.apply {
                 add("-- Normal --")
                 addAll(storyMaps.filter { it.type == CombatMap.Type.NORMAL }.map { it.name }.sortedWith(comparator))
@@ -54,6 +55,8 @@ class CombatView : AbstractProfileView() {
                 addAll(storyMaps.filter { it.type == CombatMap.Type.EMERGENCY }.map { it.name }.sortedWith(comparator))
                 add("-- Night Battle --")
                 addAll(storyMaps.filter { it.type == CombatMap.Type.NIGHT }.map { it.name }.sortedWith(comparator))
+                add("-- Campaign --")
+                addAll(campaignMaps.map { it.name }.sortedWith(comparator))
                 add("-- Event --")
                 addAll(eventMaps.map { it.name }.sortedWith(comparator))
             }

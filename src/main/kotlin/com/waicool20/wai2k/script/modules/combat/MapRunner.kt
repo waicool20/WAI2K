@@ -74,14 +74,22 @@ abstract class MapRunner(
             for (mapClass in mapClasses) {
                 if (Modifier.isAbstract(mapClass.modifiers)) continue
                 if (Modifier.isInterface(mapClass.modifiers)) continue
-                if (EventMapRunner::class.java.isAssignableFrom(mapClass)) {
-                    val name = mapClass.simpleName.replaceFirst("Event", "")
-                        .replace("_", "-")
-                    list[CombatMap.EventMap(name)] = mapClass.kotlin
-                } else {
-                    val name = mapClass.simpleName.replaceFirst("Map", "")
-                        .replace("_", "-")
-                    list[CombatMap.StoryMap(name)] = mapClass.kotlin
+                when {
+                    CampaignMapRunner::class.java.isAssignableFrom(mapClass) -> {
+                        val name = mapClass.simpleName.replaceFirst("Campaign", "")
+                            .replace("_", "-")
+                        list[CombatMap.CampaignMap(name)] = mapClass.kotlin
+                    }
+                    EventMapRunner::class.java.isAssignableFrom(mapClass) -> {
+                        val name = mapClass.simpleName.replaceFirst("Event", "")
+                            .replace("_", "-")
+                        list[CombatMap.EventMap(name)] = mapClass.kotlin
+                    }
+                    else -> {
+                        val name = mapClass.simpleName.replaceFirst("Map", "")
+                            .replace("_", "-")
+                        list[CombatMap.StoryMap(name)] = mapClass.kotlin
+                    }
                 }
             }
         }
