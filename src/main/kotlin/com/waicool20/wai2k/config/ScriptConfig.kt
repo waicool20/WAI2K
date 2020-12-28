@@ -25,7 +25,7 @@ import tornadofx.*
 @JsonIgnoreProperties(ignoreUnknown = true)
 class ScriptConfig(
     loopDelay: Int = 15,
-    baseNavigationDelay: Int = 500,
+    baseNavigationDelay: Int = 1000,
     mouseDelay: Double = 0.3,
     defaultSimilarityThreshold: Double = 0.9,
     mapRunnerSimilarityThreshold: Double = 0.85,
