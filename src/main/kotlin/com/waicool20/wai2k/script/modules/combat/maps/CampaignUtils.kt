@@ -70,13 +70,22 @@ object CampaignUtils {
     /**
      *  Enter a simple map in a chapter similar to regular chapters
      *  Limited to the first 3 campaigns
-     *  later campaigns can enter thiet sub map selection via map 1
+     *  later campaigns can enter their sub map selection via map 1
      */
     suspend fun enterSimpleMap(sc: ScriptComponent) {
-        val target = sc::class.simpleName!!
-            .dropLastWhile { it.isLetter() }
-            .takeLast(1)
-            .toInt()
+        val campaign = sc::class.simpleName!!
+            .removePrefix("Campaign")
+            .take(2)
+            .let { campaigns.indexOf(it) }
+
+        // later campaigns have this as an intermediate menus
+
+        val target = if (campaign < 3) {
+            sc::class.simpleName!!
+                .dropLastWhile { it.isLetter() }
+                .takeLast(1)
+                .toInt()
+        } else 1
 
         delay(500)
         // Click the map number
