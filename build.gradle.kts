@@ -145,10 +145,10 @@ task("deps-list") {
         val repos = project.repositories.mapNotNull { it as? MavenArtifactRepository }.map { it.url }
         val output = StringBuilder()
         output.appendln("Repositories:")
-        repos.forEach { output.appendln("- $it") }
+        repos.sorted().forEach { output.appendln("- $it") }
         output.appendln()
         output.appendln("Dependencies:")
-        deps.forEach { output.appendln("- $it") }
+        deps.sorted().forEach { output.appendln("- $it") }
         Files.write(file, output.toString().toByteArray(), StandardOpenOption.TRUNCATE_EXISTING)
     }
 }
