@@ -243,16 +243,22 @@ class ScriptRunner(
                     r.clickWhile { Ocr.forConfig(currentConfig).doOCRAndTrim(r).distanceTo("RESUME") <= 3 }
                     // Two terminate button checks, one for when we just entered, the other to wait for
                     // any current battle to end.
-                    region.waitHas(FileTemplate("combat/battle/terminate.png"), 10000)
-                        ?: continue@loop
-                    delay(3000)
-                    region.waitHas(FileTemplate("combat/battle/terminate.png"), 30000)
+                    region.waitHas(FileTemplate("combat/battle/terminate.png"), 20000)
                     val mapRunnerRegions = MapRunnerRegions(region)
-                    mapRunnerRegions.terminateMenu.click(); delay(700)
-                    mapRunnerRegions.terminate.click(); delay(5000)
-                    logger.info("Terminated the battle")
-                    gameState.currentGameLocation = locations[LocationId.COMBAT_MENU]!!
-                    break@loop
+                    while (isActive) {
+                        delay(3000)
+                        region.waitHas(FileTemplate("combat/battle/terminate.png"), 30000)
+                        mapRunnerRegions.terminateMenu.click(); delay(700)
+                        mapRunnerRegions.terminate.click(); delay(5000)
+                        val locs = arrayOf(LocationId.COMBAT_MENU, LocationId.CAMPAIGN, LocationId.EVENT)
+                        for (l in locs) {
+                            if (locations[l]!!.isInRegion(region)) {
+                                logger.info("Terminated the battle")
+                                gameState.currentGameLocation = locations[l]!!
+                                break@loop
+                            }
+                        }
+                    }
                 }
                 locations[LocationId.HOME]?.isInRegion(region) == true -> {
                     gameState.currentGameLocation = locations[LocationId.HOME]!!
