@@ -128,16 +128,26 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
         if (wasCancelled) return
 
         when (map) {
-            is CombatMap.EventMap -> navigator.navigateTo(LocationId.EVENT)
-            is CombatMap.CampaignMap -> navigator.navigateTo(LocationId.CAMPAIGN)
+            is CombatMap.EventMap -> {
+                navigator.navigateTo(LocationId.EVENT)
+                (mapRunner as EventMapRunner).enterMap()
+
+                if (checkNeedsEnhancement()) return
+                executeMapRunner()
+
+                gameState.currentGameLocation = GameLocation.find(config, LocationId.EVENT)
+            }
+            is CombatMap.CampaignMap -> {
+                navigator.navigateTo(LocationId.CAMPAIGN)
+                (mapRunner as CampaignMapRunner).enterMap()
+
+                if (checkNeedsEnhancement()) return
+                executeMapRunner()
+
+                gameState.currentGameLocation = GameLocation.find(config, LocationId.CAMPAIGN)
+            }
             else -> error("Expected Event or Campaign map")
         }
-
-        (mapRunner as EventMapRunner).enterMap()
-        if (checkNeedsEnhancement()) return
-        executeMapRunner()
-
-        gameState.currentGameLocation = GameLocation.find(config, LocationId.EVENT)
         logger.info("Sortie complete")
     }
 
