@@ -240,10 +240,16 @@ class ScriptRunner(
             when {
                 Ocr.forConfig(currentConfig).doOCRAndTrim(r).distanceTo("RESUME") <= 3 -> {
                     logger.info("Detected ongoing battle, terminating it first")
-                    r.clickWhile { Ocr.forConfig(currentConfig).doOCRAndTrim(r).distanceTo("RESUME") <= 3 }
+                    while (isActive) {
+                        if (Ocr.forConfig(currentConfig).doOCRAndTrim(r).distanceTo("RESUME") <= 3) {
+                            r.click()
+                        }
+                        if (region.has(FileTemplate("combat/battle/terminate.png"))) {
+                            break
+                        }
+                    }
                     // Two terminate button checks, one for when we just entered, the other to wait for
                     // any current battle to end.
-                    region.waitHas(FileTemplate("combat/battle/terminate.png"), 20000)
                     val mapRunnerRegions = MapRunnerRegions(region)
                     while (isActive) {
                         delay(3000)
