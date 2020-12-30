@@ -327,11 +327,14 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
                 // one-click repair
                 region.subRegion(1660, 965, 358, 98).click()
                 region.waitHas(FileTemplate("ok.png"), 2000)
-                val repairs = Ocr.forConfig(config, digitsOnly = true)
-                    .doOCRAndTrim(region.subRegion(1472, 689, 68, 42))
-                scriptStats.repairs += repairs.toInt()
+                while (isActive) {
+                    val repairs = Ocr.forConfig(config, digitsOnly = true)
+                        .doOCRAndTrim(region.subRegion(1472, 689, 68, 42))
+                    scriptStats.repairs += repairs.toIntOrNull() ?: continue
 
-                logger.info("Repairing $repairs dolls")
+                    logger.info("Repairing $repairs dolls")
+                    break
+                }
                 // Click ok
                 region.subRegion(1441, 772, 250, 96).click()
                 gameState.echelons.flatMap { it.members }.forEach { it.needsRepair = false }
