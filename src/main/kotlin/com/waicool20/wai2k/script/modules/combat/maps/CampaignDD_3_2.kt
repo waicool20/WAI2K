@@ -69,18 +69,13 @@ class CampaignDD_3_2(scriptComponent: ScriptComponent) : HomographyMapRunner(scr
         // alright lets do this incredibly ghetto retreat
         val r = region.subRegionAs<AndroidRegion>(1058, 700, 100, 3) // required for pan right
         logger.info("Zoom in")
-        region.pinch(
-            Random.nextInt(350, 400),
-            Random.nextInt(850, 900),
-            0.0,
-            100
-        )
+        region.pinch(375, 875, 0.0, 100)
         delay(1000)
         logger.info("Pan right")
         r.swipeTo(r.copy(x = r.x - 800))
         delay(1000)
         // combat echelon should be on the screen at this point
-        region.subRegion(1419, 504, 100, 100).click() // this should be where our echelon is at
+        region.subRegion(1321, 509, 100, 100).click() // this should be where our echelon is at
         delay(1000)
         mapRunnerRegions.retreat.click()
         delay(1000)
