@@ -64,7 +64,7 @@ class CampaignDD_3_2(scriptComponent: ScriptComponent) : HomographyMapRunner(scr
         retreatEchelons(Retreat(nodes[1], false))
         resupplyEchelons(nodes[0])
         planPath()
-        waitForTurnAndPoints(2, 2, false)
+        waitForTurnAndPoints(2, 2, false, 180_000)
 
         // alright lets do this incredibly ghetto retreat
         val r = region.subRegionAs<AndroidRegion>(1058, 700, 100, 3) // required for pan right
@@ -75,7 +75,7 @@ class CampaignDD_3_2(scriptComponent: ScriptComponent) : HomographyMapRunner(scr
             0.0,
             100
         )
-        delay(500)
+        delay(1000)
         logger.info("Pan right")
         r.swipeTo(r.copy(x = r.x - 800))
         delay(1000)
