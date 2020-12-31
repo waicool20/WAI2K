@@ -462,7 +462,7 @@ abstract class MapRunner(
         turn: Int,
         points: Int,
         endTurn: Boolean = true,
-        timeout: Long = 120_000
+        timeout: Long = 180_000
     ) = coroutineScope {
         logger.info("Waiting for turn $turn and action points $points")
         val ocr = Ocr.forConfig(config, digitsOnly = true)
