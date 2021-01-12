@@ -218,7 +218,8 @@
   {
     "name": "SV-98",
     "stars": 3,
-    "type": "RF"
+    "type": "RF",
+    "moddable": true
   },
   {
     "name": "Kar98k",
@@ -398,7 +399,8 @@
   {
     "name": "LWMMG",
     "stars": 2,
-    "type": "MG"
+    "type": "MG",
+    "moddable": true
   },
   {
     "name": "DP28",
@@ -1244,7 +1246,8 @@
   {
     "name": "KSVK",
     "stars": 4,
-    "type": "RF"
+    "type": "RF",
+    "moddable": true
   },
   {
     "name": "Lewis",
