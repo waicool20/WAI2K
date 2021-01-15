@@ -49,7 +49,7 @@ class ScriptPrefView : View() {
         mouseDelaySpinner.valueFactory = DoubleSpinnerValueFactory(0.0, 100.0, 0.15, 0.01)
         defaultSimThresholdSpinner.valueFactory = DoubleSpinnerValueFactory(0.0, 1.0, 0.8, 0.05)
         mapRunnerSimThresholdSpinner.valueFactory = DoubleSpinnerValueFactory(0.0, 1.0, 0.8, 0.05)
-        ocrThresholdSpinner.valueFactory = DoubleSpinnerValueFactory(0.0, 1.0, 0.9, 0.01)
+        ocrThresholdSpinner.valueFactory = DoubleSpinnerValueFactory(0.0, 100.0, 0.9, 0.1)
         minPostBattleClickSpinner.valueFactory = IntegerSpinnerValueFactory(0, 10)
         maxPostBattleClickSpinner.valueFactory = IntegerSpinnerValueFactory(0, 10)
         context.wai2KConfig.scriptConfig.apply {
