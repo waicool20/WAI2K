@@ -36,7 +36,7 @@ object Ocr {
     )
 
     val OCR_DISTANCE_MAP = mapOf(
-        "-—" to 0.1,
+        "-—ﾗ" to 0.1,
         "0cCDGoOQ@" to 0.1,
         "1iIl\\[\\]|!" to 0.1,
         "2Zz" to 0.1,
