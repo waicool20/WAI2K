@@ -52,7 +52,6 @@ class Map10_4E(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptCom
             }
             logger.info("Pan down")
             r.swipeTo(r.copy(y = r.y - 690))
-            logger.info("Map hopefully aligned")
         }
         delay((900 * gameState.delayCoefficient).roundToLong()) //Wait to settle
         val rEchelons = deployEchelons(nodes[0], nodes[1], nodes[2])
