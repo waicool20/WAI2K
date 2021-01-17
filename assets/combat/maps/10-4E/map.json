@@ -3,8 +3,8 @@
     "type": "HeavyHeliport",
     "x": 183,
     "y": 13,
-    "width": 33,
-    "height": 33
+    "width": 24,
+    "height": 24
   },
   {
     "type": "CommandPost",
