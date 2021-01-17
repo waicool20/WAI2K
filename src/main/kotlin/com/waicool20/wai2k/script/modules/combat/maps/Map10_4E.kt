@@ -22,14 +22,14 @@ package com.waicool20.wai2k.script.modules.combat.maps
 import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.script.ScriptComponent
-import com.waicool20.wai2k.script.modules.combat.AbsoluteMapRunner
+import com.waicool20.wai2k.script.modules.combat.HomographyMapRunner
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
 import kotlin.math.roundToLong
 import kotlin.random.Random
 
-class Map10_4E(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptComponent) {
+class Map10_4E(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent) {
     private val logger = loggerFor<Map10_4E>()
 
     override suspend fun begin() {
@@ -45,7 +45,7 @@ class Map10_4E(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptCompo
                 )
                 delay(200)
             }
-            logger.info("Pan uo")
+            logger.info("Pan up")
             repeat(2) {
                 r.swipeTo(r.copy(y = r.y + 400))
                 delay(200)
