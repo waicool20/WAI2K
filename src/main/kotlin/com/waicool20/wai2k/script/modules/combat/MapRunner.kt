@@ -589,17 +589,23 @@ abstract class MapRunner(
     private suspend fun clickThroughBattle() {
         logger.info("Entered battle $_battles")
         onEnterBattleListener()
+        // Delay to stop COOL Beach fairy BG change from triggering battle counter
+        delay(4000)
         // Wait until it disappears
         while (isActive && isInBattle()) yield()
         logger.info("Battle ${_battles++} complete, clicking through battle results")
         // Animation and load wheel until you can click through results/drops
         delay(Random.nextLong(1100, 1300))
         val l = mapRunnerRegions.battleEndClick.randomPoint()
-        val clicks = if (config.scriptConfig.minPostBattleClick == config.scriptConfig.maxPostBattleClick) {
-            config.scriptConfig.minPostBattleClick
-        } else {
-            Random.nextInt(config.scriptConfig.minPostBattleClick, config.scriptConfig.maxPostBattleClick)
-        }
+        val clicks =
+            if (config.scriptConfig.minPostBattleClick == config.scriptConfig.maxPostBattleClick) {
+                config.scriptConfig.minPostBattleClick
+            } else {
+                Random.nextInt(
+                    config.scriptConfig.minPostBattleClick,
+                    config.scriptConfig.maxPostBattleClick
+                )
+            }
         repeat(clicks) {
             region.subRegion(l.x, l.y, 20, 20).click()
             delay(Random.nextLong(150, 250))
