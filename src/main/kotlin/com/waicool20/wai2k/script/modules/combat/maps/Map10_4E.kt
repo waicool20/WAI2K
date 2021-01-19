@@ -35,6 +35,7 @@ class Map10_4E(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptCom
     override suspend fun begin() {
         val r = region.subRegionAs<AndroidRegion>(1058, 700, 100, 3)
         if (gameState.requiresMapInit) {
+            logger.info("Map needs to be initialized!")
             logger.info("Zoom out")
             repeat(2) {
                 region.pinch(
@@ -52,6 +53,7 @@ class Map10_4E(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptCom
             }
             logger.info("Pan down")
             r.swipeTo(r.copy(y = r.y - 690))
+            mapH = null
         }
         delay((900 * gameState.delayCoefficient).roundToLong()) //Wait to settle
         val rEchelons = deployEchelons(nodes[0], nodes[1], nodes[2])
