@@ -89,7 +89,12 @@ data class LogisticsSupport private constructor(
             LogisticsSupport(45, of(hours = 4)),
             LogisticsSupport(46, of(hours = 4)),
             LogisticsSupport(47, of(hours = 8)),
-            LogisticsSupport(48, of(hours = 10))
+            LogisticsSupport(48, of(hours = 10)),
+            // Chapter 12
+            LogisticsSupport(49, of(hours = 1)),
+            LogisticsSupport(50, of(hours = 1, minutes = 30)),
+            LogisticsSupport(51, of(hours = 9)),
+            LogisticsSupport(52, of(hours = 12))
         )
     }
 

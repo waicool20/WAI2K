@@ -26,6 +26,8 @@ import com.waicool20.waicoolutils.javafx.listen
 import javafx.geometry.Pos
 import javafx.scene.control.TreeItem
 import javafx.scene.control.TreeView
+import javafx.scene.image.Image
+import javafx.scene.image.ImageView
 import javafx.scene.layout.HBox
 import org.controlsfx.control.MasterDetailPane
 import tornadofx.*
@@ -40,7 +42,8 @@ class ProfileTabView : View() {
     }
 
     private val defaultDetailsNode = hbox(alignment = Pos.CENTER) {
-        label("Go away, don't look ヽ( `д´*)ノ")
+        //label("Go away, don't look ヽ( `д´*)ノ")
+        label(graphic = ImageView(Image("images/wa-pudding.png")))
     }
 
     private val context: Wai2KContext by inject()
