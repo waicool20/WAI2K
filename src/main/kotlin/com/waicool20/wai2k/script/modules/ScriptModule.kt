@@ -45,7 +45,7 @@ abstract class ScriptModule(
 
     companion object {
         private const val CHAPTER_MIN = 0
-        private const val CHAPTER_MAX = 9
+        private const val CHAPTER_MAX = 12
         private const val CHAPTER_SIMILARITY = 0.9
     }
 
