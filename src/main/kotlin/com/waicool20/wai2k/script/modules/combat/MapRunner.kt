@@ -204,6 +204,7 @@ abstract class MapRunner(
 
             logger.info("Deploying echelon ${i + 1} to $node")
             openEchelon(node, singleClick = true)
+            delay(200)
             if (echelon in 1..10) {
                 while (!clickEchelon(Echelon(echelon))) delay(200)
             }
