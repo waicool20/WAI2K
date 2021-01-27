@@ -576,7 +576,9 @@ abstract class MapRunner(
     }
 
     protected suspend fun terminateMission(incrementSorties: Boolean = true) {
-        mapRunnerRegions.terminateMenu.click(); delay(700)
+        region.subRegion(370, 0, 220, 150)
+            .waitHas(FileTemplate("combat/battle/terminate.png"), 2000)
+        mapRunnerRegions.terminateMenu.click(); delay(1000)
         mapRunnerRegions.terminate.click(); delay(5000)
 
         logger.info("Left battle screen")
