@@ -187,6 +187,7 @@ class LoaderView : CoroutineScopeView() {
             if (wai2KConfig.showConsoleOnStart) {
                 find<ConsoleView>().openWindow(owner = null)
             }
+            Wai2KWorkspace.setDarkMode(wai2KConfig.appearanceConfig.darkMode)
         }
     }
 }

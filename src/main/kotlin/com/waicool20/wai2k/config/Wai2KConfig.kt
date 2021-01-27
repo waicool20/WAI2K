@@ -48,7 +48,8 @@ class Wai2KConfig(
     scriptConfig: ScriptConfig = ScriptConfig(),
     gameRestartConfig: GameRestartConfig = GameRestartConfig(),
     apiKey: String = "",
-    notificationsConfig: NotificationsConfig = NotificationsConfig()
+    notificationsConfig: NotificationsConfig = NotificationsConfig(),
+    appearanceConfig: AppearanceConfig = AppearanceConfig()
 ) {
     private val logger = loggerFor<Wai2K>()
 
@@ -68,6 +69,7 @@ class Wai2KConfig(
     val gameRestartConfigProperty = gameRestartConfig.toProperty()
     val apiKeyProperty = apiKey.toProperty()
     val notificationsConfigProperty = notificationsConfig.toProperty()
+    val appearanceConfigProperty = appearanceConfig.toProperty()
 
     var currentProfile by currentProfileProperty
     @get:JsonIgnore var assetsDirectory by assetsDirectoryProperty
@@ -80,6 +82,7 @@ class Wai2KConfig(
     var gameRestartConfig by gameRestartConfigProperty
     var apiKey by apiKeyProperty
     var notificationsConfig by notificationsConfigProperty
+    var appearanceConfig by appearanceConfigProperty
 
     //</editor-fold>
 

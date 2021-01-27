@@ -17,41 +17,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.waicool20.wai2k.views
+package com.waicool20.wai2k.views.tabs.preferences
 
 import com.sun.javafx.css.StyleManager
 import com.waicool20.wai2k.config.Wai2KContext
+import com.waicool20.wai2k.views.Wai2KWorkspace
+import com.waicool20.waicoolutils.javafx.addListener
 import javafx.application.Application
+import javafx.scene.layout.VBox
+import org.controlsfx.control.ToggleSwitch
 import tornadofx.*
-import kotlin.system.exitProcess
 
-class Wai2KWorkspace : Workspace() {
+class AppearancePrefView : View() {
+    override val root: VBox by fxml("/views/tabs/preferences/appearance.fxml")
+    private val darkModeToggleSwitch: ToggleSwitch by fxid()
 
-    companion object {
-        fun setDarkMode(en: Boolean) {
-            Application.setUserAgentStylesheet(Application.STYLESHEET_MODENA)
-            val sm = StyleManager.getInstance()
-            if (en) {
-                sm.addUserAgentStylesheet("/css/dark.css")
-            } else {
-                sm.removeUserAgentStylesheet("/css/dark.css")
-            }
-        }
-    }
-
-    init {
-        add(MenuBarView::class)
-        setWindowMinSize(560, 700)
-        setWindowMaxSize(560, 700)
-    }
+    private val context: Wai2KContext by inject()
 
     override fun onDock() {
         super.onDock()
-        dock<MainView>()
-    }
+        darkModeToggleSwitch.isSelected = context.wai2KConfig.appearanceConfig.darkMode
 
-    override fun onUndock() {
-        super.onUndock()
-        exitProcess(0)
+        darkModeToggleSwitch.selectedProperty().addListener("DarkModeToggle") { newVal ->
+            Wai2KWorkspace.setDarkMode(newVal)
+            context.wai2KConfig.appearanceConfig.darkMode = newVal
+        }
     }
 }

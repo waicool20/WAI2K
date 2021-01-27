@@ -17,18 +17,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.waicool20.wai2k.views.tabs.preferences
+package com.waicool20.wai2k.config
 
-import com.waicool20.wai2k.views.ViewNode
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import tornadofx.*
 
-object PreferencesViewMappings {
-    val list = listOf(
-        ViewNode("Appearance", AppearancePrefView::class),
-        ViewNode("Console", ConsolePrefView::class),
-        ViewNode("Misc", MiscPrefView::class),
-        ViewNode("Paths", PathPrefView::class),
-        ViewNode("Script", ScriptPrefView::class),
-        ViewNode("Game Restart", GameRestartPrefView::class),
-        ViewNode("YuuBot", YuuBotView::class)
-    ).sortedBy { it.title }
+@JsonIgnoreProperties(ignoreUnknown = true)
+class AppearanceConfig(
+    darkMode: Boolean = false
+) {
+    val darkModeProperty = darkMode.toProperty()
+
+    var darkMode by darkModeProperty
 }
