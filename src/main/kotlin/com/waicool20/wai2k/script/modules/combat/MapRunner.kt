@@ -204,7 +204,6 @@ abstract class MapRunner(
 
             logger.info("Deploying echelon ${i + 1} to $node")
             openEchelon(node, singleClick = true)
-            delay(200)
             if (echelon in 1..10) {
                 while (!clickEchelon(Echelon(echelon))) delay(200)
             }
@@ -622,9 +621,14 @@ abstract class MapRunner(
 
     protected suspend fun openEchelon(node: MapNode, singleClick: Boolean = false) {
         val r = node.findRegion()
-        repeat(if (singleClick) 1 else 2) {
-            r.click(); delay(1500)
+        val sr = region.subRegion(1430, 900, 640, 130)
+        r.clickWhile(period = 1500) {
+            sr.doesntHave(FileTemplate("cancel-deploy.png"))
         }
+        // Can deprecate singleClick if above works more reliably
+        //repeat(if (singleClick) 1 else 2) {
+        //    r.click(); delay(1500)
+        //}
         if (node.type == MapNode.Type.HeavyHeliport && gameState.requiresMapInit) {
             mapRunnerRegions.chooseEchelon.click(); delay(2000)
         }
