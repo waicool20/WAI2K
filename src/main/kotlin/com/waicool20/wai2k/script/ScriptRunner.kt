@@ -170,6 +170,9 @@ class ScriptRunner(
         try {
             modules.forEach { it.execute() }
             justRestarted = false
+        } catch(e: UnsupportedMapException) {
+            e.printStackTrace()
+            coroutineContext.cancelAndYield()
         } catch (e: ScriptException) {
             logger.warn("Fault detected, restarting game")
             val now = LocalDateTime.now()
