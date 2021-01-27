@@ -247,6 +247,7 @@ class ScriptRunner(
                         if (Ocr.forConfig(currentConfig).doOCRAndTrim(r).distanceTo("RESUME") <= 3) {
                             r.click()
                         }
+                        navigator?.checkLogistics()
                         if (region.has(FileTemplate("combat/battle/terminate.png"))) {
                             break
                         }
