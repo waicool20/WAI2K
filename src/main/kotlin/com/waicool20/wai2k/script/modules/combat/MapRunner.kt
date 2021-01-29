@@ -60,8 +60,8 @@ abstract class MapRunner(
     scriptComponent: ScriptComponent
 ) : ScriptComponent by scriptComponent, CoroutineScope {
 
-    class Deployment(val echelon: Int, val mapNode: MapNode): Deployable
-    class Retreat(val mapNode: MapNode, val singleClick: Boolean): Retreatable
+    class Deployment(val echelon: Int, val mapNode: MapNode) : Deployable
+    class Retreat(val mapNode: MapNode, val singleClick: Boolean) : Retreatable
 
     infix fun Int.at(mapNode: MapNode) = Deployment(this, mapNode)
 
@@ -184,79 +184,82 @@ abstract class MapRunner(
      *
      * @return Deployments that need resupply, can be used in conjunction with [resupplyEchelons]
      */
-    protected suspend fun deployEchelons(vararg deployments: Deployable): Array<MapNode> = coroutineScope {
-        val needsResupply = mutableListOf<MapNode>()
-        deployments.forEachIndexed { i, d ->
-            val echelon: Int
-            val node: MapNode
+    protected suspend fun deployEchelons(vararg deployments: Deployable): Array<MapNode> =
+        coroutineScope {
+            val needsResupply = mutableListOf<MapNode>()
+            deployments.forEachIndexed { i, d ->
+                val echelon: Int
+                val node: MapNode
 
-            when (d) {
-                is MapNode -> {
-                    echelon = -1
-                    node = d
+                when (d) {
+                    is MapNode -> {
+                        echelon = -1
+                        node = d
+                    }
+                    is Deployment -> {
+                        echelon = d.echelon
+                        node = d.mapNode
+                    }
+                    else -> throw IllegalArgumentException("Deploying echelons, expected MapNode or Deployment but got ${d::class.simpleName}")
                 }
-                is Deployment -> {
-                    echelon = d.echelon
-                    node = d.mapNode
+
+                logger.info("Deploying echelon ${i + 1} to $node")
+                openEchelon(node, singleClick = true)
+                if (echelon in 1..10) {
+                    while (!clickEchelon(Echelon(echelon))) delay(200)
                 }
-                else -> throw IllegalArgumentException("Deploying echelons, expected MapNode or Deployment but got ${d::class.simpleName}")
-            }
+                val screenshot = region.capture()
+                val formatter = DecimalFormat("##.#")
 
-            logger.info("Deploying echelon ${i + 1} to $node")
-            openEchelon(node, singleClick = true)
-            if (echelon in 1..10) {
-                while (!clickEchelon(Echelon(echelon))) delay(200)
-            }
-            val screenshot = region.capture()
-            val formatter = DecimalFormat("##.#")
+                fun hasMember(mIndex: Int): Boolean {
+                    val hpText = Ocr.forConfig(config)
+                        .doOCR(screenshot.getSubimage(404 + mIndex * 272, 751, 40, 22))
+                    return hpText.contains("hp", true)
+                }
 
-            fun hasMember(mIndex: Int): Boolean {
-                val hpText = Ocr.forConfig(config).doOCR(screenshot.getSubimage(404 + mIndex * 272, 751, 40, 22))
-                return hpText.contains("hp", true)
-            }
-
-            val hasMember2 = hasMember(1)
-            val ammoNeedsSupply = async {
-                if (!hasMember2) return@async false
-                val image = screenshot.getSubimage(645, 820, 218, 1).binarizeImage()
-                val ammoCount = image.countColor(Color.WHITE) / image.width.toDouble()
-                logger.info("Second member ammo: ${formatter.format(ammoCount * 100)} %")
-                ammoCount < ammoResupplyThreshold
-            }
-            val rationNeedsSupply = async {
-                if (!hasMember2) return@async false
-                val image = screenshot.getSubimage(645, 860, 218, 1).binarizeImage()
-                val rationCount = image.countColor(Color.WHITE) / image.width.toDouble()
-                logger.info("Second member rations: ${formatter.format(rationCount * 100)} %")
-                rationCount < rationsResupplyThreshold
-            }
-            if (this !is CorpseDragging) {
-                for (mIndex in 0..5) {
-                    if (!hasMember(mIndex)) continue
-                    val hpImage = screenshot.getSubimage(373 + mIndex * 272, 778, 217, 1).binarizeImage()
-                    val hp = hpImage.countColor(Color.WHITE) / hpImage.width.toDouble() * 100
-                    logger.info("Member ${mIndex + 1} HP: ${formatter.format(hp)} %")
-                    if (hp < profile.combat.repairThreshold) {
-                        logger.info("Repairing member ${mIndex + 1}")
-                        region.subRegion(360 + mIndex * 272, 228, 246, 323).click()
-                        region.subRegion(1441, 772, 250, 96)
-                            .waitHas(FileTemplate("ok.png"), 3000)?.click()
-                        scriptStats.repairs++
-                        delay(500)
+                val hasMember2 = hasMember(1)
+                val ammoNeedsSupply = async {
+                    if (!hasMember2) return@async false
+                    val image = screenshot.getSubimage(645, 820, 218, 1).binarizeImage()
+                    val ammoCount = image.countColor(Color.WHITE) / image.width.toDouble()
+                    logger.info("Second member ammo: ${formatter.format(ammoCount * 100)} %")
+                    ammoCount < ammoResupplyThreshold
+                }
+                val rationNeedsSupply = async {
+                    if (!hasMember2) return@async false
+                    val image = screenshot.getSubimage(645, 860, 218, 1).binarizeImage()
+                    val rationCount = image.countColor(Color.WHITE) / image.width.toDouble()
+                    logger.info("Second member rations: ${formatter.format(rationCount * 100)} %")
+                    rationCount < rationsResupplyThreshold
+                }
+                if (this !is CorpseDragging) {
+                    for (mIndex in 0..5) {
+                        if (!hasMember(mIndex)) continue
+                        val hpImage =
+                            screenshot.getSubimage(373 + mIndex * 272, 778, 217, 1).binarizeImage()
+                        val hp = hpImage.countColor(Color.WHITE) / hpImage.width.toDouble() * 100
+                        logger.info("Member ${mIndex + 1} HP: ${formatter.format(hp)} %")
+                        if (hp < profile.combat.repairThreshold) {
+                            logger.info("Repairing member ${mIndex + 1}")
+                            region.subRegion(360 + mIndex * 272, 228, 246, 323).click()
+                            region.subRegion(1441, 772, 250, 96)
+                                .waitHas(FileTemplate("ok.png"), 3000)?.click()
+                            scriptStats.repairs++
+                            delay(500)
+                        }
                     }
                 }
+                mapRunnerRegions.deploy.click()
+                delay(300)
+                if (ammoNeedsSupply.await() || rationNeedsSupply.await()) {
+                    needsResupply += node
+                }
             }
-            mapRunnerRegions.deploy.click()
-            delay(300)
-            if (ammoNeedsSupply.await() || rationNeedsSupply.await()) {
-                needsResupply += node
-            }
+            needsResupply.forEach { logger.info("Echelon at $it needs resupply!") }
+            delay(200)
+            logger.info("Deployment complete")
+            needsResupply.toTypedArray()
         }
-        needsResupply.forEach { logger.info("Echelon at $it needs resupply!") }
-        delay(200)
-        logger.info("Deployment complete")
-        needsResupply.toTypedArray()
-    }
 
     /**
      * Selects an echelon in the deploy list
@@ -482,8 +485,10 @@ abstract class MapRunner(
                         .toIntOrNull() ?: continue
 
 
-                    val newPoints = ocr.doOCRAndTrim(screenshot.getSubimage(1730, 970, 135, 76)
-                        .binarizeImage().pad(10, 10, Color.BLACK))
+                    val newPoints = ocr.doOCRAndTrim(
+                        screenshot.getSubimage(1730, 970, 135, 76)
+                            .binarizeImage().pad(10, 10, Color.BLACK)
+                    )
                         .toIntOrNull() ?: continue
 
 
@@ -619,7 +624,8 @@ abstract class MapRunner(
         onFinishBattleListener()
     }
 
-    private fun isInBattle() = mapRunnerRegions.pauseButton.has(FileTemplate("combat/battle/pause.png", 0.9))
+    private fun isInBattle() =
+        mapRunnerRegions.pauseButton.has(FileTemplate("combat/battle/pause.png", 0.9))
 
     protected suspend fun openEchelon(node: MapNode, singleClick: Boolean = false) {
         val r = node.findRegion()
