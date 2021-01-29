@@ -170,10 +170,11 @@ class ScriptRunner(
         try {
             modules.forEach { it.execute() }
             justRestarted = false
-        } catch(e: UnsupportedMapException) {
-            e.printStackTrace()
-            coroutineContext.cancelAndYield()
         } catch (e: ScriptException) {
+            if (e is UnsupportedMapException) {
+                e.printStackTrace()
+                coroutineContext.cancelAndYield()
+            }
             logger.warn("Fault detected, restarting game")
             val now = LocalDateTime.now()
             e.printStackTrace()
@@ -192,9 +193,14 @@ class ScriptRunner(
                 logger.warn("Restart not enabled, ending script here")
                 coroutineContext.cancelAndYield()
             }
-        } catch (t: Throwable) {
-            logger.error("Uncaught error during script execution, please report this to the devs", t)
-            coroutineContext.cancelAndYield()
+        } catch (e: Exception) {
+            when (e) {
+                is CancellationException -> {} // Do nothing
+                else -> {
+                    logger.error("Uncaught error during script execution, please report this to the devs")
+                    e.printStackTrace()
+                }
+            }
         }
         postStats()
         if (isPaused) {
