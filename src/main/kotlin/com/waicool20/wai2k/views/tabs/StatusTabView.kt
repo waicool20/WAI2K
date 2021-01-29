@@ -139,6 +139,18 @@ class StatusTabView : CoroutineScopeView() {
                 }
             }
 
+            val combatSims = listOf(simEnergy, timeDelta(simNextCheck))
+                .filter { simNextCheck >= Instant.now() }
+            if (combatSims.isNotEmpty()) {
+                builder /= "Combat Energy ETA:"
+                builder += "\t- ${combatSims[0]}/6 : ${combatSims[1]}\n"
+            }
+
+            val combatReportETA = reportsNextCheck
+            if (combatReportETA > Instant.now()) {
+                builder /= "Combat Report ETA:"
+                builder += "\t - ${timeDelta(combatReportETA)}\n"
+            }
             if (builder.isEmpty()) {
                 builder += "Nothing is going on right now!"
             }
