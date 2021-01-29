@@ -277,7 +277,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
             logger.info("Confirm doll selections")
             // Click ok
             region.subRegion(1759, 880, 268, 177)
-                .findBest(FileTemplate("factory/ok.png"))?.region?.click(); delay(500)
+                .waitHas(FileTemplate("factory/ok.png"), 1500)?.click()
             logger.info("Disassembling selected T-dolls")
             disassembleButton.click(); delay(500)
             // Click confirm
@@ -415,7 +415,12 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
             disassembleButton.click(); delay(500)
             // Click confirm
             region.subRegion(1100, 865, 324, 161)
-                .findBest(FileTemplate("ok.png"))?.region?.click(); delay(200)
+                .waitHas(FileTemplate("ok.png"), 1500)?.click()
+            if (profile.factory.equipDisassembly.disassemble4Star) {
+                // If there's both 3star and 4star in the same scrap pool, game will prompt twice
+                region.subRegion(1100, 865, 324, 161)
+                    .waitHas(FileTemplate("ok.png"), 1500)?.click()
+            }
             // Update stats
             scriptStats.equipDisassemblesDone += 1
             // Can break if disassembled count is less than 12
