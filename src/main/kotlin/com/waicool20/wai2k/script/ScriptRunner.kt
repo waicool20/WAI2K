@@ -192,6 +192,9 @@ class ScriptRunner(
                 logger.warn("Restart not enabled, ending script here")
                 coroutineContext.cancelAndYield()
             }
+        } catch (t: Throwable) {
+            logger.error("Uncaught error during script execution, please report this to the devs", t)
+            coroutineContext.cancelAndYield()
         }
         postStats()
         if (isPaused) {
