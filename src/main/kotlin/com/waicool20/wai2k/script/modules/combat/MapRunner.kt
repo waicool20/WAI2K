@@ -630,9 +630,15 @@ abstract class MapRunner(
     protected suspend fun openEchelon(node: MapNode, singleClick: Boolean = false) {
         val r = node.findRegion()
         val sr = region.subRegion(1430, 900, 640, 130)
-        r.clickWhile(period = 1500) {
-            sr.doesntHave(FileTemplate("cancel-deploy.png"))
+
+        try {
+            r.clickWhile(period = 1500, timeout = 30000) {
+                sr.doesntHave(FileTemplate("cancel-deploy.png"))
+            }
+        } catch (e: TimeoutCancellationException) {
+            throw ScriptTimeOutException("Opening echelon", e)
         }
+
         // Can deprecate singleClick if above works more reliably
         //repeat(if (singleClick) 1 else 2) {
         //    r.click(); delay(1500)
