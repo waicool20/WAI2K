@@ -222,7 +222,7 @@ class ScriptRunner(
         logger.info("Game will now restart")
         ProcessManager(device).apply {
             kill(GFL.pkgName)
-            delay(200)
+            delay(1000)
             start(GFL.pkgName, GFL.mainActivity)
         }
         logger.info("Game restarted, waiting for login screen")
