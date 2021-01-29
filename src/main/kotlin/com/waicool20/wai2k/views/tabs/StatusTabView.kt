@@ -139,20 +139,26 @@ class StatusTabView : CoroutineScopeView() {
                 }
             }
 
-            val combatSims = listOf(simEnergy, timeDelta(simNextCheck))
-                .filter { simNextCheck >= Instant.now() }
-            if (combatSims.isNotEmpty()) {
-                builder /= "Combat Energy ETA:"
-                builder += "\t- ${combatSims[0]}/6 : ${combatSims[1]}\n"
+            if (context.currentProfile.combatSimulation.enabled) {
+                val combatSims = listOf(simEnergy, timeDelta(simNextCheck))
+                    .filter { simNextCheck >= Instant.now() }
+                if (combatSims.isNotEmpty()) {
+                    builder /= "Combat Energy ETA:"
+                    builder += "\t- ${combatSims[0]}/6 : ${combatSims[1]}\n"
+                }
             }
 
-            val combatReportETA = reportsNextCheck
-            if (combatReportETA > Instant.now()) {
-                builder /= "Combat Report ETA:"
-                builder += "\t - ${timeDelta(combatReportETA)}\n"
-            }
-            if (builder.isEmpty()) {
-                builder += "Nothing is going on right now!"
+            if (context.currentProfile.combatReport.enabled
+                && context.currentProfile.combat.enabled
+                && scriptRunner.isRunning
+            ) {
+                if (reportsNextCheck > Instant.now()) {
+                    builder /= "Combat Report ETA:"
+                    builder += "\t - ${timeDelta(reportsNextCheck)}\n"
+                }
+                if (builder.isEmpty()) {
+                    builder += "Nothing is going on right now!"
+                }
             }
         }
         timersLabel.text = builder.toString()
