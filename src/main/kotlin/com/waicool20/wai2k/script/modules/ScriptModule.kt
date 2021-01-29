@@ -154,7 +154,7 @@ abstract class ScriptModule(
         delay((500 * gameState.delayCoefficient).roundToLong())
         cRegion.subRegion(0, 0, 195, cRegion.height).clickTemplateWhile(
             template = FileTemplate("chapters/$chapter.png", CHAPTER_SIMILARITY),
-            timeout = 20
+            timeout = 20000
         ) { has(it) }
     }
 
