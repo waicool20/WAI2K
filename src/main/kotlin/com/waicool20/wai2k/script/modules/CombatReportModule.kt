@@ -20,7 +20,6 @@
 package com.waicool20.wai2k.script.modules
 
 import com.waicool20.cvauto.core.template.FileTemplate
-import com.waicool20.cvauto.core.template.ImageTemplate
 import com.waicool20.wai2k.config.Wai2KProfile.CombatReport
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.Navigator
@@ -30,17 +29,14 @@ import com.waicool20.wai2k.util.formatted
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
 import java.time.Instant
-import java.time.temporal.ChronoUnit
 
 class CombatReportModule(navigator: Navigator) : ScriptModule(navigator) {
     private val logger = loggerFor<CombatReportModule>()
 
-    private var lastCheck = Instant.now()
-
     override suspend fun execute() {
         if (!profile.combat.enabled) return
         if (!profile.combatReport.enabled) return
-        if (ChronoUnit.SECONDS.between(lastCheck, Instant.now()) < 3600) return
+        if (gameState.reportsNextCheck > Instant.now()) return
         overworkKalina()
     }
 
@@ -87,8 +83,8 @@ class CombatReportModule(navigator: Navigator) : ScriptModule(navigator) {
         }
         logger.info("Confirming selection")
         region.subRegion(1144, 749, 268, 103).click(); delay(1000) // OK button
-        lastCheck = Instant.now()
-        logger.info("Next check is in one hour (${lastCheck.formatted()})")
+        gameState.reportsNextCheck = Instant.now().plusSeconds(3600)
+        logger.info("Next check is in one hour (${gameState.reportsNextCheck.formatted()})")
 
         if (region.has(FileTemplate("ok.png"))) {
             logger.info("Warning: Battery at <1%, exiting")

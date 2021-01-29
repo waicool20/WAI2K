@@ -47,20 +47,18 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
 
     private val logger = loggerFor<CombatReportModule>()
     private val dataSimDays = arrayOf(DayOfWeek.TUESDAY, DayOfWeek.FRIDAY, DayOfWeek.SUNDAY)
-    private var nextCheck = Instant.now()
-    private var energyRemaining = 0
-    private var rechargeTime = Duration.ZERO
+    private var simTimer = Duration.ZERO
 
     private val mapRunner = object : AbsoluteMapRunner(this@CombatSimModule) {
             override suspend fun begin() {
             if (profile.combatSimulation.neuralFragment == Level.OFF) return
 
             if (OffsetDateTime.now(ZoneOffset.ofHours(-8)).dayOfWeek !in dataSimDays) {
-                nextCheck = Instant.now().plus(1, ChronoUnit.DAYS)
+                gameState.simNextCheck = Instant.now().plus(1, ChronoUnit.DAYS)
             }
 
-            val level = profile.combatSimulation.neuralFragment
-            var times = energyRemaining / level.cost
+                val level = profile.combatSimulation.neuralFragment
+                var times = gameState.simEnergy / level.cost
             if (times == 0) {
                 updateNextCheck(level)
                 return
@@ -150,21 +148,21 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
                 }
             }
             logger.info("Completed all neural sim")
-            scriptStats.simEnergySpent += energySpent
-            energyRemaining -= energySpent
+                scriptStats.simEnergySpent += energySpent
+                gameState.simEnergy -= energySpent
             updateNextCheck(level)
         }
     }
 
     override suspend fun execute() {
         if (!profile.combatSimulation.enabled) return
-        if (Instant.now() < nextCheck) return
+        if (Instant.now() < gameState.simNextCheck) return
         if (!combatSimAvailable()) return
         checkSimEnergy()
         runDataSimulation()
         runNeuralFragment()
-        logger.info("Sim energy remaining : $energyRemaining")
-        logger.info("Next sim check at: ${nextCheck.formatted()}")
+        logger.info("Sim energy remaining : ${gameState.simEnergy}")
+        logger.info("Next sim check at: ${gameState.simNextCheck.formatted()}")
     }
 
     /**
@@ -195,12 +193,12 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
                 continue
             }
 
-            energyRemaining = energyString.take(1).toIntOrNull() ?: continue
+            gameState.simEnergy = energyString.take(1).toIntOrNull() ?: continue
 
-            logger.info("Current sim energy is $energyRemaining/6")
+            logger.info("Current sim energy is ${gameState.simEnergy}/6")
 
-            if (energyRemaining == 6) {
-                rechargeTime = Duration.ZERO
+            if (gameState.simEnergy == 6) {
+                simTimer = Duration.ZERO
                 return
             }
             break
@@ -226,12 +224,12 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
             if (minutes[0] == '8') minutes = minutes.replaceFirst('8', '0')
             if (hours[0] == '8') hours = hours.replaceFirst('8', '0')
 
-            rechargeTime = DurationUtils.of(
+            simTimer = DurationUtils.of(
                 seconds.toLong(),
                 minutes.toLong(),
                 hours.toLong()
             )
-            logger.info("Time until next sim energy: ${rechargeTime.prettyString()}")
+            logger.info("Time until next sim energy: ${simTimer.prettyString()}")
             return
         }
     }
@@ -241,7 +239,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
         if (OffsetDateTime.now(ZoneOffset.ofHours(-8)).dayOfWeek !in dataSimDays) return
 
         val level = profile.combatSimulation.dataSim
-        var times = energyRemaining / level.cost
+        var times = gameState.simEnergy / level.cost
         if (times == 0) {
             updateNextCheck(level)
             return
@@ -282,7 +280,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
         }
         logger.info("Completed all data sim")
         scriptStats.simEnergySpent += energySpent
-        energyRemaining -= energySpent
+        gameState.simEnergy -= energySpent
         updateNextCheck(level)
     }
 
@@ -294,6 +292,11 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
      * Schedules the next check up time based on the required level passed in
      */
     private fun updateNextCheck(level: Level) {
-        nextCheck = Instant.now().plusSeconds(((level.cost - energyRemaining - 1) * 7200) + rechargeTime.seconds)
+        gameState.simNextCheck = Instant.now().plusSeconds(
+            (
+                (level.cost - gameState.simEnergy - 1)
+                    * 7200) + simTimer.seconds
+        )
+        gameState.requiresUpdate
     }
 }

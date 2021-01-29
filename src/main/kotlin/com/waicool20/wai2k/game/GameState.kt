@@ -19,6 +19,8 @@
 
 package com.waicool20.wai2k.game
 
+import java.time.Instant
+
 class GameState {
     var requiresUpdate: Boolean = true
     var requiresRestart: Boolean = false
@@ -29,6 +31,9 @@ class GameState {
     var switchDolls: Boolean = false
     var currentGameLocation: GameLocation = GameLocation(LocationId.UNKNOWN)
     val echelons: List<Echelon> = List(10) { Echelon(it + 1) }
+    var simEnergy: Int = 0
+    var simNextCheck: Instant = Instant.now()
+    var reportsNextCheck = Instant.now()
     var delayCoefficient = 1.0
 
     fun reset() {
@@ -45,6 +50,10 @@ class GameState {
             it.members.forEach { it.needsRepair = false }
             it.logisticsSupportEnabled = true
         }
+
+        simEnergy = 0
+        simNextCheck = Instant.now()
+        reportsNextCheck = Instant.now().plusSeconds(3600)
         delayCoefficient = 1.0
     }
 
