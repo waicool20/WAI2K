@@ -36,11 +36,14 @@ class Map8_1N(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptCompon
         if (gameState.requiresMapInit) {
             // All nodes will be on screen, only 'sticks' after a successful run
             logger.info("Zoom out")
-            region.pinch(
-                Random.nextInt(700, 800),
-                Random.nextInt(200, 300),
-                0.0,
-                500)
+            repeat(2) {
+                region.pinch(
+                    Random.nextInt(700, 800),
+                    Random.nextInt(200, 300),
+                    0.0,
+                    500
+                )
+            }
             delay(500)
             logger.info("Pan up")
             val r = region.subRegionAs<AndroidRegion>(1058, 224, 100, 22)
