@@ -49,29 +49,29 @@ class EventDivisionNadesEX(scriptComponent: ScriptComponent) : AbsoluteMapRunner
     }
 
     override suspend fun begin() {
-        if (gameState.requiresMapInit) {
-            logger.info("Zoom out")
-            region.pinch(
-                Random.nextInt(700, 800),
-                Random.nextInt(100, 200),
-                0.0,
-                500
-            )
+        logger.info("Zoom out")
+        region.pinch(
+            Random.nextInt(700, 800),
+            Random.nextInt(100, 200),
+            0.0,
+            500
+        )
 
-            delay((1000 * gameState.delayCoefficient).roundToLong())
-            gameState.requiresMapInit = false
-        }
+        delay((1000 * gameState.delayCoefficient).roundToLong())
+        gameState.requiresMapInit = false
+
         logger.info("Just gonna farm 404 grenades :/")
         for (i in 1..41) {
             // Deploy whatever
             deployEchelons(nodes[0])
             mapRunnerRegions.startOperation.click(); yield()
+            delay(2000)
 
             // The objectives come still come up, close them instead of G&K splash
-            region.subRegion(348, 156, 167, 91)
-                .waitHas(FileTemplate("$PREFIX/back_arrow.png"), 5000)
-                ?.click()
-            delay((2000 * gameState.delayCoefficient).roundToLong())
+            region.subRegion(348, 156, 167, 91).clickWhile(period = 1000, timeout = 5000) {
+                region.subRegion(370, 0, 220, 150)
+                    .doesntHave(FileTemplate("combat/battle/terminate.png"))
+            }
 
             // Plan dummy to reveal spot
             logger.info("Entering planning mode")
@@ -85,7 +85,7 @@ class EventDivisionNadesEX(scriptComponent: ScriptComponent) : AbsoluteMapRunner
 
             mapRunnerRegions.executePlan.click()
 
-            waitForTurnAndPoints(1, 0, false, 50000)
+            waitForTurnAssets(listOf(FileTemplate("combat/battle/plan.png", 0.96)), false)
             delay(1000)
 
             // Plan dummy to frag grenades next turn
@@ -100,21 +100,18 @@ class EventDivisionNadesEX(scriptComponent: ScriptComponent) : AbsoluteMapRunner
 
             // Get the grenades
             waitForTurnAssets(listOf(FileTemplate("combat/battle/use-arrow.png")), false)
-            delay(500)
-            region.subRegion(40, 730, 200, 70).click()
             delay(1000)
 
+            logger.info("Looting grenades")
+            region.subRegion(40, 730, 200, 70).click()
+            delay(3000)
+
             // Close the item popup
-            while (true) {
-                mapRunnerRegions.planningMode.click()
-                delay(1000)
-                if (region.subRegion(370, 0, 220, 150)
-                        .has(FileTemplate("combat/battle/terminate.png"))
-                ) {
-                    break
-                }
+            mapRunnerRegions.battleEndClick.clickWhile(period = 1000, timeout = 5000) {
+                region.subRegion(370, 0, 220, 150)
+                    .doesntHave(FileTemplate("combat/battle/terminate.png"))
             }
-            delay((1000 * gameState.delayCoefficient).roundToLong())
+            delay((500 * gameState.delayCoefficient).roundToLong())
             restartMission()
         }
     }

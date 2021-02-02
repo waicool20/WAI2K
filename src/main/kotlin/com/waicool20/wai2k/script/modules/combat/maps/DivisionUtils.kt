@@ -51,12 +51,13 @@ object DivisionUtils {
      */
     suspend fun panBottomLeft(sc: ScriptComponent) {
         val r = sc.region.subRegionAs<AndroidRegion>(540, 900, 125, 125)
+
         logger.info("Pinch")
         sc.region.pinch(
             Random.nextInt(820, 840),
             Random.nextInt(920, 970),
-            0.0,
-            400
+            45.0,
+            500
         )
         delay(400)
 
@@ -74,11 +75,11 @@ object DivisionUtils {
         // Generic maprunner.pinch() type stuff pls
         var nTimes = times
         val pad = Random.nextInt(0, 50)
-        val r = sc.region.subRegionAs<AndroidRegion>(1800, 900, 5, 125)
+        val r = sc.region.subRegionAs<AndroidRegion>(1800, 900, 5, 50)
 
         logger.info("Panning right $times times")
         while (nTimes > 0) {
-            r.swipeTo(r.copy(x = r.x - (1000 + pad), y = r.y + 125), 500)
+            r.swipeTo(r.copy(x = r.x - (1000 + pad), y = r.y + 50), 500)
             delay(250)
             nTimes--
         }
