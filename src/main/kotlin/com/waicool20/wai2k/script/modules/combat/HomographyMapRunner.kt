@@ -136,6 +136,21 @@ abstract class HomographyMapRunner(scriptComponent: ScriptComponent) : MapRunner
     }
 
     /**
+     *  Actions taken to try change viewport on unsuccessful findRegion
+     */
+    protected open suspend fun resetView() {
+        logger.info("Zoom out")
+        region.pinch(
+            Random.nextInt(500, 700),
+            Random.nextInt(300, 400),
+            0.0,
+            500
+        )
+        delay((900 * gameState.delayCoefficient).roundToLong())
+        mapH = null
+    }
+
+    /**
      * Finds and returns a region corresponding to this map node, first run will attempt
      * to find the correspondence between the reference map image [fullMap] and
      * on-screen content [MapRunnerRegions.window]. A homography transform is calculated and
@@ -145,18 +160,6 @@ abstract class HomographyMapRunner(scriptComponent: ScriptComponent) : MapRunner
      */
     override suspend fun MapNode.findRegion(): AndroidRegion {
         val window = mapRunnerRegions.window
-
-        suspend fun resetView() {
-            logger.info("Zoom out")
-            region.pinch(
-                Random.nextInt(500, 700),
-                Random.nextInt(300, 400),
-                0.0,
-                500
-            )
-            delay((900 * gameState.delayCoefficient).roundToLong()) //Wait to settle
-            mapH = null
-        }
 
         for (i in 0 until 5) {
             val h = mapH ?: try {
