@@ -32,33 +32,41 @@ import kotlin.random.Random
 class Map12_4E(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent),
     CorpseDragging {
     private val logger = loggerFor<Map12_4E>()
-    override val ammoResupplyThreshold = 0.2
+    override val ammoResupplyThreshold = 0.8
+    override val rationsResupplyThreshold = 0.4
+
+    override suspend fun resetView() {
+        // Out to max zoom
+        logger.info("Zoom out")
+        region.pinch(
+            Random.nextInt(600, 700),
+            Random.nextInt(150, 250),
+            0.0,
+            800
+        )
+        delay((1000 * gameState.delayCoefficient).roundToLong()) //settle
+
+        // In to tolerable zoom
+        logger.info("Zoom in")
+        region.pinch(
+            Random.nextInt(360, 380),
+            Random.nextInt(425, 445),
+            0.0,
+            500
+        )
+        delay((500 * gameState.delayCoefficient).roundToLong())
+
+        // move area of interest closer to middle
+        logger.info("Pan up")
+        val r = region.subRegionAs<AndroidRegion>(1058, 224, 100, 22)
+        r.swipeTo(r.copy(y = r.y - 170))
+        delay((500 * gameState.delayCoefficient).roundToLong())
+        mapH = null
+    }
 
     override suspend fun begin() {
         if (gameState.requiresMapInit) {
-            // zoom out too far is a problem
-            logger.info("Zoom out")
-            region.pinch(
-                Random.nextInt(600, 700),
-                Random.nextInt(150, 250),
-                0.0,
-                1000
-            )
-            delay((1000 * gameState.delayCoefficient).roundToLong())
-
-            logger.info("Zoom in")
-            region.pinch(
-                Random.nextInt(350, 380),
-                Random.nextInt(430, 450),
-                0.0,
-                500
-            )
-            delay((500 * gameState.delayCoefficient).roundToLong())
-
-            logger.info("Pan up")
-            val r = region.subRegionAs<AndroidRegion>(1058, 224, 100, 22)
-            r.swipeTo(r.copy(y = r.y - 180))
-            delay((500 * gameState.delayCoefficient).roundToLong())
+            resetView()
         }
 
         // May the swaps faster soontm
