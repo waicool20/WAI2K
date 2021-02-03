@@ -28,6 +28,7 @@ import com.waicool20.wai2k.game.LogisticsSupport
 import com.waicool20.wai2k.game.LogisticsSupport.Assignment
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.util.Ocr
+import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.wai2k.util.formatted
 import com.waicool20.waicoolutils.DurationUtils
@@ -43,6 +44,8 @@ import kotlin.system.measureTimeMillis
 class InitModule(navigator: Navigator) : ScriptModule(navigator) {
     private val logger = loggerFor<InitModule>()
     override suspend fun execute() {
+        navigator.navigateTo(LocationId.EVENT)
+        coroutineContext.cancelAndYield()
         navigator.checkRequiresRestart()
         navigator.checkLogistics()
         if (gameState.requiresUpdate) {
