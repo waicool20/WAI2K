@@ -118,12 +118,17 @@ class StatusTabView : CoroutineScopeView() {
     private fun updateEchelonStats() {
         val builder = StringBuilder()
         scriptRunner.gameState.apply {
-            val echelonLogistics = echelons.filter { it.logisticsSupportAssignment?.eta?.isAfter(Instant.now()) == true }
-                .sortedBy { it.logisticsSupportAssignment?.eta }
+            val echelonLogistics =
+                echelons.filter { it.logisticsSupportAssignment?.eta?.isAfter(Instant.now()) == true }
+                    .sortedBy { it.logisticsSupportAssignment?.eta }
             if (echelonLogistics.isNotEmpty()) {
                 builder /= "Logistics:"
                 builder += echelonLogistics.joinToString("\n") {
-                    "\t- Echelon ${it.number} [${it.logisticsSupportAssignment?.logisticSupport?.formattedString}]: ${timeDelta(it.logisticsSupportAssignment?.eta)}"
+                    "\t- Echelon ${it.number} [${it.logisticsSupportAssignment?.logisticSupport?.formattedString}]: ${
+                        timeDelta(
+                            it.logisticsSupportAssignment?.eta
+                        )
+                    }"
                 }
                 builder.appendLine()
             }
@@ -139,8 +144,26 @@ class StatusTabView : CoroutineScopeView() {
                 }
             }
 
-            if (builder.isEmpty()) {
-                builder += "Nothing is going on right now!"
+            if (context.currentProfile.combatSimulation.enabled) {
+                val combatSims = listOf(simEnergy, timeDelta(simNextCheck))
+                    .filter { simNextCheck >= Instant.now() }
+                if (combatSims.isNotEmpty()) {
+                    builder /= "Combat Energy ETA:"
+                    builder += "\t- ${combatSims[0]}/6 : ${combatSims[1]}\n"
+                }
+            }
+
+            if (context.currentProfile.combatReport.enabled
+                && context.currentProfile.combat.enabled
+                && scriptRunner.isRunning
+            ) {
+                if (reportsNextCheck > Instant.now()) {
+                    builder /= "Combat Report ETA:"
+                    builder += "\t - ${timeDelta(reportsNextCheck)}\n"
+                }
+                if (builder.isEmpty()) {
+                    builder += "Nothing is going on right now!"
+                }
             }
         }
         timersLabel.text = builder.toString()
