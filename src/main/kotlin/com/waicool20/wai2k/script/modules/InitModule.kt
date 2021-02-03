@@ -44,8 +44,6 @@ import kotlin.system.measureTimeMillis
 class InitModule(navigator: Navigator) : ScriptModule(navigator) {
     private val logger = loggerFor<InitModule>()
     override suspend fun execute() {
-        navigator.navigateTo(LocationId.EVENT)
-        coroutineContext.cancelAndYield()
         navigator.checkRequiresRestart()
         navigator.checkLogistics()
         if (gameState.requiresUpdate) {
