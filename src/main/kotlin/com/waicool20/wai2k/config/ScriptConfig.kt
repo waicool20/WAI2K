@@ -32,7 +32,8 @@ class ScriptConfig(
     ocrThreshold: Double = 0.9,
     fastScreenshotMode: Boolean = false,
     minPostBattleClick: Int = 7,
-    maxPostBattleClick: Int = 9
+    maxPostBattleClick: Int = 9,
+    idleAtHome: Boolean = true
 ) {
     val loopDelayProperty = loopDelay.toProperty()
     val baseNavigationDelayProperty = baseNavigationDelay.toProperty()
@@ -43,6 +44,7 @@ class ScriptConfig(
     val fastScreenshotModeProperty = fastScreenshotMode.toProperty()
     val minPostBattleClickProperty = minPostBattleClick.toProperty()
     val maxPostBattleClickProperty = maxPostBattleClick.toProperty()
+    val idleAtHomeProperty = idleAtHome.toProperty()
 
     var loopDelay by loopDelayProperty
     var baseNavigationDelay by baseNavigationDelayProperty
@@ -53,4 +55,5 @@ class ScriptConfig(
     var fastScreenshotMode by fastScreenshotModeProperty
     var minPostBattleClick by minPostBattleClickProperty
     var maxPostBattleClick by maxPostBattleClickProperty
+    var idleAtHome by idleAtHomeProperty
 }

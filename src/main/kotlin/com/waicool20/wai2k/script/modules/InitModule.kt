@@ -47,7 +47,7 @@ class InitModule(navigator: Navigator) : ScriptModule(navigator) {
         navigator.checkLogistics()
         if (gameState.requiresUpdate) {
             updateGameState()
-            if (profile.logistics.enabled && !profile.combat.enabled) {
+            if (!config.scriptConfig.idleAtHome && profile.logistics.enabled && !profile.combat.enabled) {
                 // Workaround for GFL game freeze at home screen if there are dolls training,
                 // remove when MICA finally fixes this
                 listOf(LocationId.FORMATION, LocationId.COMBAT_MENU)

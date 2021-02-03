@@ -39,6 +39,7 @@ class ScriptPrefView : View() {
     private val ocrThresholdSpinner: Spinner<Double> by fxid()
     private val minPostBattleClickSpinner: Spinner<Int> by fxid()
     private val maxPostBattleClickSpinner: Spinner<Int> by fxid()
+    private val idleAtHomeCheckBox: CheckBox by fxid()
 
     private val context: Wai2KContext by inject()
 
@@ -62,6 +63,7 @@ class ScriptPrefView : View() {
             fastScreenshotModeCheckBox.bind(fastScreenshotModeProperty)
             minPostBattleClickSpinner.bind(minPostBattleClickProperty)
             maxPostBattleClickSpinner.bind(maxPostBattleClickProperty)
+            idleAtHomeCheckBox.bind(idleAtHomeProperty)
         }
     }
 }
