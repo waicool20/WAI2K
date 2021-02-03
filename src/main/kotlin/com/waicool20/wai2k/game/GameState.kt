@@ -33,7 +33,7 @@ class GameState {
     val echelons: List<Echelon> = List(10) { Echelon(it + 1) }
     var simEnergy: Int = 0
     var simNextCheck: Instant = Instant.now()
-    var reportsNextCheck = Instant.now()
+    var reportsNextCheck: Instant = Instant.now()
     var delayCoefficient = 1.0
 
     fun reset() {

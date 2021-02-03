@@ -118,12 +118,17 @@ class StatusTabView : CoroutineScopeView() {
     private fun updateEchelonStats() {
         val builder = StringBuilder()
         scriptRunner.gameState.apply {
-            val echelonLogistics = echelons.filter { it.logisticsSupportAssignment?.eta?.isAfter(Instant.now()) == true }
-                .sortedBy { it.logisticsSupportAssignment?.eta }
+            val echelonLogistics =
+                echelons.filter { it.logisticsSupportAssignment?.eta?.isAfter(Instant.now()) == true }
+                    .sortedBy { it.logisticsSupportAssignment?.eta }
             if (echelonLogistics.isNotEmpty()) {
                 builder /= "Logistics:"
                 builder += echelonLogistics.joinToString("\n") {
-                    "\t- Echelon ${it.number} [${it.logisticsSupportAssignment?.logisticSupport?.formattedString}]: ${timeDelta(it.logisticsSupportAssignment?.eta)}"
+                    "\t- Echelon ${it.number} [${it.logisticsSupportAssignment?.logisticSupport?.formattedString}]: ${
+                        timeDelta(
+                            it.logisticsSupportAssignment?.eta
+                        )
+                    }"
                 }
                 builder.appendLine()
             }

@@ -50,15 +50,15 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
     private var simTimer = Duration.ZERO
 
     private val mapRunner = object : AbsoluteMapRunner(this@CombatSimModule) {
-            override suspend fun begin() {
+        override suspend fun begin() {
             if (profile.combatSimulation.neuralFragment == Level.OFF) return
 
             if (OffsetDateTime.now(ZoneOffset.ofHours(-8)).dayOfWeek !in dataSimDays) {
                 gameState.simNextCheck = Instant.now().plus(1, ChronoUnit.DAYS)
             }
 
-                val level = profile.combatSimulation.neuralFragment
-                var times = gameState.simEnergy / level.cost
+            val level = profile.combatSimulation.neuralFragment
+            var times = gameState.simEnergy / level.cost
             if (times == 0) {
                 updateNextCheck(level)
                 return
@@ -148,8 +148,8 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
                 }
             }
             logger.info("Completed all neural sim")
-                scriptStats.simEnergySpent += energySpent
-                gameState.simEnergy -= energySpent
+            scriptStats.simEnergySpent += energySpent
+            gameState.simEnergy -= energySpent
             updateNextCheck(level)
         }
     }
