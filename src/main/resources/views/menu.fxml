@@ -53,7 +53,7 @@
                                       shortcut="UP"/>
                </accelerator>
             </MenuItem>
-            <MenuItem fx:id="logsItem" mnemonicParsing="false" text="Open Logs Location">
+            <MenuItem fx:id="logsItem" mnemonicParsing="false" text="Open Logs in Editor">
                <accelerator>
                   <KeyCodeCombination alt="UP" code="D" control="DOWN" meta="UP" shift="UP"
                                       shortcut="UP"/>
