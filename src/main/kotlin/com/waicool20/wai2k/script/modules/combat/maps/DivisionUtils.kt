@@ -47,44 +47,33 @@ object DivisionUtils {
     }
 
     /*
-     * Move the Division map select screen to the bottom left
+     * Move the Division map select screen to the top right
      */
-    suspend fun panBottomLeft(sc: ScriptComponent) {
-        val r = sc.region.subRegionAs<AndroidRegion>(540, 900, 125, 125)
+    suspend fun panTopRight(sc: ScriptComponent) {
+        val r1 = sc.region.subRegionAs<AndroidRegion>(288, 812, 140, 140)
+        val r2 = sc.region.subRegionAs<AndroidRegion>(1702, 217, 140, 140)
 
-        logger.info("Pinch")
-        sc.region.pinch(
-            Random.nextInt(820, 840),
-            Random.nextInt(920, 970),
-            45.0,
-            500
-        )
-        delay(400)
-
-        logger.info("Pan down left")
+        // Zoom probably garbage with partial nodes unlocked
         repeat(3) {
-            r.swipeTo(r.copy(y = 200, x = r.x + 125), 500)
-            delay(250)
+            r2.swipeTo(r1, 500)
+            delay(300)
         }
     }
 
     /*
      * Attempts to set the 'x' for map select so that enterMap() can click a consistent region
      */
-    suspend fun scrollRight(sc: ScriptComponent, times: Int) {
+    suspend fun panLeft(sc: ScriptComponent, times: Int) {
         // Generic maprunner.pinch() type stuff pls
         var nTimes = times
-        val pad = Random.nextInt(0, 50)
-        val r = sc.region.subRegionAs<AndroidRegion>(1800, 900, 5, 50)
+        val pad = Random.nextInt(0, 200)
+        val r = sc.region.subRegionAs<AndroidRegion>(500 + pad, 200, 1, 1)
 
         logger.info("Panning right $times times")
         while (nTimes > 0) {
-            r.swipeTo(r.copy(x = r.x - (1000 + pad), y = r.y + 50), 500)
+            r.swipeTo(r.copy(x = r.x + (600)), 500)
             delay(250)
             nTimes--
         }
-        logger.info("Adjusting for padding")
-        r.swipeTo(r.copy(x = r.x + (pad * times)), 500)
-        delay(500)
     }
 }

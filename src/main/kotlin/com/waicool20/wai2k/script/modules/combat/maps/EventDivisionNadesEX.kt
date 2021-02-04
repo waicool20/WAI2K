@@ -37,9 +37,9 @@ class EventDivisionNadesEX(scriptComponent: ScriptComponent) : AbsoluteMapRunner
     override suspend fun enterMap() {
         if (gameState.requiresMapInit) {
             DivisionUtils.setDifficulty(this)
-            DivisionUtils.panBottomLeft(this)
-            DivisionUtils.scrollRight(this, 1)
-            region.subRegion(1120, 260, 30, 30).click()
+            DivisionUtils.panTopRight(this)
+            DivisionUtils.panLeft(this, 3)
+            region.subRegion(1545, 960, 100, 100).click()
         }
         delay((1800 * gameState.delayCoefficient).roundToLong())
         region.subRegion(1833, 590, 230, 110).click()
@@ -107,7 +107,7 @@ class EventDivisionNadesEX(scriptComponent: ScriptComponent) : AbsoluteMapRunner
             delay(3000)
 
             // Close the item popup
-            mapRunnerRegions.battleEndClick.clickWhile(period = 1000, timeout = 5000) {
+            mapRunnerRegions.battleEndClick.clickWhile(period = 1000, timeout = 4000) {
                 region.subRegion(370, 0, 220, 150)
                     .doesntHave(FileTemplate("combat/battle/terminate.png"))
             }
