@@ -19,22 +19,23 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.input.*?>
-<MenuBar xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.input.KeyCodeCombination?>
+
+<MenuBar xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <menus>
       <Menu mnemonicParsing="false" text="File">
          <items>
             <MenuItem fx:id="openFolderItem" mnemonicParsing="false" text="Open WAI2K Folder">
                <accelerator>
-                  <KeyCodeCombination alt="UP" code="W" control="DOWN" meta="UP" shift="UP"
-                                      shortcut="UP"/>
+                  <KeyCodeCombination alt="UP" code="W" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                </accelerator>
             </MenuItem>
             <MenuItem fx:id="quitItem" mnemonicParsing="false" text="Quit">
                <accelerator>
-                  <KeyCodeCombination alt="UP" code="Q" control="DOWN" meta="UP" shift="UP"
-                                      shortcut="UP"/>
+                  <KeyCodeCombination alt="UP" code="Q" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                </accelerator>
             </MenuItem>
          </items>
@@ -43,20 +44,18 @@
          <items>
             <MenuItem fx:id="consoleItem" mnemonicParsing="false" text="Debug Console">
                <accelerator>
-                  <KeyCodeCombination alt="UP" code="D" control="DOWN" meta="UP" shift="UP"
-                                      shortcut="UP"/>
+                  <KeyCodeCombination alt="UP" code="D" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                </accelerator>
             </MenuItem>
             <MenuItem fx:id="toolsItem" mnemonicParsing="false" text="Debug Tools">
                <accelerator>
-                  <KeyCodeCombination alt="UP" code="T" control="DOWN" meta="UP" shift="UP"
-                                      shortcut="UP"/>
+                  <KeyCodeCombination alt="UP" code="T" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                </accelerator>
             </MenuItem>
+            <MenuItem fx:id="homographyItem" mnemonicParsing="false" text="Homography Viewer" />
             <MenuItem fx:id="logsItem" mnemonicParsing="false" text="Open Logs in Editor">
                <accelerator>
-                  <KeyCodeCombination alt="UP" code="D" control="DOWN" meta="UP" shift="UP"
-                                      shortcut="UP"/>
+                  <KeyCodeCombination alt="UP" code="D" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                </accelerator>
             </MenuItem>
          </items>

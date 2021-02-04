@@ -19,10 +19,13 @@
 
 package com.waicool20.wai2k.views
 
+import com.waicool20.cvauto.android.ADB
 import com.waicool20.wai2k.Wai2K
+import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.waicoolutils.DesktopUtils
 import javafx.scene.control.MenuBar
 import javafx.scene.control.MenuItem
+import javafx.stage.FileChooser
 import javafx.stage.StageStyle
 import tornadofx.*
 import kotlin.system.exitProcess
@@ -39,7 +42,9 @@ class MenuBarView : View() {
     private val toolsItem: MenuItem by fxid()
     private val openFolderItem: MenuItem by fxid()
     private val logsItem: MenuItem by fxid()
+    private val homographyItem: MenuItem by fxid()
 
+    private val wai2KContext: Wai2KContext by inject()
 
     override fun onDock() {
         super.onDock()
@@ -53,5 +58,13 @@ class MenuBarView : View() {
         contributeItem.setOnAction { DesktopUtils.browse("https://github.com/waicool20/WAI2K") }
         wikiItem.setOnAction { DesktopUtils.browse("https://github.com/waicool20/WAI2K/wiki") }
         donateItem.setOnAction { DesktopUtils.browse("https://ko-fi.com/waicool20") }
+        homographyItem.setOnAction {
+            val device = ADB.getDevices().find { it.serial == wai2KContext.wai2KConfig.lastDeviceSerial } ?: return@setOnAction
+            chooseFile(
+                "Select base image...",
+                arrayOf(FileChooser.ExtensionFilter("PNG files (*.png)", "*.png")),
+                wai2KContext.wai2KConfig.assetsDirectory.toFile()
+            ).firstOrNull()?.let { HomographyViewer(device, it).openWindow() }
+        }
     }
 }
