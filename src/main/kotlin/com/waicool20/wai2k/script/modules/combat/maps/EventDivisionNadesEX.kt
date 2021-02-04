@@ -19,10 +19,12 @@
 
 package com.waicool20.wai2k.script.modules.combat.maps
 
+import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.modules.combat.AbsoluteMapRunner
 import com.waicool20.wai2k.script.modules.combat.EventMapRunner
+import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
@@ -35,11 +37,15 @@ class EventDivisionNadesEX(scriptComponent: ScriptComponent) : AbsoluteMapRunner
     override val ammoResupplyThreshold = 0.6
 
     override suspend fun enterMap() {
+        val r1 = region.subRegionAs<AndroidRegion>(1850, 315, 60, 60)
+        val r2 = region.subRegionAs<AndroidRegion>(1194, 977, 60, 60)
         if (gameState.requiresMapInit) {
             DivisionUtils.setDifficulty(this)
-            DivisionUtils.panTopRight(this)
-            DivisionUtils.panLeft(this, 3)
-            region.subRegion(1545, 960, 100, 100).click()
+            repeat(3) {
+                r2.swipeTo(r1)
+            }
+            r1.swipeTo(r2)
+            region.subRegion(1390, 304, 60, 60).click()
         }
         delay((1800 * gameState.delayCoefficient).roundToLong())
         region.subRegion(1833, 590, 230, 110).click()
