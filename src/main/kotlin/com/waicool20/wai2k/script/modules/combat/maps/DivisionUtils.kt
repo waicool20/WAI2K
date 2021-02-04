@@ -53,6 +53,9 @@ object DivisionUtils {
         val r1 = sc.region.subRegionAs<AndroidRegion>(288, 812, 140, 140)
         val r2 = sc.region.subRegionAs<AndroidRegion>(1702, 217, 140, 140)
 
+        if (sc.scriptRunner.justRestarted) {
+            delay(2000)
+        }
         // Zoom probably garbage with partial nodes unlocked
         repeat(3) {
             r2.swipeTo(r1, 500)
@@ -71,8 +74,8 @@ object DivisionUtils {
 
         logger.info("Panning right $times times")
         while (nTimes > 0) {
-            r.swipeTo(r.copy(x = r.x + (600)), 500)
-            delay(250)
+            r.swipeTo(r.copy(x = r.x + (600)))
+            delay(500)
             nTimes--
         }
     }
