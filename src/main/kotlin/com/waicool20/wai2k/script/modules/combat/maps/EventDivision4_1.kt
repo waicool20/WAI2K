@@ -39,8 +39,9 @@ class EventDivision4_1(scriptComponent: ScriptComponent) : HomographyMapRunner(s
         if (gameState.requiresMapInit) {
             DivisionUtils.panTopRight(this)
         }
-        region.subRegion(540, 735, 67, 67).click()
-        delay((1800 * gameState.delayCoefficient).roundToLong())
+        delay(500)
+        region.subRegion(590, 710, 75, 75).click()
+        delay((1500 * gameState.delayCoefficient).roundToLong())
         region.subRegion(1833, 590, 230, 110).click()
         delay(2000)
     }
