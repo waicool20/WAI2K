@@ -57,7 +57,7 @@ class EventDivision4_1(scriptComponent: ScriptComponent) : HomographyMapRunner(s
                 500
             )
             delay(750)
-            logger.info("Pan down")
+            logger.info("Pan up")
             val r = region.subRegionAs<AndroidRegion>(750, 420, 100, 300)
             r.swipeTo(r.copy(y = r.y - 200))
             delay((900 * gameState.delayCoefficient).roundToLong())
