@@ -38,10 +38,14 @@ class EventDivision4_1(scriptComponent: ScriptComponent) : HomographyMapRunner(s
     override suspend fun enterMap() {
         if (gameState.requiresMapInit) {
             DivisionUtils.panTopRight(this)
+            delay(500)
+            region.subRegion(533, 694, 115, 67).click()
         }
-        delay(500)
-        region.subRegion(590, 710, 75, 75).click()
-        delay((1500 * gameState.delayCoefficient).roundToLong())
+        else {
+            delay(500)
+            region.subRegion(575, 706, 120, 70).click()
+        }
+        delay((1800 * gameState.delayCoefficient).roundToLong())
         region.subRegion(1833, 590, 230, 110).click()
         delay(2000)
     }
@@ -59,7 +63,7 @@ class EventDivision4_1(scriptComponent: ScriptComponent) : HomographyMapRunner(s
             )
             delay(750)
             logger.info("Pan up")
-            val r = region.subRegionAs<AndroidRegion>(750, 420, 100, 300)
+            val r = region.subRegionAs<AndroidRegion>(750, 720, 100, 100)
             r.swipeTo(r.copy(y = r.y - 200))
             delay((900 * gameState.delayCoefficient).roundToLong())
             gameState.requiresMapInit = false
@@ -67,6 +71,7 @@ class EventDivision4_1(scriptComponent: ScriptComponent) : HomographyMapRunner(s
 
         deployEchelons(nodes[0], nodes[1], nodes[2])
         mapRunnerRegions.startOperation.click(); yield()
+        waitForGNKSplash()
         resupplyEchelons(nodes[0])
         planPath()
         waitForTurnEnd(4, true)
