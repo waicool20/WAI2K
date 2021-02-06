@@ -67,6 +67,7 @@ class EventDivision4_1(scriptComponent: ScriptComponent) : HomographyMapRunner(s
 
         deployEchelons(nodes[0], nodes[1], nodes[2])
         mapRunnerRegions.startOperation.click(); yield()
+        waitForGNKSplash()
         resupplyEchelons(nodes[0])
         planPath()
         waitForTurnEnd(4, true)

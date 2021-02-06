@@ -54,7 +54,7 @@ object DivisionUtils {
         val r2 = sc.region.subRegionAs<AndroidRegion>(1702, 217, 140, 140)
 
         if (sc.scriptRunner.justRestarted) {
-            delay(2000)
+            delay(5000)
         }
         // Zoom probably garbage with partial nodes unlocked
         repeat(3) {

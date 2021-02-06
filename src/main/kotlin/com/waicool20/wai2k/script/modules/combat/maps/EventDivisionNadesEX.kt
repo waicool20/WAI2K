@@ -40,6 +40,7 @@ class EventDivisionNadesEX(scriptComponent: ScriptComponent) : AbsoluteMapRunner
         val r1 = region.subRegionAs<AndroidRegion>(1850, 315, 60, 60)
         val r2 = region.subRegionAs<AndroidRegion>(1194, 977, 60, 60)
         if (gameState.requiresMapInit) {
+            delay(5000)
             DivisionUtils.setDifficulty(this)
             repeat(3) {
                 r2.swipeTo(r1)
