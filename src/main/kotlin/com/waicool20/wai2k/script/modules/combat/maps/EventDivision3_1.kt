@@ -71,6 +71,7 @@ class EventDivision3_1(scriptComponent: ScriptComponent) : HomographyMapRunner(s
             500
         )
         delay((1000 * gameState.delayCoefficient).roundToLong())
+        mapH = null
     }
 
     override suspend fun begin() {
