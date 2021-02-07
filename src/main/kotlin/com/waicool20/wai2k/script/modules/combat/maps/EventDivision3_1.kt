@@ -92,13 +92,6 @@ class EventDivision3_1(scriptComponent: ScriptComponent) : HomographyMapRunner(s
         }
 
         resupplyEchelons(rEchelons)
-        // Select team if the didn't need a resupply
-        if (rEchelons.isEmpty()) {
-            delay(1000)
-            logger.info("Selecting Echelon at ${nodes[0]}")
-            nodes[0].findRegion().click()
-        }
-
         planPath()
         waitForTurnEnd(5, false)
         handleBattleResults()
@@ -107,6 +100,9 @@ class EventDivision3_1(scriptComponent: ScriptComponent) : HomographyMapRunner(s
     private suspend fun planPath() {
         logger.info("Entering planning mode")
         mapRunnerRegions.planningMode.click(); delay(500)
+
+        logger.info("Selecting Echelon at ${nodes[0]}")
+        nodes[0].findRegion().click()
 
         logger.info("Selecting node ${nodes[3]}")
         nodes[3].findRegion().click()
