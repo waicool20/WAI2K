@@ -19,7 +19,6 @@
 
 package com.waicool20.wai2k.script.modules.combat.maps
 
-import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.modules.combat.EventMapRunner
@@ -30,44 +29,55 @@ import kotlinx.coroutines.yield
 import kotlin.math.roundToLong
 import kotlin.random.Random
 
-class EventDivision5_1(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent),
+class EventDivision5_2(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent),
     EventMapRunner {
-    private val logger = loggerFor<EventDivision5_1>()
-    override val ammoResupplyThreshold = 0.6
+    private val logger = loggerFor<EventDivision5_2>()
+    override val ammoResupplyThreshold = 0.8
 
     override suspend fun enterMap() {
-        if (gameState.requiresMapInit) {
-            DivisionUtils.panTopRight(this)
-            region.subRegion(933, 548, 65, 65).click()
-        } else {
-            region.subRegion(1024, 537, 64, 64).click()
-        }
+        DivisionUtils.panTopRight(this)
+        region.subRegion(2096, 791, 46, 46).click()
+
         delay((1800 * gameState.delayCoefficient).roundToLong())
         region.subRegion(1833, 590, 230, 110).click()
         delay(2000)
+    }
+
+    override suspend fun resetView() {
+        // Out to max zoom
+        logger.info("Zoom out")
+        region.pinch(
+            Random.nextInt(600, 700),
+            Random.nextInt(150, 250),
+            0.0,
+            800
+        )
+        delay(500)
+
+
+        // In to tolerable zoom
+        logger.info("Zoom in")
+        region.pinch(
+            Random.nextInt(350, 360),
+            Random.nextInt(400, 410),
+            0.0,
+            500
+        )
+        delay((1000 * gameState.delayCoefficient).roundToLong())
+        mapH = null
     }
 
     override suspend fun begin() {
         region.waitHas(FileTemplate("combat/battle/start.png"), 8000)
 
         if (gameState.requiresMapInit) {
-            logger.info("Zoom out")
-            region.pinch(
-                Random.nextInt(800, 900),
-                Random.nextInt(300, 400),
-                0.0,
-                500
-            )
-            delay(500)
-            logger.info("Pan down")
-            val r = region.subRegionAs<AndroidRegion>(450, 900, 150, 151)
-            r.swipeTo(r.copy(y = r.y - 200), 500)
-            delay((900 * gameState.delayCoefficient).roundToLong())
+            resetView()
             gameState.requiresMapInit = false
         }
 
-        val rEchelons = deployEchelons(nodes[0])
-        mapRunnerRegions.startOperation.click(); yield()
+        val rEchelons = deployEchelons(nodes[0], nodes[1], nodes[2])
+        mapRunnerRegions.startOperation.click()
+        delay(500)
 
         // The objectives come still come up, close them instead of G&K splash
         region.subRegion(348, 156, 167, 91).clickWhile(period = 1000, timeout = 5000) {
@@ -77,7 +87,7 @@ class EventDivision5_1(scriptComponent: ScriptComponent) : HomographyMapRunner(s
 
         resupplyEchelons(rEchelons)
         planPath()
-        waitForTurnEnd(3)
+        waitForTurnEnd(5)
         handleBattleResults()
     }
 
@@ -88,9 +98,10 @@ class EventDivision5_1(scriptComponent: ScriptComponent) : HomographyMapRunner(s
         logger.info("Selecting Echelon at ${nodes[0]}")
         nodes[0].findRegion().click()
 
-        logger.info("Selecting node ${nodes[5]}")
-        nodes[5].findRegion().click(); yield()
+        logger.info("Selecting node ${nodes[3]}")
+        nodes[3].findRegion().click(); yield()
 
         mapRunnerRegions.executePlan.click()
     }
 }
+

@@ -30,39 +30,62 @@ import kotlinx.coroutines.yield
 import kotlin.math.roundToLong
 import kotlin.random.Random
 
-class EventDivision5_1(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent),
+class EventDivision1_1(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent),
     EventMapRunner {
-    private val logger = loggerFor<EventDivision5_1>()
-    override val ammoResupplyThreshold = 0.6
+    private val logger = loggerFor<EventDivision1_1>()
 
     override suspend fun enterMap() {
+        val pad = Random.nextInt(0, 50)
+        val r = region.subRegionAs<AndroidRegion>(250 + pad, 200, 1, 1)
+
         if (gameState.requiresMapInit) {
             DivisionUtils.panTopRight(this)
-            region.subRegion(933, 548, 65, 65).click()
+            repeat(2) {
+                r.swipeTo(r.copy(x = r.x + 880))
+                delay(500)
+            }
+            //DivisionUtils.panLeft(this, 1)
+            region.subRegion(566, 907, 30, 30).click() // hopefully map box is here
         } else {
-            region.subRegion(1024, 537, 64, 64).click()
+            delay((1000 * gameState.delayCoefficient).roundToLong())
+            region.subRegion(630, 946, 30, 30).click()
         }
         delay((1800 * gameState.delayCoefficient).roundToLong())
         region.subRegion(1833, 590, 230, 110).click()
         delay(2000)
     }
 
+    override suspend fun resetView() {
+        logger.info("Zoom out")
+        region.pinch(
+            Random.nextInt(600, 700),
+            Random.nextInt(150, 250),
+            0.0,
+            800
+        )
+        delay(500)
+
+        logger.info("Pan up")
+        val r = region.subRegionAs<AndroidRegion>(450, 300, 150, 151)
+        r.swipeTo(r.copy(y = r.y + Random.nextInt(300, 400)), 500)
+        delay(500)
+
+        logger.info("Zoom in")
+        region.pinch(
+            Random.nextInt(350, 360),
+            Random.nextInt(395, 405),
+            0.0,
+            500
+        )
+        delay((1000 * gameState.delayCoefficient).roundToLong())
+        mapH = null
+    }
+
     override suspend fun begin() {
         region.waitHas(FileTemplate("combat/battle/start.png"), 8000)
 
         if (gameState.requiresMapInit) {
-            logger.info("Zoom out")
-            region.pinch(
-                Random.nextInt(800, 900),
-                Random.nextInt(300, 400),
-                0.0,
-                500
-            )
-            delay(500)
-            logger.info("Pan down")
-            val r = region.subRegionAs<AndroidRegion>(450, 900, 150, 151)
-            r.swipeTo(r.copy(y = r.y - 200), 500)
-            delay((900 * gameState.delayCoefficient).roundToLong())
+            resetView()
             gameState.requiresMapInit = false
         }
 
@@ -77,7 +100,7 @@ class EventDivision5_1(scriptComponent: ScriptComponent) : HomographyMapRunner(s
 
         resupplyEchelons(rEchelons)
         planPath()
-        waitForTurnEnd(3)
+        waitForTurnEnd(4, false)
         handleBattleResults()
     }
 
@@ -88,8 +111,11 @@ class EventDivision5_1(scriptComponent: ScriptComponent) : HomographyMapRunner(s
         logger.info("Selecting Echelon at ${nodes[0]}")
         nodes[0].findRegion().click()
 
-        logger.info("Selecting node ${nodes[5]}")
-        nodes[5].findRegion().click(); yield()
+        logger.info("Selecting node ${nodes[1]}")
+        nodes[1].findRegion().click()
+
+        logger.info("Selecting node ${nodes[2]}")
+        nodes[2].findRegion().click()
 
         mapRunnerRegions.executePlan.click()
     }

@@ -24,7 +24,6 @@ import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.modules.combat.AbsoluteMapRunner
 import com.waicool20.wai2k.script.modules.combat.EventMapRunner
-import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
@@ -56,15 +55,16 @@ class EventDivisionNadesEX(scriptComponent: ScriptComponent) : AbsoluteMapRunner
     }
 
     override suspend fun begin() {
-        logger.info("Zoom out")
-        region.pinch(
-            Random.nextInt(700, 800),
-            Random.nextInt(100, 200),
-            0.0,
-            500
-        )
-
-        delay((1000 * gameState.delayCoefficient).roundToLong())
+        repeat(2) {
+            logger.info("Zoom out")
+            region.pinch(
+                Random.nextInt(700, 800),
+                Random.nextInt(100, 200),
+                0.0,
+                500
+            )
+            delay((1000 * gameState.delayCoefficient).roundToLong())
+        }
         gameState.requiresMapInit = false
 
         logger.info("Just gonna farm 404 grenades :/")
