@@ -75,7 +75,8 @@ class EventDivision5_2(scriptComponent: ScriptComponent) : HomographyMapRunner(s
             gameState.requiresMapInit = false
         }
 
-        val rEchelons = deployEchelons(nodes[0], nodes[1], nodes[2])
+        val rEchelons = deployEchelons(nodes[0])
+        deployEchelons(nodes[1], nodes[2]) // For bad dummies
         mapRunnerRegions.startOperation.click()
         delay(500)
 
