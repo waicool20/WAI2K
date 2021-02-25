@@ -140,7 +140,7 @@ class StatusTabView : CoroutineScopeView() {
             if (echelonRepairs.isNotEmpty()) {
                 builder /= "Repairs:"
                 builder += echelonRepairs.joinToString("\n") { (echelonNumber, member) ->
-                    "\t- Echelon $echelonNumber [${member.number}]: ${timeDelta(member.repairEta)}"
+                    "\t- Echelon $echelonNumber [${member.number}]: ${timeDelta(member.repairEta)}\n"
                 }
             }
 
