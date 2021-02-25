@@ -89,7 +89,8 @@ class EventDivision2_1(scriptComponent: ScriptComponent) : HomographyMapRunner(s
             gameState.requiresMapInit = false
         }
 
-        val rEchelons = deployEchelons(nodes[0], nodes[1])
+        val rEchelons = deployEchelons(nodes[0])
+        deployEchelons(nodes[1]) // For bad dummies
         mapRunnerRegions.startOperation.click(); yield()
 
         // The objectives come still come up, close them instead of G&K splash
