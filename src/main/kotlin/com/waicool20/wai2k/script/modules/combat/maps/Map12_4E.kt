@@ -76,23 +76,26 @@ class Map12_4E(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptCom
         waitForGNKSplash()
 
         resupplyEchelons(rEchelons + nodes[1])
+        delay((500 * gameState.delayCoefficient).roundToLong())
         planPath()
 
         // End turn automatically, save frames
         waitForTurnEnd(4, false)
-
         delay(3000)
         handleBattleResults()
     }
 
     private suspend fun planPath() {
 
-        logger.info("Selecting echelon at ${nodes[0]}")
-        nodes[0].findRegion().click()
+        // Deselect echelon 2 to reduce getting them killed
+        region.subRegion(151, 360, 72, 72).click()
         delay((300 * gameState.delayCoefficient).roundToLong())
 
         logger.info("Entering planning mode")
         mapRunnerRegions.planningMode.click(); yield()
+
+        logger.info("Selecting echelon at ${nodes[0]}")
+        nodes[0].findRegion().click()
 
         logger.info("Selecting ${nodes[2]}")
         nodes[2].findRegion().click()
