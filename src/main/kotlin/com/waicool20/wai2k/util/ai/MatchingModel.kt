@@ -37,7 +37,12 @@ class MatchingModel(
 
     init {
         block = object : AbstractBlock(2) {
-            override fun forward(parameterStore: ParameterStore, inputs: NDList, training: Boolean, params: PairList<String, Any>?): NDList {
+            override fun forwardInternal(
+                parameterStore: ParameterStore,
+                inputs: NDList,
+                training: Boolean,
+                params: PairList<String, Any>?
+            ): NDList {
                 val (img0, img1) = inputs
                 val pred0 = superpoint.block.forward(parameterStore, NDList(img0), training, params)
                 val pred1 = superpoint.block.forward(parameterStore, NDList(img1), training, params)

@@ -54,6 +54,7 @@ dependencies {
         val Jackson = "2.10.1" // Higher version break loading javafx compatibility
     }
 
+    implementation(kotlin("stdlib-jdk8"))
     implementation("org.jetbrains.kotlin", "kotlin-reflect", versions.Kotlin)
     implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-core", versions.KotlinCoroutines)
     implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-javafx", versions.KotlinCoroutines)
@@ -64,11 +65,11 @@ dependencies {
     implementation("com.fasterxml.jackson.datatype", "jackson-datatype-jsr310", versions.Jackson)
     implementation("ch.qos.logback", "logback-classic", "1.2.3")
     implementation ("no.tornado:tornadofx:2.0.0-SNAPSHOT")
-    implementation("org.controlsfx:controlsfx:11.0.2")
+    implementation("org.controlsfx:controlsfx:11.1.0")
     implementation("org.reflections", "reflections", "0.9.12")
     implementation("com.squareup.okhttp3:okhttp:4.9.0")
-    implementation("ai.djl.pytorch:pytorch-engine:0.9.0")
-    implementation("ai.djl.pytorch:pytorch-native-auto:1.7.0")
+    implementation("ai.djl.pytorch:pytorch-engine:0.10.0")
+    implementation("ai.djl.pytorch:pytorch-native-auto:1.7.1")
 
     implementation("net.sourceforge.tess4j", "tess4j", "4.5.4") {
         exclude("org.ghost4j")
