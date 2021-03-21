@@ -53,22 +53,45 @@ class EventPhotoInfinity(scriptComponent: ScriptComponent) : HomographyMapRunner
         region.subRegion(1832, 590, 230, 108).click() // Confirm Start Button
     }
 
+    override suspend fun resetView() {
+        // Map not at full zoom because small nodes were causing problems
+
+        // Out to max zoom
+        logger.info("Zoom out")
+        repeat(2) {
+            region.pinch(
+                Random.nextInt(800, 900),
+                Random.nextInt(300, 400),
+                0.0,
+                500
+            )
+            delay((500 * gameState.delayCoefficient).roundToLong())
+        }
+
+        // In to target zoom
+        logger.info("Zoom in")
+        region.pinch(
+            Random.nextInt(360, 380),
+            Random.nextInt(415, 430),
+            0.0,
+            500
+        )
+        delay((500 * gameState.delayCoefficient).roundToLong())
+
+        // move area of interest closer to middle
+        logger.info("Pan up")
+        val r = region.subRegionAs<AndroidRegion>(1058, 224, 100, 22)
+        r.swipeTo(r.copy(y = r.y + 400))
+        delay((500 * gameState.delayCoefficient).roundToLong())
+        mapH = null
+    }
+
 
     override suspend fun begin() {
         region.waitHas(FileTemplate("combat/battle/start.png"), 8000)
 
         if (gameState.requiresMapInit) {
-            logger.info("Zoom out")
-            repeat(2) {
-                region.pinch(
-                    Random.nextInt(800, 900),
-                    Random.nextInt(300, 400),
-                    0.0,
-                    500
-                )
-                delay(500)
-            }
-            delay((900 * gameState.delayCoefficient).roundToLong())
+            resetView()
             gameState.requiresMapInit = false
         }
 
