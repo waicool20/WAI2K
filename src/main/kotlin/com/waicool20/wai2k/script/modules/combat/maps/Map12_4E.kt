@@ -23,6 +23,8 @@ import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.modules.combat.CorpseDragging
 import com.waicool20.wai2k.script.modules.combat.HomographyMapRunner
+import com.waicool20.wai2k.util.Ocr
+import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
@@ -76,23 +78,26 @@ class Map12_4E(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptCom
         waitForGNKSplash()
 
         resupplyEchelons(rEchelons + nodes[1])
+        delay((500 * gameState.delayCoefficient).roundToLong())
         planPath()
 
         // End turn automatically, save frames
         waitForTurnEnd(4, false)
-
         delay(3000)
         handleBattleResults()
     }
 
     private suspend fun planPath() {
 
-        logger.info("Selecting echelon at ${nodes[0]}")
-        nodes[0].findRegion().click()
+        // Deselect echelon 2 to reduce getting them killed
+        region.subRegion(151, 360, 72, 72).click()
         delay((300 * gameState.delayCoefficient).roundToLong())
 
         logger.info("Entering planning mode")
         mapRunnerRegions.planningMode.click(); yield()
+
+        logger.info("Selecting echelon at ${nodes[0]}")
+        nodes[0].findRegion().click()
 
         logger.info("Selecting ${nodes[2]}")
         nodes[2].findRegion().click()
@@ -103,7 +108,28 @@ class Map12_4E(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptCom
         logger.info("Selecting ${nodes[2]}")
         nodes[2].findRegion().click(); yield()
 
+        delay((500 * gameState.delayCoefficient).roundToLong())
+        if (!checkPlaning(-1)) {
+            mapH = null
+            mapRunnerRegions.planningMode.click(); yield()
+            planPath()
+        }
+
         logger.info("Executing plan")
         mapRunnerRegions.executePlan.click()
+    }
+
+    private fun checkPlaning(targetPoints: Int): Boolean {
+        // moved elsewhere hopefully never
+        // checks if AP left over from planning is what it should be
+        val actionPoints = Ocr.forConfig(config)
+            .doOCRAndTrim(region.subRegion(1777, 979, 100, 62))
+            .toIntOrNull()
+        return if (actionPoints == targetPoints) {
+            true
+        } else {
+            logger.info("Checking for remaining AP of $targetPoints, got $actionPoints instead")
+            false
+        }
     }
 }
