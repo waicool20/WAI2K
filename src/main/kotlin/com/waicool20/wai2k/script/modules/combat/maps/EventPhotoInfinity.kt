@@ -49,7 +49,7 @@ class EventPhotoInfinity(scriptComponent: ScriptComponent) : HomographyMapRunner
                 }
             }
         }
-        delay((1000 * gameState.delayCoefficient).roundToLong())
+        delay((3000 * gameState.delayCoefficient).roundToLong())
         region.subRegion(1832, 590, 230, 108).click() // Confirm Start Button
     }
 
