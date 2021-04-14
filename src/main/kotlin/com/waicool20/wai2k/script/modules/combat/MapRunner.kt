@@ -647,7 +647,7 @@ abstract class MapRunner(
         val sr = region.subRegion(1430, 900, 640, 130)
 
         try {
-            r.clickWhile(period = 1500, timeout = 30000) {
+            r.clickWhile(period = 2500, timeout = 30000) {
                 sr.doesntHave(FileTemplate("cancel-deploy.png"))
             }
         } catch (e: TimeoutCancellationException) {
