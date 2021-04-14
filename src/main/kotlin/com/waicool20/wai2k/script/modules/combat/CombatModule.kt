@@ -490,7 +490,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
             val r = region.subRegion(1712, 882, 448, 198)
             // Wait for start operation button to appear first before handing off control to
             // map specific files
-            if (r.waitHas(FileTemplate("combat/battle/start.png", 0.9), 15000) != null) {
+            if (r.waitHas(FileTemplate("combat/battle/start.png", 0.9), 30000) != null) {
                 logger.info("Entered map $map")
                 break
             }
