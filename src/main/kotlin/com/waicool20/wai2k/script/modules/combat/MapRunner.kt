@@ -27,6 +27,7 @@ import com.waicool20.wai2k.game.*
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.ScriptTimeOutException
 import com.waicool20.wai2k.util.Ocr
+import com.waicool20.wai2k.util.WatchDogTimer
 import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.waicoolutils.binarizeImage
 import com.waicool20.waicoolutils.countColor
@@ -38,6 +39,7 @@ import org.reflections.Reflections
 import java.awt.Color
 import java.lang.reflect.Modifier
 import java.text.DecimalFormat
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -204,7 +206,7 @@ abstract class MapRunner(
                 }
 
                 logger.info("Deploying echelon ${i + 1} to $node")
-                openEchelon(node, singleClick = true)
+                openEchelon(node)
                 if (echelon in 1..10) {
                     while (!clickEchelon(Echelon(echelon))) delay(200)
                 }
@@ -357,16 +359,16 @@ abstract class MapRunner(
         for (retreat in rl) {
             when (retreat) {
                 is MapNode -> retreatEchelon(retreat)
-                is Retreat -> retreatEchelon(retreat.mapNode, retreat.singleClick)
+                is Retreat -> retreatEchelon(retreat.mapNode)
             }
         }
     }
 
-    private suspend fun retreatEchelon(mapNode: MapNode, singleClick: Boolean = false) {
+    private suspend fun retreatEchelon(mapNode: MapNode) {
         if (mapNode.type == MapNode.Type.Normal) return
         logger.info("Retreat echelon at $mapNode")
         logger.info("Selecting echelon")
-        openEchelon(mapNode, singleClick)
+        openEchelon(mapNode)
         logger.info("Retreating")
         mapRunnerRegions.retreat.click()
         delay(1000)
@@ -433,19 +435,19 @@ abstract class MapRunner(
     ) {
         logger.info("Waiting for turn to end, expected battles: $battles")
         var battlesPassed = 0
-        try {
-            withTimeout(battles * (profile.combat.battleTimeout * 1000L + timeout)) {
-                while (isActive && battlesPassed < battles) {
-                    if (isInBattle()) {
-                        clickThroughBattle()
-                        battlesPassed++
-                    }
-                    yield()
-                }
+        val wdt = WatchDogTimer(profile.combat.battleTimeout * 1000L + timeout)
+        wdt.start()
+        while (isActive && battlesPassed < battles) {
+            if (isInBattle()) {
+                wdt.reset()
+                wdt.addTime(15, TimeUnit.SECONDS)
+                clickThroughBattle()
+                battlesPassed++
+                wdt.reset()
             }
-        } catch (e: TimeoutCancellationException) {
-            throw ScriptTimeOutException("Waiting for battles", e)
+            if (wdt.hasExpired()) throw ScriptTimeOutException("Waiting for battles")
         }
+        wdt.stop()
         region.waitHas(FileTemplate("combat/battle/terminate.png"), 10000)
         logger.info("Turn ended")
         if (endTurn) endTurn()
@@ -488,8 +490,7 @@ abstract class MapRunner(
                     val newPoints = ocr.doOCRAndTrim(
                         screenshot.getSubimage(1730, 970, 135, 76)
                             .binarizeImage().pad(10, 10, Color.BLACK)
-                    )
-                        .toIntOrNull() ?: continue
+                    ).toIntOrNull() ?: continue
 
 
                     // Ignore point deltas larger than 10
@@ -642,7 +643,7 @@ abstract class MapRunner(
     private fun isInBattle() =
         mapRunnerRegions.pauseButton.has(FileTemplate("combat/battle/pause.png", 0.9))
 
-    protected suspend fun openEchelon(node: MapNode, singleClick: Boolean = false) {
+    protected suspend fun openEchelon(node: MapNode) {
         val r = node.findRegion()
         val sr = region.subRegion(1430, 900, 640, 130)
 
@@ -654,10 +655,6 @@ abstract class MapRunner(
             throw ScriptTimeOutException("Opening echelon", e)
         }
 
-        // Can deprecate singleClick if above works more reliably
-        //repeat(if (singleClick) 1 else 2) {
-        //    r.click(); delay(1500)
-        //}
         if (node.type == MapNode.Type.HeavyHeliport && gameState.requiresMapInit) {
             mapRunnerRegions.chooseEchelon.click(); delay(2000)
         }

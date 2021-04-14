@@ -60,7 +60,7 @@ class Map10_4E_Drag(scriptComponent: ScriptComponent) : AbsoluteMapRunner(script
         }
         delay((900 * gameState.delayCoefficient).roundToLong()) //Wait to settle
         val rEchelons = deployEchelons(nodes[0]) //combat team
-        openEchelon(nodes[1], singleClick = true); delay(300) //dps to resupply
+        openEchelon(nodes[1]); delay(300) //dps to resupply
         checkDragRepairs()
         deployEchelons(nodes[2]) //dummy
         gameState.requiresMapInit = false
