@@ -43,7 +43,7 @@ class WatchDogTimer(private val initialTime: Long, private val onExpire: () -> U
         thread(name = "WatchDogTimer") {
             while (ticks.get() > 0) {
                 Thread.sleep(1000)
-                println(ticks.addAndGet(-1000))
+                ticks.addAndGet(-1000)
                 if (stopFlag.getAndSet(false)) {
                     reset()
                     return@thread
