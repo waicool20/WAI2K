@@ -28,8 +28,8 @@ import java.security.MessageDigest
 plugins {
     java
     kotlin("jvm") version "1.4.20"
-    id("com.github.johnrengelman.shadow") version "5.2.0"
-    id("org.openjfx.javafxplugin") version "0.0.8"
+    id("com.github.johnrengelman.shadow") version "latest.release"
+    id("org.openjfx.javafxplugin") version "latest.release"
 }
 
 group = "com.waicool20"
@@ -145,10 +145,10 @@ task("deps-list") {
                 .filterNot { it.startsWith("project") || it.contains("->") }
         val repos = project.repositories.mapNotNull { it as? MavenArtifactRepository }.map { it.url }
         val output = StringBuilder()
-        output.appendln("Repositories:")
+        output.appendLine("Repositories:")
         repos.sorted().forEach { output.appendln("- $it") }
-        output.appendln()
-        output.appendln("Dependencies:")
+        output.appendLine()
+        output.appendLine("Dependencies:")
         deps.sorted().forEach { output.appendln("- $it") }
         Files.write(file, output.toString().toByteArray(), StandardOpenOption.TRUNCATE_EXISTING)
     }
