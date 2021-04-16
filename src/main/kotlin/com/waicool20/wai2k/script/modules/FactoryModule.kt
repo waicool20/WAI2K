@@ -279,7 +279,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
             region.subRegion(1759, 880, 268, 177)
                 .waitHas(FileTemplate("factory/ok.png"), 1500)?.click()
             logger.info("Disassembling selected T-dolls")
-            disassembleButton.click(); delay(500)
+            disassembleButton.click(); delay(1000)
             // Click confirm
             region.subRegion(1100, 865, 324, 161)
                 .findBest(FileTemplate("ok.png"))?.region?.click(); delay(200)
@@ -412,7 +412,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
             region.subRegion(1768, 889, 250, 170)
                 .findBest(FileTemplate("factory/ok-equip.png"))?.region?.click(); delay(500)
             logger.info("Disassembling selected equipment")
-            disassembleButton.click(); delay(500)
+            disassembleButton.click(); delay(1000)
             // Click confirm
             region.subRegion(1100, 865, 324, 161)
                 .waitHas(FileTemplate("ok.png"), 1500)?.click()
