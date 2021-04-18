@@ -252,7 +252,8 @@ abstract class MapRunner(
                     }
                 }
                 mapRunnerRegions.deploy.click()
-                delay(300)
+                // AbsoluteMapRunner might click next echelon too fast if deploying multiple echelons
+                delay(if (this is AbsoluteMapRunner) 2000 else 500)
                 if (ammoNeedsSupply.await() || rationNeedsSupply.await()) {
                     needsResupply += node
                 }
