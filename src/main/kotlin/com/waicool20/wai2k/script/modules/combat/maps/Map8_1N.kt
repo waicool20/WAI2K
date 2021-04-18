@@ -41,10 +41,10 @@ class Map8_1N(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptCompon
                     Random.nextInt(700, 800),
                     Random.nextInt(200, 300),
                     0.0,
-                    500
+                    1000
                 )
+                delay(500)
             }
-            delay(500)
             logger.info("Pan up")
             val r = region.subRegionAs<AndroidRegion>(1058, 224, 100, 22)
             r.swipeTo(r.copy(y = r.y + 600))
