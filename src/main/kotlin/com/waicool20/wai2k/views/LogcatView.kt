@@ -21,13 +21,18 @@ package com.waicool20.wai2k.views
 
 import com.waicool20.cvauto.android.ADB
 import com.waicool20.waicoolutils.javafx.CoroutineScopeView
+import com.waicool20.waicoolutils.javafx.tooltips.fadeAfter
+import com.waicool20.waicoolutils.javafx.tooltips.showAt
 import com.waicool20.waicoolutils.streams.TextAreaOutputStream
 import javafx.scene.control.Button
 import javafx.scene.control.TextArea
+import javafx.scene.control.Tooltip
+import javafx.scene.input.Clipboard
 import javafx.scene.layout.GridPane
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.javafx.JavaFx
 import kotlinx.coroutines.launch
+import tornadofx.*
 
 class LogcatView : CoroutineScopeView() {
     override val root: GridPane by fxml("/views/console.fxml")
@@ -42,8 +47,22 @@ class LogcatView : CoroutineScopeView() {
     private var process: Process? = null
 
     init {
+        title = "Logcat Monitor"
         clearButton.setOnAction {
             consoleTextArea.clear()
+        }
+        copyButton.setOnAction {
+            Clipboard.getSystemClipboard().putString(consoleTextArea.text)
+            Tooltip("Copied everything!").apply {
+                fadeAfter(500)
+                showAt(copyButton)
+            }
+        }
+        toTopButton.setOnAction {
+            consoleTextArea.scrollTop = 0.0
+        }
+        toBottomButton.setOnAction {
+            consoleTextArea.scrollTop = Double.MAX_VALUE
         }
     }
 
@@ -71,14 +90,16 @@ class LogcatView : CoroutineScopeView() {
             "Single",
             "(WWW)"
         )
+        val color = Regex("<color=#\\w{6}>(.*?)</color>")
         launch(Dispatchers.IO) {
             process?.inputStream?.bufferedReader()?.forEachLine { line ->
                 val match = r.matchEntire(line) ?: return@forEachLine
-                val (data, time, pid, tid, level, tag, msg) = match.destructured
+                var (date, time, pid, tid, level, tag, msg) = match.destructured
                 if (msg.isBlank()) return@forEachLine
                 if (filters.any { msg.contains(it) }) return@forEachLine
+                color.matchEntire(msg)?.let { msg = it.groupValues[1] }
                 launch(Dispatchers.JavaFx) {
-                    textArea.writeLine(msg + "\n")
+                    textArea.writeLine("[$date $time] $msg\n")
                 }
             }
         }
