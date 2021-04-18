@@ -118,10 +118,10 @@
       {
         "asset": {
           "imageName": "home_status",
-          "x": 66,
-          "y": 197,
-          "width": 60,
-          "height": 60
+          "x": 104,
+          "y": 904,
+          "width": 40,
+          "height": 40
         }
       }
     ],
