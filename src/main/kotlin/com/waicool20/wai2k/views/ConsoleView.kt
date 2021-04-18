@@ -33,8 +33,11 @@ import tornadofx.*
 import java.io.PrintStream
 
 class ConsoleView : View() {
-    override val root: GridPane by fxml("/views/console.fxml", hasControllerAttribute = true)
+    override val root: GridPane by fxml("/views/console.fxml")
     private val consoleTextArea: TextArea by fxid()
+    private val clearButton: Button by fxid()
+    private val toTopButton: Button by fxid()
+    private val toBottomButton: Button by fxid()
     private val copyButton: Button by fxid()
     private var outStream: PrintStream
     private var errStream: PrintStream
@@ -48,6 +51,23 @@ class ConsoleView : View() {
         errStream = PrintStream(TeeOutputStream(System.err, textArea))
         System.setOut(outStream)
         System.setErr(errStream)
+
+        clearButton.setOnAction {
+            consoleTextArea.clear()
+        }
+        copyButton.setOnAction {
+            Clipboard.getSystemClipboard().putString(consoleTextArea.text)
+            Tooltip("Copied everything!").apply {
+                fadeAfter(500)
+                showAt(copyButton)
+            }
+        }
+        toTopButton.setOnAction {
+            consoleTextArea.scrollTop = 0.0
+        }
+        toBottomButton.setOnAction {
+            consoleTextArea.scrollTop = Double.MAX_VALUE
+        }
     }
 
     override fun onDock() {
@@ -58,27 +78,5 @@ class ConsoleView : View() {
             y = primaryStage.y
             height = primaryStage.height
         }
-    }
-
-    @FXML
-    private fun onClear() = consoleTextArea.clear()
-
-    @FXML
-    private fun onCopyAll() {
-        Clipboard.getSystemClipboard().putString(consoleTextArea.text)
-        Tooltip("Copied everything!").apply {
-            fadeAfter(500)
-            showAt(copyButton)
-        }
-    }
-
-    @FXML
-    private fun toTop() {
-        consoleTextArea.scrollTop = 0.0
-    }
-
-    @FXML
-    private fun toBottom() {
-        consoleTextArea.scrollTop = Double.MAX_VALUE
     }
 }

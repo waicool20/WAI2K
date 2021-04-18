@@ -27,7 +27,7 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<GridPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="300.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.162-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.waicool20.wai2k.views.ConsoleView">
+<GridPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="300.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1">
     <columnConstraints>
         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
     </columnConstraints>
@@ -47,8 +47,8 @@
             <children>
                 <HBox fillHeight="false" prefHeight="45.0" spacing="10.0">
                     <children>
-                        <Button mnemonicParsing="false" onAction="#onClear" text="Clear" />
-                        <Button fx:id="copyButton" mnemonicParsing="false" onAction="#onCopyAll" text="Copy All" />
+                        <Button fx:id="clearButton" mnemonicParsing="false" text="Clear" />
+                        <Button fx:id="copyButton" mnemonicParsing="false" text="Copy All" />
                     </children>
                     <padding>
                         <Insets bottom="10.0" left="30.0" />
@@ -56,8 +56,8 @@
                 </HBox>
                 <HBox alignment="TOP_RIGHT" fillHeight="false" prefHeight="45.0" spacing="10.0" GridPane.columnIndex="1">
                     <children>
-                        <Button mnemonicParsing="false" onAction="#toTop" text="To Top" />
-                        <Button mnemonicParsing="false" onAction="#toBottom" text="To Bottom" />
+                        <Button fx:id="toTopButton" mnemonicParsing="false" text="To Top" />
+                        <Button fx:id="toBottomButton" mnemonicParsing="false" text="To Bottom" />
                     </children>
                     <padding>
                         <Insets bottom="10.0" right="30.0" />
