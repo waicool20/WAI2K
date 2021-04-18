@@ -43,6 +43,7 @@ class MenuBarView : View() {
     private val openFolderItem: MenuItem by fxid()
     private val logsItem: MenuItem by fxid()
     private val homographyItem: MenuItem by fxid()
+    private val logcatItem: MenuItem by fxid()
 
     private val wai2KContext: Wai2KContext by inject()
 
@@ -66,5 +67,6 @@ class MenuBarView : View() {
                 wai2KContext.wai2KConfig.assetsDirectory.toFile()
             ).firstOrNull()?.let { HomographyViewer(device, it).openWindow() }
         }
+        logcatItem.setOnAction { find<LogcatView>().openWindow(owner = null)?.toFront() }
     }
 }

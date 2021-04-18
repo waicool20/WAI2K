@@ -24,7 +24,7 @@
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.input.KeyCodeCombination?>
 
-<MenuBar xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<MenuBar xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1">
    <menus>
       <Menu mnemonicParsing="false" text="File">
          <items>
@@ -53,6 +53,7 @@
                </accelerator>
             </MenuItem>
             <MenuItem fx:id="homographyItem" mnemonicParsing="false" text="Homography Viewer" />
+            <MenuItem fx:id="logcatItem" mnemonicParsing="false" text="Logcat Messages" />
             <MenuItem fx:id="logsItem" mnemonicParsing="false" text="Open Logs in Editor">
                <accelerator>
                   <KeyCodeCombination alt="UP" code="D" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
