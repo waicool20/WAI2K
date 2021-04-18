@@ -138,6 +138,7 @@ abstract class ScriptModule(
             }
             logger.debug("Visible chapters: $chapters")
             when {
+                chapters.isEmpty() -> delay(1000)
                 chapter <= chapters.minOrNull() ?: CHAPTER_MAX / 2 -> {
                     logger.debug("Swiping down the chapters")
                     upperSwipeRegion.swipeTo(lowerSwipeRegion)
