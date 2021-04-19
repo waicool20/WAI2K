@@ -69,6 +69,7 @@ class LogcatView : CoroutineScopeView() {
     override fun onDock() {
         super.onDock()
         process = ADB.execute("logcat", "Unity:V", "*:S")
+        Runtime.getRuntime().addShutdownHook(Thread { process?.destroy() })
         val r =
             Regex("(\\d\\d-\\d\\d) (\\d\\d:\\d\\d:\\d\\d.\\d{3}) (\\d+) (\\d+) ([VDIWEFS]) (\\w+)\\s+: (.*)$")
         val filters = listOf(
