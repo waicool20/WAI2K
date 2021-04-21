@@ -114,8 +114,8 @@ data class GameLocation(
     fun isInRegion(region: Region<AndroidDevice>): Boolean {
         if (landmarks.isEmpty()) return false
         return when (matchingMode) {
-            Mode.AND -> landmarks.all { it.asset.getSubRegionFor(region).has(FileTemplate(it.asset.imagePath, 0.98)) }
-            Mode.OR -> landmarks.any { it.asset.getSubRegionFor(region).has(FileTemplate(it.asset.imagePath, 0.98)) }
+            Mode.AND -> landmarks.all { it.asset.getSubRegionFor(region).has(FileTemplate(it.asset.imagePath, 0.94)) }
+            Mode.OR -> landmarks.any { it.asset.getSubRegionFor(region).has(FileTemplate(it.asset.imagePath, 0.94)) }
         }
     }
 

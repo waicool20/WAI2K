@@ -22,6 +22,8 @@ package com.waicool20.wai2k.script
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.waicool20.cvauto.android.AndroidDevice
 import com.waicool20.cvauto.core.Region
+import com.waicool20.cvauto.util.cropIntoRect
+import java.awt.Rectangle
 
 /**
  * Represents and asset and its expected geometry
@@ -56,6 +58,9 @@ data class Asset(
      * @param region Parent region (Should always be full android screen)
      */
     fun getSubRegionFor(region: Region<AndroidDevice>): Region<AndroidDevice> {
-        return region.subRegion(x, y, width, height)
+        val rect = Rectangle(x, y, width, height)
+            .apply { grow(3, 3) }
+            .cropIntoRect(region)
+        return region.subRegion(rect.x, rect.y, rect.width, rect.height)
     }
 }
