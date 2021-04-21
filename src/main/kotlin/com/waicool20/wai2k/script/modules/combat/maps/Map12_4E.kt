@@ -41,7 +41,7 @@ class Map12_4E(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptCom
         // Out to max zoom
         logger.info("Zoom out")
         region.pinch(
-            Random.nextInt(600, 700),
+            Random.nextInt(800, 900),
             Random.nextInt(150, 250),
             0.0,
             800
