@@ -43,6 +43,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.abs
 import kotlin.math.roundToInt
+import kotlin.math.roundToLong
 import kotlin.random.Random
 import kotlin.reflect.KClass
 
@@ -441,7 +442,7 @@ abstract class MapRunner(
         while (isActive && battlesPassed < battles) {
             if (isInBattle()) {
                 wdt.reset()
-                wdt.addTime(15, TimeUnit.SECONDS)
+                wdt.addTime((30 * gameState.delayCoefficient).roundToLong(), TimeUnit.SECONDS)
                 clickThroughBattle()
                 battlesPassed++
                 wdt.reset()
