@@ -27,6 +27,8 @@ import com.waicool20.waicoolutils.javafx.CoroutineScopeView
 import com.waicool20.waicoolutils.javafx.addListener
 import com.waicool20.waicoolutils.logging.loggerFor
 import javafx.embed.swing.SwingFXUtils
+import javafx.event.ActionEvent
+import javafx.geometry.Pos
 import javafx.scene.control.Button
 import javafx.scene.control.CheckBox
 import javafx.scene.control.ComboBox
@@ -54,6 +56,7 @@ class DeviceTabView : CoroutineScopeView(), Binder {
     private val displayLabel: Label by fxid()
     private val deviceComboBox: ComboBox<AndroidDevice> by fxid()
     private val reloadDevicesButton: Button by fxid()
+    private val ipButton: Button by fxid()
     private val touchesButton: Button by fxid()
     private val pointerButton: Button by fxid()
     private val takeScreenshotButton: Button by fxid()
@@ -81,14 +84,25 @@ class DeviceTabView : CoroutineScopeView(), Binder {
                 createNewRenderJob(deviceComboBox.selectedItem ?: return@setOnAction)
             }
         }
+        ipButton.setOnAction(::connectByIP)
         deviceComboBox.converter = object : StringConverter<AndroidDevice>() {
-            override fun toString(device: AndroidDevice?) = device?.properties?.name ?: "No device selected"
+            override fun toString(device: AndroidDevice?) =
+                device?.properties?.name ?: "No device selected"
+
             override fun fromString(string: String) = null
         }
 
-        refreshDeviceLists { list ->
-            list.find { it.serial == context.wai2KConfig.lastDeviceSerial }?.let {
-                launch { deviceComboBox.selectionModel.select(it) }
+        if (context.wai2KConfig.lastDeviceSerial.contains(Regex("(?:[0-9]{1,3}\\.){3}[0-9]{1,3}"))) {
+            ADB.connect(context.wai2KConfig.lastDeviceSerial) { device ->
+                launch {
+                    if (device != null) deviceComboBox.selectionModel.select(device)
+                }
+            }
+        } else {
+            refreshDeviceLists { list ->
+                list.find { it.serial == context.wai2KConfig.lastDeviceSerial }?.let {
+                    launch { deviceComboBox.selectionModel.select(it) }
+                }
             }
         }
         createBindings()
@@ -130,7 +144,13 @@ class DeviceTabView : CoroutineScopeView(), Binder {
                     title = "Save screenshot to?"
                     extensionFilters.add(FileChooser.ExtensionFilter("PNG files (*.png)", "*.png"))
                     showSaveDialog(null)?.let { file ->
-                        launch(Dispatchers.IO) { ImageIO.write(device.screens[0].capture(), "PNG", file) }
+                        launch(Dispatchers.IO) {
+                            ImageIO.write(
+                                device.screens[0].capture(),
+                                "PNG",
+                                file
+                            )
+                        }
                     }
                 }
             }
@@ -184,6 +204,31 @@ class DeviceTabView : CoroutineScopeView(), Binder {
         createNewRenderJob(deviceComboBox.selectedItem ?: return)
     }
 
+    private fun connectByIP(e: ActionEvent) {
+        dialog {
+            stage.isResizable = false
+            hbox {
+                label("IP: ")
+                val t = textfield("127.0.0.1:62001").apply {
+                    promptText = "127.0.0.1:62001"
+                }
+                button("Connect") {
+                    setOnAction {
+                        ADB.connect(t.text) { device ->
+                            launch {
+                                if (device != null) deviceComboBox.selectionModel.select(device)
+                            }
+                        }
+                        close()
+                    }
+                }
+            }.apply {
+                alignment = Pos.CENTER
+                spacing = 5.0
+            }
+        }
+    }
+
     private fun refreshDeviceLists(action: (List<AndroidDevice>) -> Unit = {}) {
         launch(Dispatchers.IO + CoroutineName("Refresh Device List Task")) {
             logger.debug("Refreshing device list")
@@ -218,16 +263,17 @@ class DeviceTabView : CoroutineScopeView(), Binder {
             var lastCaptureTime = System.currentTimeMillis()
             while (isActive && owningTab?.isSelected == true) {
                 try {
-                    val image = if (realtimePreviewCheckbox.isSelected && device.screens[0].fastCaptureMode) {
-                        device.screens[0].capture()
-                    } else {
-                        device.screens[0].getLastScreenCapture()?.takeIf {
-                            System.currentTimeMillis() - lastCaptureTime < 3000
-                        } ?: run {
-                            lastCaptureTime = System.currentTimeMillis()
+                    val image =
+                        if (realtimePreviewCheckbox.isSelected && device.screens[0].fastCaptureMode) {
                             device.screens[0].capture()
+                        } else {
+                            device.screens[0].getLastScreenCapture()?.takeIf {
+                                System.currentTimeMillis() - lastCaptureTime < 3000
+                            } ?: run {
+                                lastCaptureTime = System.currentTimeMillis()
+                                device.screens[0].capture()
+                            }
                         }
-                    }
                     withContext(Dispatchers.Main) {
                         deviceView.image = SwingFXUtils.toFXImage(image, null)
                     }
