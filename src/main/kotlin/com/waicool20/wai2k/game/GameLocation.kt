@@ -66,7 +66,11 @@ data class GameLocation(
      * @param asset The corresponding asset that should be clicked to get to [dest]
      */
     @JsonIgnoreProperties(ignoreUnknown = true)
-    class Link(val dest: LocationId, asset: Asset) {
+    class Link(val dest: LocationId, asset: Asset = EMPTY_ASSET) {
+        companion object {
+            private val EMPTY_ASSET = Asset()
+        }
+        val skippable = asset == EMPTY_ASSET
         val asset = asset.apply { prefix = "locations/links/" }
         override fun toString() = "Link(dest=$dest)"
     }

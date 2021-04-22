@@ -321,54 +321,7 @@
     ],
     "links": [
       {
-        "dest": "home",
-        "asset": {
-          "imageName": "",
-          "x": 120,
-          "y": 0,
-          "width": 205,
-          "height": 130
-        }
-      },
-      {
-        "dest": "dummy_link",
-        "asset": {
-          "imageName": "",
-          "x": 131,
-          "y": 296,
-          "width": 257,
-          "height": 117
-        }
-      },
-      {
-        "dest": "tdoll_enhancement",
-        "asset": {
-          "imageName": "",
-          "x": 131,
-          "y": 429,
-          "width": 257,
-          "height": 117
-        }
-      },
-      {
-        "dest": "tdoll_disassembly",
-        "asset": {
-          "imageName": "",
-          "x": 131,
-          "y": 561,
-          "width": 257,
-          "height": 117
-        }
-      },
-      {
-        "dest": "equipment_production",
-        "asset": {
-          "imageName": "",
-          "x": 131,
-          "y": 693,
-          "width": 257,
-          "height": 117
-        }
+        "dest": "factory_menu"
       }
     ]
   },
@@ -387,54 +340,7 @@
     ],
     "links": [
       {
-        "dest": "home",
-        "asset": {
-          "imageName": "",
-          "x": 120,
-          "y": 0,
-          "width": 205,
-          "height": 130
-        }
-      },
-      {
-        "dest": "tdoll_production",
-        "asset": {
-          "imageName": "",
-          "x": 131,
-          "y": 164,
-          "width": 257,
-          "height": 117
-        }
-      },
-      {
-        "dest": "tdoll_enhancement",
-        "asset": {
-          "imageName": "",
-          "x": 131,
-          "y": 429,
-          "width": 257,
-          "height": 117
-        }
-      },
-      {
-        "dest": "tdoll_disassembly",
-        "asset": {
-          "imageName": "",
-          "x": 131,
-          "y": 561,
-          "width": 257,
-          "height": 117
-        }
-      },
-      {
-        "dest": "equipment_production",
-        "asset": {
-          "imageName": "",
-          "x": 131,
-          "y": 693,
-          "width": 257,
-          "height": 117
-        }
+        "dest": "factory_menu"
       }
     ]
   },
@@ -453,54 +359,7 @@
     ],
     "links": [
       {
-        "dest": "home",
-        "asset": {
-          "imageName": "",
-          "x": 120,
-          "y": 0,
-          "width": 205,
-          "height": 130
-        }
-      },
-      {
-        "dest": "tdoll_production",
-        "asset": {
-          "imageName": "",
-          "x": 131,
-          "y": 164,
-          "width": 257,
-          "height": 117
-        }
-      },
-      {
-        "dest": "dummy_link",
-        "asset": {
-          "imageName": "",
-          "x": 131,
-          "y": 296,
-          "width": 257,
-          "height": 117
-        }
-      },
-      {
-        "dest": "tdoll_disassembly",
-        "asset": {
-          "imageName": "",
-          "x": 131,
-          "y": 561,
-          "width": 257,
-          "height": 117
-        }
-      },
-      {
-        "dest": "equipment_production",
-        "asset": {
-          "imageName": "",
-          "x": 131,
-          "y": 693,
-          "width": 257,
-          "height": 117
-        }
+        "dest": "factory_menu"
       }
     ]
   },
@@ -519,54 +378,7 @@
     ],
     "links": [
       {
-        "dest": "home",
-        "asset": {
-          "imageName": "",
-          "x": 120,
-          "y": 0,
-          "width": 205,
-          "height": 130
-        }
-      },
-      {
-        "dest": "tdoll_production",
-        "asset": {
-          "imageName": "",
-          "x": 131,
-          "y": 164,
-          "width": 257,
-          "height": 117
-        }
-      },
-      {
-        "dest": "dummy_link",
-        "asset": {
-          "imageName": "",
-          "x": 131,
-          "y": 296,
-          "width": 257,
-          "height": 117
-        }
-      },
-      {
-        "dest": "tdoll_enhancement",
-        "asset": {
-          "imageName": "",
-          "x": 131,
-          "y": 429,
-          "width": 257,
-          "height": 117
-        }
-      },
-      {
-        "dest": "equipment_production",
-        "asset": {
-          "imageName": "",
-          "x": 131,
-          "y": 693,
-          "width": 257,
-          "height": 117
-        }
+        "dest": "factory_menu"
       }
     ]
   },
@@ -585,54 +397,7 @@
     ],
     "links": [
       {
-        "dest": "home",
-        "asset": {
-          "imageName": "",
-          "x": 120,
-          "y": 0,
-          "width": 205,
-          "height": 130
-        }
-      },
-      {
-        "dest": "tdoll_production",
-        "asset": {
-          "imageName": "",
-          "x": 131,
-          "y": 164,
-          "width": 257,
-          "height": 117
-        }
-      },
-      {
-        "dest": "dummy_link",
-        "asset": {
-          "imageName": "",
-          "x": 131,
-          "y": 296,
-          "width": 257,
-          "height": 117
-        }
-      },
-      {
-        "dest": "tdoll_enhancement",
-        "asset": {
-          "imageName": "",
-          "x": 131,
-          "y": 429,
-          "width": 257,
-          "height": 117
-        }
-      },
-      {
-        "dest": "tdoll_disassembly",
-        "asset": {
-          "imageName": "",
-          "x": 131,
-          "y": 561,
-          "width": 257,
-          "height": 117
-        }
+        "dest": "factory_menu"
       }
     ]
   },
@@ -749,35 +514,7 @@
     ],
     "links": [
       {
-        "dest": "home",
-        "asset": {
-          "imageName": "",
-          "x": 120,
-          "y": 0,
-          "width": 205,
-          "height": 130
-        }
-      },
-      {
-        "dest": "logistics_support",
-        "asset": {
-          "imageName": "",
-          "x": 131,
-          "y": 296,
-          "y-": 428,
-          "width": 257,
-          "height": 118
-        }
-      },
-      {
-        "dest": "combat_menu",
-        "asset": {
-          "imageName": "",
-          "x": 0,
-          "y": 0,
-          "width": 0,
-          "height": 0
-        }
+        "dest": "combat_menu"
       }
     ]
   },
@@ -797,35 +534,7 @@
     ],
     "links": [
       {
-        "dest": "home",
-        "asset": {
-          "imageName": "",
-          "x": 120,
-          "y": 0,
-          "width": 205,
-          "height": 130
-        }
-      },
-      {
-        "dest": "combat",
-        "asset": {
-          "imageName": "",
-          "x": 131,
-          "y": 164,
-          "y-": 296,
-          "width": 257,
-          "height": 118
-        }
-      },
-      {
-        "dest": "combat_menu",
-        "asset": {
-          "imageName": "",
-          "x": 0,
-          "y": 0,
-          "width": 0,
-          "height": 0
-        }
+        "dest": "combat_menu"
       }
     ]
   },
@@ -845,35 +554,7 @@
     ],
     "links": [
       {
-        "dest": "home",
-        "asset": {
-          "imageName": "",
-          "x": 120,
-          "y": 0,
-          "width": 205,
-          "height": 130
-        }
-      },
-      {
-        "dest": "combat",
-        "asset": {
-          "imageName": "",
-          "x": 131,
-          "y": 164,
-          "y-": 296,
-          "width": 257,
-          "height": 118
-        }
-      },
-      {
-        "dest": "combat_menu",
-        "asset": {
-          "imageName": "",
-          "x": 0,
-          "y": 0,
-          "width": 0,
-          "height": 0
-        }
+        "dest": "combat_menu"
       }
     ]
   },
@@ -903,35 +584,7 @@
     ],
     "links": [
       {
-        "dest": "home",
-        "asset": {
-          "imageName": "",
-          "x": 120,
-          "y": 0,
-          "width": 205,
-          "height": 130
-        }
-      },
-      {
-        "dest": "combat",
-        "asset": {
-          "imageName": "",
-          "x": 131,
-          "y": 164,
-          "y-": 296,
-          "width": 257,
-          "height": 118
-        }
-      },
-      {
-        "dest": "combat_menu",
-        "asset": {
-          "imageName": "",
-          "x": 0,
-          "y": 0,
-          "width": 0,
-          "height": 0
-        }
+        "dest": "combat_menu"
       }
     ]
   },

@@ -94,19 +94,19 @@ class Navigator(
      */
     suspend fun navigateTo(destination: LocationId, retries: Int = 3) {
         retry@ for (r in 0 until retries) {
-            val dest = locations[destination] ?: throw InvalidDestinationException(destination)
-            logger.info("Navigating to ${dest.id}")
+            val finalDest = locations[destination] ?: throw InvalidDestinationException(destination)
+            logger.info("Navigating to ${finalDest.id}")
             val cLocation = gameState.currentGameLocation.takeIf { it.isInRegion(region) }
                 ?: identifyCurrentLocation()
-            val path = cLocation.shortestPathTo(dest)
+            val path = cLocation.shortestPathTo(finalDest)
             if (path.isEmpty()) {
-                logger.info("Already at ${dest.id}")
+                logger.info("Already at ${finalDest.id}")
                 return
             }
             logger.debug("Found solution: CURRENT(${cLocation.id})->${path.formatted()}")
             for ((srcLoc, destLoc, link) in path) {
-                if (srcLoc.isIntermediate && destLoc.isInRegion(region)) {
-                    logger.info("At ${destLoc.id} | Intermediate(${srcLoc.id})")
+                if (link.skippable || (srcLoc.isIntermediate && destLoc.isInRegion(region))) {
+                    logger.info("At ${destLoc.id} | ${path.dropWhile { it.dest != destLoc }.formatted()}")
                     continue
                 }
                 logger.info("Going to ${destLoc.id}")
@@ -147,7 +147,7 @@ class Navigator(
                     if (checkLogistics()) skipTransitionDelay = true
                 }
 
-                logger.info("Waiting for transition to ${dest.id}")
+                logger.info("Waiting for transition to ${destLoc.id}")
                 if (!skipDestinationCheck) {
                     val ntdStart = System.currentTimeMillis()
                     // Re navigate if destination doesnt come up after timeout, make this a setting?

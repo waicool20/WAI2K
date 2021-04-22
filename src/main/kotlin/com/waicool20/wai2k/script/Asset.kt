@@ -36,11 +36,11 @@ import java.awt.Rectangle
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Asset(
-    val imageName: String,
-    val x: Int,
-    val y: Int,
-    val width: Int,
-    val height: Int
+    val imageName: String = "",
+    val x: Int = 0,
+    val y: Int = 0,
+    val width: Int = 0,
+    val height: Int = 0
 ) {
     /**
      * Path prefix
