@@ -47,12 +47,12 @@ class InitModule(navigator: Navigator) : ScriptModule(navigator) {
     override suspend fun execute() {
         navigator.checkRequiresRestart()
         navigator.checkLogistics()
-        logger.info("Next server reset: ${gameState.dailyReset.formatted()}")
         if (Instant.now() > gameState.dailyReset) {
             logger.info("Server has reset!")
             navigator.navigateTo(LocationId.DAILY_LOGIN)
             delay(5000)
             gameState.dailyReset = gameState.nextReset()
+            logger.info("Next server reset: ${gameState.dailyReset.formatted()}")
             navigator.navigateTo(LocationId.HOME)
         }
         if (gameState.requiresUpdate) {
