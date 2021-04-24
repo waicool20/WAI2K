@@ -99,6 +99,16 @@
         }
       },
       {
+        "dest": "daily_login",
+        "asset": {
+          "imageName": "",
+          "x": 685,
+          "y": 991,
+          "width": 189,
+          "height": 57
+        }
+      },
+      {
         "dest": "event",
         "dest-": "unknown",
         "asset": {
@@ -741,6 +751,42 @@
           "y": 0,
           "width": 138,
           "height": 145
+        }
+      }
+    ]
+  },
+  {
+    "id": "daily_login",
+    "matchingMode": "OR",
+    "landmarks": [
+      {
+        "asset": {
+          "imageName": "daily_login",
+          "x": 341,
+          "y": 21,
+          "width": 60,
+          "height": 60
+        }
+      },
+      {
+        "asset": {
+          "imageName": "daily_login0",
+          "x": 341,
+          "y": 21,
+          "width": 60,
+          "height": 60
+        }
+      }
+    ],
+    "links": [
+      {
+        "dest": "home",
+        "asset": {
+          "imageName": "",
+          "x": 120,
+          "y": 0,
+          "width": 138,
+          "height": 125
         }
       }
     ]

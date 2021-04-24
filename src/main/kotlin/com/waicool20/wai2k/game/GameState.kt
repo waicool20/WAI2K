@@ -19,7 +19,10 @@
 
 package com.waicool20.wai2k.game
 
-import java.time.Instant
+import java.time.*
+import java.time.temporal.ChronoField
+import java.time.temporal.ChronoUnit
+import java.time.temporal.TemporalAdjusters
 
 class GameState {
     var requiresUpdate: Boolean = true
@@ -35,6 +38,7 @@ class GameState {
     var simNextCheck: Instant = Instant.now()
     var reportsNextCheck: Instant = Instant.now()
     var delayCoefficient = 1.0
+    var dailyReset: Instant = nextReset()
 
     fun reset() {
         requiresUpdate = true
@@ -55,6 +59,7 @@ class GameState {
         simNextCheck = Instant.now()
         reportsNextCheck = Instant.now().plusSeconds(3600)
         delayCoefficient = 1.0
+        dailyReset = nextReset()
     }
 
     fun resetAll() {
@@ -63,5 +68,14 @@ class GameState {
             it.logisticsSupportAssignment = null
             it.members.forEach { it.repairEta = null }
         }
+    }
+
+    fun nextReset(): Instant {
+        val i = OffsetDateTime.of(
+            LocalDate.now(),
+            LocalTime.MIDNIGHT,
+            ZoneOffset.ofHours(-8)
+        ).toInstant()
+        return if (i < Instant.now()) i.plus(1, ChronoUnit.DAYS) else i
     }
 }

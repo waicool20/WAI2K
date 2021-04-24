@@ -43,5 +43,6 @@ enum class LocationId {
     EVENT,
     DATA_ROOM,
     CAMPAIGN,
+    DAILY_LOGIN,
     UNKNOWN
 }

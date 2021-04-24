@@ -35,6 +35,7 @@ import com.waicool20.waicoolutils.DurationUtils
 import com.waicool20.waicoolutils.logging.loggerFor
 import com.waicool20.waicoolutils.mapAsync
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.awt.image.BufferedImage
 import java.time.Duration
@@ -46,6 +47,14 @@ class InitModule(navigator: Navigator) : ScriptModule(navigator) {
     override suspend fun execute() {
         navigator.checkRequiresRestart()
         navigator.checkLogistics()
+        logger.info("Next server reset: ${gameState.dailyReset.formatted()}")
+        if (Instant.now() > gameState.dailyReset) {
+            logger.info("Server has reset!")
+            navigator.navigateTo(LocationId.DAILY_LOGIN)
+            delay(5000)
+            gameState.dailyReset = gameState.nextReset()
+            navigator.navigateTo(LocationId.HOME)
+        }
         if (gameState.requiresUpdate) {
             updateGameState()
             if (!config.scriptConfig.idleAtHome && profile.logistics.enabled && !profile.combat.enabled) {
