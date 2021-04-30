@@ -475,36 +475,40 @@ abstract class MapRunner(
         val ocr = Ocr.forConfig(config, digitsOnly = true)
         var currentTurn = 0
         var currentPoints = 0
-        try {
-            withTimeout(timeout) {
-                loop@ while (isActive && !interruptWaitFlag) {
-                    delay(500)
-                    when {
-                        isInBattle() -> clickThroughBattle()
-                        currentTurn == turn && currentPoints == points -> break@loop
-                    }
-                    val screenshot = region.capture()
-                    val newTurn = ocr.doOCRAndTrim(screenshot.getSubimage(748, 53, 86, 72))
-                        .let { if (it.firstOrNull() == '8') it.replaceFirst("8", "0") else it }
-                        .toIntOrNull() ?: continue
-
-
-                    val newPoints = ocr.doOCRAndTrim(
-                        screenshot.getSubimage(1730, 970, 135, 76)
-                            .binarizeImage().pad(10, 10, Color.BLACK)
-                    ).toIntOrNull() ?: continue
-
-
-                    // Ignore point deltas larger than 10
-                    if ((currentTurn != newTurn || currentPoints != newPoints) && abs(currentPoints - newPoints) < 10) {
-                        logger.info("Current turn: $newTurn ($turn) | Current action points: $newPoints ($points)")
-                        currentTurn = newTurn
-                        currentPoints = newPoints
-                    }
+        val wdt = WatchDogTimer(profile.combat.battleTimeout * 1000L + timeout)
+        wdt.start()
+        loop@ while (isActive && !interruptWaitFlag) {
+            delay(500)
+            when {
+                isInBattle() -> {
+                    wdt.reset()
+                    wdt.addTime((30 * gameState.delayCoefficient).roundToLong(), TimeUnit.SECONDS)
+                    clickThroughBattle()
+                    wdt.reset()
                 }
+                currentTurn == turn && currentPoints == points -> break@loop
             }
-        } catch (e: TimeoutCancellationException) {
-            throw ScriptTimeOutException("Waiting for turn and points", e)
+            val screenshot = region.capture()
+            val newTurn = ocr.doOCRAndTrim(screenshot.getSubimage(748, 53, 86, 72))
+                .let { if (it.firstOrNull() == '8') it.replaceFirst("8", "0") else it }
+                .toIntOrNull() ?: continue
+
+
+            val newPoints = ocr.doOCRAndTrim(
+                screenshot.getSubimage(1730, 970, 135, 76)
+                    .binarizeImage().pad(10, 10, Color.BLACK)
+            ).toIntOrNull() ?: continue
+
+
+            // Ignore point deltas larger than 3
+            if ((currentTurn != newTurn || currentPoints != newPoints) &&
+                (abs(currentTurn - newTurn) < 10 || abs(currentPoints - newPoints) < 3)) {
+                logger.info("Current turn: $newTurn ($turn) | Current action points: $newPoints ($points)")
+                currentTurn = newTurn
+                currentPoints = newPoints
+                wdt.reset()
+            }
+            if (wdt.hasExpired()) throw ScriptTimeOutException("Waiting for turn and points")
         }
         if (interruptWaitFlag) {
             logger.info("Aborting Wait...")
