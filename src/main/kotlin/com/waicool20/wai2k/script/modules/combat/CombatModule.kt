@@ -127,27 +127,29 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
         wasCancelled = gameState.echelons.any { it.needsRepairs() }
         if (wasCancelled) return
 
-        when (map) {
-            is CombatMap.EventMap -> {
-                navigator.navigateTo(LocationId.EVENT)
-                (mapRunner as EventMapRunner).enterMap()
+        val r = region.subRegion(1712, 882, 448, 198)
 
-                if (checkNeedsEnhancement()) return
-                executeMapRunner()
-
-                gameState.currentGameLocation = GameLocation.find(config, LocationId.EVENT)
-            }
-            is CombatMap.CampaignMap -> {
-                navigator.navigateTo(LocationId.CAMPAIGN)
-                (mapRunner as CampaignMapRunner).enterMap()
-
-                if (checkNeedsEnhancement()) return
-                executeMapRunner()
-
-                gameState.currentGameLocation = GameLocation.find(config, LocationId.CAMPAIGN)
-            }
+        val loc = when (map) {
+            is CombatMap.EventMap -> LocationId.EVENT
+            is CombatMap.CampaignMap -> LocationId.CAMPAIGN
             else -> error("Expected Event or Campaign map")
         }
+
+        navigator.navigateTo(loc)
+        (mapRunner as EventMapRunner).enterMap()
+
+        if (checkNeedsEnhancement()) return
+        // Wait for start operation button to appear first before handing off control to
+        // map specific files
+        if (r.waitHas(FileTemplate("combat/battle/start.png", 0.9), 30000) == null) {
+            wasCancelled = true
+            return
+        } else {
+            logger.info("Entered $loc map")
+            executeMapRunner()
+        }
+
+        gameState.currentGameLocation = GameLocation.find(config, loc)
         logger.info("Sortie complete")
     }
 
@@ -503,11 +505,12 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
     /**
      * Checks if the enhancement dialog popped up
      */
-    private fun checkNeedsEnhancement(): Boolean {
+    private suspend fun checkNeedsEnhancement(): Boolean {
         val r = region.subRegion(1185, 696, 278, 95)
         r.findBest(FileTemplate("combat/tdoll-enhance.png"))?.region?.apply {
             logger.info("T-doll limit reached, cancelling sortie")
             click()
+            delay(5000)
             gameState.dollOverflow = true
             gameState.currentGameLocation = GameLocation.find(config, LocationId.TDOLL_ENHANCEMENT)
             return true
@@ -515,6 +518,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
         r.findBest(FileTemplate("combat/equip-enhance.png"))?.region?.apply {
             logger.info("Equipment limit reached, cancelling sortie")
             click()
+            delay(5000)
             gameState.equipOverflow = true
             gameState.currentGameLocation = GameLocation.find(config, LocationId.RESEARCH_MENU)
             return true

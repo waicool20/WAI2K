@@ -42,7 +42,6 @@ class CampaignDD_3_2(scriptComponent: ScriptComponent) : HomographyMapRunner(scr
         CampaignUtils.selectCampaign(this)
         CampaignUtils.selectCampaignChapter(this)
         CampaignUtils.enterSimpleMap(this)
-        region.waitHas(FileTemplate("combat/battle/start.png"), 8000)
     }
 
     override suspend fun begin() {
