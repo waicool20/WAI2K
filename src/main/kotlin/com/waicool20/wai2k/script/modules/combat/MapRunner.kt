@@ -499,10 +499,7 @@ abstract class MapRunner(
                     .binarizeImage().pad(10, 10, Color.BLACK)
             ).toIntOrNull() ?: continue
 
-
-            // Ignore point deltas larger than 3
-            if ((currentTurn != newTurn || currentPoints != newPoints) &&
-                (abs(currentTurn - newTurn) < 10 || abs(currentPoints - newPoints) < 3)) {
+            if (newTurn > currentTurn || currentPoints != newPoints) {
                 logger.info("Current turn: $newTurn ($turn) | Current action points: $newPoints ($points)")
                 currentTurn = newTurn
                 currentPoints = newPoints
