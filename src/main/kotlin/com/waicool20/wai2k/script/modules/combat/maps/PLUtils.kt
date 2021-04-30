@@ -42,7 +42,7 @@ object PLUtils {
         // Doubles as the back button to return to chapter select
         val r = region.subRegion(380, 500, 60, 60)
 
-        when (val currentChapter = (1..5).firstOrNull { r.has(FileTemplate("combat/maps/EventPL/Ch$it.png")) }) {
+        when (val currentChapter = (1..5).firstOrNull { r.has(FileTemplate("combat/maps/EventPL/Ch$it.png", 1.0)) }) {
             null -> logger.info("At chapter selection screen")
             targetChapter -> {
                 logger.info("Already at chapter $targetChapter")
