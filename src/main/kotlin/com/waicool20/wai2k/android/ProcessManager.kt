@@ -26,10 +26,13 @@ class ProcessManager(val device: AndroidDevice) {
      * Gets the name of the currently active activity
      */
     val currentActivity
-        get() =
-            device.execute("dumpsys", "window", "windows", "|", "grep", "-E", "'mCurrentFocus'")
-                .inputStream.bufferedReader().readText()
-                .takeLastWhile { it != ' ' }.dropLast(1)
+        get() = device.execute(
+            "dumpsys", "window",
+            "windows", "|", "grep", "-E",
+            "'mCurrentFocus|mFocusedApp|mHoldScreenWindow'"
+        ).inputStream.bufferedReader().readText()
+            .takeLastWhile { it != ' ' }.dropLast(1)
+            .takeUnless { it.endsWith("=null") }
 
     /**
      * Starts an app

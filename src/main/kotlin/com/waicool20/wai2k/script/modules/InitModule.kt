@@ -28,7 +28,6 @@ import com.waicool20.wai2k.game.LogisticsSupport
 import com.waicool20.wai2k.game.LogisticsSupport.Assignment
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.util.Ocr
-import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.wai2k.util.formatted
 import com.waicool20.waicoolutils.DurationUtils
