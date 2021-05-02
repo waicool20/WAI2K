@@ -37,16 +37,18 @@ class EventPL2_5(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptC
     override suspend fun enterMap() {
         PLUtils.enterChapter(this)
 
-        val r1 = region.subRegionAs<AndroidRegion>(1440, 400, 60, 400)
-        val r2 = r1.copyAs<AndroidRegion>(x = r1.x - 700)
+        if (gameState.requiresMapInit) {
+            gameState.requiresMapInit = false
+            val r1 = region.subRegionAs<AndroidRegion>(770, 400, 60, 400)
+            val r2 = r1.copyAs<AndroidRegion>(x = r1.x + 700)
 
+            repeat(3) { r2.swipeTo(r1) }
 
-        region.subRegion(550, 550, 1000, 100)
-            .findBest(FileTemplate("$PREFIX/entrance.png", 0.98))?.region?.click()
-            ?: repeat(3) {
-                r1.swipeTo(r2)
-            };region.subRegion(550, 550, 1000, 100)
-            .findBest(FileTemplate("$PREFIX/entrance.png", 0.98))?.region?.click()
+            region.subRegion(550, 550, 1000, 100)
+                .findBest(FileTemplate("$PREFIX/entrance.png"))?.region?.click()
+        } else {
+            region.subRegion(960, 580, 140, 25).click()
+        }
 
         delay(1000)
         region.subRegion(1832, 589, 232, 111).click() // Confirm start
@@ -54,24 +56,25 @@ class EventPL2_5(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptC
     }
 
     override suspend fun begin() {
-        if (gameState.requiresMapInit) {
-            logger.info("Zoom out")
-            region.pinch(
-                Random.nextInt(800, 900),
-                Random.nextInt(250, 350),
-                0.0,
-                500
-            )
-            logger.info("Zoom in")
-            region.pinch(
-                Random.nextInt(360, 380),
-                Random.nextInt(445, 475),
-                0.0,
-                500
-            )
-            gameState.requiresMapInit = false
-            delay((1000 * gameState.delayCoefficient).roundToLong())
-        }
+        logger.info("Zoom out")
+        region.pinch(
+            Random.nextInt(800, 900),
+            Random.nextInt(250, 350),
+            0.0,
+            500
+        )
+        logger.info("Zoom in")
+        region.pinch(
+            Random.nextInt(360, 380),
+            Random.nextInt(445, 475),
+            0.0,
+            500
+        )
+        delay((1000 * gameState.delayCoefficient).roundToLong())
+
+        logger.info("Pan up")
+        val r = region.subRegionAs<AndroidRegion>(1058, 224, 100, 22)
+        r.swipeTo(r.copy(y = r.y - 170))
 
         // Turn 1
         deployEchelons(nodes[0])
@@ -91,6 +94,15 @@ class EventPL2_5(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptC
         waitForTurnEnd(1, false)
         // Turn 2
         waitForGNKSplash()
+        mapH = null
+        logger.info("Zoom in")
+        region.pinch(
+            Random.nextInt(390, 400),
+            Random.nextInt(430, 440),
+            0.0,
+            500
+        )
+
         planPath()
 
         waitForTurnAndPoints(3, 2, false)
