@@ -60,7 +60,7 @@ class MapRunnerRegions(region: AndroidRegion) {
     /**
      * Region to click when battle ends
      */
-    val battleEndClick = region.subRegion(992, 24, 1100, 121)
+    val battleEndClick = region.subRegion(992, 20, 1100, 75)
 
     /**
      * Match window
