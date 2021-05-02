@@ -20,10 +20,12 @@
 package com.waicool20.wai2k.script.modules.combat.maps
 
 import com.waicool20.cvauto.android.AndroidRegion
+import com.waicool20.cvauto.core.asCachedRegion
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.yield
 import kotlin.random.Random
 
 object PLUtils {
@@ -40,9 +42,10 @@ object PLUtils {
 
         // Region on the left where the chapter dossier image will appear when you are in the corresponding chapter
         // Doubles as the back button to return to chapter select
-        val r = region.subRegion(380, 500, 60, 60)
+        val r = region.subRegion(380, 500, 60, 60).asCachedRegion()
 
-        when (val currentChapter = (1..5).firstOrNull { r.has(FileTemplate("combat/maps/EventPL/Ch$it.png", 1.0)) }) {
+        when (val currentChapter =
+            (1..5).firstOrNull { r.has(FileTemplate("combat/maps/EventPL/Ch$it.png", 1.0)) }) {
             null -> logger.info("At chapter selection screen")
             targetChapter -> {
                 logger.info("Already at chapter $targetChapter")
@@ -61,28 +64,30 @@ object PLUtils {
             Random.nextInt(900, 1000),
             Random.nextInt(300, 400),
             0.0,
-            1000)
+            1000
+        )
 
         // Region for panning up and down
-        val r1 = region.subRegionAs<AndroidRegion>(415, 330, 100, 100)
+        val r1 = region.subRegionAs<AndroidRegion>(415, 330, 100, 20)
         val r2 = r1.copyAs<AndroidRegion>(y = r1.y + 500)
 
         logger.info("Pan Down to bottom of chapter select")
         repeat(3) {
             r2.swipeTo(r1)
+            yield()
         }
 
-        // hardcoded approx coordinates of dossier entry
-        // Ch1 doesn't pan at all, 2/3 pan once and 4/5 pan twice
-        repeat((targetChapter - 1) / 2 ){
+        repeat(targetChapter / 2) {
             r1.swipeTo(r2)
+            yield()
         }
         when (targetChapter) {
             1 -> region.subRegion(900, 480, 300, 300).click()
-            2 -> region.subRegion(1440, 550, 300, 300).click()
-            3 -> region.subRegion(320, 350, 300, 300).click()
-            4 -> region.subRegion(1200, 315, 300, 300).click()
-            5 -> region.subRegion(650, 160, 90, 90).click()
+            2 -> region.subRegion(1500, 500, 150, 150).click()
+            3 -> region.subRegion(590, 280, 150, 150).click()
+            else -> TODO("Tune regions")
         }
+        delay(3000)
+        logger.info("At chapter $targetChapter")
     }
 }
