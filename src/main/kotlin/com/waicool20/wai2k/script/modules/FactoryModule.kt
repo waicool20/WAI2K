@@ -122,7 +122,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
                         val dest = Point(src.x, src.y).apply { translate(0, Random.nextInt(-490, -480)) }
 
                         // Swipe down because all the dolls presented were in logistics
-                        region.device.input.touchInterface?.swipe(ITouchInterface.Swipe(
+                        region.device.input.touchInterface.swipe(ITouchInterface.Swipe(
                             0, src.x, src.y, dest.x, dest.y
                         ), 1000)
 

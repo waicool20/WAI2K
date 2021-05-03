@@ -95,7 +95,8 @@ class LogcatView : CoroutineScopeView() {
         launch(Dispatchers.IO) {
             process?.inputStream?.bufferedReader()?.forEachLine { line ->
                 val match = r.matchEntire(line) ?: return@forEachLine
-                var (date, time, pid, tid, level, tag, msg) = match.destructured
+                // date, time, pid, tid, level, tag, msg
+                var (date, time, _, _, _, _, msg) = match.destructured
                 if (msg.isBlank()) return@forEachLine
                 if (filters.any { msg.contains(it) }) return@forEachLine
                 color.matchEntire(msg)?.let { msg = it.groupValues[1] }

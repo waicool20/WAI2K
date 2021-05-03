@@ -460,7 +460,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
                 withTimeout(10000) {
                     while (isActive) {
                         region.subRegion(1020, 880, 675, 140).randomPoint().let {
-                            region.device.input.touchInterface?.swipe(
+                            region.device.input.touchInterface.swipe(
                                 ITouchInterface.Swipe(0, it.x, it.y, it.x, it.y - 650), 1000
                             )
                         }
