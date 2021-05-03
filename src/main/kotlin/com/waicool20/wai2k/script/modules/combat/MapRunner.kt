@@ -622,18 +622,32 @@ abstract class MapRunner(
         // Animation and load wheel until you can click through results/drops
         delay(Random.nextLong(1100, 1300))
         val l = mapRunnerRegions.battleEndClick.randomPoint()
-        val shade = Color(247, 0, 74).rgb
         val cancelR = region.subRegion(761, 674, 283, 144)
         var counter = 0
-        while (region.capture().getRGB(50, 1050) != shade) {
+        loop@ while (true) {
+            val capture = region.capture()
+            val sample = capture.getRGB(50, 1050)
+            if (sample == Color(16, 16, 16).rgb &&
+                capture.getRGB(680, 580) == Color(222, 223, 74).rgb
+            ) {
+                logger.info("Clicked until transition ($counter times)")
+                break@loop
+            }
+            if (sample == Color(247, 0, 74).rgb) {
+                logger.info("Clicked until map ($counter times)")
+                break@loop
+            }
+            if (config.scriptConfig.maxPostBattleClick != -1) {
+                if (counter >= config.scriptConfig.maxPostBattleClick) {
+                    logger.info("Clicked max times ($counter times)")
+                    break@loop
+                }
+            }
             region.subRegion(l.x, l.y, 20, 20).click()
             cancelR.findBest(FileTemplate("combat/battle/cancel.png"))?.region?.click()
             ++counter
-            if (config.scriptConfig.maxPostBattleClick != -1 &&
-                counter >= config.scriptConfig.maxPostBattleClick) break
         }
         cancelR.findBest(FileTemplate("combat/battle/cancel.png"))?.region?.click()
-        logger.info("Clicked $counter times")
         onFinishBattleListener()
     }
 
