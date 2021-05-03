@@ -66,32 +66,33 @@ class LogcatView : CoroutineScopeView() {
         }
     }
 
+    private val r =
+        Regex("(\\d\\d-\\d\\d) (\\d\\d:\\d\\d:\\d\\d.\\d{3})\\s+(\\d+)\\s+(\\d+)\\s+([VDIWEFS])\\s+(\\w+)\\s+: (.*)\$")
+    private val color = Regex("<color=#\\w{6}>(.*?)</color>")
+    private val filters = listOf(
+        "UnityEngine",
+        "(Filename:",
+        "<Load",
+        "CommonPicLoader",
+        "<GetResource",
+        "ResManager",
+        "ResCenter",
+        "System.",
+        "XLua",
+        "GF.Battle",
+        "[ line",
+        "The referenced script ",
+        "Controller",
+        "()",
+        "Object[]",
+        "Single",
+        "(WWW)"
+    )
+
     override fun onDock() {
         super.onDock()
         process = ADB.execute("logcat", "Unity:V", "*:S")
         Runtime.getRuntime().addShutdownHook(Thread { process?.destroy() })
-        val r =
-            Regex("(\\d\\d-\\d\\d) (\\d\\d:\\d\\d:\\d\\d.\\d{3}) (\\d+) (\\d+) ([VDIWEFS]) (\\w+)\\s+: (.*)$")
-        val filters = listOf(
-            "UnityEngine",
-            "(Filename:",
-            "<Load",
-            "CommonPicLoader",
-            "<GetResource",
-            "ResManager",
-            "ResCenter",
-            "System.",
-            "XLua",
-            "GF.Battle",
-            "[ line",
-            "The referenced script ",
-            "Controller",
-            "()",
-            "Object[]",
-            "Single",
-            "(WWW)"
-        )
-        val color = Regex("<color=#\\w{6}>(.*?)</color>")
         launch(Dispatchers.IO) {
             process?.inputStream?.bufferedReader()?.forEachLine { line ->
                 val match = r.matchEntire(line) ?: return@forEachLine
@@ -103,6 +104,9 @@ class LogcatView : CoroutineScopeView() {
                 launch(Dispatchers.JavaFx) {
                     textArea.writeLine("[$date $time] $msg\n")
                 }
+            }
+            launch(Dispatchers.JavaFx) {
+                close()
             }
         }
     }
