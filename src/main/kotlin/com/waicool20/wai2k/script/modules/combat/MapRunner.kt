@@ -41,7 +41,6 @@ import java.lang.reflect.Modifier
 import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
-import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 import kotlin.random.Random
@@ -624,16 +623,16 @@ abstract class MapRunner(
         delay(Random.nextLong(1100, 1300))
         val l = mapRunnerRegions.battleEndClick.randomPoint()
         val shade = Color(247, 0, 74).rgb
+        val cancelR = region.subRegion(761, 674, 283, 144)
         var counter = 0
-        var cache = region.asCachedRegion()
-        while (cache.capture().getRGB(50, 1050) != shade) {
+        while (region.capture().getRGB(50, 1050) != shade) {
             region.subRegion(l.x, l.y, 20, 20).click()
-            delay(Random.nextLong(150, 250))
-            cache.subRegion(761, 674, 283, 144)
-                .findBest(FileTemplate("combat/battle/cancel.png"))?.region?.click()
+            cancelR.findBest(FileTemplate("combat/battle/cancel.png"))?.region?.click()
             ++counter
-            cache = region.asCachedRegion()
+            if (config.scriptConfig.maxPostBattleClick != -1 &&
+                counter >= config.scriptConfig.maxPostBattleClick) break
         }
+        cancelR.findBest(FileTemplate("combat/battle/cancel.png"))?.region?.click()
         logger.info("Clicked $counter times")
         onFinishBattleListener()
     }

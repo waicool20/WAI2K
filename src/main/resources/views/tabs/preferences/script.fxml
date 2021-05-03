@@ -81,12 +81,6 @@
          </children>
       </VBox>
       <Separator prefWidth="200.0" />
-      <HBox alignment="CENTER_LEFT" spacing="10.0">
-         <children>
-            <Label prefWidth="220.0" text="Min post battle clicks:" />
-            <Spinner fx:id="minPostBattleClickSpinner" editable="true" />
-         </children>
-      </HBox>
       <HBox spacing="10.0">
          <children>
             <Label prefWidth="220.0" text="Max post battle clicks:" />

@@ -37,7 +37,6 @@ class ScriptPrefView : View() {
     private val mapRunnerSimThresholdSpinner: Spinner<Double> by fxid()
     private val fastScreenshotModeCheckBox: CheckBox by fxid()
     private val ocrThresholdSpinner: Spinner<Double> by fxid()
-    private val minPostBattleClickSpinner: Spinner<Int> by fxid()
     private val maxPostBattleClickSpinner: Spinner<Int> by fxid()
     private val idleAtHomeCheckBox: CheckBox by fxid()
 
@@ -51,8 +50,7 @@ class ScriptPrefView : View() {
         defaultSimThresholdSpinner.valueFactory = DoubleSpinnerValueFactory(0.0, 1.0, 0.8, 0.05)
         mapRunnerSimThresholdSpinner.valueFactory = DoubleSpinnerValueFactory(0.0, 1.0, 0.8, 0.05)
         ocrThresholdSpinner.valueFactory = DoubleSpinnerValueFactory(0.0, 100.0, 0.9, 0.1)
-        minPostBattleClickSpinner.valueFactory = IntegerSpinnerValueFactory(0, 10)
-        maxPostBattleClickSpinner.valueFactory = IntegerSpinnerValueFactory(0, 10)
+        maxPostBattleClickSpinner.valueFactory = IntegerSpinnerValueFactory(-1, 30)
         context.wai2KConfig.scriptConfig.apply {
             loopDelaySpinner.bind(loopDelayProperty)
             baseNavigationDelaySpinner.bind(baseNavigationDelayProperty)
@@ -61,7 +59,6 @@ class ScriptPrefView : View() {
             mapRunnerSimThresholdSpinner.bind(mapRunnerSimilarityThresholdProperty)
             ocrThresholdSpinner.bind(ocrThresholdProperty)
             fastScreenshotModeCheckBox.bind(fastScreenshotModeProperty)
-            minPostBattleClickSpinner.bind(minPostBattleClickProperty)
             maxPostBattleClickSpinner.bind(maxPostBattleClickProperty)
             idleAtHomeCheckBox.bind(idleAtHomeProperty)
         }
