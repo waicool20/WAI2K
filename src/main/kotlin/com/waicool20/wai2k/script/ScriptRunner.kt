@@ -190,6 +190,9 @@ class ScriptRunner(
             if (currentConfig.gameRestartConfig.enabled) {
                 restartGame(e.localizedMessage)
             } else {
+                if (currentConfig.notificationsConfig.onRestart) {
+                    YuuBot.postMessage(currentConfig.apiKey, "Script Stopped", "Reason: ${e.localizedMessage}")
+                }
                 logger.warn("Restart not enabled, ending script here")
                 coroutineContext.cancelAndYield()
             }
@@ -197,8 +200,11 @@ class ScriptRunner(
             when (e) {
                 is CancellationException -> {} // Do nothing
                 else -> {
-                    logger.error("Uncaught error during script execution, please report this to the devs")
+                    val msg = "Uncaught error during script execution, please report this to the devs"
+                    logger.error(msg)
+                    YuuBot.postMessage(currentConfig.apiKey, "Script Stopped", msg)
                     e.printStackTrace()
+                    coroutineContext.cancelAndYield()
                 }
             }
         }
