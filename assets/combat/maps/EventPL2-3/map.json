@@ -1,0 +1,36 @@
+[
+  {
+    "type": "Heliport",
+    "x": 1172,
+    "y": 890,
+    "width": 24,
+    "height": 24
+  },
+  {
+    "type": "Heliport",
+    "x": 1190,
+    "y": 578,
+    "width": 24,
+    "height": 24
+  },
+  {
+    "type": "Heliport",
+    "x": 1265,
+    "y": 414,
+    "width": 24,
+    "height": 24
+  },
+  {
+    "x": 1253,
+    "y": 217,
+    "width": 20,
+    "height": 20
+  },
+  {
+    "type": "Heliport",
+    "x": 1172,
+    "y": 530,
+    "width": 24,
+    "height": 24
+  }
+]
