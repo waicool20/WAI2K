@@ -20,12 +20,9 @@ package com.waicool20.wai2k.script.modules.combat.maps
 
 import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.core.template.FileTemplate
-import com.waicool20.wai2k.game.GameLocation
-import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.modules.combat.AbsoluteMapRunner
 import com.waicool20.wai2k.script.modules.combat.EventMapRunner
-import com.waicool20.wai2k.script.modules.combat.HomographyMapRunner
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
@@ -58,18 +55,18 @@ class EventPL2_2(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptCom
         if (gameState.requiresMapInit) {
             logger.info("Zoom out")
             repeat(2) {
-            region.pinch(
-                Random.nextInt(800, 900),
-                Random.nextInt(250, 350),
-                0.0,
-                500
-            )
-        }
+                region.pinch(
+                    Random.nextInt(800, 900),
+                    Random.nextInt(250, 350),
+                    0.0,
+                    500
+                )
+            }
             delay((1000 * gameState.delayCoefficient).roundToLong())
 
             logger.info("Pan up")
             val r = region.subRegionAs<AndroidRegion>(1058, 324, 100, 22)
-            repeat(2){
+            repeat(2) {
                 r.swipeTo(r.copy(y = r.y + 500))
             }
             gameState.requiresMapInit = false
@@ -82,7 +79,7 @@ class EventPL2_2(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptCom
 
         resupplyEchelons(nodes[0])
         planPath()
-        waitForTurnAndPoints(2,1,false)
+        waitForTurnAndPoints(2, 1, false)
         retreatEchelons(nodes[1])
         terminateMission()
     }

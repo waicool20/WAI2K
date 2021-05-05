@@ -20,12 +20,9 @@ package com.waicool20.wai2k.script.modules.combat.maps
 
 import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.core.template.FileTemplate
-import com.waicool20.wai2k.game.GameLocation
-import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.modules.combat.AbsoluteMapRunner
 import com.waicool20.wai2k.script.modules.combat.EventMapRunner
-import com.waicool20.wai2k.script.modules.combat.HomographyMapRunner
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
@@ -67,7 +64,7 @@ class EventPL2_1(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptCom
 
             logger.info("Pan up")
             val r = region.subRegionAs<AndroidRegion>(1058, 324, 100, 22)
-            repeat(2){
+            repeat(2) {
                 r.swipeTo(r.copy(y = r.y + 500))
             }
             gameState.requiresMapInit = false
