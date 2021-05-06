@@ -47,7 +47,8 @@ class MatchingTranslator(
 
     override fun getBatchifier() = Batchifier.STACK
 
-    override fun getPipeline() = Pipeline(Resize(resizeWidth, resizeHeight), TransposeNormalizeTransform())
+    override fun getPipeline() =
+        Pipeline(Resize(resizeWidth, resizeHeight), TransposeNormalizeTransform())
 
     override fun processInput(ctx: TranslatorContext, input: Pair<Image, Image>): NDList {
         val (img0, img1) = input
@@ -94,8 +95,18 @@ class MatchingTranslator(
             else -> error("Matches is not integer array!")
         }
 
-        val scales0 = ctx.ndManager.create(floatArrayOf(img0Width.toFloat() / resizeWidth, img0Height.toFloat() / resizeHeight))
-        val scales1 = ctx.ndManager.create(floatArrayOf(img1Width.toFloat() / resizeWidth, img1Height.toFloat() / resizeHeight))
+        val scales0 = ctx.ndManager.create(
+            floatArrayOf(
+                img0Width.toFloat() / resizeWidth,
+                img0Height.toFloat() / resizeHeight
+            )
+        )
+        val scales1 = ctx.ndManager.create(
+            floatArrayOf(
+                img1Width.toFloat() / resizeWidth,
+                img1Height.toFloat() / resizeHeight
+            )
+        )
 
         kpts0 = kpts0 * scales0
         kpts1 = kpts1 * scales1

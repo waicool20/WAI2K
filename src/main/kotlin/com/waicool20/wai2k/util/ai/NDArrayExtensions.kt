@@ -81,7 +81,12 @@ fun NDArray.toPoint2D(): List<Point> {
     return when (dataType) {
         DataType.FLOAT32 -> {
             val array = toFloatArray()
-            List((size() / 2).toInt()) { i -> Point(array[i * 2].toDouble(), array[i * 2 + 1].toDouble()) }
+            List((size() / 2).toInt()) { i ->
+                Point(
+                    array[i * 2].toDouble(),
+                    array[i * 2 + 1].toDouble()
+                )
+            }
         }
         DataType.FLOAT64 -> {
             val array = toDoubleArray()

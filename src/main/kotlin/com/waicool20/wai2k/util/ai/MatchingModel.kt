@@ -59,7 +59,10 @@ class MatchingModel(
                 }
             }
 
-            override fun getOutputShapes(manager: NDManager, inputShapes: Array<out Shape>): Array<Shape> {
+            override fun getOutputShapes(
+                manager: NDManager,
+                inputShapes: Array<out Shape>
+            ): Array<Shape> {
                 return emptyArray()
             }
         }

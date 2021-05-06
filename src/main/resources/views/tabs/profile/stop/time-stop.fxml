@@ -20,34 +20,34 @@
   -->
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.CheckBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ToggleButton?>
-<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
-
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
+<VBox xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+      minWidth="-Infinity" spacing="10.0" xmlns="http://javafx.com/javafx/8.0.171">
     <children>
-        <CheckBox fx:id="enabledCheckBox" mnemonicParsing="false" text="Enabled" />
-      <HBox alignment="CENTER_LEFT">
-         <children>
-            <Label text="Mode:">
-               <HBox.margin>
-                  <Insets right="15.0" />
-               </HBox.margin></Label>
-            <ToggleButton fx:id="elapsedTimeToggle" mnemonicParsing="false" selected="true" text="Elapsed Time">
-               <toggleGroup>
-                  <ToggleGroup fx:id="timeStopMode"/>
-               </toggleGroup>
-            </ToggleButton>
-            <ToggleButton fx:id="specificTimeToggle" mnemonicParsing="false" text="Specific Time" toggleGroup="$timeStopMode" />
-         </children>
-      </HBox>
-      <Pane fx:id="content" />
+        <CheckBox fx:id="enabledCheckBox" mnemonicParsing="false" text="Enabled"/>
+        <HBox alignment="CENTER_LEFT">
+            <children>
+                <Label text="Mode:">
+                    <HBox.margin>
+                        <Insets right="15.0"/>
+                    </HBox.margin>
+                </Label>
+                <ToggleButton fx:id="elapsedTimeToggle" mnemonicParsing="false" selected="true"
+                              text="Elapsed Time">
+                    <toggleGroup>
+                        <ToggleGroup fx:id="timeStopMode"/>
+                    </toggleGroup>
+                </ToggleButton>
+                <ToggleButton fx:id="specificTimeToggle" mnemonicParsing="false"
+                              text="Specific Time" toggleGroup="$timeStopMode"/>
+            </children>
+        </HBox>
+        <Pane fx:id="content"/>
     </children>
     <padding>
-        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
     </padding>
 </VBox>

@@ -95,7 +95,8 @@ class DebugView : CoroutineScopeView() {
 
     private val predictor by lazy {
         try {
-            val model = ModelLoader.loadModel(wai2KContext.wai2KConfig.assetsDirectory.resolve("models/gfl.pt"))
+            val model =
+                ModelLoader.loadModel(wai2KContext.wai2KConfig.assetsDirectory.resolve("models/gfl.pt"))
             model.setProperty("InputSize", "640")
             model.newPredictor(YoloTranslator(model, 0.6))
         } catch (e: Exception) {
@@ -172,7 +173,8 @@ class DebugView : CoroutineScopeView() {
                     val objects = predictor.predict(image)
                     image.drawBoundingBoxes(objects.toDetectedObjects())
                     withContext(Dispatchers.JavaFx) {
-                        ocrImageView.image = SwingFXUtils.toFXImage(image.wrappedImage as BufferedImage, null)
+                        ocrImageView.image =
+                            SwingFXUtils.toFXImage(image.wrappedImage as BufferedImage, null)
                     }
                 }
             }
@@ -250,7 +252,12 @@ class DebugView : CoroutineScopeView() {
             lastAndroidDevice?.let {
                 val image = it.screens[0].capture().let { bi ->
                     if (wSpinner.value > 0 && hSpinner.value > 0) {
-                        bi.getSubimage(xSpinner.value, ySpinner.value, wSpinner.value, hSpinner.value)
+                        bi.getSubimage(
+                            xSpinner.value,
+                            ySpinner.value,
+                            wSpinner.value,
+                            hSpinner.value
+                        )
                     } else bi
                 }
                 logger.info("Result: \n${getOCR().doOCR(image)}\n----------")
@@ -326,7 +333,10 @@ class DebugView : CoroutineScopeView() {
             TransformerFactory.newInstance().newTransformer().apply {
                 setOutputProperty(OutputKeys.INDENT, "yes")
                 setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2")
-            }.transform(DOMSource(doc), StreamResult(Files.newOutputStream(output.resolve("annotations.xml"))))
+            }.transform(
+                DOMSource(doc),
+                StreamResult(Files.newOutputStream(output.resolve("annotations.xml")))
+            )
 
             logger.info("All annotations done")
         }

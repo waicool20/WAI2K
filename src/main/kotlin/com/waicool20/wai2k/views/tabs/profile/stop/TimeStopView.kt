@@ -47,7 +47,8 @@ class TimeStopView : AbstractProfileView() {
                 else -> Unit // Do nothing
             }
         }
-        timeStopMode.selectedToggleProperty().addListener("TimeStopModeToggleListener") { _ -> updateMode() }
+        timeStopMode.selectedToggleProperty()
+            .addListener("TimeStopModeToggleListener") { _ -> updateMode() }
         updateMode()
     }
 

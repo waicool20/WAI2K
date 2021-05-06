@@ -27,7 +27,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
 import kotlin.math.roundToLong
 
-class Map11_5(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptComponent), CorpseDragging {
+class Map11_5(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptComponent),
+    CorpseDragging {
     private val logger = loggerFor<Map11_5>()
 
     override suspend fun begin() {

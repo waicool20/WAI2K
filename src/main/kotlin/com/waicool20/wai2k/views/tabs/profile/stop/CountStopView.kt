@@ -33,7 +33,8 @@ class CountStopView : AbstractProfileView() {
     private val sortiesSpinner: Spinner<Int> by fxid()
 
     override fun setValues() {
-        sortiesSpinner.valueFactory = SpinnerValueFactory.IntegerSpinnerValueFactory(1, Int.MAX_VALUE)
+        sortiesSpinner.valueFactory =
+            SpinnerValueFactory.IntegerSpinnerValueFactory(1, Int.MAX_VALUE)
     }
 
     override fun createBindings() {

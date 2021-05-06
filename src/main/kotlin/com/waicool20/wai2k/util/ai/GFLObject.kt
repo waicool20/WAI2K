@@ -27,17 +27,29 @@ sealed class GFLObject {
     abstract val bbox: Rectangle
 
     open class Node(override val probability: Double, override val bbox: Rectangle) : GFLObject()
-    class CommandPost(override val probability: Double, override val bbox: Rectangle) : Node(probability, bbox)
-    class Heliport(override val probability: Double, override val bbox: Rectangle) : Node(probability, bbox)
-    class SupplyCrate(override val probability: Double, override val bbox: Rectangle) : Node(probability, bbox)
-    class Radar(override val probability: Double, override val bbox: Rectangle) : Node(probability, bbox)
+    class CommandPost(override val probability: Double, override val bbox: Rectangle) :
+        Node(probability, bbox)
+
+    class Heliport(override val probability: Double, override val bbox: Rectangle) :
+        Node(probability, bbox)
+
+    class SupplyCrate(override val probability: Double, override val bbox: Rectangle) :
+        Node(probability, bbox)
+
+    class Radar(override val probability: Double, override val bbox: Rectangle) :
+        Node(probability, bbox)
 
     abstract class Unit : GFLObject()
 
     open class Enemy(override val probability: Double, override val bbox: Rectangle) : Unit()
-    class SangvisFerri(override val probability: Double, override val bbox: Rectangle) : Enemy(probability, bbox)
-    class Military(override val probability: Double, override val bbox: Rectangle) : Enemy(probability, bbox)
-    class Paradeus(override val probability: Double, override val bbox: Rectangle) : Enemy(probability, bbox)
+    class SangvisFerri(override val probability: Double, override val bbox: Rectangle) :
+        Enemy(probability, bbox)
+
+    class Military(override val probability: Double, override val bbox: Rectangle) :
+        Enemy(probability, bbox)
+
+    class Paradeus(override val probability: Double, override val bbox: Rectangle) :
+        Enemy(probability, bbox)
 
     open class Friendly(override val probability: Double, override val bbox: Rectangle) : Unit()
 

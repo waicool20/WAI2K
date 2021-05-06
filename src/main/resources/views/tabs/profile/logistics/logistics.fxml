@@ -26,8 +26,8 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<VBox minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8.0.162-ea"
-      xmlns:fx="http://javafx.com/fxml/1">
+<VBox xmlns:fx="http://javafx.com/fxml/1" minHeight="-Infinity" minWidth="-Infinity"
+      xmlns="http://javafx.com/javafx/8.0.162-ea">
     <children>
         <CheckBox fx:id="enabledCheckBox" mnemonicParsing="false" text="Enabled"/>
         <HBox alignment="CENTER_LEFT" spacing="10.0">

@@ -29,7 +29,7 @@ data class MapNode(
     val width: Int,
     val height: Int,
     val type: Type = Type.Normal
-): Deployable, Retreatable {
+) : Deployable, Retreatable {
     enum class Type { Normal, CommandPost, Heliport, HeavyHeliport }
 
     val rect by lazy { Rectangle(x, y, width, height) }

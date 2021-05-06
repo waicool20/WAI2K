@@ -23,7 +23,6 @@ import com.waicool20.waicoolutils.javafx.tooltips.fadeAfter
 import com.waicool20.waicoolutils.javafx.tooltips.showAt
 import com.waicool20.waicoolutils.streams.TeeOutputStream
 import com.waicool20.waicoolutils.streams.TextAreaOutputStream
-import javafx.fxml.FXML
 import javafx.scene.control.Button
 import javafx.scene.control.TextArea
 import javafx.scene.control.Tooltip

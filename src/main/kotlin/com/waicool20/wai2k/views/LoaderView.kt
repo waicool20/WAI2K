@@ -81,7 +81,8 @@ class LoaderView : CoroutineScopeView() {
     }
 
     private fun parseVersion() {
-        context.versionInfo = jacksonObjectMapper().readValue(javaClass.classLoader.getResourceAsStream("version.txt"))
+        context.versionInfo =
+            jacksonObjectMapper().readValue(javaClass.classLoader.getResourceAsStream("version.txt"))
     }
 
     private fun startLoading() {
@@ -109,7 +110,8 @@ class LoaderView : CoroutineScopeView() {
                 coroutineScope {
                     Wai2KConfig.requiredOcrFiles.forEach { file ->
                         launch(Dispatchers.IO) {
-                            val url = "https://github.com/tesseract-ocr/tessdata/blob/master/$file?raw=true"
+                            val url =
+                                "https://github.com/tesseract-ocr/tessdata/blob/master/$file?raw=true"
                             logger.info("Downloading $file")
                             val request = Request.Builder().url(url).build()
                             val response = client.newCall(request).execute()

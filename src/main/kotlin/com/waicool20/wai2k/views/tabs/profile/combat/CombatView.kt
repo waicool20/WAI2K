@@ -50,11 +50,14 @@ class CombatView : AbstractProfileView() {
             val campaignMaps = MapRunner.list.keys.filterIsInstance<CombatMap.CampaignMap>()
             mapComboBox.items.apply {
                 add("-- Normal --")
-                addAll(storyMaps.filter { it.type == CombatMap.Type.NORMAL }.map { it.name }.sortedWith(comparator))
+                addAll(storyMaps.filter { it.type == CombatMap.Type.NORMAL }.map { it.name }
+                    .sortedWith(comparator))
                 add("-- Emergency --")
-                addAll(storyMaps.filter { it.type == CombatMap.Type.EMERGENCY }.map { it.name }.sortedWith(comparator))
+                addAll(storyMaps.filter { it.type == CombatMap.Type.EMERGENCY }.map { it.name }
+                    .sortedWith(comparator))
                 add("-- Night Battle --")
-                addAll(storyMaps.filter { it.type == CombatMap.Type.NIGHT }.map { it.name }.sortedWith(comparator))
+                addAll(storyMaps.filter { it.type == CombatMap.Type.NIGHT }.map { it.name }
+                    .sortedWith(comparator))
                 add("-- Campaign --")
                 addAll(campaignMaps.map { it.name }.sortedWith(comparator))
                 add("-- Event --")
@@ -62,7 +65,8 @@ class CombatView : AbstractProfileView() {
             }
         }
         repairThresholdSpinner.valueFactory = SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100)
-        battleTimeoutSpinner.valueFactory = SpinnerValueFactory.IntegerSpinnerValueFactory(0, Int.MAX_VALUE)
+        battleTimeoutSpinner.valueFactory =
+            SpinnerValueFactory.IntegerSpinnerValueFactory(0, Int.MAX_VALUE)
     }
 
     override fun createBindings() {

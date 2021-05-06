@@ -22,7 +22,9 @@ package com.waicool20.wai2k.config
 import kotlin.math.abs
 
 data class VersionInfo(val version: String = "Unknown") : Comparable<VersionInfo> {
-    override fun equals(other: Any?) = other != null && other is VersionInfo && compareTo(other) == 0
+    override fun equals(other: Any?) =
+        other != null && other is VersionInfo && compareTo(other) == 0
+
     override fun hashCode() = super.hashCode()
 
     override fun compareTo(other: VersionInfo): Int {

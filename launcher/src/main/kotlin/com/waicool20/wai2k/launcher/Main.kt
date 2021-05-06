@@ -29,12 +29,14 @@ import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
 import java.security.MessageDigest
+import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.zip.ZipInputStream
 import javax.swing.BorderFactory
 import javax.swing.JFrame
 import javax.swing.JLabel
 import javax.swing.JPanel
+import kotlin.Comparator
 import kotlin.concurrent.thread
 import kotlin.io.path.*
 import kotlin.streams.toList
@@ -167,7 +169,8 @@ object Main {
         val jarPath = Main::class.java.protectionDomain.codeSource.location.toURI().toPath()
 
         try {
-            val chksum0 = grabWebString("https://github.com/waicool20/WAI2K/releases/download/Latest/WAI2K-Launcher.jar.md5")
+            val chksum0 =
+                grabWebString("https://github.com/waicool20/WAI2K/releases/download/Latest/WAI2K-Launcher.jar.md5")
             val chksum1 = calcCheckSum(jarPath, Hash.MD5)
             if (chksum0.equals(chksum1, true)) return
             browseLink("https://github.com/waicool20/WAI2K/releases/tag/Latest")
@@ -259,7 +262,7 @@ object Main {
             try {
                 Desktop.getDesktop().browse(uri)
             } catch (e: Exception) {
-                if (System.getProperty("os.name").toLowerCase().contains("linux")) {
+                if (System.getProperty("os.name").lowercase().contains("linux")) {
                     ProcessBuilder("xdg-open", "$uri").start()
                 } else {
                     throw e
@@ -338,7 +341,8 @@ object Main {
         println("Launching WAI2K")
         println("Classpath: $classpath")
         println("Args: ${args.joinToString()}")
-        val process = ProcessBuilder("java", "-cp",
+        val process = ProcessBuilder(
+            "java", "-cp",
             classpath,
             "com.waicool20.wai2k.LauncherKt",
             *args

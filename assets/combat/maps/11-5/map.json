@@ -7,14 +7,14 @@
     "height": 200
   },
   {
-	"type": "Heliport",
+    "type": "Heliport",
     "x": 1530,
     "y": 160,
     "width": 130,
     "height": 130
   },
   {
-	"type": "Heliport",
+    "type": "Heliport",
     "x": 1550,
     "y": 500,
     "width": 130,

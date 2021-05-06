@@ -27,9 +27,9 @@ import javafx.stage.Stage
 import javafx.stage.StageStyle
 import tornadofx.*
 import java.nio.file.Path
-import kotlin.io.path.createDirectories
 import kotlin.io.path.Path
 import kotlin.io.path.absolute
+import kotlin.io.path.createDirectories
 import kotlin.io.path.toPath
 
 class Wai2K : App(Wai2KWorkspace::class) {
@@ -55,7 +55,9 @@ class Wai2K : App(Wai2KWorkspace::class) {
         }
 
         private fun isRunningJar(): Boolean {
-            return "${Wai2K::class.java.getResource(Wai2K::class.simpleName + ".class")}".startsWith("jar")
+            return "${Wai2K::class.java.getResource(Wai2K::class.simpleName + ".class")}".startsWith(
+                "jar"
+            )
         }
     }
 

@@ -20,7 +20,6 @@
 package com.waicool20.wai2k.views
 
 import com.sun.javafx.css.StyleManager
-import com.waicool20.wai2k.config.Wai2KContext
 import javafx.application.Application
 import tornadofx.*
 import kotlin.system.exitProcess

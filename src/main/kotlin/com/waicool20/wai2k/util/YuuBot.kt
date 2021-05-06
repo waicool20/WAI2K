@@ -41,12 +41,14 @@ object YuuBot {
 
     enum class ApiKeyStatus { VALID, INVALID, UNKNOWN }
 
-    @JsonAppend(attrs = [
-        JsonAppend.Attr(value = "profileName"),
-        JsonAppend.Attr(value = "map"),
-        JsonAppend.Attr(value = "dragger1"),
-        JsonAppend.Attr(value = "dragger2")
-    ])
+    @JsonAppend(
+        attrs = [
+            JsonAppend.Attr(value = "profileName"),
+            JsonAppend.Attr(value = "map"),
+            JsonAppend.Attr(value = "dragger1"),
+            JsonAppend.Attr(value = "dragger2")
+        ]
+    )
     private class ScriptStatsMixin
 
     fun postStats(
@@ -108,10 +110,12 @@ object YuuBot {
         logger.info("Posting message to YuuBot...")
 
         val jsonBody = jacksonObjectMapper()
-            .writeValueAsString(mapOf(
-                "title" to title,
-                "body" to body
-            )).toRequestBody(JSON_MEDIA_TYPE)
+            .writeValueAsString(
+                mapOf(
+                    "title" to title,
+                    "body" to body
+                )
+            ).toRequestBody(JSON_MEDIA_TYPE)
 
         val request = Request.Builder()
             .url("$endpoint/$apiKey/message/")
@@ -144,24 +148,25 @@ object YuuBot {
             return
         }
         logger.info("Testing API key: $apiKey")
-        OkHttpClient().newCall(Request.Builder().url("$endpoint/$apiKey").build()).enqueue(object : Callback {
-            override fun onResponse(call: Call, response: Response) {
-                when (val code = response.code) {
-                    200 -> {
-                        onComplete(ApiKeyStatus.VALID)
-                        logger.info("API key was found valid, response was: $code")
-                    }
-                    else -> {
-                        onComplete(ApiKeyStatus.INVALID)
-                        logger.warn("API key was found invalid, response was: $code")
+        OkHttpClient().newCall(Request.Builder().url("$endpoint/$apiKey").build())
+            .enqueue(object : Callback {
+                override fun onResponse(call: Call, response: Response) {
+                    when (val code = response.code) {
+                        200 -> {
+                            onComplete(ApiKeyStatus.VALID)
+                            logger.info("API key was found valid, response was: $code")
+                        }
+                        else -> {
+                            onComplete(ApiKeyStatus.INVALID)
+                            logger.warn("API key was found invalid, response was: $code")
+                        }
                     }
                 }
-            }
 
-            override fun onFailure(call: Call, e: IOException) {
-                logger.warn("Could not check if API key is valid, maybe your internet is down?")
-                onComplete(ApiKeyStatus.UNKNOWN)
-            }
-        })
+                override fun onFailure(call: Call, e: IOException) {
+                    logger.warn("Could not check if API key is valid, maybe your internet is down?")
+                    onComplete(ApiKeyStatus.UNKNOWN)
+                }
+            })
     }
 }

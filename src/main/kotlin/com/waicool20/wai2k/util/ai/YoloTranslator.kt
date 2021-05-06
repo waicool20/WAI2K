@@ -62,7 +62,10 @@ class YoloTranslator(
         val inputImage = input.wrappedImage as BufferedImage
         val networkInput = inputImage.createCompatibleCopy(size, size)
         val g = (networkInput.graphics as Graphics2D).apply {
-            setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR)
+            setRenderingHint(
+                RenderingHints.KEY_INTERPOLATION,
+                RenderingHints.VALUE_INTERPOLATION_BILINEAR
+            )
             paint = Color.BLACK
             fillRect(0, 0, size, size)
         }
@@ -135,7 +138,10 @@ class YoloTranslator(
             val c = detection.slice(5..detection.lastIndex)
             val cMaxIdx = c.indexOf(c.maxOrNull())
             val obj = try {
-                GFLObject.values[cMaxIdx].primaryConstructor?.call(p.toDouble(), Rectangle(x, y, width, height))
+                GFLObject.values[cMaxIdx].primaryConstructor?.call(
+                    p.toDouble(),
+                    Rectangle(x, y, width, height)
+                )
             } catch (e: Exception) {
                 null
             }

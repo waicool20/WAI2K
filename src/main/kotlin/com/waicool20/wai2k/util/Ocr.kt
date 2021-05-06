@@ -25,7 +25,6 @@ import net.sourceforge.tess4j.ITessAPI
 import net.sourceforge.tess4j.ITesseract
 import net.sourceforge.tess4j.Tesseract
 import java.awt.image.BufferedImage
-import java.util.*
 
 object Ocr {
     private val numberReplacements = mapOf(

@@ -29,7 +29,8 @@ import kotlinx.coroutines.yield
 import kotlin.math.roundToLong
 import kotlin.random.Random
 
-class Map0_2_EX(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptComponent), CorpseDragging {
+class Map0_2_EX(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptComponent),
+    CorpseDragging {
     private val logger = loggerFor<Map0_2_EX>()
 
     override suspend fun begin() {
@@ -37,7 +38,8 @@ class Map0_2_EX(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptComp
             // Check to see if its already good
             logger.info("Checking map zoom")
             if (region.subRegion(1327, 320, 146, 27)
-                    .waitHas(FileTemplate("$PREFIX/zoom-anchor.png"), 5000) != null) {
+                    .waitHas(FileTemplate("$PREFIX/zoom-anchor.png"), 5000) != null
+            ) {
                 logger.info("zoom anchor found")
             } else {
                 // Otherwise set it ourself
@@ -47,7 +49,8 @@ class Map0_2_EX(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptComp
                     Random.nextInt(900, 1000),
                     Random.nextInt(300, 400),
                     0.0,
-                    1000)
+                    1000
+                )
             }
             gameState.requiresMapInit = false
         }

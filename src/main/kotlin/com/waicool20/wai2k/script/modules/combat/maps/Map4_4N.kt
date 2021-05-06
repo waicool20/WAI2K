@@ -38,7 +38,8 @@ class Map4_4N(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComp
                     Random.nextInt(900, 1000),
                     Random.nextInt(300, 400),
                     0.0,
-                    1000)
+                    1000
+                )
             }
             delay((900 * gameState.delayCoefficient).roundToLong()) //Wait to settle
             gameState.requiresMapInit = false

@@ -62,12 +62,14 @@ class DraggersView : AbstractProfileView() {
             doll2NameComboBox.selectionModel.select(TDoll.lookup(context.wai2KConfig, doll2.id))
         }
         with(context.currentProfile.combat) {
-            doll1NameComboBox.selectionModel.selectedItemProperty().addListener("Doll1NameListener") { tdoll ->
-                draggers[0].id = tdoll.id
-            }
-            doll2NameComboBox.selectionModel.selectedItemProperty().addListener("Doll2NameListener") { tdoll ->
-                draggers[1].id = tdoll.id
-            }
+            doll1NameComboBox.selectionModel.selectedItemProperty()
+                .addListener("Doll1NameListener") { tdoll ->
+                    draggers[0].id = tdoll.id
+                }
+            doll2NameComboBox.selectionModel.selectedItemProperty()
+                .addListener("Doll2NameListener") { tdoll ->
+                    draggers[1].id = tdoll.id
+                }
         }
     }
 

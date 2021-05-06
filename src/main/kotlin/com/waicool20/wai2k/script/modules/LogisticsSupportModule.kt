@@ -33,7 +33,6 @@ import com.waicool20.waicoolutils.logging.loggerFor
 import com.waicool20.waicoolutils.mapAsync
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
-import kotlinx.coroutines.yield
 import java.time.Instant
 
 class LogisticsSupportModule(navigator: Navigator) : ScriptModule(navigator) {

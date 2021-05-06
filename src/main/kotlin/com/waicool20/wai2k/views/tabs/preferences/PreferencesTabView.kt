@@ -71,25 +71,28 @@ class PreferencesTabView : View() {
             if (node.parent == null) {
                 preferencesTreeView.root.children.add(node)
             } else {
-                PreferencesViewMappings.list.find { it.masterView == node.parent }?.children?.add(node)
+                PreferencesViewMappings.list.find { it.masterView == node.parent }?.children?.add(
+                    node
+                )
             }
         }
-        preferencesTreeView.focusModel.focusedItemProperty().addListener("PreferenceFocused") { newVal ->
-            preferencesPane.apply {
-                if (newVal is ViewNode) {
-                    val pos = preferencesPane.dividerPosition
-                    masterNode = find(newVal.masterView).root
-                    detailNode = newVal.detailsView?.let { find(it).root } ?: defaultDetailsNode
-                    dividerPosition = pos
-                    isAnimated = true
-                    isShowDetailNode = true
-                } else {
-                    masterNode = defaultMasterNode
-                    detailNode = defaultDetailsNode
-                    isAnimated = false
-                    isShowDetailNode = false
+        preferencesTreeView.focusModel.focusedItemProperty()
+            .addListener("PreferenceFocused") { newVal ->
+                preferencesPane.apply {
+                    if (newVal is ViewNode) {
+                        val pos = preferencesPane.dividerPosition
+                        masterNode = find(newVal.masterView).root
+                        detailNode = newVal.detailsView?.let { find(it).root } ?: defaultDetailsNode
+                        dividerPosition = pos
+                        isAnimated = true
+                        isShowDetailNode = true
+                    } else {
+                        masterNode = defaultMasterNode
+                        detailNode = defaultDetailsNode
+                        isAnimated = false
+                        isShowDetailNode = false
+                    }
                 }
             }
-        }
     }
 }

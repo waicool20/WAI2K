@@ -25,22 +25,26 @@
 <?import javafx.scene.control.SplitMenuButton?>
 <?import javafx.scene.layout.HBox?>
 <?import org.controlsfx.glyphfont.Glyph?>
-<HBox alignment="CENTER" minHeight="-Infinity" minWidth="-Infinity" spacing="10.0" HBox.hgrow="ALWAYS" xmlns="http://javafx.com/javafx/8.0.162-ea" xmlns:fx="http://javafx.com/fxml/1">
-   <children>
-      <Label text="Profile:" />
-      <ComboBox fx:id="profileComboBox" editable="true" prefWidth="250.0" />
-      <HBox fx:id="buttons" HBox.hgrow="ALWAYS" />
-      <Button fx:id="stopButton" mnemonicParsing="false" visible="false">
-         <graphic>
-            <Glyph fontFamily="FontAwesome" icon="Stop" />
-         </graphic>
-      </Button>
-      <SplitMenuButton fx:id="startPauseButton" mnemonicParsing="false" prefWidth="100.0" styleClass="green-split-menu" stylesheets="@../css/split-menu.css" text="Start">
-         <graphic>
-            <Glyph fontFamily="FontAwesome" icon="Play" />
-         </graphic>
-        <items>
-        </items>
-      </SplitMenuButton>
-   </children>
+<HBox xmlns:fx="http://javafx.com/fxml/1" alignment="CENTER" minHeight="-Infinity" minWidth="-Infinity"
+      spacing="10.0" HBox.hgrow="ALWAYS"
+      xmlns="http://javafx.com/javafx/8.0.162-ea">
+    <children>
+        <Label text="Profile:"/>
+        <ComboBox fx:id="profileComboBox" editable="true" prefWidth="250.0"/>
+        <HBox fx:id="buttons" HBox.hgrow="ALWAYS"/>
+        <Button fx:id="stopButton" mnemonicParsing="false" visible="false">
+            <graphic>
+                <Glyph fontFamily="FontAwesome" icon="Stop"/>
+            </graphic>
+        </Button>
+        <SplitMenuButton fx:id="startPauseButton" mnemonicParsing="false" prefWidth="100.0"
+                         styleClass="green-split-menu" stylesheets="@../css/split-menu.css"
+                         text="Start">
+            <graphic>
+                <Glyph fontFamily="FontAwesome" icon="Play"/>
+            </graphic>
+            <items>
+            </items>
+        </SplitMenuButton>
+    </children>
 </HBox>

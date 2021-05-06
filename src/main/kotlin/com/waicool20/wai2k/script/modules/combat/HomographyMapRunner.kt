@@ -164,7 +164,9 @@ abstract class HomographyMapRunner(scriptComponent: ScriptComponent) : MapRunner
         for (i in 0 until 5) {
             val h = mapH ?: try {
                 logger.info("Finding map transformation")
-                val prediction = predictor.predict(fullMap to ImageFactory.getInstance().fromImage(window.capture()))
+                val prediction = predictor.predict(
+                    fullMap to ImageFactory.getInstance().fromImage(window.capture())
+                )
                 logger.debug("Homography prediction metrics:")
                 logger.debug("Preprocess: ${metrics.latestMetric("Preprocess").value.toLong() / 1000000} ms")
                 logger.debug("Inference: ${metrics.latestMetric("Inference").value.toLong() / 1000000} ms")
@@ -192,7 +194,8 @@ abstract class HomographyMapRunner(scriptComponent: ScriptComponent) : MapRunner
                 rect.width,
                 rect.height
             )
-            val mapDiff = (rect.width.toDouble() - width).pow(2) + (rect.height.toDouble() - height).pow(2)
+            val mapDiff =
+                (rect.width.toDouble() - width).pow(2) + (rect.height.toDouble() - height).pow(2)
             if (mapDiff > maxMapDiff.pow(2)) {
                 logger.info("Estimate failed map difference test, will retry | diff=$mapDiff, max=$maxMapDiff")
                 resetView()
@@ -223,7 +226,10 @@ abstract class HomographyMapRunner(scriptComponent: ScriptComponent) : MapRunner
                         logger.info("Scroll up $dist px")
                     }
                     roi.y + roi.height > window.y + window.height -> {
-                        val dist = ((roi.y + roi.height) - (window.y + window.height)).coerceAtLeast(minScroll)
+                        val dist =
+                            ((roi.y + roi.height) - (window.y + window.height)).coerceAtLeast(
+                                minScroll
+                            )
                         from.translate(0, dist)
                         to.translate(0, -dist)
                         logger.info("Scroll down $dist px")
@@ -237,7 +243,9 @@ abstract class HomographyMapRunner(scriptComponent: ScriptComponent) : MapRunner
                         logger.info("Scroll left $dist px")
                     }
                     roi.x + roi.width > window.x + window.width -> {
-                        val dist = ((roi.x + roi.width) - (window.x + window.width)).coerceAtLeast(minScroll)
+                        val dist = ((roi.x + roi.width) - (window.x + window.width)).coerceAtLeast(
+                            minScroll
+                        )
                         from.translate(dist, 0)
                         to.translate(-dist, 0)
                         logger.info("Scroll right $dist px")

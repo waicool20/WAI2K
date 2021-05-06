@@ -95,7 +95,8 @@ class InitModule(navigator: Navigator) : ScriptModule(navigator) {
             .mapAsync {
                 listOf(
                     // Echelon number
-                    Ocr.forConfig(config, digitsOnly = true).doOCRAndTrim(it.subRegion(0, 25, 80, 90)),
+                    Ocr.forConfig(config, digitsOnly = true)
+                        .doOCRAndTrim(it.subRegion(0, 25, 80, 90)),
                     // Logistics number ie. 1-1
                     Ocr.forConfig(config).doOCRAndTrim(it.subRegion(165, 0, 90, 42)),
                     // Timer xx:xx:xx
@@ -114,7 +115,8 @@ class InitModule(navigator: Navigator) : ScriptModule(navigator) {
             val duration = DurationUtils.of(sSeconds.toLong(), sMinutes.toLong(), sHour.toLong())
             val eta = Instant.now() + duration
             logger.info("Echelon $echelon is doing logistics support ${logisticsSupport.formattedString}, ETA: ${eta.formatted()}")
-            gameState.echelons[echelon - 1].logisticsSupportAssignment = Assignment(logisticsSupport, eta)
+            gameState.echelons[echelon - 1].logisticsSupportAssignment =
+                Assignment(logisticsSupport, eta)
         }
     }
 
@@ -143,7 +145,8 @@ class InitModule(navigator: Navigator) : ScriptModule(navigator) {
             .map {
                 async {
                     // Echelon number
-                    Ocr.forConfig(config, digitsOnly = true).doOCRAndTrim(it.getSubimage(0, 25, 80, 125))
+                    Ocr.forConfig(config, digitsOnly = true)
+                        .doOCRAndTrim(it.getSubimage(0, 25, 80, 125))
                 } to async { readRepairTimers(it) }
             }.map { it.first.await().toInt() to it.second.await() }
 
@@ -152,7 +155,8 @@ class InitModule(navigator: Navigator) : ScriptModule(navigator) {
         mappedEntries.forEach { (echelon, repairTimers) ->
             logger.info("Echelon $echelon has repair timers: $repairTimers")
             repairTimers.forEach { (memberIndex, duration) ->
-                gameState.echelons[echelon - 1].members[memberIndex].repairEta = Instant.now() + duration
+                gameState.echelons[echelon - 1].members[memberIndex].repairEta =
+                    Instant.now() + duration
             }
         }
     }

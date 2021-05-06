@@ -33,7 +33,8 @@ import java.awt.Color
 import kotlin.math.roundToLong
 import kotlin.random.Random
 
-class Map10_4E_Drag(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptComponent), CorpseDragging {
+class Map10_4E_Drag(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptComponent),
+    CorpseDragging {
     private val logger = loggerFor<Map10_4E_Drag>()
 
     override suspend fun begin() {

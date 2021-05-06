@@ -48,6 +48,7 @@ data class GameLocation(
     enum class Mode {
         AND, OR
     }
+
     /**
      * List of [Landmark] of this [GameLocation], if all landmarks are present on screen
      * then the game location is on screen
@@ -70,6 +71,7 @@ data class GameLocation(
         companion object {
             private val EMPTY_ASSET = Asset()
         }
+
         val skippable = asset == EMPTY_ASSET
         val asset = asset.apply { prefix = "locations/links/" }
         override fun toString() = "Link(dest=$dest)"
@@ -86,7 +88,8 @@ data class GameLocation(
 
     companion object Loader {
         private var locations: Map<LocationId, GameLocation> = emptyMap()
-        private val mapper = jacksonObjectMapper().enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+        private val mapper =
+            jacksonObjectMapper().enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
         private var loaderLogger = loggerFor<Loader>()
 
         /**
@@ -95,7 +98,10 @@ data class GameLocation(
          * @param wai2KConfig Configuration
          * @param refresh If true, locations will be read from file instead of cached values
          */
-        fun mappings(wai2KConfig: Wai2KConfig, refresh: Boolean = false): Map<LocationId, GameLocation> {
+        fun mappings(
+            wai2KConfig: Wai2KConfig,
+            refresh: Boolean = false
+        ): Map<LocationId, GameLocation> {
             return if (refresh) {
                 val file = wai2KConfig.assetsDirectory.resolve("locations/locations.json").toFile()
                 mapper.readValue<List<GameLocation>>(file).associateBy { it.id }.also {
@@ -118,8 +124,12 @@ data class GameLocation(
     fun isInRegion(region: Region<AndroidDevice>): Boolean {
         if (landmarks.isEmpty()) return false
         return when (matchingMode) {
-            Mode.AND -> landmarks.all { it.asset.getSubRegionFor(region).has(FileTemplate(it.asset.imagePath, 0.94)) }
-            Mode.OR -> landmarks.any { it.asset.getSubRegionFor(region).has(FileTemplate(it.asset.imagePath, 0.94)) }
+            Mode.AND -> landmarks.all {
+                it.asset.getSubRegionFor(region).has(FileTemplate(it.asset.imagePath, 0.94))
+            }
+            Mode.OR -> landmarks.any {
+                it.asset.getSubRegionFor(region).has(FileTemplate(it.asset.imagePath, 0.94))
+            }
         }
     }
 

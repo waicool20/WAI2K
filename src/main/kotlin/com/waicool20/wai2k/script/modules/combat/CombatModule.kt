@@ -197,8 +197,9 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
                     val r = region.subRegion(167, 146, 1542, 934)
                     while (isActive) {
                         // Trying this to improve search reliability, maybe put this upstream in cvauto
-                        switchDoll = r.findBest(FileTemplate("doll-list/echelon2-captain.png", 0.85), 5)
-                            .maxByOrNull { it.score }?.region
+                        switchDoll =
+                            r.findBest(FileTemplate("doll-list/echelon2-captain.png", 0.85), 5)
+                                .maxByOrNull { it.score }?.region
                         if (switchDoll == null) {
                             checkImg = checkRegion.capture()
                             if (scrollDown) {
@@ -228,7 +229,8 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
         updateEchelonRepairStatus(1)
 
         val echelon1Members = gameState.echelons[0].members.map { it.name }
-        wasCancelled = profile.combat.draggers.none { TDoll.lookup(config, it.id)?.name in echelon1Members }
+        wasCancelled =
+            profile.combat.draggers.none { TDoll.lookup(config, it.id)?.name in echelon1Members }
 
         // Sometimes update echelon repair status reads the old dolls name because old doll is still
         // on screen briefly after the switch
@@ -299,7 +301,8 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
                 if (i == retries) {
                     logger.warn("Could not update repair status after $retries attempts")
                     logger.warn("Check if you set the right T doll as dragger")
-                    if (scriptStats.sortiesDone > 1 && members.map { it.tdollOcr.second?.name }.all { it == null }) {
+                    if (scriptStats.sortiesDone > 1 && members.map { it.tdollOcr.second?.name }
+                            .all { it == null }) {
                         wasCancelled = true
                         throw RepairUpdateException()
                     } else {
@@ -361,8 +364,11 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
                     .also { logger.info("Found ${it.size} dolls on screen") }
                     .map { it.region }
                     .filterAsync {
-                        val isCritical = region.subRegion(it.x - 4, it.y - 258, 230, 413).has(FileTemplate("combat/critical-dmg.png"))
-                        val isDmgedMember = Ocr.forConfig(config).doOCRAndTrim(cache.capture().getSubimage(it.x + 61, it.y + 77, 166, 46))
+                        val isCritical = region.subRegion(it.x - 4, it.y - 258, 230, 413)
+                            .has(FileTemplate("combat/critical-dmg.png"))
+                        val isDmgedMember = Ocr.forConfig(config).doOCRAndTrim(
+                            cache.capture().getSubimage(it.x + 61, it.y + 77, 166, 46)
+                        )
                             .let { TDoll.lookup(config, it) }
                             ?.let { tdoll -> members.any { it.name == tdoll.name } } == true
                         isCritical || isDmgedMember

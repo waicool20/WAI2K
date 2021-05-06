@@ -48,8 +48,14 @@ data class TDoll(
          */
         fun listAll(config: Wai2KConfig): List<TDoll> = synchronized(list) {
             if (list.isEmpty()) {
-                list += jacksonObjectMapper().readValue<List<TDoll>>(config.assetsDirectory.resolve("tdolls.json").toFile())
-                list += list.filter { it.moddable }.map { it.copy(stars = (it.stars + 1).coerceAtLeast(4)).apply { id = "$name+" } }
+                list += jacksonObjectMapper().readValue<List<TDoll>>(
+                    config.assetsDirectory.resolve(
+                        "tdolls.json"
+                    ).toFile()
+                )
+                list += list.filter { it.moddable }.map {
+                    it.copy(stars = (it.stars + 1).coerceAtLeast(4)).apply { id = "$name+" }
+                }
             }
             return list
         }
@@ -60,7 +66,8 @@ data class TDoll(
         fun lookup(config: Wai2KConfig, name: String?): TDoll? {
             if (name == null) return null
             return listAll(config).find { it.id == name } ?: listAll(config).find {
-                var score = (name.length - it.name.distanceTo(name, Ocr.OCR_DISTANCE_MAP)) / name.length
+                var score =
+                    (name.length - it.name.distanceTo(name, Ocr.OCR_DISTANCE_MAP)) / name.length
                 // Be a bit more lax on longer names
                 if (name.length > 6) score *= 1.2
                 score > config.scriptConfig.ocrThreshold

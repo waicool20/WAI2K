@@ -19,15 +19,10 @@
 
 package com.waicool20.wai2k.script.modules.combat.maps
 
-import ai.djl.modality.cv.ImageFactory
 import com.waicool20.cvauto.android.AndroidRegion
-import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.modules.combat.CampaignMapRunner
 import com.waicool20.wai2k.script.modules.combat.HomographyMapRunner
-import com.waicool20.wai2k.util.ai.GFLObject
-import com.waicool20.wai2k.util.ai.ModelLoader
-import com.waicool20.wai2k.util.ai.YoloTranslator
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield

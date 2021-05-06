@@ -28,7 +28,8 @@ import kotlinx.coroutines.yield
 import kotlin.math.roundToLong
 import kotlin.random.Random
 
-class Map0_2(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent), CorpseDragging {
+class Map0_2(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent),
+    CorpseDragging {
     private val logger = loggerFor<Map0_2>()
 
     override suspend fun begin() {
@@ -38,7 +39,8 @@ class Map0_2(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptCompo
                 Random.nextInt(900, 1000),
                 Random.nextInt(300, 400),
                 0.0,
-                500)
+                500
+            )
             delay((900 * gameState.delayCoefficient).roundToLong()) //Wait to settle
             gameState.requiresMapInit = false
         }

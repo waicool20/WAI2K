@@ -102,7 +102,12 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
                         .filter {
                             val c = Color(it.capture().getRGB(18, 32))
                             val hsv = FloatArray(3)
-                            ColorHsv.rgbToHsv(c.red.toFloat(), c.green.toFloat(), c.blue.toFloat(), hsv)
+                            ColorHsv.rgbToHsv(
+                                c.red.toFloat(),
+                                c.green.toFloat(),
+                                c.blue.toFloat(),
+                                hsv
+                            )
                             hsv[2] > 128
                         }
                         .also { logger.info("With ${it.size} available for enhancement") }
@@ -119,12 +124,15 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
                         val screenshot = compareRegion.capture()
 
                         val src = region.subRegion(140, 620, 1590, 455).randomPoint()
-                        val dest = Point(src.x, src.y).apply { translate(0, Random.nextInt(-490, -480)) }
+                        val dest =
+                            Point(src.x, src.y).apply { translate(0, Random.nextInt(-490, -480)) }
 
                         // Swipe down because all the dolls presented were in logistics
-                        region.device.input.touchInterface.swipe(ITouchInterface.Swipe(
-                            0, src.x, src.y, dest.x, dest.y
-                        ), 1000)
+                        region.device.input.touchInterface.swipe(
+                            ITouchInterface.Swipe(
+                                0, src.x, src.y, dest.x, dest.y
+                            ), 1000
+                        )
 
                         delay(100)
                         // If it actually scrolled down then the region will have different contents
@@ -449,7 +457,8 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
         logger.info("Updating doll count")
         var ocrResult: String
         while (isActive) {
-            ocrResult = Ocr.forConfig(config).doOCRAndTrim(countRegion.copy(y = 763).capture().binarizeImage(0.7))
+            ocrResult = Ocr.forConfig(config)
+                .doOCRAndTrim(countRegion.copy(y = 763).capture().binarizeImage(0.7))
             if (ocrResult.contains("capa", true)) break else yield()
         }
         ocrResult = Ocr.forConfig(config).doOCRAndTrim(countRegion)

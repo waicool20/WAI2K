@@ -19,11 +19,9 @@
 
 package com.waicool20.wai2k.views.tabs.preferences
 
-import com.sun.javafx.css.StyleManager
 import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.views.Wai2KWorkspace
 import com.waicool20.waicoolutils.javafx.addListener
-import javafx.application.Application
 import javafx.scene.layout.VBox
 import org.controlsfx.control.ToggleSwitch
 import tornadofx.*

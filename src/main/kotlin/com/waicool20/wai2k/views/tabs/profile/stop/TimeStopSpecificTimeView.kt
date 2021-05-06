@@ -43,11 +43,14 @@ class TimeStopSpecificTimeView : AbstractProfileView() {
             minuteSpinner.valueFactory.value = minute
         }
 
-        hourSpinner.valueProperty().addListener("$javaClass HourSpinner") { _ -> updateSpecificTime() }
-        minuteSpinner.valueProperty().addListener("$javaClass MinuteSpinner") { _ -> updateSpecificTime() }
+        hourSpinner.valueProperty()
+            .addListener("$javaClass HourSpinner") { _ -> updateSpecificTime() }
+        minuteSpinner.valueProperty()
+            .addListener("$javaClass MinuteSpinner") { _ -> updateSpecificTime() }
     }
 
     private fun updateSpecificTime() {
-        context.currentProfile.stop.time.specificTime = LocalTime.of(hourSpinner.value, minuteSpinner.value)
+        context.currentProfile.stop.time.specificTime =
+            LocalTime.of(hourSpinner.value, minuteSpinner.value)
     }
 }

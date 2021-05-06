@@ -106,7 +106,11 @@ class Navigator(
             logger.debug("Found solution: CURRENT(${cLocation.id})->${path.formatted()}")
             for ((srcLoc, destLoc, link) in path) {
                 if (link.skippable || (srcLoc.isIntermediate && destLoc.isInRegion(region))) {
-                    logger.info("At ${destLoc.id} | ${path.dropWhile { it.dest != destLoc }.formatted()}")
+                    logger.info(
+                        "At ${destLoc.id} | ${
+                            path.dropWhile { it.dest != destLoc }.formatted()
+                        }"
+                    )
                     continue
                 }
                 logger.info("Going to ${destLoc.id}")
@@ -174,7 +178,8 @@ class Navigator(
                     transitionDelays.add(transitionTime - avgTransitionDelay * ticks - noneTransitionDelay)
                     if (transitionDelays.size >= 20) transitionDelays.removeFirst()
                 }
-                gameState.delayCoefficient = avgTransitionDelay.toDouble() / config.gameRestartConfig.averageDelay
+                gameState.delayCoefficient =
+                    avgTransitionDelay.toDouble() / config.gameRestartConfig.averageDelay
                 if (gameState.delayCoefficient > config.gameRestartConfig.delayCoefficientThreshold) {
                     restartCounter++
                 } else {
@@ -183,11 +188,12 @@ class Navigator(
 
                 updateAverageDelay(avgTransitionDelay)
                 updateRestartFlag()
-                logger.info("Transition: $transitionTime ms" +
-                    " | Delay: $avgTransitionDelay ms" +
-                    " | Ticks: $ticks" +
-                    " | DC: ${DecimalFormat("#.##").format(gameState.delayCoefficient)}" +
-                    " | RC: $restartCounter"
+                logger.info(
+                    "Transition: $transitionTime ms" +
+                        " | Delay: $avgTransitionDelay ms" +
+                        " | Ticks: $ticks" +
+                        " | DC: ${DecimalFormat("#.##").format(gameState.delayCoefficient)}" +
+                        " | RC: $restartCounter"
                 )
 
                 gameState.currentGameLocation = destLoc
@@ -196,7 +202,11 @@ class Navigator(
                     logger.info("At destination $destination")
                     return
                 } else {
-                    logger.info("At ${destLoc.id} | ${path.dropWhile { it.dest != destLoc }.formatted()}")
+                    logger.info(
+                        "At ${destLoc.id} | ${
+                            path.dropWhile { it.dest != destLoc }.formatted()
+                        }"
+                    )
                 }
             }
         }
@@ -233,7 +243,8 @@ class Navigator(
         }
     }
 
-    private val logisticWaitList = listOf(LocationId.HOME, LocationId.HOME_STATUS, LocationId.UNKNOWN)
+    private val logisticWaitList =
+        listOf(LocationId.HOME, LocationId.HOME_STATUS, LocationId.UNKNOWN)
 
     /**
      * Checks if there are logistics, if there were then try and receive them
@@ -246,7 +257,8 @@ class Navigator(
         // We skip further execution if no logistics is due in 15s
         if (!forceCheck && !gameState.requiresUpdate &&
             gameState.echelons.mapNotNull { it.logisticsSupportAssignment }
-                .none { Duration.between(Instant.now(), it.eta).seconds <= 15 }) return false
+                .none { Duration.between(Instant.now(), it.eta).seconds <= 15 }
+        ) return false
         var logisticsArrived = false
         loop@ while (true) {
             when {
@@ -254,7 +266,8 @@ class Navigator(
                     logger.info("An echelon has arrived from logistics")
                     region.click()
                 }
-                Ocr.forConfig(config).doOCRAndTrim(region.subRegion(575, 425, 1000, 100)).contains("Repeat") -> {
+                Ocr.forConfig(config).doOCRAndTrim(region.subRegion(575, 425, 1000, 100))
+                    .contains("Repeat") -> {
                     // Even if the logistics arrived didnt show up, its possible
                     // that it was clicked through by some other function
                     logger.info("An echelon has arrived from logistics, but already at repeat dialog for some reason...")

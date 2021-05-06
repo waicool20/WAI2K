@@ -63,7 +63,7 @@ dependencies {
     implementation("com.fasterxml.jackson.module", "jackson-module-kotlin", versions.Jackson)
     implementation("com.fasterxml.jackson.datatype", "jackson-datatype-jsr310", versions.Jackson)
     implementation("ch.qos.logback", "logback-classic", "1.2.3")
-    implementation ("no.tornado:tornadofx:2.0.0-SNAPSHOT")
+    implementation("no.tornado:tornadofx:2.0.0-SNAPSHOT")
     implementation("org.controlsfx:controlsfx:11.1.0")
     implementation("org.reflections", "reflections", "0.9.12")
     implementation("com.squareup.okhttp3:okhttp:4.9.0")
@@ -132,10 +132,11 @@ task("deps-list") {
         }
 
         val deps = getDeps(configurations.default.get().incoming.resolutionResult.allDependencies)
-                .map { it.toString() }
-                .distinct()
-                .filterNot { it.startsWith("project") || it.contains("->") }
-        val repos = project.repositories.mapNotNull { it as? MavenArtifactRepository }.map { it.url }
+            .map { it.toString() }
+            .distinct()
+            .filterNot { it.startsWith("project") || it.contains("->") }
+        val repos =
+            project.repositories.mapNotNull { it as? MavenArtifactRepository }.map { it.url }
         val output = StringBuilder()
         output.appendLine("Repositories:")
         repos.sortedDescending().forEach { output.appendLine("- $it") }

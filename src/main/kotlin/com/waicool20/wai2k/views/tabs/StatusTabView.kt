@@ -139,7 +139,10 @@ class StatusTabView : CoroutineScopeView() {
                 .sortedBy { it.second.repairEta }
             if (echelonRepairs.isNotEmpty()) {
                 builder /= "Repairs:"
-                builder += echelonRepairs.joinToString("\n", postfix = "\n") { (echelonNumber, member) ->
+                builder += echelonRepairs.joinToString(
+                    "\n",
+                    postfix = "\n"
+                ) { (echelonNumber, member) ->
                     "\t- Echelon $echelonNumber [${member.number}]: ${timeDelta(member.repairEta)}"
                 }
             }

@@ -20,9 +20,7 @@
 package com.waicool20.wai2k.game
 
 import java.time.*
-import java.time.temporal.ChronoField
 import java.time.temporal.ChronoUnit
-import java.time.temporal.TemporalAdjusters
 
 class GameState {
     var requiresUpdate: Boolean = true

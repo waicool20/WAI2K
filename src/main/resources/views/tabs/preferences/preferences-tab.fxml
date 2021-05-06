@@ -24,21 +24,24 @@
 <?import javafx.scene.control.TreeView?>
 <?import javafx.scene.layout.*?>
 <?import org.controlsfx.control.MasterDetailPane?>
-<HBox minHeight="-Infinity" minWidth="-Infinity" spacing="10.0" xmlns="http://javafx.com/javafx/8.0.162-ea" xmlns:fx="http://javafx.com/fxml/1">
-   <children>
-      <VBox spacing="10.0">
-         <children>
-            <TreeView fx:id="preferencesTreeView" prefWidth="175.0" VBox.vgrow="ALWAYS" />
-            <HBox alignment="CENTER">
-               <children>
-                  <Button fx:id="saveButton" mnemonicParsing="false" prefWidth="175.0" text="Save" />
-               </children>
-            </HBox>
-         </children>
-      </VBox>
-      <MasterDetailPane fx:id="preferencesPane" dividerPosition="1.0" prefWidth="350.0" HBox.hgrow="ALWAYS" />
-   </children>
-   <padding>
-      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-   </padding>
+<HBox xmlns:fx="http://javafx.com/fxml/1" minHeight="-Infinity" minWidth="-Infinity"
+      spacing="10.0" xmlns="http://javafx.com/javafx/8.0.162-ea">
+    <children>
+        <VBox spacing="10.0">
+            <children>
+                <TreeView fx:id="preferencesTreeView" prefWidth="175.0" VBox.vgrow="ALWAYS"/>
+                <HBox alignment="CENTER">
+                    <children>
+                        <Button fx:id="saveButton" mnemonicParsing="false" prefWidth="175.0"
+                                text="Save"/>
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+        <MasterDetailPane fx:id="preferencesPane" dividerPosition="1.0" prefWidth="350.0"
+                          HBox.hgrow="ALWAYS"/>
+    </children>
+    <padding>
+        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+    </padding>
 </HBox>

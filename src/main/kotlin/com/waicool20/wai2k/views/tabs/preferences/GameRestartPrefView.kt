@@ -41,7 +41,8 @@ class GameRestartPrefView : View() {
     override fun onDock() {
         super.onDock()
         averageDelaySpinner.valueFactory = LongSpinnerValueFactory(0, 9999)
-        delayCoefficientThresholdSpinner.valueFactory = DoubleSpinnerValueFactory(1.0, 10.0, 1.0, 0.1)
+        delayCoefficientThresholdSpinner.valueFactory =
+            DoubleSpinnerValueFactory(1.0, 10.0, 1.0, 0.1)
         maxRestartsSpinner.valueFactory = IntegerSpinnerValueFactory(1, Int.MAX_VALUE)
         with(context.wai2KConfig.gameRestartConfig) {
             enabledCheckBox.bind(enabledProperty)

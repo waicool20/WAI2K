@@ -29,7 +29,8 @@ import kotlinx.coroutines.yield
 import kotlin.math.roundToLong
 import kotlin.random.Random
 
-class Map8_1N(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptComponent), CorpseDragging {
+class Map8_1N(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptComponent),
+    CorpseDragging {
     private val logger = loggerFor<Map8_1N>()
 
     override suspend fun begin() {

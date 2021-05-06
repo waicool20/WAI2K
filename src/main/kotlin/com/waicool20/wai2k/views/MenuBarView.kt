@@ -60,7 +60,9 @@ class MenuBarView : View() {
         wikiItem.setOnAction { DesktopUtils.browse("https://github.com/waicool20/WAI2K/wiki") }
         donateItem.setOnAction { DesktopUtils.browse("https://ko-fi.com/waicool20") }
         homographyItem.setOnAction {
-            val device = ADB.getDevices().find { it.serial == wai2KContext.wai2KConfig.lastDeviceSerial } ?: return@setOnAction
+            val device =
+                ADB.getDevices().find { it.serial == wai2KContext.wai2KConfig.lastDeviceSerial }
+                    ?: return@setOnAction
             chooseFile(
                 "Select base image...",
                 arrayOf(FileChooser.ExtensionFilter("PNG files (*.png)", "*.png")),
