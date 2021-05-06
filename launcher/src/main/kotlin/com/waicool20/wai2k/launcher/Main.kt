@@ -21,6 +21,8 @@ package com.waicool20.wai2k.launcher
 
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import org.jboss.shrinkwrap.resolver.api.NoResolvedResultException
+import org.jboss.shrinkwrap.resolver.api.maven.ConfigurableMavenResolverSystem
 import org.jboss.shrinkwrap.resolver.api.maven.Maven
 import java.awt.Desktop
 import java.awt.Dimension
@@ -105,7 +107,7 @@ object Main {
     @JvmStatic
     fun main(args: Array<String>) {
         checkJavaVersion()
-        if (!args.contains("--skip-updates") && jarPath?.name?.contains("SkipUpdates") == false) {
+        if (!(args.contains("--skip-updates") && jarPath?.name?.contains("SkipUpdates") == true)) {
             try {
                 if (!args.contains("--skip-launcher-update")) {
                     checkLauncherUpdate()
@@ -214,22 +216,19 @@ object Main {
             }
         }
 
-        var maven = Maven.configureResolver()
-            // Disabled for easier debugging since it resolves jars from launcher classpath
-            .withClassPathResolution(false)
         val dependencies = mutableListOf<String>()
+        val repos = mutableListOf<String>()
 
         var isRepo = false
 
-        for ((i, line) in text.withIndex()) {
+        for (line in text) {
             when {
                 line.startsWith("Repositories:") -> isRepo = true
                 line.startsWith("Dependencies") -> isRepo = false
                 line.startsWith("- ") -> {
                     val entry = line.drop(2)
                     if (isRepo) {
-                        println("Register repository: $line")
-                        maven = maven.withRemoteRepo(i.toString(), entry, "default")
+                        repos.add(entry)
                     } else {
                         dependencies.add(entry)
                     }
@@ -237,13 +236,23 @@ object Main {
             }
         }
 
-        dependencies.forEach { d ->
+        var maven = newMavenResolver(repos)
+
+        for (d in dependencies) {
             label.text = "Checking dependency: $d"
             println("Resolving dependency $d")
             var paths: List<Path>
             while (true) {
-                paths = maven.resolve(d).withTransitivity().asFile().map { it.toPath() }
-
+                try {
+                    paths = maven.resolve(d).withTransitivity().asFile().map { it.toPath() }
+                } catch (e: NoResolvedResultException) {
+                    println("Could not resolve $d")
+                    e.printStackTrace()
+                    // Need a new resolver otherwise the error will keep showing up while resolving
+                    // other dependencies
+                    maven = newMavenResolver(repos)
+                    continue
+                }
                 // Skip sha1 check on snapshots
                 if (d.contains("snapshot", true)) break
                 val failedChecks = paths.filterNot { verifyCheckSum(it, Hash.SHA1) }
@@ -255,6 +264,16 @@ object Main {
             }
             println("Found dependency @ ${paths.firstOrNull()}")
         }
+    }
+
+    private fun newMavenResolver(repos: List<String>): ConfigurableMavenResolverSystem {
+        var maven = Maven.configureResolver()
+            // Disabled for easier debugging since it resolves jars from launcher classpath
+            .withClassPathResolution(false)
+        for ((i, entry) in repos.withIndex()) {
+            maven = maven.withRemoteRepo(i.toString(), entry, "default")
+        }
+        return maven
     }
 
     private fun browseLink(link: String) {
