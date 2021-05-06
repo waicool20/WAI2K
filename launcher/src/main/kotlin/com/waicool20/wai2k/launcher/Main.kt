@@ -29,14 +29,12 @@ import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
 import java.security.MessageDigest
-import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.zip.ZipInputStream
 import javax.swing.BorderFactory
 import javax.swing.JFrame
 import javax.swing.JLabel
 import javax.swing.JPanel
-import kotlin.Comparator
 import kotlin.concurrent.thread
 import kotlin.io.path.*
 import kotlin.streams.toList
@@ -72,6 +70,12 @@ object Main {
     private val appPath = Path(System.getProperty("user.home"), ".wai2k").absolute()
     private val libPath = appPath.resolve("libs")
     private val depPath = appPath.resolve("dependencies.txt")
+    private val jarPath = run {
+        // Skip update check if running from code
+        if ("${Main.javaClass.getResource(Main.javaClass.simpleName + ".class")}".startsWith("jar")) {
+            Main::class.java.protectionDomain.codeSource.location.toURI().toPath()
+        } else null
+    }
 
     val mainFiles = listOf("WAI2K.jar", "assets.zip", "models.zip")
 
@@ -101,15 +105,15 @@ object Main {
     @JvmStatic
     fun main(args: Array<String>) {
         checkJavaVersion()
-        if (!args.contains("--skip-checks")) {
+        if (!args.contains("--skip-updates") && jarPath?.name?.contains("SkipUpdates") == false) {
             try {
-                if (!args.contains("--skip-launcher-check")) {
+                if (!args.contains("--skip-launcher-update")) {
                     checkLauncherUpdate()
                 }
-                if (!args.contains("--skip-main-check")) {
+                if (!args.contains("--skip-main-update")) {
                     mainFiles.forEach(::checkFile)
                 }
-                if (!args.contains("--skip-dependencies-check")) {
+                if (!args.contains("--skip-dependencies-update")) {
                     checkDependencies(args.contains("--use-local-dep-list"))
                 }
             } catch (e: Exception) {
@@ -164,10 +168,7 @@ object Main {
     }
 
     private fun checkLauncherUpdate() {
-        // Skip update check if running from code
-        if (!"${Main.javaClass.getResource(Main.javaClass.simpleName + ".class")}".startsWith("jar")) return
-        val jarPath = Main::class.java.protectionDomain.codeSource.location.toURI().toPath()
-
+        if (jarPath == null) return
         try {
             val chksum0 =
                 grabWebString("https://github.com/waicool20/WAI2K/releases/download/Latest/WAI2K-Launcher.jar.md5")
