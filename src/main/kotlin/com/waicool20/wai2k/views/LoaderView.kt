@@ -41,8 +41,10 @@ import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import tornadofx.*
-import java.nio.file.Files
-import java.nio.file.Paths
+import kotlin.io.path.Path
+import kotlin.io.path.createDirectories
+import kotlin.io.path.exists
+import kotlin.io.path.outputStream
 
 class LoaderView : CoroutineScopeView() {
     override val root: AnchorPane by fxml("/views/loader.fxml")
@@ -101,7 +103,7 @@ class LoaderView : CoroutineScopeView() {
         wai2KConfig = Wai2KConfig.load()
         parseCommandLine()
         if (!wai2KConfig.isValid) {
-            Files.createDirectories(wai2KConfig.ocrDirectory)
+            wai2KConfig.ocrDirectory.createDirectories()
             val client = OkHttpClient()
             runBlocking {
                 coroutineScope {
@@ -112,7 +114,7 @@ class LoaderView : CoroutineScopeView() {
                             val request = Request.Builder().url(url).build()
                             val response = client.newCall(request).execute()
                             val input = response.body!!.byteStream()
-                            val output = Files.newOutputStream(wai2KConfig.ocrDirectory.resolve(file))
+                            val output = wai2KConfig.ocrDirectory.resolve(file).outputStream()
                             input.copyTo(output)
                             input.close()
                             output.close()
@@ -162,16 +164,16 @@ class LoaderView : CoroutineScopeView() {
             }
         }
         with(parameters) {
-            (named["assets-dir"] ?: named["asset-dir"])?.let { Paths.get(it) }?.let { dir ->
+            (named["assets-dir"] ?: named["asset-dir"])?.let { Path(it) }?.let { dir ->
                 logger.info("Assets directory passed in through command line: $dir")
-                if (Files.exists(dir)) {
+                if (dir.exists()) {
                     wai2KConfig.assetsDirectory = dir
                 }
             }
 
-            named["ocr-dir"]?.let { Paths.get(it) }?.let { dir ->
+            named["ocr-dir"]?.let { Path(it) }?.let { dir ->
                 logger.info("OCR directory passed in through command line: $dir")
-                if (Files.exists(dir)) {
+                if (dir.exists()) {
                     wai2KConfig.ocrDirectory = dir
                 }
             }

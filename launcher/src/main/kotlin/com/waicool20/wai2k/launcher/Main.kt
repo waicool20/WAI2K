@@ -28,7 +28,6 @@ import java.awt.FlowLayout
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.Paths
 import java.security.MessageDigest
 import java.util.concurrent.TimeUnit
 import java.util.zip.ZipInputStream
@@ -37,6 +36,7 @@ import javax.swing.JFrame
 import javax.swing.JLabel
 import javax.swing.JPanel
 import kotlin.concurrent.thread
+import kotlin.io.path.*
 import kotlin.streams.toList
 import kotlin.system.exitProcess
 
@@ -67,7 +67,7 @@ object Main {
 
     private val client = OkHttpClient()
     private val url = "https://wai2k.waicool20.com/files"
-    private val appPath = Paths.get(System.getProperty("user.home")).resolve(".wai2k").toAbsolutePath()
+    private val appPath = Path(System.getProperty("user.home"), ".wai2k").absolute()
     private val libPath = appPath.resolve("libs")
     private val depPath = appPath.resolve("dependencies.txt")
 
@@ -92,8 +92,8 @@ object Main {
     }
 
     init {
-        if (Files.notExists(appPath)) Files.createDirectories(appPath)
-        if (Files.notExists(libPath)) Files.createDirectories(libPath)
+        appPath.createDirectories()
+        libPath.createDirectories()
     }
 
     @JvmStatic
@@ -123,7 +123,7 @@ object Main {
         label.text = "Checking file $file"
         val path = appPath.resolve(file)
         try {
-            if (Files.exists(path)) {
+            if (path.exists()) {
                 val chksum0 = grabWebString("$url/$file.md5")
                 val chksum1 = calcCheckSum(path, Hash.MD5)
                 if (chksum0.equals(chksum1, true)) return
@@ -133,16 +133,16 @@ object Main {
                 if (!it.isSuccessful) error("Bad server response: ${it.code}")
                 println("[DOWNLOAD] $file")
                 val input = it.body!!.byteStream()
-                val output = Files.newOutputStream(path)
+                val output = path.outputStream()
                 input.copyTo(output)
                 input.close()
                 output.close()
                 println("[OK] $file")
             }
 
-            if ("$path".endsWith(".zip")) unzip(path, appPath.resolve("wai2k"))
+            if (path.extension == "zip") unzip(path, appPath.resolve("wai2k"))
         } catch (e: Exception) {
-            if (Files.exists(path)) {
+            if (path.exists()) {
                 println("Skipping $file update check due to exception")
                 e.printStackTrace()
                 return
@@ -164,7 +164,7 @@ object Main {
     private fun checkLauncherUpdate() {
         // Skip update check if running from code
         if (!"${Main.javaClass.getResource(Main.javaClass.simpleName + ".class")}".startsWith("jar")) return
-        val jarPath = Paths.get(Main::class.java.protectionDomain.codeSource.location.toURI())
+        val jarPath = Main::class.java.protectionDomain.codeSource.location.toURI().toPath()
 
         try {
             val chksum0 = grabWebString("https://github.com/waicool20/WAI2K/releases/download/Latest/WAI2K-Launcher.jar.md5")
@@ -185,26 +185,26 @@ object Main {
         System.setProperty("maven.repo.local", libPath.toString())
 
         val text = try {
-            if (useLocalDepList && Files.exists(depPath)) {
-                Files.readAllLines(depPath)
+            if (useLocalDepList && depPath.exists()) {
+                depPath.readLines()
             } else {
                 val text = grabWebString("$url/dependencies.txt")
-                if (Files.exists(depPath)) {
-                    val oldText = Files.readAllBytes(depPath).toString(Charsets.UTF_8)
+                if (depPath.exists()) {
+                    val oldText = depPath.readText()
                     if (oldText != text) {
                         println("Dependencies changed, deleting old ones...")
                         Files.walk(libPath).sorted(Comparator.reverseOrder())
                             .forEach { Files.delete(it) }
                     }
                 }
-                Files.write(depPath, text.toByteArray())
+                depPath.writeText(text)
                 text.lines()
             }
         } catch (e: Exception) {
-            if (Files.exists(depPath)) {
+            if (depPath.exists()) {
                 println("Could not retrieve new dependencies, using old one instead")
                 e.printStackTrace()
-                Files.readAllLines(depPath)
+                depPath.readLines()
             } else {
                 halt("Could not retrieve dependency list: ${e.message}")
             }
@@ -245,8 +245,8 @@ object Main {
                 val failedChecks = paths.filterNot { verifyCheckSum(it, Hash.SHA1) }
                 if (failedChecks.isEmpty()) break
                 failedChecks.forEach {
-                    Files.deleteIfExists(it)
-                    Files.deleteIfExists(Paths.get("${it}.sha1"))
+                    it.deleteIfExists()
+                    Path("$it.sha1").deleteIfExists()
                 }
             }
             println("Found dependency @ ${paths.firstOrNull()}")
@@ -282,13 +282,13 @@ object Main {
     }
 
     private fun verifyCheckSum(file: Path, hash: Hash): Boolean {
-        if (Files.notExists(file)) return false
+        if (file.notExists()) return false
         val sumPath = when (hash) {
-            Hash.MD5 -> Paths.get("$file.md5")
-            Hash.SHA1 -> Paths.get("$file.sha1")
+            Hash.MD5 -> Path("$file.md5")
+            Hash.SHA1 -> Path("$file.sha1")
         }
-        if (Files.notExists(sumPath)) return false
-        val chksum0 = Files.readAllBytes(sumPath).toString(Charsets.UTF_8).take(hash.length)
+        if (sumPath.notExists()) return false
+        val chksum0 = sumPath.readText().take(hash.length)
         val chksum1 = calcCheckSum(file, hash)
         return chksum0.equals(chksum1, true)
     }
@@ -298,19 +298,19 @@ object Main {
             Hash.MD5 -> MessageDigest.getInstance("MD5")
             Hash.SHA1 -> MessageDigest.getInstance("SHA-1")
         }
-        return digest.digest(Files.readAllBytes(file))
+        return digest.digest(file.readBytes())
             .joinToString("") { String.format("%02x", it) }
     }
 
     private fun unzip(file: Path, destination: Path) {
         label.text = "Unpacking ${file.fileName}"
-        val zis = ZipInputStream(Files.newInputStream(file))
+        val zis = ZipInputStream(file.inputStream())
         var entry = zis.nextEntry
         while (entry != null) {
             if (!entry.isDirectory) {
                 val outputFile = destination.resolve(entry.name)
-                Files.createDirectories(outputFile.parent)
-                val output = Files.newOutputStream(outputFile)
+                outputFile.parent.createDirectories()
+                val output = outputFile.outputStream()
                 zis.copyTo(output)
                 output.close()
             }
@@ -325,7 +325,7 @@ object Main {
         frame.dispose()
 
         val jars = Files.walk(libPath)
-            .filter { Files.isRegularFile(it) && "$it".endsWith(".jar") }
+            .filter { it.isRegularFile() && it.extension == "jar" }
             .toList()
             // Prioritize higher versioned libraries
             .sortedDescending()

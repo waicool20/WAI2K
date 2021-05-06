@@ -23,7 +23,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.wai2k.script.ScriptComponent
-import java.nio.file.Files
+import kotlin.io.path.exists
 
 /**
  * AbsoluteMapRunner is a base abstract class that implements [nodes] and [findRegion], it simply
@@ -38,7 +38,7 @@ abstract class AbsoluteMapRunner(scriptComponent: ScriptComponent) : MapRunner(s
 
     override val nodes = run {
         val path = config.assetsDirectory.resolve("$PREFIX/map.json")
-        if (Files.exists(path)) {
+        if (path.exists()) {
             jacksonObjectMapper().readValue<List<MapNode>>(path.toFile())
         } else {
             emptyList()

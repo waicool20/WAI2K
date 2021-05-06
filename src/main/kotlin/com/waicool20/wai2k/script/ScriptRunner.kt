@@ -41,12 +41,12 @@ import com.waicool20.waicoolutils.distanceTo
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.*
 import org.reflections.Reflections
-import java.nio.file.Files
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.imageio.ImageIO
 import kotlin.coroutines.CoroutineContext
+import kotlin.io.path.createDirectories
 import kotlin.math.roundToLong
 import kotlin.reflect.full.primaryConstructor
 
@@ -127,7 +127,8 @@ class ScriptRunner(
         currentConfig.scriptConfig.apply {
             Region.DEFAULT_MATCHER.settings.matchDimension = NORMAL_RES
             Region.DEFAULT_MATCHER.settings.defaultThreshold = defaultSimilarityThreshold
-            currentDevice?.input?.touchInterface?.settings?.postTapDelay = (mouseDelay * 1000).roundToLong()
+            currentDevice?.input?.touchInterface?.settings?.postTapDelay =
+                (mouseDelay * 1000).roundToLong()
         }
 
         if (currentDevice == null || currentDevice?.serial != currentConfig.lastDeviceSerial) {
@@ -150,7 +151,8 @@ class ScriptRunner(
                 .mapNotNull { it.primaryConstructor?.call(nav) }
                 .let { modules.addAll(it) }
             modules.add(StopModule(nav))
-            modules.map { it::class.simpleName }.forEach { logger.info("Loaded new instance of $it") }
+            modules.map { it::class.simpleName }
+                .forEach { logger.info("Loaded new instance of $it") }
         }
     }
 
@@ -183,7 +185,7 @@ class ScriptRunner(
             val output = Wai2K.CONFIG_DIR.resolve("debug")
                 .resolve("${DateTimeFormatter.ofPattern("yyyy-MM-dd HH-mm-ss").format(now)}.png")
             launch(Dispatchers.IO) {
-                Files.createDirectories(output.parent)
+                output.parent.createDirectories()
                 ImageIO.write(screenshot, "PNG", output.toFile())
                 logger.info("Saved debug image to: ${output.toAbsolutePath()}")
             }
@@ -191,16 +193,22 @@ class ScriptRunner(
                 restartGame(e.localizedMessage)
             } else {
                 if (currentConfig.notificationsConfig.onRestart) {
-                    YuuBot.postMessage(currentConfig.apiKey, "Script Stopped", "Reason: ${e.localizedMessage}")
+                    YuuBot.postMessage(
+                        currentConfig.apiKey,
+                        "Script Stopped",
+                        "Reason: ${e.localizedMessage}"
+                    )
                 }
                 logger.warn("Restart not enabled, ending script here")
                 coroutineContext.cancelAndYield()
             }
         } catch (e: Exception) {
             when (e) {
-                is CancellationException -> {} // Do nothing
+                is CancellationException -> {
+                } // Do nothing
                 else -> {
-                    val msg = "Uncaught error during script execution, please report this to the devs"
+                    val msg =
+                        "Uncaught error during script execution, please report this to the devs"
                     logger.error(msg)
                     YuuBot.postMessage(currentConfig.apiKey, "Script Stopped", msg)
                     e.printStackTrace()
@@ -253,13 +261,16 @@ class ScriptRunner(
             if (region.subRegion(396, 244, 80, 80).has(FileTemplate("home-popup.png"))) {
                 repeat(2) { region.subRegion(2017, 151, 129, 733).click() }
             }
-            region.subRegion(900, 720, 350, 185).findBest(FileTemplate("close.png"))?.region?.click()
+            region.subRegion(900, 720, 350, 185)
+                .findBest(FileTemplate("close.png"))?.region?.click()
             val r = region.subRegion(1800, 780, 170, 75)
             when {
                 Ocr.forConfig(currentConfig).doOCRAndTrim(r).distanceTo("RESUME") <= 3 -> {
                     logger.info("Detected ongoing battle, terminating it first")
                     while (isActive) {
-                        if (Ocr.forConfig(currentConfig).doOCRAndTrim(r).distanceTo("RESUME") <= 3) {
+                        if (Ocr.forConfig(currentConfig).doOCRAndTrim(r)
+                                .distanceTo("RESUME") <= 3
+                        ) {
                             r.click()
                         }
                         navigator?.checkLogistics()
@@ -275,7 +286,8 @@ class ScriptRunner(
                         region.waitHas(FileTemplate("combat/battle/terminate.png"), 30000)
                         mapRunnerRegions.terminateMenu.click(); delay(700)
                         mapRunnerRegions.terminate.click(); delay(5000)
-                        val locs = arrayOf(LocationId.COMBAT_MENU, LocationId.CAMPAIGN, LocationId.EVENT)
+                        val locs =
+                            arrayOf(LocationId.COMBAT_MENU, LocationId.CAMPAIGN, LocationId.EVENT)
                         for (l in locs) {
                             if (locations[l]!!.isInRegion(region)) {
                                 logger.info("Terminated the battle")

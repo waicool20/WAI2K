@@ -19,7 +19,6 @@
 
 package com.waicool20.wai2k.views
 
-import com.waicool20.wai2k.Wai2K
 import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.script.ScriptContext
@@ -42,8 +41,8 @@ import kotlinx.coroutines.withContext
 import org.controlsfx.glyphfont.FontAwesome
 import org.controlsfx.glyphfont.Glyph
 import tornadofx.*
-import java.nio.file.Files
-import kotlin.streams.toList
+import kotlin.io.path.listDirectoryEntries
+import kotlin.io.path.nameWithoutExtension
 
 class HeaderView : CoroutineScopeView() {
     override val root: HBox by fxml("/views/header.fxml")
@@ -144,9 +143,8 @@ class HeaderView : CoroutineScopeView() {
 
     private fun updateProfileItems() {
         val currentProfile = profileComboBox.value
-        val profiles = Files.walk(Wai2KProfile.PROFILE_DIR).toList()
-            .filter { Files.isRegularFile(it) }
-            .map { "${it.fileName}".removeSuffix(Wai2K.CONFIG_SUFFIX) }
+        val profiles = Wai2KProfile.PROFILE_DIR.listDirectoryEntries("*.json")
+            .map { it.nameWithoutExtension }
             .filter { it != currentProfile }
             .sorted()
         if (profiles.isNotEmpty()) {

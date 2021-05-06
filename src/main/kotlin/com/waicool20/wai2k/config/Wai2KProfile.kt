@@ -34,10 +34,10 @@ import com.waicool20.waicoolutils.logging.loggerFor
 import javafx.beans.property.ListProperty
 import javafx.beans.property.SimpleListProperty
 import tornadofx.*
-import java.nio.file.Files
 import java.nio.file.Path
 import java.time.Duration
 import java.time.LocalTime
+import kotlin.io.path.*
 
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy::class)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -236,28 +236,27 @@ data class Wai2KProfile(
         val PROFILE_DIR: Path = Wai2K.CONFIG_DIR.resolve("profiles")
         const val DEFAULT_NAME = "Default"
 
-        fun profileExists(name: String) = Files.exists(PROFILE_DIR.resolve("$name${Wai2K.CONFIG_SUFFIX}"))
+        fun profileExists(name: String) = PROFILE_DIR.resolve("$name.json").exists()
 
         fun load(name: String): Wai2KProfile {
-            return load(PROFILE_DIR.resolve("${
-                name.takeIf { it.isNotBlank() }
-                    ?: DEFAULT_NAME
-            }${Wai2K.CONFIG_SUFFIX}")).also { it.name = name }
+            return load(PROFILE_DIR.resolve(
+                "${name.takeIf { it.isNotBlank() } ?: DEFAULT_NAME}.json")
+            ).also { it.name = name }
         }
 
         fun load(path: Path): Wai2KProfile {
             loaderLogger.info("Attempting to load profile")
             loaderLogger.debug("Profile path: $path")
-            if (Files.notExists(path)) {
+            if (path.notExists()) {
                 loaderLogger.info("Profile not found, creating empty file")
-                Files.createDirectories(PROFILE_DIR)
-                Files.createFile(path)
+                PROFILE_DIR.createDirectories()
+                path.createFile()
             }
 
             return try {
                 mapper.readValue<Wai2KProfile>(path.toFile()).apply {
                     loaderLogger.info("Profile loaded")
-                    name = "${path.fileName}".removeSuffix(Wai2K.CONFIG_SUFFIX)
+                    name = path.nameWithoutExtension
                     printDebugInfo()
                 }
             } catch (e: Exception) {
@@ -275,14 +274,14 @@ data class Wai2KProfile(
 
     @get:JsonIgnore
     val path: Path
-        get() = PROFILE_DIR.resolve("$name${Wai2K.CONFIG_SUFFIX}")
+        get() = PROFILE_DIR.resolve("$name.json")
 
     fun save(path: Path = this.path) {
         logger.info("Saving Wai2K profile")
-        if (Files.notExists(path)) {
+        if (path.notExists()) {
             logger.debug("Profile not found, creating file $path")
-            Files.createDirectories(path.parent)
-            Files.createFile(path)
+            path.parent.createDirectories().createFile()
+            path.createFile()
         }
         mapper.writerWithDefaultPrettyPrinter().writeValue(path.toFile(), this)
         logger.info("Profile saved!")
@@ -290,8 +289,7 @@ data class Wai2KProfile(
     }
 
     fun delete() {
-        if (Files.exists(path)) {
-            Files.delete(path)
+        if (path.deleteIfExists()) {
             logger.info("Profile deleted")
             printDebugInfo()
         }

@@ -32,8 +32,11 @@ import com.waicool20.waicoolutils.javafx.json.fxJacksonObjectMapper
 import com.waicool20.waicoolutils.logging.LoggerUtils
 import com.waicool20.waicoolutils.logging.loggerFor
 import tornadofx.*
-import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.io.path.createDirectories
+import kotlin.io.path.createFile
+import kotlin.io.path.exists
+import kotlin.io.path.notExists
 
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy::class)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -99,10 +102,10 @@ class Wai2KConfig(
         fun load(): Wai2KConfig {
             loaderLogger.info("Attempting to load Wai2K configuration")
             loaderLogger.debug("Config path: $path")
-            if (Files.notExists(path)) {
+            if (path.notExists()) {
                 loaderLogger.info("Configuration not found, creating empty file")
-                Files.createDirectories(path.parent)
-                Files.createFile(path)
+                path.parent.createDirectories()
+                path.createFile()
             }
 
             return try {
@@ -129,7 +132,7 @@ class Wai2KConfig(
     }
 
     fun ocrIsValid(): Boolean {
-        return requiredOcrFiles.all { Files.exists(ocrDirectory.resolve(it)) }
+        return requiredOcrFiles.all { ocrDirectory.resolve(it).exists() }
     }
 
     fun save() {

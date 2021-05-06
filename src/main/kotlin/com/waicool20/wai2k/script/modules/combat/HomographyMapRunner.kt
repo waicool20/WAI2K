@@ -39,7 +39,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import java.nio.file.Files
+import kotlin.io.path.exists
 import kotlin.math.pow
 import kotlin.math.roundToLong
 import kotlin.random.Random
@@ -104,7 +104,7 @@ abstract class HomographyMapRunner(scriptComponent: ScriptComponent) : MapRunner
         }
         val n = async(Dispatchers.IO) {
             val path = config.assetsDirectory.resolve("$PREFIX/map.json")
-            if (Files.exists(path)) {
+            if (path.exists()) {
                 jacksonObjectMapper().readValue<List<MapNode>>(path.toFile())
             } else {
                 emptyList()

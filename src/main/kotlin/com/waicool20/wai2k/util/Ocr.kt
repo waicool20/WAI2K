@@ -25,6 +25,7 @@ import net.sourceforge.tess4j.ITessAPI
 import net.sourceforge.tess4j.ITesseract
 import net.sourceforge.tess4j.Tesseract
 import java.awt.image.BufferedImage
+import java.util.*
 
 object Ocr {
     private val numberReplacements = mapOf(
@@ -51,7 +52,7 @@ object Ocr {
 
     const val DIGITS = "0123456789"
     const val ALPHA = "abcdefghijklmnoprstuvwxyz"
-    val ALPHA_CAP = ALPHA.toUpperCase()
+    val ALPHA_CAP = ALPHA.uppercase()
 
     fun cleanNumericString(string: String): String {
         var text = string

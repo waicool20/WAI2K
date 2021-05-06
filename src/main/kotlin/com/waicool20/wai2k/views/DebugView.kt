@@ -47,12 +47,15 @@ import net.sourceforge.tess4j.ITesseract
 import tornadofx.*
 import java.awt.image.BufferedImage
 import java.nio.file.Files
-import java.nio.file.Paths
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.OutputKeys
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
+import kotlin.io.path.Path
+import kotlin.io.path.createDirectories
+import kotlin.io.path.exists
+import kotlin.io.path.extension
 import kotlin.streams.asSequence
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTimedValue
@@ -180,7 +183,7 @@ class DebugView : CoroutineScopeView() {
         FileChooser().apply {
             title = "Open path to an asset..."
             initialDirectory = if (pathField.text.isNotBlank()) {
-                Paths.get(pathField.text).parent.toFile()
+                Path(pathField.text).parent.toFile()
             } else {
                 wai2KContext.wai2KConfig.assetsDirectory.toFile()
             }
@@ -195,8 +198,8 @@ class DebugView : CoroutineScopeView() {
     private fun testPath() {
         launch(Dispatchers.IO) {
             wai2KContext.apply {
-                val path = Paths.get(pathField.text)
-                if (Files.exists(path)) {
+                val path = Path(pathField.text)
+                if (path.exists()) {
                     logger.info("Finding $path")
                     val device = ADB.getDevices().find { it.serial == wai2KConfig.lastDeviceSerial }
                     if (device == null) {
@@ -223,7 +226,7 @@ class DebugView : CoroutineScopeView() {
                         ?.forEach {
                             logger.info("Found ${path.fileName}: $it")
                         } ?: run { logger.warn("Could not find the asset anywhere") }
-                    logger.info("Took ${duration.inMilliseconds} ms")
+                    logger.info("Took ${duration.inWholeMilliseconds} ms")
                 } else {
                     logger.warn("That asset doesn't exist!")
                 }
@@ -233,8 +236,8 @@ class DebugView : CoroutineScopeView() {
 
     private fun doAssetOCR() {
         launch(Dispatchers.IO) {
-            val path = Paths.get(pathField.text)
-            if (Files.exists(path)) {
+            val path = Path(pathField.text)
+            if (path.exists()) {
                 logger.info("Result: \n${getOCR().doOCR(path.toFile())}\n----------")
             } else {
                 logger.warn("That asset doesn't exist!")
@@ -279,7 +282,7 @@ class DebugView : CoroutineScopeView() {
 
             val output = dir.resolve("out")
             logger.info("Annotating images in $dir")
-            Files.createDirectories(output)
+            output.createDirectories()
 
             val doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument()
             val root = doc.createElement("annotations").also { doc.appendChild(it) }
@@ -290,7 +293,7 @@ class DebugView : CoroutineScopeView() {
 
             Files.walk(dir).asSequence()
                 .filterNot { it.parent.endsWith("out") }
-                .filter { "$it".endsWith(".png", true) || "$it".endsWith(".jpg", true) }
+                .filter { it.extension == "png" || it.extension == "jpg" }
                 .sorted()
                 .forEachIndexed { i, path ->
                     val image = ImageFactory.getInstance().fromFile(path)
