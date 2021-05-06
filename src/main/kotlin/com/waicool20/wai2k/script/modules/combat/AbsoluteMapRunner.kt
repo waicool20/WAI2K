@@ -46,6 +46,6 @@ abstract class AbsoluteMapRunner(scriptComponent: ScriptComponent) : MapRunner(s
     }
 
     override suspend fun MapNode.findRegion(): AndroidRegion {
-        return region.subRegionAs(x, y, width, height)
+        return region.subRegion(x, y, width, height)
     }
 }

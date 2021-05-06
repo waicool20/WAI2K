@@ -19,7 +19,6 @@
 
 package com.waicool20.wai2k.script.modules.combat.maps
 
-import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.modules.combat.HomographyMapRunner
@@ -33,7 +32,7 @@ class Map10_4E(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptCom
     private val logger = loggerFor<Map10_4E>()
 
     override suspend fun begin() {
-        val r = region.subRegionAs<AndroidRegion>(1058, 700, 100, 3)
+        val r = region.subRegion(1058, 700, 100, 3)
         if (gameState.requiresMapInit) {
             logger.info("Map needs to be initialized!")
             logger.info("Zoom out")

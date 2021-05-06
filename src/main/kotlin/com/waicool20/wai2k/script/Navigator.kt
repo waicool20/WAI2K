@@ -20,7 +20,6 @@
 package com.waicool20.wai2k.script
 
 import com.waicool20.cvauto.android.AndroidRegion
-import com.waicool20.cvauto.core.asCachedRegion
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile

@@ -19,8 +19,6 @@
 
 package com.waicool20.wai2k.script.modules.combat
 
-import com.waicool20.cvauto.android.AndroidRegion
-import com.waicool20.cvauto.core.asCachedRegion
 import com.waicool20.cvauto.core.input.ITouchInterface
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.cvauto.core.template.ImageTemplate
@@ -185,8 +183,8 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
             applyFilters(tdoll, false)
             var switchDoll = region.findBest(FileTemplate("doll-list/echelon2-captain.png"))?.region
 
-            val r1 = region.subRegionAs<AndroidRegion>(1210, 1038, 500, 20)
-            val r2 = r1.copyAs<AndroidRegion>(y = r1.y - 325)
+            val r1 = region.subRegion(1210, 1038, 500, 20)
+            val r2 = r1.copy(y = r1.y - 325)
             val checkRegion = region.subRegion(185, 360, 60, 60)
 
             var scrollDown = true

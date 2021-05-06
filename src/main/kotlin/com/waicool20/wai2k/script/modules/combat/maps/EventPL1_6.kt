@@ -18,7 +18,6 @@
  */
 package com.waicool20.wai2k.script.modules.combat.maps
 
-import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.modules.combat.EventMapRunner
@@ -37,8 +36,8 @@ class EventPL1_6(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptC
     override suspend fun enterMap() {
         PLUtils.enterChapter(this)
         if (gameState.requiresMapInit) {
-            val r1 = region.subRegionAs<AndroidRegion>(770, 400, 60, 400)
-            val r2 = r1.copyAs<AndroidRegion>(x = r1.x + 700)
+            val r1 = region.subRegion(770, 400, 60, 400)
+            val r2 = r1.copy(x = r1.x + 700)
 
             repeat(4) { r2.swipeTo(r1) }
 
@@ -64,7 +63,7 @@ class EventPL1_6(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptC
             delay((1000 * gameState.delayCoefficient).roundToLong())
 
             logger.info("Pan up")
-            val r = region.subRegionAs<AndroidRegion>(1058, 324, 100, 22)
+            val r = region.subRegion(1058, 324, 100, 22)
             r.swipeTo(r.copy(y = r.y + 250))
             gameState.requiresMapInit = false
         }

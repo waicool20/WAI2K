@@ -19,9 +19,7 @@
 
 package com.waicool20.wai2k.script.modules
 
-import com.waicool20.cvauto.android.AndroidDevice
-import com.waicool20.cvauto.core.Region
-import com.waicool20.cvauto.core.asCachedRegion
+import com.waicool20.cvauto.core.AnyRegion
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.game.LogisticsSupport
@@ -85,7 +83,7 @@ class InitModule(navigator: Navigator) : ScriptModule(navigator) {
     /**
      * Updates the logistic support in gamestate
      */
-    private suspend fun updateLogistics(cache: Region<AndroidDevice>) {
+    private suspend fun updateLogistics(cache: AnyRegion) {
         logger.info("Reading logistics support status")
         val entry = cache.subRegion(422, 0, 240, cache.height)
             .findBest(FileTemplate("init/logistics.png"), 4)
@@ -123,7 +121,7 @@ class InitModule(navigator: Navigator) : ScriptModule(navigator) {
     /**
      * Updates the repair timers in gamestate
      */
-    private suspend fun updateRepairs(cache: Region<AndroidDevice>) {
+    private suspend fun updateRepairs(cache: AnyRegion) {
         logger.info("Reading repair status")
 
         val firstEntryRegion = cache.subRegion(388, 0, 159, region.height)

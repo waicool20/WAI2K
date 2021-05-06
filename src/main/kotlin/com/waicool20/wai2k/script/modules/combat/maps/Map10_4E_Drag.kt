@@ -19,7 +19,6 @@
 
 package com.waicool20.wai2k.script.modules.combat.maps
 
-import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.modules.combat.AbsoluteMapRunner
@@ -38,7 +37,7 @@ class Map10_4E_Drag(scriptComponent: ScriptComponent) : AbsoluteMapRunner(script
     private val logger = loggerFor<Map10_4E_Drag>()
 
     override suspend fun begin() {
-        val r = region.subRegionAs<AndroidRegion>(1058, 700, 100, 3)
+        val r = region.subRegion(1058, 700, 100, 3)
         if (gameState.requiresMapInit) {
             logger.info("Zoom out")
             repeat(2) {

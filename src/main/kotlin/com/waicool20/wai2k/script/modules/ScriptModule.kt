@@ -19,7 +19,6 @@
 
 package com.waicool20.wai2k.script.modules
 
-import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.game.DollFilterRegions
 import com.waicool20.wai2k.game.TDoll
@@ -121,14 +120,14 @@ abstract class ScriptModule(
         // Region containing all chapters
         val cRegion = region.subRegion(395, 146, 283, 934)
         // Top 1/4 part of lsRegion
-        val upperSwipeRegion = cRegion.subRegionAs<AndroidRegion>(
+        val upperSwipeRegion = cRegion.subRegion(
             cRegion.width / 2 - 15,
             0,
             30,
             cRegion.height / 4
         )
         // Lower 1/4 part of lsRegion
-        val lowerSwipeRegion = cRegion.subRegionAs<AndroidRegion>(
+        val lowerSwipeRegion = cRegion.subRegion(
             cRegion.width / 2 - 15,
             cRegion.height / 4 + cRegion.height / 2,
             30,

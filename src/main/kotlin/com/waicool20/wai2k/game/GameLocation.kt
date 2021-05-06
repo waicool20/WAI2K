@@ -23,8 +23,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.waicool20.cvauto.android.AndroidDevice
-import com.waicool20.cvauto.core.Region
+import com.waicool20.cvauto.core.AnyRegion
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.script.Asset
@@ -121,7 +120,7 @@ data class GameLocation(
      *
      * @return True if location is on screen
      */
-    fun isInRegion(region: Region<AndroidDevice>): Boolean {
+    fun isInRegion(region: AnyRegion): Boolean {
         if (landmarks.isEmpty()) return false
         return when (matchingMode) {
             Mode.AND -> landmarks.all {

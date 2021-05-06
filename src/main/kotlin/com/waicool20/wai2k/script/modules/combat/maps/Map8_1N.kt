@@ -19,7 +19,6 @@
 
 package com.waicool20.wai2k.script.modules.combat.maps
 
-import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.modules.combat.AbsoluteMapRunner
 import com.waicool20.wai2k.script.modules.combat.CorpseDragging
@@ -47,7 +46,7 @@ class Map8_1N(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptCompon
                 delay(500)
             }
             logger.info("Pan up")
-            val r = region.subRegionAs<AndroidRegion>(1058, 224, 100, 22)
+            val r = region.subRegion(1058, 224, 100, 22)
             r.swipeTo(r.copy(y = r.y + 600))
             delay(500)
             gameState.requiresMapInit = false

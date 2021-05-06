@@ -20,7 +20,6 @@
 package com.waicool20.wai2k.script.modules
 
 
-import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.game.Echelon
 import com.waicool20.wai2k.game.LocationId
@@ -199,7 +198,7 @@ class LogisticsSupportModule(navigator: Navigator) : ScriptModule(navigator) {
         while (isActive) {
             val echelons = eRegion.findBest(FileTemplate("echelons/echelon.png"), 8)
                 .map { it.region }
-                .map { it.copyAs<AndroidRegion>(it.x + 93, it.y - 40, 60, 100) }
+                .map { it.copy(it.x + 93, it.y - 40, 60, 100) }
                 .mapAsync {
                     Ocr.forConfig(config, true).doOCRAndTrim(it)
                         .replace("18", "10").toInt() to it

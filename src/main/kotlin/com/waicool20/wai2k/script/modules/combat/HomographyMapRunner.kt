@@ -188,7 +188,7 @@ abstract class HomographyMapRunner(scriptComponent: ScriptComponent) : MapRunner
                 resetView()
                 continue
             }
-            val roi = window.copyAs<AndroidRegion>(
+            val roi = window.copy(
                 window.x + rect.x,
                 window.y + rect.y,
                 rect.width,
@@ -216,8 +216,8 @@ abstract class HomographyMapRunner(scriptComponent: ScriptComponent) : MapRunner
                 )
                 // Add some randomness
                 center.translate(Random.nextInt(-50, 50), Random.nextInt(-50, 50))
-                val from = center.copyAs<AndroidRegion>()
-                val to = center.copyAs<AndroidRegion>()
+                val from = center.copy()
+                val to = center.copy()
                 when {
                     roi.y < window.y -> {
                         val dist = (window.y - roi.y).coerceAtLeast(minScroll)

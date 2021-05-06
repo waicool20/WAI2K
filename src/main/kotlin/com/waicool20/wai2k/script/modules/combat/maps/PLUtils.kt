@@ -19,8 +19,6 @@
 
 package com.waicool20.wai2k.script.modules.combat.maps
 
-import com.waicool20.cvauto.android.AndroidRegion
-import com.waicool20.cvauto.core.asCachedRegion
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.waicoolutils.logging.loggerFor
@@ -68,8 +66,8 @@ object PLUtils {
         )
 
         // Region for panning up and down
-        val r1 = region.subRegionAs<AndroidRegion>(415, 330, 100, 20)
-        val r2 = r1.copyAs<AndroidRegion>(y = r1.y + 500)
+        val r1 = region.subRegion(415, 330, 100, 20)
+        val r2 = r1.copy(y = r1.y + 500)
 
         logger.info("Pan Down to bottom of chapter select")
         repeat(3) {

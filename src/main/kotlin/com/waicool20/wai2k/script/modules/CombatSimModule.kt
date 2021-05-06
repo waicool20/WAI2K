@@ -19,7 +19,6 @@
 
 package com.waicool20.wai2k.script.modules
 
-import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.config.Wai2KProfile.CombatSimulation.Level
 import com.waicool20.wai2k.game.Echelon
@@ -98,7 +97,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
                 delay(500)
             }
             logger.info("Pan up")
-            val r = region.subRegionAs<AndroidRegion>(700, 140, 400, 100)
+            val r = region.subRegion(700, 140, 400, 100)
             r.swipeTo(r.copy(y = r.y + 400))
             delay(1000) // Wait to settle
 

@@ -19,7 +19,6 @@
 
 package com.waicool20.wai2k.script.modules.combat.maps
 
-import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.modules.combat.HomographyMapRunner
 import com.waicool20.waicoolutils.logging.loggerFor
@@ -45,7 +44,7 @@ class Map5_6(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptCompo
                 delay(200)
             }
             logger.info("Pan up")
-            val r = region.subRegionAs<AndroidRegion>(998, 624, 100, 30)
+            val r = region.subRegion(998, 624, 100, 30)
             r.swipeTo(r.copy(y = r.y + 200))
             delay(500)
             gameState.requiresMapInit = false

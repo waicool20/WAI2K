@@ -19,7 +19,6 @@
 
 package com.waicool20.wai2k.script.modules.combat.maps
 
-import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.modules.combat.CampaignMapRunner
 import com.waicool20.wai2k.script.modules.combat.HomographyMapRunner
@@ -61,7 +60,7 @@ class CampaignDD_3_2(scriptComponent: ScriptComponent) : HomographyMapRunner(scr
         waitForTurnAndPoints(2, 2, false, 180_000)
 
         // alright lets do this incredibly ghetto retreat
-        val r = region.subRegionAs<AndroidRegion>(1058, 700, 100, 3) // required for pan right
+        val r = region.subRegion(1058, 700, 100, 3) // required for pan right
         logger.info("Zoom in")
         region.pinch(375, 875, 0.0, 100)
         delay(1000)

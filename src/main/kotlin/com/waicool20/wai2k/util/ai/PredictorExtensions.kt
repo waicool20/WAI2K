@@ -22,13 +22,13 @@ package com.waicool20.wai2k.util.ai
 import ai.djl.inference.Predictor
 import ai.djl.modality.cv.Image
 import ai.djl.modality.cv.ImageFactory
-import com.waicool20.cvauto.core.Region
+import com.waicool20.cvauto.core.AnyRegion
 import java.awt.image.BufferedImage
 
 fun <T> Predictor<Image, T>.predict(image: BufferedImage): T {
     return predict(ImageFactory.getInstance().fromImage(image))
 }
 
-fun <T> Predictor<Image, T>.predict(region: Region<*>): T {
+fun <T> Predictor<Image, T>.predict(region: AnyRegion): T {
     return predict(ImageFactory.getInstance().fromImage(region.capture()))
 }

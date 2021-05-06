@@ -19,7 +19,6 @@
 
 package com.waicool20.wai2k.script.modules.combat.maps
 
-import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.modules.combat.CorpseDragging
 import com.waicool20.wai2k.script.modules.combat.HomographyMapRunner
@@ -60,7 +59,7 @@ class Map12_4E(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptCom
 
         // move area of interest closer to middle
         logger.info("Pan up")
-        val r = region.subRegionAs<AndroidRegion>(1058, 224, 100, 22)
+        val r = region.subRegion(1058, 224, 100, 22)
         r.swipeTo(r.copy(y = r.y - 170))
         delay((500 * gameState.delayCoefficient).roundToLong())
         mapH = null

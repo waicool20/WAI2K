@@ -26,6 +26,7 @@ import boofcv.factory.interpolate.FactoryInterpolation
 import boofcv.io.image.ConvertBufferedImage
 import boofcv.struct.border.BorderType
 import boofcv.struct.image.GrayF32
+import com.waicool20.cvauto.core.AnyDevice
 import com.waicool20.cvauto.core.IDevice
 import com.waicool20.cvauto.util.transformPoint
 import com.waicool20.wai2k.config.Wai2KContext
@@ -50,13 +51,12 @@ import java.io.File
 import java.nio.file.Path
 import javax.imageio.ImageIO
 
-
 class HomographyViewer(
-    private val device: IDevice,
+    private val device: AnyDevice,
     private val image: BufferedImage
 ) : CoroutineScopeView() {
-    constructor(device: IDevice, imagePath: File) : this(device, ImageIO.read(imagePath))
-    constructor(device: IDevice, imagePath: Path) : this(device, ImageIO.read(imagePath.toFile()))
+    constructor(device: AnyDevice, imagePath: File) : this(device, ImageIO.read(imagePath))
+    constructor(device: AnyDevice, imagePath: Path) : this(device, ImageIO.read(imagePath.toFile()))
 
     override val root: VBox by fxml("/views/homography-viewer.fxml")
 
