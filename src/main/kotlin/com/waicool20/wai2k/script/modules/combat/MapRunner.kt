@@ -63,7 +63,7 @@ abstract class MapRunner(
 ) : ScriptComponent by scriptComponent, CoroutineScope {
 
     class Deployment(val echelon: Int, val mapNode: MapNode) : Deployable
-    class Retreat(val mapNode: MapNode, val singleClick: Boolean) : Retreatable
+    class Retreat(val mapNode: MapNode) : Retreatable
 
     infix fun Int.at(mapNode: MapNode) = Deployment(this, mapNode)
 
@@ -202,7 +202,6 @@ abstract class MapRunner(
                         echelon = d.echelon
                         node = d.mapNode
                     }
-                    else -> throw IllegalArgumentException("Deploying echelons, expected MapNode or Deployment but got ${d::class.simpleName}")
                 }
 
                 logger.info("Deploying echelon ${i + 1} to $node")
@@ -354,7 +353,6 @@ abstract class MapRunner(
             when (it) {
                 is MapNode -> it
                 is Retreat -> it.mapNode
-                else -> throw IllegalArgumentException("Retreating echelons, expected MapNode or Retreat but got ${it::class.simpleName}")
             }
         }
         for (retreat in rl) {

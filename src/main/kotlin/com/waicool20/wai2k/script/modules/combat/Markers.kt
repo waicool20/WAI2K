@@ -19,6 +19,6 @@
 
 package com.waicool20.wai2k.script.modules.combat
 
-interface Deployable
-interface Retreatable
+sealed interface Deployable
+sealed interface Retreatable
 interface CorpseDragging
