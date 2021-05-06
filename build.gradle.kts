@@ -26,8 +26,7 @@ import java.nio.file.StandardOpenOption
 import java.security.MessageDigest
 
 plugins {
-    java
-    kotlin("jvm") version "1.4.20"
+    kotlin("jvm") version "1.5.0"
     id("com.github.johnrengelman.shadow") version "latest.release"
     id("org.openjfx.javafxplugin") version "latest.release"
 }
@@ -50,12 +49,12 @@ javafx {
 dependencies {
     val versions = object {
         val Kotlin by lazy { plugins.getPlugin(KotlinPluginWrapper::class).kotlinPluginVersion }
-        val KotlinCoroutines = "1.4.2"
-        val Jackson = "2.10.1" // Higher version break loading javafx compatibility
+        val KotlinCoroutines = "1.5.0-RC"
+        val Jackson = "2.12.3"
     }
 
     implementation(kotlin("stdlib-jdk8"))
-    implementation("org.jetbrains.kotlin", "kotlin-reflect", versions.Kotlin)
+    implementation(kotlin("reflect"))
     implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-core", versions.KotlinCoroutines)
     implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-javafx", versions.KotlinCoroutines)
     implementation("com.fasterxml.jackson.core", "jackson-core", versions.Jackson)
@@ -81,12 +80,6 @@ dependencies {
     implementation("com.waicool20:cvauto-android")
 }
 
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(15))
-    }
-}
-
 tasks {
     processResources {
         dependsOn("versioning")
@@ -109,7 +102,6 @@ tasks {
     withType<KotlinCompile> {
         kotlinOptions {
             jvmTarget = JavaVersion.VERSION_1_8.toString()
-            freeCompilerArgs = listOf()
         }
     }
     withType<ShadowJar> {
@@ -146,10 +138,10 @@ task("deps-list") {
         val repos = project.repositories.mapNotNull { it as? MavenArtifactRepository }.map { it.url }
         val output = StringBuilder()
         output.appendLine("Repositories:")
-        repos.sorted().forEach { output.appendln("- $it") }
+        repos.sortedDescending().forEach { output.appendLine("- $it") }
         output.appendLine()
         output.appendLine("Dependencies:")
-        deps.sorted().forEach { output.appendln("- $it") }
+        deps.sorted().forEach { output.appendLine("- $it") }
         Files.write(file, output.toString().toByteArray(), StandardOpenOption.TRUNCATE_EXISTING)
     }
 }

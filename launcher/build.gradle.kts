@@ -23,15 +23,13 @@
  */
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.security.MessageDigest
 
 plugins {
-    java
-    kotlin("jvm") version "1.4.20"
+    kotlin("jvm") version "1.5.0"
     id("com.github.johnrengelman.shadow") version "5.2.0"
 }
 
@@ -43,16 +41,9 @@ repositories {
 }
 
 dependencies {
-    val versions = object {
-        val Kotlin by lazy { plugins.getPlugin(KotlinPluginWrapper::class).kotlinPluginVersion }
-    }
-
     implementation(kotlin("stdlib-jdk8"))
     implementation("com.squareup.okhttp3:okhttp:4.9.0")
     implementation("org.jboss.shrinkwrap.resolver:shrinkwrap-resolver-impl-maven:3.1.4")
-
-    /* --- */
-    testImplementation("junit", "junit", "4.12")
 }
 
 tasks {
