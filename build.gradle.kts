@@ -32,7 +32,7 @@ plugins {
 }
 
 group = "com.waicool20"
-version = System.getenv("APPVEYOR_REPO_COMMIT")?.take(8) ?: "v0.0.1"
+version = System.getenv("APPVEYOR_REPO_COMMIT")?.take(8) ?: "dev"
 defaultTasks = mutableListOf("build")
 
 repositories {
@@ -149,12 +149,7 @@ task("deps-list") {
 
 task("versioning") {
     val file = Paths.get("$projectDir/src/main/resources/version.txt")
-    val content = """
-    |{
-    |    "version": "${project.version}"
-    |}
-    """.trimMargin()
-    Files.write(file, content.toByteArray())
+    Files.write(file, project.version.toString().toByteArray())
 }
 
 task<Zip>("packAssets") {

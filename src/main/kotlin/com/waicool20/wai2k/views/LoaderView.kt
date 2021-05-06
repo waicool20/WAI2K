@@ -20,8 +20,6 @@
 package com.waicool20.wai2k.views
 
 import ai.djl.Device
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import com.waicool20.cvauto.android.ADB
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.Wai2K
@@ -67,7 +65,7 @@ class LoaderView : CoroutineScopeView() {
             startStatusListener()
             find<ConsoleView>()
             parseVersion()
-            logger.info("Starting WAI2K ${context.versionInfo.version}")
+            logger.info("Starting WAI2K ${context.version}")
             logger.info("Config directory: ${Wai2K.CONFIG_DIR}")
             startLoading()
         }
@@ -81,8 +79,8 @@ class LoaderView : CoroutineScopeView() {
     }
 
     private fun parseVersion() {
-        context.versionInfo =
-            jacksonObjectMapper().readValue(javaClass.classLoader.getResourceAsStream("version.txt"))
+        context.version = LoaderView::class.java.getResourceAsStream("/version.txt")
+            ?.bufferedReader()?.readText()
     }
 
     private fun startLoading() {
