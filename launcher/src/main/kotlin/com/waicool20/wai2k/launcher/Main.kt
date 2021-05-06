@@ -238,7 +238,7 @@ object Main {
 
         var maven = newMavenResolver(repos)
 
-        for (d in dependencies) {
+        dep@for (d in dependencies) {
             label.text = "Checking dependency: $d"
             println("Resolving dependency $d")
             var paths: List<Path>
@@ -251,7 +251,7 @@ object Main {
                     // Need a new resolver otherwise the error will keep showing up while resolving
                     // other dependencies
                     maven = newMavenResolver(repos)
-                    continue
+                    continue@dep
                 }
                 // Skip sha1 check on snapshots
                 if (d.contains("snapshot", true)) break
