@@ -187,7 +187,7 @@ abstract class MapRunner(
      */
     protected suspend fun deployEchelons(vararg deployments: Deployable): Array<MapNode> =
         coroutineScope {
-            val needsResupply = mutableListOf<MapNode>()
+            val needsResupply = mutableSetOf<MapNode>()
             deployments.forEachIndexed { i, d ->
                 val echelon: Int
                 val node: MapNode
@@ -212,36 +212,64 @@ abstract class MapRunner(
                 val formatter = DecimalFormat("##.#")
 
                 fun hasMember(mIndex: Int): Boolean {
-                    val hpText = Ocr.forConfig(config)
-                        .doOCR(screenshot.getSubimage(404 + mIndex * 272, 751, 40, 22))
-                    return hpText.contains("hp", true)
+                    return screenshot.getRGB(385 + mIndex * 272, 765) == Color.WHITE.rgb
                 }
 
-                val hasMember2 = hasMember(1)
+                val members = if (this@MapRunner is CorpseDragging) {
+                    logger.info("Corpse dragging map, only member 2 will be scanned")
+                    listOf(1)
+                } else {
+                    (0..4).toList()
+                }.filter { hasMember(it) }
+
                 val ammoNeedsSupply = async {
-                    if (!hasMember2) return@async false
-                    val image = screenshot.getSubimage(645, 820, 218, 1).binarizeImage()
-                    val ammoCount = image.countColor(Color.WHITE) / image.width.toDouble()
-                    logger.info("Second member ammo: ${formatter.format(ammoCount * 100)} %")
-                    ammoCount < ammoResupplyThreshold
+                    members.mapAsync { m ->
+                        val image =
+                            screenshot.getSubimage(373 + m * 272, 820, 218, 1).binarizeImage()
+                        val ammoCount = image.countColor(Color.WHITE) / image.width.toDouble()
+                        if (ammoCount < ammoResupplyThreshold) needsResupply += node
+                        m to ammoCount
+                    }.toMap()
                 }
                 val rationNeedsSupply = async {
-                    if (!hasMember2) return@async false
-                    val image = screenshot.getSubimage(645, 860, 218, 1).binarizeImage()
-                    val rationCount = image.countColor(Color.WHITE) / image.width.toDouble()
-                    logger.info("Second member rations: ${formatter.format(rationCount * 100)} %")
-                    rationCount < rationsResupplyThreshold
+                    members.mapAsync { m ->
+                        val image =
+                            screenshot.getSubimage(373 + m * 272, 860, 218, 1).binarizeImage()
+                        val rationCount = image.countColor(Color.WHITE) / image.width.toDouble()
+                        if (rationCount < rationsResupplyThreshold) needsResupply += node
+                        m to rationCount
+                    }.toMap()
                 }
-                if (this !is CorpseDragging) {
-                    for (mIndex in 0..5) {
-                        if (!hasMember(mIndex)) continue
-                        val hpImage =
-                            screenshot.getSubimage(373 + mIndex * 272, 778, 217, 1).binarizeImage()
-                        val hp = hpImage.countColor(Color.WHITE) / hpImage.width.toDouble() * 100
-                        logger.info("Member ${mIndex + 1} HP: ${formatter.format(hp)} %")
-                        if (hp < profile.combat.repairThreshold) {
-                            logger.info("Repairing member ${mIndex + 1}")
-                            region.subRegion(360 + mIndex * 272, 228, 246, 323).click()
+
+                val hpMap = async {
+                    members.mapAsync { m ->
+                        // Don't need to check health if corpse dragging map because it's already checked
+                        // when going to formation
+                        if (this@MapRunner is CorpseDragging) {
+                            m to -1.0
+                        } else {
+                            val hpImage =
+                                screenshot.getSubimage(373 + m * 272, 778, 217, 1).binarizeImage()
+                            m to hpImage.countColor(Color.WHITE) / hpImage.width.toDouble() * 100
+                        }
+                    }.toMap()
+                }
+
+                logger.info("----- Members -----")
+                members.forEach { m ->
+                    val ammo = formatter.format(ammoNeedsSupply.await()[m]!! * 100)
+                    val rations = formatter.format(rationNeedsSupply.await()[m]!! * 100)
+                    val hp = hpMap.await()[m]?.takeIf { it in 0.0..100.0 }
+                        ?.let { formatter.format(it) } ?: "N/A"
+                    logger.info("Member ${m + 1} | HP: $hp%\t\t| Ammo: $ammo%\t\t| Rations: $rations%")
+                }
+                logger.info("-------------------")
+
+                if (this@MapRunner !is CorpseDragging) {
+                    members.forEach { m ->
+                        if (hpMap.await()[m]!! in 0.0..profile.combat.repairThreshold.toDouble()) {
+                            logger.info("Repairing member ${m + 1}")
+                            region.subRegion(360 + m * 272, 228, 246, 323).click()
                             region.subRegion(1441, 772, 250, 96)
                                 .waitHas(FileTemplate("ok.png"), 3000)?.click()
                             scriptStats.repairs++
@@ -249,12 +277,9 @@ abstract class MapRunner(
                         }
                     }
                 }
+
                 mapRunnerRegions.deploy.click()
-                // AbsoluteMapRunner might click next echelon too fast if deploying multiple echelons
-                delay(if (this is AbsoluteMapRunner) 2000 else 500)
-                if (ammoNeedsSupply.await() || rationNeedsSupply.await()) {
-                    needsResupply += node
-                }
+                delay(1000)
             }
             needsResupply.forEach { logger.info("Echelon at $it needs resupply!") }
             delay(200)

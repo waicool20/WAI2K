@@ -27,6 +27,7 @@ import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.doOCRAndTrim
+import com.waicool20.waicoolutils.firstAsync
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -69,18 +70,18 @@ class Navigator(
      */
     suspend fun identifyCurrentLocation(retries: Int = 5): GameLocation {
         logger.info("Identifying current location")
-        val locations = locations.entries.sortedBy { it.value.isIntermediate }
-            .map { it.value }.asFlow()
+        val start = System.currentTimeMillis()
+        val locations = locations.entries.sortedBy { it.value.isIntermediate }.map { it.value }
         repeat(retries) { i ->
             checkLogistics(true)
             val r = region.asCachedRegion()
-            try {
-                return locations.flatMapMerge { loc ->
-                    { loc.takeIf { it.isInRegion(r) } }.asFlow()
-                }.filterNotNull().first().also { logger.info("At ${it.id}") }
-            } catch (e: NoSuchElementException) {
+            val l = locations.firstAsync { it.isInRegion(r) }
+            if (l == null) {
                 logger.warn("Could not find location after ${i + 1} attempts, retries remaining: ${retries - i - 1}")
                 delay(1000L * (i + 1))
+            } else {
+                logger.info("At ${l.id}, took ${System.currentTimeMillis() - start} ms")
+                return l
             }
         }
         throw UnknownLocationException()
