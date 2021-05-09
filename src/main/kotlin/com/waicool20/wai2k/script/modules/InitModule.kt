@@ -85,7 +85,7 @@ class InitModule(navigator: Navigator) : ScriptModule(navigator) {
      */
     private suspend fun updateLogistics(cache: AnyRegion) {
         logger.info("Reading logistics support status")
-        val entry = cache.subRegion(422, 0, 240, cache.height)
+        val entry = cache.subRegion(427, 0, 234, cache.height)
             .findBest(FileTemplate("init/logistics.png"), 4)
             .map { it.region }
             // Map each region to whole logistic support entry
@@ -94,7 +94,7 @@ class InitModule(navigator: Navigator) : ScriptModule(navigator) {
                 listOf(
                     // Echelon number
                     Ocr.forConfig(config, digitsOnly = true)
-                        .doOCRAndTrim(it.subRegion(0, 25, 80, 90)),
+                        .doOCRAndTrim(it.subRegion(2, 25, 80, 90)),
                     // Logistics number ie. 1-1
                     Ocr.forConfig(config).doOCRAndTrim(it.subRegion(165, 0, 90, 42)),
                     // Timer xx:xx:xx
