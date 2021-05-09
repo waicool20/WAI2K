@@ -646,6 +646,7 @@ abstract class MapRunner(
         val l = mapRunnerRegions.battleEndClick.randomPoint()
         val cancelR = region.subRegion(761, 674, 283, 144)
         var counter = 0
+        val now = System.currentTimeMillis()
         loop@ while (true) {
             val capture = region.capture()
             val sample = capture.getRGB(50, 1050)
@@ -664,6 +665,10 @@ abstract class MapRunner(
                     logger.info("Clicked max times ($counter times)")
                     break@loop
                 }
+            }
+            if (System.currentTimeMillis() - now > 10000) {
+                logger.info("Clicked until timeout ($counter times)")
+                break@loop
             }
             region.subRegion(l.x, l.y, 20, 20).click()
             cancelR.findBest(FileTemplate("combat/battle/cancel.png"))?.region?.click()
