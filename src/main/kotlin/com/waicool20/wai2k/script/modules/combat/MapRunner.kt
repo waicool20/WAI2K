@@ -25,9 +25,7 @@ import com.waicool20.cvauto.core.template.ITemplate
 import com.waicool20.wai2k.game.*
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.ScriptTimeOutException
-import com.waicool20.wai2k.util.Ocr
-import com.waicool20.wai2k.util.WatchDogTimer
-import com.waicool20.wai2k.util.doOCRAndTrim
+import com.waicool20.wai2k.util.*
 import com.waicool20.waicoolutils.binarizeImage
 import com.waicool20.waicoolutils.countColor
 import com.waicool20.waicoolutils.logging.loggerFor
@@ -649,14 +647,14 @@ abstract class MapRunner(
         val now = System.currentTimeMillis()
         loop@ while (true) {
             val capture = region.capture()
-            val sample = capture.getRGB(50, 1050)
-            if (sample == Color(16, 16, 16).rgb &&
-                capture.getRGB(680, 580) == Color(222, 223, 74).rgb
+            val sample = Color(capture.getRGB(50, 1050))
+            if (sample.isSimilar(Color(16, 16, 16)) &&
+                Color(capture.getRGB(680, 580)).isSimilar(Color(222, 223, 74))
             ) {
                 logger.info("Clicked until transition ($counter times)")
                 break@loop
             }
-            if (sample == Color(247, 0, 74).rgb) {
+            if (sample.isSimilar(Color(247, 0, 74))) {
                 logger.info("Clicked until map ($counter times)")
                 break@loop
             }
