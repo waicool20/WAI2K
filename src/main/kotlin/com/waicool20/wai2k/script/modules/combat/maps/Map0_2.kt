@@ -35,7 +35,7 @@ class Map0_2(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptCompo
     override suspend fun begin() {
         if (gameState.requiresMapInit) {
             logger.info("Zoom out")
-            region.pinch(
+            region.copy(height = region.height - 250).pinch(
                 Random.nextInt(900, 1000),
                 Random.nextInt(300, 400),
                 0.0,
