@@ -86,8 +86,8 @@ tasks {
         dependsOn("deps-list")
     }
     build {
+        dependsOn(gradle.includedBuild("launcher").task(":build"))
         finalizedBy("shadowJar")
-        finalizedBy(gradle.includedBuild("launcher").task(":build"))
     }
     withType<AbstractArchiveTask>().configureEach {
         isPreserveFileTimestamps = false

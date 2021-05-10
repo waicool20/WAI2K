@@ -106,8 +106,11 @@ object Main {
 
     @JvmStatic
     fun main(args: Array<String>) {
+        println("Launcher path: $jarPath")
         checkJavaVersion()
-        if (!(args.contains("--skip-updates") && jarPath?.name?.contains("SkipUpdates") == true)) {
+        if (args.contains("--skip-updates") || jarPath?.name?.contains("SkipUpdates") == true) {
+            launchWai2K(args)
+        } else {
             try {
                 if (!args.contains("--skip-launcher-update")) {
                     checkLauncherUpdate()
@@ -124,7 +127,6 @@ object Main {
                 // Just try to launch wai2k anyways if anything unexpected happens ¯\_(ツ)_/¯
             }
         }
-        launchWai2K(args)
     }
 
     private fun checkFile(file: String) {
