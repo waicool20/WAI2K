@@ -42,7 +42,7 @@ class ChapterClickFailedException(chapter: Int) :
     ScriptException("Failed to find and click chapter $chapter")
 
 class InvalidLocationsJsonFileException : ScriptException("Bad or incomplete locations.json file")
-class UnsupportedMapException(mapName: String) : ScriptException("Unsupported map: $mapName")
+class UnsupportedMapException(val mapName: String) : ScriptException("Unsupported map: $mapName")
 class ReplacementDollNotFoundException : ScriptException("Could not find replacement dragging doll")
 class InvalidDollException(id: String) : ScriptException("Invalid doll: $id")
 class RepairUpdateException : ScriptException("Failed to update repair status, bad OCR?")

@@ -59,6 +59,11 @@ class ScriptRunner(
         const val HIGH_RES = 1080
     }
 
+    init {
+        // Turn off logging for reflections library
+        (loggerFor<Reflections>() as Logger).level = Level.OFF
+    }
+
     private var scriptJob: Job? = null
     override val coroutineContext: CoroutineContext
         get() = scriptJob?.takeIf { it.isActive }?.let { it + Dispatchers.Default }
@@ -82,14 +87,9 @@ class ScriptRunner(
         private set
 
     private var statsHash: Int = scriptStats.hashCode()
-
-    init {
-        // Turn off logging for reflections library
-        (loggerFor<Reflections>() as Logger).level = Level.OFF
-    }
-
     private val modules = mutableSetOf<ScriptModule>()
     private var navigator: Navigator? = null
+    private var captureTimeoutCount: Int = 0
 
     fun run() {
         if (isRunning) return
@@ -172,34 +172,24 @@ class ScriptRunner(
         try {
             modules.forEach { it.execute() }
             justRestarted = false
+        } catch (e: UnsupportedMapException) {
+            logger.error("The map `${e.mapName}` is not supported by the current version of WAI2K")
+            logger.error("Please configure another map then save and restart.")
+            coroutineContext.cancelAndYield()
         } catch (e: ScriptException) {
-            if (e is UnsupportedMapException) {
-                e.printStackTrace()
-                coroutineContext.cancelAndYield()
-            }
-            logger.warn("Fault detected, restarting game")
-            val now = LocalDateTime.now()
             e.printStackTrace()
-            val device = requireNotNull(currentDevice)
-            val screenshot = device.screens.first().capture()
-            val output = Wai2K.CONFIG_DIR.resolve("debug")
-                .resolve("${DateTimeFormatter.ofPattern("yyyy-MM-dd HH-mm-ss").format(now)}.png")
-            launch(Dispatchers.IO) {
-                output.parent.createDirectories()
-                ImageIO.write(screenshot, "PNG", output.toFile())
-                logger.info("Saved debug image to: ${output.toAbsolutePath()}")
-            }
-            if (currentConfig.gameRestartConfig.enabled) {
-                restartGame(e.localizedMessage)
+            logger.warn("Recoverable fault detected, restarting game")
+            saveDebugImage()
+            exceptionRestart(e)
+        } catch (e: Region.CaptureTimeoutException) {
+            if (captureTimeoutCount <= 3) {
+                logger.error("Screen capture timed out, will wait 10s before restarting")
+                delay(10_000)
+                exceptionRestart(e)
             } else {
-                if (currentConfig.notificationsConfig.onRestart) {
-                    YuuBot.postMessage(
-                        currentConfig.apiKey,
-                        "Script Stopped",
-                        "Reason: ${e.localizedMessage}"
-                    )
-                }
-                logger.warn("Restart not enabled, ending script here")
+                logger.error("Screen capture keeps timing out, something might be wrong with the emulator!" +
+                    " Exiting...")
+                YuuBot.postMessage(currentConfig.apiKey, "Script Stopped", "Too many capture timeouts")
                 coroutineContext.cancelAndYield()
             }
         } catch (e: Exception) {
@@ -222,6 +212,35 @@ class ScriptRunner(
             logger.info("Script will now resume")
         } else {
             delay((currentConfig.scriptConfig.loopDelay * 1000L).coerceAtLeast(500))
+        }
+    }
+
+    private fun saveDebugImage() {
+        val now = LocalDateTime.now()
+        val device = requireNotNull(currentDevice)
+        val screenshot = device.screens.first().capture()
+        val output = Wai2K.CONFIG_DIR.resolve("debug")
+            .resolve("${DateTimeFormatter.ofPattern("yyyy-MM-dd HH-mm-ss").format(now)}.png")
+        launch(Dispatchers.IO) {
+            output.parent.createDirectories()
+            ImageIO.write(screenshot, "PNG", output.toFile())
+            logger.info("Saved debug image to: ${output.toAbsolutePath()}")
+        }
+    }
+
+    private suspend fun exceptionRestart(e: Exception) {
+        if (currentConfig.gameRestartConfig.enabled) {
+            restartGame(e.localizedMessage)
+        } else {
+            if (currentConfig.notificationsConfig.onRestart) {
+                YuuBot.postMessage(
+                    currentConfig.apiKey,
+                    "Script Stopped",
+                    "Reason: ${e.localizedMessage}"
+                )
+            }
+            logger.warn("Restart not enabled, ending script here")
+            coroutineContext.cancelAndYield()
         }
     }
 
