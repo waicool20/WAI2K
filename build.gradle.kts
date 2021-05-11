@@ -27,11 +27,17 @@ import java.security.MessageDigest
 plugins {
     kotlin("jvm") version "1.5.0"
     id("com.github.johnrengelman.shadow") version "latest.release"
+    id("org.openjfx.javafxplugin") version "latest.release"
 }
 
 group = "com.waicool20"
 version = System.getenv("APPVEYOR_REPO_COMMIT")?.take(8) ?: "dev"
 defaultTasks = mutableListOf("build")
+
+javafx {
+    version = "15"
+    modules = listOf("javafx.controls", "javafx.fxml", "javafx.swing")
+}
 
 repositories {
     mavenCentral()
