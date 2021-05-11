@@ -35,10 +35,10 @@ class Map0_2(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptCompo
     override suspend fun begin() {
         if (gameState.requiresMapInit) {
             logger.info("Zoom out")
-            region.copy(height = region.height - 250).pinch(
+            region.pinch(
                 Random.nextInt(900, 1000),
                 Random.nextInt(300, 400),
-                0.0,
+                15.0,
                 500
             )
             delay((900 * gameState.delayCoefficient).roundToLong()) //Wait to settle
