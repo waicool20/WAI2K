@@ -22,13 +22,11 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.nio.file.Files
 import java.nio.file.Paths
-import java.nio.file.StandardOpenOption
 import java.security.MessageDigest
 
 plugins {
     kotlin("jvm") version "1.5.0"
     id("com.github.johnrengelman.shadow") version "latest.release"
-    id("org.openjfx.javafxplugin") version "latest.release"
 }
 
 group = "com.waicool20"
@@ -41,16 +39,12 @@ repositories {
     maven("https://jitpack.io")
 }
 
-javafx {
-    version = "15"
-    modules = listOf("javafx.controls", "javafx.fxml", "javafx.swing")
-}
-
 dependencies {
     val versions = object {
         val Kotlin by lazy { plugins.getPlugin(KotlinPluginWrapper::class).kotlinPluginVersion }
         val KotlinCoroutines = "1.5.0-RC"
         val Jackson = "2.12.3"
+        val OpenJfx = "15"
     }
 
     implementation(kotlin("stdlib-jdk8"))
@@ -74,6 +68,20 @@ dependencies {
         exclude("org.ghost4j")
         exclude("org.apache.pdfbox")
         exclude("org.jboss")
+    }
+
+    val platforms = if (System.getenv("CI").equals("true", ignoreCase = true)) {
+        listOf("win", "linux", "mac")
+    } else listOf(null)
+
+    platforms.forEach { p ->
+        implementation("org.openjfx", "javafx-base", versions.OpenJfx, classifier = p)
+        implementation("org.openjfx", "javafx-controls", versions.OpenJfx, classifier = p)
+        implementation("org.openjfx", "javafx-fxml", versions.OpenJfx, classifier = p)
+        implementation("org.openjfx", "javafx-graphics", versions.OpenJfx, classifier = p)
+        implementation("org.openjfx", "javafx-media", versions.OpenJfx, classifier = p)
+        implementation("org.openjfx", "javafx-swing", versions.OpenJfx, classifier = p)
+        implementation("org.openjfx", "javafx-web", versions.OpenJfx, classifier = p)
     }
 
     implementation("com.waicool20:waicoolUtils")
