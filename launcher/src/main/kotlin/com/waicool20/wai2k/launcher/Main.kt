@@ -20,14 +20,18 @@
 package com.waicool20.wai2k.launcher
 
 import okhttp3.OkHttpClient
+import okhttp3.Protocol
 import okhttp3.Request
 import java.awt.Desktop
 import java.awt.Dimension
 import java.awt.FlowLayout
+import java.io.InputStream
+import java.io.OutputStream
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
 import java.security.MessageDigest
+import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
 import java.util.zip.ZipInputStream
 import javax.swing.BorderFactory
@@ -64,7 +68,15 @@ object Main {
         SHA1(40)
     }
 
-    private val client = OkHttpClient()
+    private val client by lazy {
+        OkHttpClient().newBuilder()
+            .readTimeout(20, TimeUnit.SECONDS)
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .retryOnConnectionFailure(true)
+            .protocols(listOf(Protocol.HTTP_1_1))
+            .build()
+    }
+    private val formatter by lazy { DecimalFormat("#.#") }
     private val url = "https://wai2k.waicool20.com/files"
     private val appPath = Path(System.getProperty("user.home"), ".wai2k").absolute()
     private val libPath = appPath.resolve("libs")
@@ -136,11 +148,14 @@ object Main {
             client.newCall(Request.Builder().url("$url/$file").build()).execute().use {
                 if (!it.isSuccessful) error("Bad server response: ${it.code}")
                 println("[DOWNLOAD] $file")
-                val input = it.body!!.byteStream()
+                val body = it.body!!
+                val total = body.contentLength()
+                val input = body.byteStream()
                 val output = path.outputStream()
-                input.copyTo(output)
-                input.close()
-                output.close()
+                input.copyWithProgress(output) { i ->
+                    label.text = "Downloading $file: $i / $total " +
+                        "(${formatter.format(i / total.toDouble() * 100)} %)"
+                }
                 println("[OK] $file")
             }
 
@@ -156,45 +171,63 @@ object Main {
         }
     }
 
-   private fun checkLibsUpdate() {
-       label.text = "Checking libraries"
-       val path = appPath.resolve("libs.zip")
-       try {
-           if (path.exists()) {
-               val chksum0 = grabWebString("$url/libs.zip.md5")
-               val chksum1 = calcCheckSum(path, Hash.MD5)
-               if (chksum0.equals(chksum1, true)) {
-                   if (libPath.notExists()) unzip(path, appPath)
-                   return
-               }
-           }
+    private fun checkLibsUpdate() {
+        label.text = "Checking libraries"
+        val path = appPath.resolve("libs.zip")
+        try {
+            if (path.exists()) {
+                val chksum0 = grabWebString("$url/libs.zip.md5")
+                val chksum1 = calcCheckSum(path, Hash.MD5)
+                if (chksum0.equals(chksum1, true)) {
+                    if (libPath.notExists()) unzip(path, appPath)
+                    return
+                }
+            }
 
-           if (libPath.exists()) {
-               Files.walk(appPath.resolve("libs")).forEach { it.deleteExisting() }
-           }
+            if (libPath.exists()) {
+                Files.walk(appPath.resolve("libs")).sorted(Comparator.reverseOrder())
+                    .forEach { it.deleteExisting() }
+            }
 
-           client.newCall(Request.Builder().url("$url/libs.zip").build()).execute().use {
-               if (!it.isSuccessful) error("Bad server response: ${it.code}")
-               println("[DOWNLOAD] libs.zip")
-               val input = it.body!!.byteStream()
-               val output = path.outputStream()
-               input.copyTo(output)
-               input.close()
-               output.close()
-               println("[OK] libs.zip")
-           }
+            client.newCall(Request.Builder().url("$url/libs.zip").build()).execute().use {
+                if (!it.isSuccessful) error("Bad server response: ${it.code}")
+                println("[DOWNLOAD] libs.zip")
+                val body = it.body!!
+                val total = body.contentLength()
+                val input = body.byteStream()
+                val output = path.outputStream()
+                input.copyWithProgress(output) { i ->
+                    label.text = "Downloading libs.zip: $i / $total " +
+                        "(${formatter.format(i / total.toDouble() * 100)} %)"
+                }
+                input.close()
+                output.close()
+                println("[OK] libs.zip")
+            }
 
-           unzip(path, appPath)
-       } catch (e: Exception) {
-           if (path.exists()) {
-               println("Skipping libs.zip update check due to exception")
-               e.printStackTrace()
-               return
-           } else {
-               halt("Could not grab initial copy of libs.zip")
-           }
-       }
-   }
+            unzip(path, appPath)
+        } catch (e: Exception) {
+            if (path.exists()) {
+                println("Skipping libs.zip update check due to exception")
+                e.printStackTrace()
+                return
+            } else {
+                halt("Could not grab initial copy of libs.zip")
+            }
+        }
+    }
+
+    private fun InputStream.copyWithProgress(output: OutputStream, callback: (Long) -> Unit) {
+        val buffer = ByteArray(8192)
+        var bytesCopied = 0L
+        var bytes = read(buffer)
+        while (bytes >= 0) {
+            output.write(buffer, 0, bytes)
+            bytesCopied += bytes
+            callback(bytesCopied)
+            bytes = read(buffer)
+        }
+    }
 
     private fun checkJavaVersion() {
         val v = System.getProperty("java.version")
