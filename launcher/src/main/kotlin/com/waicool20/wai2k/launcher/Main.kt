@@ -74,7 +74,7 @@ object Main {
         } else null
     }
 
-    val mainFiles = listOf("WAI2K.jar", "libs.jar", "assets.zip", "models.zip")
+    val mainFiles = listOf("WAI2K.jar", "libs.zip", "assets.zip", "models.zip")
 
     val label = JLabel().apply {
         text = "Launching WAI2K"
@@ -246,11 +246,17 @@ object Main {
         frame.isVisible = false
         frame.dispose()
 
+        val jars = Files.walk(appPath.resolve("libs"))
+            .filter { it.isRegularFile() && it.extension == "jar" }
+            .toList()
+            .sortedDescending()
+
         val classpath = if (System.getProperty("os.name").contains("win", true)) {
-            "$appPath\\libs.jar;$appPath\\WAI2K.jar"
+            jars.joinToString(";", postfix = ";") + "$appPath\\WAI2K.jar"
         } else {
-            "$appPath/libs.jar:$appPath/WAI2K.jar"
+            jars.joinToString(":", postfix = ":") + "$appPath/WAI2K.jar"
         }
+
         println("Launching WAI2K")
         println("Classpath: $classpath")
         println("Args: ${args.joinToString()}")

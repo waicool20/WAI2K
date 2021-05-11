@@ -112,7 +112,7 @@ tasks {
     shadowJar {
         archiveClassifier.value("")
         archiveVersion.value("")
-        manifest { attributes(mapOf("Main-Class" to "com.waicool20.wai2k.Wai2K")) }
+        manifest { attributes(mapOf("Main-Class" to "com.waicool20.wai2k.LauncherKt")) }
         dependencies { include { it.moduleGroup.startsWith("com.waicool20") } }
         doLast { md5sum(archiveFile.get()) }
     }
@@ -123,16 +123,20 @@ tasks {
     }
 }
 
-task("prepare-deploy") {
+task("prepareDeploy") {
     dependsOn("build", "packLibs", "packAssets")
 }
 
-task<ShadowJar>("packLibs") {
-    archiveBaseName.value("libs")
-    archiveClassifier.value("")
-    archiveVersion.value("")
-    configurations = project.configurations.filter { it.isCanBeResolved }
-    dependencies { exclude { it.moduleGroup.startsWith("com.waicool20") } }
+task<Copy>("copyLibs") {
+    from(project.configurations.filter { it.isCanBeResolved })
+    into("$buildDir/tmp/libs/")
+}
+
+task<Zip>("packLibs") {
+    archiveFileName.set("libs.zip")
+    destinationDirectory.set(file("$buildDir/deploy/"))
+    from("$buildDir/tmp/")
+    include("/libs/**")
     doLast { md5sum(archiveFile.get()) }
 }
 
