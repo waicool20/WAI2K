@@ -131,7 +131,7 @@ task<ShadowJar>("packLibs") {
     archiveBaseName.value("libs")
     archiveClassifier.value("")
     archiveVersion.value("")
-    configurations = listOf(project.configurations.compileClasspath.get())
+    configurations = project.configurations.filter { it.isCanBeResolved }
     dependencies { exclude { it.moduleGroup.startsWith("com.waicool20") } }
     doLast { md5sum(archiveFile.get()) }
 }
