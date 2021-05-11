@@ -133,6 +133,7 @@ task<Copy>("copyLibs") {
 }
 
 task<Zip>("packLibs") {
+    dependsOn("copyLibs")
     archiveFileName.set("libs.zip")
     destinationDirectory.set(file("$buildDir/deploy/"))
     from("$buildDir/tmp/")
