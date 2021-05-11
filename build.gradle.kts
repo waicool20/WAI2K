@@ -83,7 +83,6 @@ dependencies {
 tasks {
     processResources {
         dependsOn("versioning")
-        dependsOn("deps-list")
     }
     build {
         dependsOn(gradle.includedBuild("launcher").task(":build"))
@@ -95,56 +94,32 @@ tasks {
     }
     jar {
         enabled = false
-        manifest {
-            attributes(mapOf("Main-Class" to "com.waicool20.wai2k.Wai2K"))
-        }
+    }
+    shadowJar {
+        archiveClassifier.value("")
+        archiveVersion.value("")
+        manifest { attributes(mapOf("Main-Class" to "com.waicool20.wai2k.Wai2K")) }
+        dependencies { include { it.moduleGroup.startsWith("com.waicool20") } }
+        doLast { md5sum(archiveFile.get()) }
     }
     withType<KotlinCompile> {
         kotlinOptions {
             jvmTarget = JavaVersion.VERSION_1_8.toString()
         }
     }
-    withType<ShadowJar> {
-        archiveClassifier.value("")
-        archiveVersion.value("")
-        dependencies {
-            include { it.moduleGroup.startsWith("com.waicool20") }
-        }
-        doLast { md5sum(archiveFile.get()) }
-    }
 }
 
 task("prepare-deploy") {
-    dependsOn("build", "deps-list", "packAssets")
+    dependsOn("build", "packLibs", "packAssets")
 }
 
-task("deps-list") {
-    val file = Paths.get("$buildDir/deploy/dependencies.txt")
-    doFirst {
-        if (Files.notExists(file)) {
-            Files.createDirectories(file.parent)
-            Files.createFile(file)
-        }
-    }
-    doLast {
-        tailrec fun getDeps(deps: Set<DependencyResult>): List<DependencyResult> {
-            return if (deps.isNotEmpty()) deps.flatMap { it.from.dependencies } else getDeps(deps)
-        }
-
-        val deps = getDeps(configurations.default.get().incoming.resolutionResult.allDependencies)
-            .map { it.toString() }
-            .distinct()
-            .filterNot { it.startsWith("project") || it.contains("->") }
-        val repos =
-            project.repositories.mapNotNull { it as? MavenArtifactRepository }.map { it.url }
-        val output = StringBuilder()
-        output.appendLine("Repositories:")
-        repos.sortedDescending().forEach { output.appendLine("- $it") }
-        output.appendLine()
-        output.appendLine("Dependencies:")
-        deps.sorted().forEach { output.appendLine("- $it") }
-        Files.write(file, output.toString().toByteArray(), StandardOpenOption.TRUNCATE_EXISTING)
-    }
+task<ShadowJar>("packLibs") {
+    archiveBaseName.value("libs")
+    archiveClassifier.value("")
+    archiveVersion.value("")
+    configurations = listOf(project.configurations.compileClasspath.get())
+    dependencies { exclude { it.moduleGroup.startsWith("com.waicool20") } }
+    doLast { md5sum(archiveFile.get()) }
 }
 
 task("versioning") {

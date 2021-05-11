@@ -43,16 +43,13 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation("com.squareup.okhttp3:okhttp:4.9.0")
-    implementation("org.jboss.shrinkwrap.resolver:shrinkwrap-resolver-impl-maven:3.1.4")
 }
 
 tasks {
     build { finalizedBy("shadowJar") }
     jar {
         enabled = false
-        manifest {
-            attributes(mapOf("Main-Class" to "com.waicool20.wai2k.launcher.Main"))
-        }
+        manifest { attributes(mapOf("Main-Class" to "com.waicool20.wai2k.launcher.Main")) }
     }
     withType<KotlinCompile> {
         kotlinOptions.jvmTarget = JavaVersion.VERSION_1_8.toString()
@@ -62,9 +59,7 @@ tasks {
         isReproducibleFileOrder = true
     }
     withType<ShadowJar> {
-        minimize {
-            exclude(dependency("org.jboss.shrinkwrap.resolver:.*:.*"))
-        }
+        minimize()
         archiveClassifier.value("")
         archiveVersion.value("")
         exclude("kotlin/reflect/**")

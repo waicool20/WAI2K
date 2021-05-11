@@ -21,9 +21,6 @@ package com.waicool20.wai2k.launcher
 
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.jboss.shrinkwrap.resolver.api.NoResolvedResultException
-import org.jboss.shrinkwrap.resolver.api.maven.ConfigurableMavenResolverSystem
-import org.jboss.shrinkwrap.resolver.api.maven.Maven
 import java.awt.Desktop
 import java.awt.Dimension
 import java.awt.FlowLayout
@@ -70,8 +67,6 @@ object Main {
     private val client = OkHttpClient()
     private val url = "https://wai2k.waicool20.com/files"
     private val appPath = Path(System.getProperty("user.home"), ".wai2k").absolute()
-    private val libPath = appPath.resolve("libs")
-    private val depPath = appPath.resolve("dependencies.txt")
     private val jarPath = run {
         // Skip update check if running from code
         if ("${Main.javaClass.getResource(Main.javaClass.simpleName + ".class")}".startsWith("jar")) {
@@ -79,7 +74,7 @@ object Main {
         } else null
     }
 
-    val mainFiles = listOf("WAI2K.jar", "assets.zip", "models.zip")
+    val mainFiles = listOf("WAI2K.jar", "libs.jar", "assets.zip", "models.zip")
 
     val label = JLabel().apply {
         text = "Launching WAI2K"
@@ -101,7 +96,6 @@ object Main {
 
     init {
         appPath.createDirectories()
-        libPath.createDirectories()
     }
 
     @JvmStatic
@@ -117,9 +111,6 @@ object Main {
                 }
                 if (!args.contains("--skip-main-update")) {
                     mainFiles.forEach(::checkFile)
-                }
-                if (!args.contains("--skip-dependencies-update")) {
-                    checkDependencies(args.contains("--use-local-dep-list"))
                 }
             } catch (e: Exception) {
                 println("Exception during update check")
@@ -174,8 +165,7 @@ object Main {
     private fun checkLauncherUpdate() {
         if (jarPath == null) return
         try {
-            val chksum0 =
-                grabWebString("https://github.com/waicool20/WAI2K/releases/download/Latest/WAI2K-Launcher.jar.md5")
+            val chksum0 = grabWebString("https://wai2k.waicool20.com/files/WAI2K-Launcher.jar.md5")
             val chksum1 = calcCheckSum(jarPath, Hash.MD5)
             if (chksum0.equals(chksum1, true)) return
             browseLink("https://github.com/waicool20/WAI2K/releases/tag/Latest")
@@ -184,98 +174,6 @@ object Main {
             println("Skipping launcher update check due to exception")
             e.printStackTrace()
         }
-    }
-
-    private fun checkDependencies(useLocalDepList: Boolean) {
-        label.text = "Checking dependencies..."
-
-        // Download libs to local
-        System.setProperty("maven.repo.local", libPath.toString())
-
-        val text = try {
-            if (useLocalDepList && depPath.exists()) {
-                depPath.readLines()
-            } else {
-                val text = grabWebString("$url/dependencies.txt")
-                if (depPath.exists()) {
-                    val oldText = depPath.readText()
-                    if (oldText != text) {
-                        println("Dependencies changed, deleting old ones...")
-                        Files.walk(libPath).sorted(Comparator.reverseOrder())
-                            .forEach { Files.delete(it) }
-                    }
-                }
-                depPath.writeText(text)
-                text.lines()
-            }
-        } catch (e: Exception) {
-            if (depPath.exists()) {
-                println("Could not retrieve new dependencies, using old one instead")
-                e.printStackTrace()
-                depPath.readLines()
-            } else {
-                halt("Could not retrieve dependency list: ${e.message}")
-            }
-        }
-
-        val dependencies = mutableListOf<String>()
-        val repos = mutableListOf<String>()
-
-        var isRepo = false
-
-        for (line in text) {
-            when {
-                line.startsWith("Repositories:") -> isRepo = true
-                line.startsWith("Dependencies") -> isRepo = false
-                line.startsWith("- ") -> {
-                    val entry = line.drop(2)
-                    if (isRepo) {
-                        repos.add(entry)
-                    } else {
-                        dependencies.add(entry)
-                    }
-                }
-            }
-        }
-
-        var maven = newMavenResolver(repos)
-
-        dep@for (d in dependencies) {
-            label.text = "Checking dependency: $d"
-            println("Resolving dependency $d")
-            var paths: List<Path>
-            while (true) {
-                try {
-                    paths = maven.resolve(d).withTransitivity().asFile().map { it.toPath() }
-                } catch (e: NoResolvedResultException) {
-                    println("Could not resolve $d")
-                    e.printStackTrace()
-                    // Need a new resolver otherwise the error will keep showing up while resolving
-                    // other dependencies
-                    maven = newMavenResolver(repos)
-                    continue@dep
-                }
-                // Skip sha1 check on snapshots
-                if (d.contains("snapshot", true)) break
-                val failedChecks = paths.filterNot { verifyCheckSum(it, Hash.SHA1) }
-                if (failedChecks.isEmpty()) break
-                failedChecks.forEach {
-                    it.deleteIfExists()
-                    Path("$it.sha1").deleteIfExists()
-                }
-            }
-            println("Found dependency @ ${paths.firstOrNull()}")
-        }
-    }
-
-    private fun newMavenResolver(repos: List<String>): ConfigurableMavenResolverSystem {
-        var maven = Maven.configureResolver()
-            // Disabled for easier debugging since it resolves jars from launcher classpath
-            .withClassPathResolution(false)
-        for ((i, entry) in repos.withIndex()) {
-            maven = maven.withRemoteRepo(i.toString(), entry, "default")
-        }
-        return maven
     }
 
     private fun browseLink(link: String) {
@@ -349,16 +247,10 @@ object Main {
         frame.isVisible = false
         frame.dispose()
 
-        val jars = Files.walk(libPath)
-            .filter { it.isRegularFile() && it.extension == "jar" }
-            .toList()
-            // Prioritize higher versioned libraries
-            .sortedDescending()
-
         val classpath = if (System.getProperty("os.name").contains("win", true)) {
-            jars.joinToString(";", postfix = ";") + "$appPath\\WAI2K.jar"
+            "$appPath\\libs.jar;$appPath\\WAI2K.jar"
         } else {
-            jars.joinToString(":", postfix = ":") + "$appPath/WAI2K.jar"
+            "$appPath/libs.jar:$appPath/WAI2K.jar"
         }
         println("Launching WAI2K")
         println("Classpath: $classpath")
