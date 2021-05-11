@@ -67,6 +67,7 @@ object Main {
     private val client = OkHttpClient()
     private val url = "https://wai2k.waicool20.com/files"
     private val appPath = Path(System.getProperty("user.home"), ".wai2k").absolute()
+    private val libPath = appPath.resolve("libs")
     private val jarPath = run {
         // Skip update check if running from code
         if ("${Main.javaClass.getResource(Main.javaClass.simpleName + ".class")}".startsWith("jar")) {
@@ -74,7 +75,7 @@ object Main {
         } else null
     }
 
-    val mainFiles = listOf("WAI2K.jar", "libs.zip", "assets.zip", "models.zip")
+    val mainFiles = listOf("WAI2K.jar", "assets.zip", "models.zip")
 
     val label = JLabel().apply {
         text = "Launching WAI2K"
@@ -109,6 +110,9 @@ object Main {
                 }
                 if (!args.contains("--skip-main-update")) {
                     mainFiles.forEach(::checkFile)
+                }
+                if (!args.contains("--skip-libs-update")) {
+                    checkLibsUpdate()
                 }
             } catch (e: Exception) {
                 println("Exception during update check")
@@ -151,6 +155,46 @@ object Main {
             }
         }
     }
+
+   private fun checkLibsUpdate() {
+       label.text = "Checking libraries"
+       val path = appPath.resolve("libs.zip")
+       try {
+           if (path.exists()) {
+               val chksum0 = grabWebString("$url/libs.zip.md5")
+               val chksum1 = calcCheckSum(path, Hash.MD5)
+               if (chksum0.equals(chksum1, true)) {
+                   if (libPath.notExists()) unzip(path, appPath)
+                   return
+               }
+           }
+
+           if (libPath.exists()) {
+               Files.walk(appPath.resolve("libs")).forEach { it.deleteExisting() }
+           }
+
+           client.newCall(Request.Builder().url("$url/libs.zip").build()).execute().use {
+               if (!it.isSuccessful) error("Bad server response: ${it.code}")
+               println("[DOWNLOAD] libs.zip")
+               val input = it.body!!.byteStream()
+               val output = path.outputStream()
+               input.copyTo(output)
+               input.close()
+               output.close()
+               println("[OK] libs.zip")
+           }
+
+           unzip(path, appPath)
+       } catch (e: Exception) {
+           if (path.exists()) {
+               println("Skipping libs.zip update check due to exception")
+               e.printStackTrace()
+               return
+           } else {
+               halt("Could not grab initial copy of libs.zip")
+           }
+       }
+   }
 
     private fun checkJavaVersion() {
         val v = System.getProperty("java.version")
@@ -246,7 +290,7 @@ object Main {
         frame.isVisible = false
         frame.dispose()
 
-        val jars = Files.walk(appPath.resolve("libs"))
+        val jars = Files.walk(libPath)
             .filter { it.isRegularFile() && it.extension == "jar" }
             .toList()
             .sortedDescending()
