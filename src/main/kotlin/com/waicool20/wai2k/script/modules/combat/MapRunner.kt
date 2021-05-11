@@ -183,7 +183,7 @@ abstract class MapRunner(
      *
      * @return Deployments that need resupply, can be used in conjunction with [resupplyEchelons]
      */
-    protected suspend fun deployEchelons(vararg deployments: Deployable): Array<MapNode> =
+    protected suspend fun deployEchelons(vararg deployments: Deployable): Set<MapNode> =
         coroutineScope {
             val needsResupply = mutableSetOf<MapNode>()
             deployments.forEachIndexed { i, d ->
@@ -282,7 +282,7 @@ abstract class MapRunner(
             needsResupply.forEach { logger.info("Echelon at $it needs resupply!") }
             delay(200)
             logger.info("Deployment complete")
-            needsResupply.toTypedArray()
+            needsResupply
         }
 
     /**
@@ -341,15 +341,19 @@ abstract class MapRunner(
         return false
     }
 
-    @JvmName("resupplyEchelonsArray")
-    protected suspend fun resupplyEchelons(nodes: Array<MapNode>) = resupplyEchelons(*nodes)
+    /**
+     * Resupplies an echelon at the given nodes, skips normal type nodes
+     *
+     * @param node Nodes to resupply
+     */
+    protected suspend fun resupplyEchelons(vararg node: MapNode) = resupplyEchelons(node.toSet())
 
     /**
      * Resupplies an echelon at the given nodes, skips normal type nodes
      *
      * @param nodes Nodes to resupply
      */
-    protected suspend fun resupplyEchelons(vararg nodes: MapNode) {
+    protected suspend fun resupplyEchelons(nodes: Set<MapNode>) {
         for (node in nodes.distinct()) {
             if (node.type == MapNode.Type.Normal) continue
             logger.info("Resupplying echelon at $node")
@@ -362,15 +366,19 @@ abstract class MapRunner(
         }
     }
 
-    @JvmName("retreatEchelonsArray")
-    protected suspend fun retreatEchelons(nodes: Array<Retreatable>) = retreatEchelons(*nodes)
+    /**
+     * Retreats an echelon at the given nodes, skips normal type nodes
+     *
+     * @param retreat Nodes to retreat
+     */
+    protected suspend fun retreatEchelons(vararg retreat: Retreatable) = retreatEchelons(retreat.toSet())
 
     /**
      * Retreats an echelon at the given nodes, skips normal type nodes
      *
      * @param retreats Nodes to retreat
      */
-    protected suspend fun retreatEchelons(vararg retreats: Retreatable) {
+    protected suspend fun retreatEchelons(retreats: Set<Retreatable>) {
         val rl = retreats.distinctBy {
             when (it) {
                 is MapNode -> it
