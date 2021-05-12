@@ -38,7 +38,6 @@ import java.lang.reflect.Modifier
 import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
-import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 import kotlin.random.Random
 import kotlin.reflect.KClass
@@ -61,6 +60,7 @@ abstract class MapRunner(
 
     class Deployment(val echelon: Int, val mapNode: MapNode) : Deployable
     class Retreat(val mapNode: MapNode) : Retreatable
+    data class TurnInfo(val turn: Int, val points: Int)
 
     infix fun Int.at(mapNode: MapNode) = Deployment(this, mapNode)
 
@@ -371,7 +371,8 @@ abstract class MapRunner(
      *
      * @param retreat Nodes to retreat
      */
-    protected suspend fun retreatEchelons(vararg retreat: Retreatable) = retreatEchelons(retreat.toSet())
+    protected suspend fun retreatEchelons(vararg retreat: Retreatable) =
+        retreatEchelons(retreat.toSet())
 
     /**
      * Retreats an echelon at the given nodes, skips normal type nodes
@@ -499,9 +500,8 @@ abstract class MapRunner(
         timeout: Long = 120_000
     ) = coroutineScope {
         logger.info("Waiting for turn $turn and action points $points")
-        val ocr = Ocr.forConfig(config, digitsOnly = true)
-        var currentTurn = 0
-        var currentPoints = 0
+        var oldTurn = 0
+        var oldPoints = 0
         val wdt = WatchDogTimer(profile.combat.battleTimeout * 1000L + timeout)
         wdt.start()
         loop@ while (isActive && !interruptWaitFlag) {
@@ -513,23 +513,15 @@ abstract class MapRunner(
                     clickThroughBattle()
                     wdt.reset()
                 }
-                currentTurn == turn && currentPoints == points -> break@loop
+                oldTurn == turn && oldPoints == points -> break@loop
             }
-            val screenshot = region.capture()
-            val newTurn = ocr.doOCRAndTrim(screenshot.getSubimage(748, 53, 86, 72))
-                .let { if (it.firstOrNull() == '8') it.replaceFirst("8", "0") else it }
-                .toIntOrNull() ?: continue
 
+            val (newTurn, newPoints) = getTurnInfo() ?: continue
 
-            val newPoints = ocr.doOCRAndTrim(
-                screenshot.getSubimage(1730, 970, 135, 76)
-                    .binarizeImage().pad(10, 10, Color.BLACK)
-            ).toIntOrNull() ?: continue
-
-            if (newTurn > currentTurn || currentPoints != newPoints) {
+            if (newTurn > oldTurn || oldPoints != newPoints) {
                 logger.info("Current turn: $newTurn ($turn) | Current action points: $newPoints ($points)")
-                currentTurn = newTurn
-                currentPoints = newPoints
+                oldTurn = newTurn
+                oldPoints = newPoints
                 wdt.reset()
             }
             if (wdt.hasExpired()) throw ScriptTimeOutException("Waiting for turn and points")
@@ -594,12 +586,10 @@ abstract class MapRunner(
 
         try {
             withTimeout(60000) {
-                var extraClicks = 10.0
                 while (!location.isInRegion(region)) {
-                    // Speed this up as time goes on
-                    repeat((extraClicks / 10).roundToInt()) {
+                    repeat(Random.nextInt(2, 4)) {
                         mapRunnerRegions.battleEndClick.click()
-                        extraClicks += 1
+                        delay(50)
                     }
                     endTurn()
                 }
@@ -707,5 +697,43 @@ abstract class MapRunner(
     private suspend fun endTurn() {
         mapRunnerRegions.endBattle.clickWhile { has(FileTemplate("combat/battle/end.png", 0.8)) }
         region.subRegion(1100, 675, 275, 130).waitHas(FileTemplate("ok.png"), 1000)?.click()
+    }
+
+    /**
+     * Reads the current turn and point count
+     */
+    protected fun getTurnInfo(): TurnInfo? {
+        val ocr = Ocr.forConfig(config).useCharFilter(Ocr.DIGITS + "-")
+        val screenshot = region.capture()
+
+        val turn = ocr.doOCRAndTrim(screenshot.getSubimage(748, 53, 86, 72))
+            .let { if (it.firstOrNull() == '8') it.replaceFirst("8", "0") else it }
+            .toIntOrNull() ?: return null
+
+
+        val points = ocr.doOCRAndTrim(
+            screenshot.getSubimage(1730, 970, 140, 76)
+                .binarizeImage(0.3).pad(10, 10, Color.BLACK)
+        ).toIntOrNull() ?: return null
+
+        return TurnInfo(turn, points)
+    }
+
+    /**
+     * Reads the current turn count and returns true if equal to [targetPoints]
+     */
+    protected fun checkPoints(targetPoints: Int): Boolean {
+        val wdt = WatchDogTimer(20_000)
+        wdt.start()
+        while (true) {
+            if (wdt.hasExpired()) throw ScriptTimeOutException("Checking points")
+            val (_, points) = getTurnInfo() ?: continue
+            wdt.stop()
+            if (points != targetPoints) {
+                logger.info("Remaining AP should be $targetPoints, got $points instead")
+                return false
+            }
+            return true
+        }
     }
 }

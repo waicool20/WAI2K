@@ -6,5 +6,6 @@
         <language minSize="64" name="Kotlin" />
       </Languages>
     </inspection_tool>
+    <inspection_tool class="SameParameterValue" enabled="false" level="WARNING" enabled_by_default="false" />
   </profile>
 </component>

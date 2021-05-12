@@ -32,7 +32,7 @@ object Ocr {
         "zZ" to "2", "E" to "3",
         "Ah" to "4", "sS" to "5",
         "bG" to "6", "B:" to "8",
-        "- —" to ""
+        "—" to "-", " " to ""
     )
 
     val OCR_DISTANCE_MAP = mapOf(
