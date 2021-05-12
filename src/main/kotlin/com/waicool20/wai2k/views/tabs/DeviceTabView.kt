@@ -194,8 +194,13 @@ class DeviceTabView : CoroutineScopeView(), Binder {
                 createNewRenderJob(device)
             }
         }
-        context.wai2KConfig.scriptConfig.fastScreenshotModeProperty.addListener("DeviceTabViewFSMListener") { newVal ->
-            deviceComboBox.selectedItem?.screens?.firstOrNull()?.fastCaptureMode = newVal
+        with(context.wai2KConfig) {
+            scriptConfig.fastScreenshotModeProperty.addListener("DeviceTabViewFSMListener") { newVal ->
+                deviceComboBox.selectedItem?.screens?.forEach { it.fastCaptureMode = newVal }
+            }
+            captureCompressionModeProperty.addListener("DeviceTabViewCCMListener") { newVal ->
+                deviceComboBox.selectedItem?.screens?.forEach { it.compressionMode = newVal }
+            }
         }
     }
 
@@ -249,9 +254,14 @@ class DeviceTabView : CoroutineScopeView(), Binder {
     private fun setNewDevice(device: AndroidDevice?) {
         if (device != null) {
             logger.debug("Selected device: ${device.properties.name}")
-            context.wai2KConfig.lastDeviceSerial = device.serial
-            context.wai2KConfig.save()
-            device.screens[0].fastCaptureMode = context.wai2KConfig.scriptConfig.fastScreenshotMode
+            with(context.wai2KConfig) {
+                lastDeviceSerial = device.serial
+                save()
+                device.screens.forEach { s ->
+                    s.fastCaptureMode = scriptConfig.fastScreenshotMode
+                    s.compressionMode = captureCompressionMode
+                }
+            }
             // Cancel the current job before starting a new one
             createNewRenderJob(device)
         }

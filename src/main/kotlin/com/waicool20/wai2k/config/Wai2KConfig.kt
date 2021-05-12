@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.wai2k.Wai2K
 import com.waicool20.waicoolutils.javafx.addListener
 import com.waicool20.waicoolutils.javafx.json.fxJacksonObjectMapper
@@ -47,6 +48,7 @@ class Wai2KConfig(
     clearConsoleOnStart: Boolean = true,
     showConsoleOnStart: Boolean = true,
     debugModeEnabled: Boolean = true,
+    captureCompressionMode: AndroidRegion.CompressionMode = AndroidRegion.CompressionMode.LZ4,
     lastDeviceSerial: String = "",
     scriptConfig: ScriptConfig = ScriptConfig(),
     gameRestartConfig: GameRestartConfig = GameRestartConfig(),
@@ -67,6 +69,7 @@ class Wai2KConfig(
     val clearConsoleOnStartProperty = clearConsoleOnStart.toProperty()
     val showConsoleOnStartProperty = showConsoleOnStart.toProperty()
     val debugModeEnabledProperty = debugModeEnabled.toProperty()
+    val captureCompressionModeProperty = captureCompressionMode.toProperty()
     val lastDeviceSerialProperty = lastDeviceSerial.toProperty()
     val scriptConfigProperty = scriptConfig.toProperty()
     val gameRestartConfigProperty = gameRestartConfig.toProperty()
@@ -80,6 +83,7 @@ class Wai2KConfig(
     var clearConsoleOnStart by clearConsoleOnStartProperty
     var showConsoleOnStart by showConsoleOnStartProperty
     var debugModeEnabled by debugModeEnabledProperty
+    var captureCompressionMode by captureCompressionModeProperty
     var lastDeviceSerial by lastDeviceSerialProperty
     var scriptConfig by scriptConfigProperty
     var gameRestartConfig by gameRestartConfigProperty
