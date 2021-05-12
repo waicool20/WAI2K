@@ -20,80 +20,81 @@
   -->
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<VBox xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
-      minWidth="-Infinity" spacing="10.0" xmlns="http://javafx.com/javafx/11.0.1">
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1">
     <children>
         <HBox alignment="CENTER_LEFT" spacing="10.0">
             <children>
-                <Label prefWidth="220.0" text="Loop delay (s):"/>
-                <Spinner fx:id="loopDelaySpinner" editable="true"/>
+                <Label prefWidth="220.0" text="Loop delay (s):" />
+                <Spinner fx:id="loopDelaySpinner" editable="true" />
             </children>
             <VBox.margin>
-                <Insets/>
+                <Insets />
             </VBox.margin>
         </HBox>
         <HBox alignment="CENTER_LEFT" spacing="10.0">
             <children>
-                <Label prefWidth="220.0" text="Base navigation delay (ms):"/>
-                <Spinner fx:id="baseNavigationDelaySpinner" editable="true"/>
+                <Label prefWidth="220.0" text="Base navigation delay (ms):" wrapText="true" />
+                <Spinner fx:id="baseNavigationDelaySpinner" editable="true" />
             </children>
         </HBox>
         <HBox alignment="CENTER_LEFT" spacing="10.0">
             <children>
-                <Label prefWidth="220.0" text="Mouse delay (s):"/>
-                <Spinner fx:id="mouseDelaySpinner" editable="true"/>
+                <Label prefWidth="220.0" text="Mouse delay (s):" />
+                <Spinner fx:id="mouseDelaySpinner" editable="true" />
             </children>
         </HBox>
         <HBox alignment="CENTER_LEFT" spacing="10.0">
             <children>
-                <Label prefWidth="220.0" text="Default similarity threshold:"/>
-                <Spinner fx:id="defaultSimThresholdSpinner" editable="true"/>
+                <Label prefWidth="220.0" text="Default similarity threshold:" wrapText="true" />
+                <Spinner fx:id="defaultSimThresholdSpinner" editable="true" />
             </children>
         </HBox>
         <HBox alignment="CENTER_LEFT" spacing="10.0">
             <children>
-                <Label prefWidth="220.0" text="Map runner similarity threshold:"/>
-                <Spinner fx:id="mapRunnerSimThresholdSpinner" editable="true"/>
+                <Label prefWidth="220.0" text="Map runner similarity threshold:" wrapText="true" />
+                <Spinner fx:id="mapRunnerSimThresholdSpinner" editable="true" />
             </children>
         </HBox>
         <HBox alignment="CENTER_LEFT" spacing="10.0">
             <children>
-                <Label prefWidth="220.0" text="OCR threshold:"/>
-                <Spinner fx:id="ocrThresholdSpinner" editable="true"/>
+                <Label prefWidth="220.0" text="OCR threshold:" />
+                <Spinner fx:id="ocrThresholdSpinner" editable="true" />
             </children>
         </HBox>
-        <Separator prefWidth="200.0"/>
+        <Separator prefWidth="200.0" />
         <VBox spacing="10.0">
             <children>
                 <HBox>
                     <children>
-                        <Label prefWidth="375.0" text="Enable fast screenshot mode:"
-                               HBox.hgrow="ALWAYS"/>
-                        <CheckBox fx:id="fastScreenshotModeCheckBox" mnemonicParsing="false"/>
+                        <Label prefWidth="375.0" text="Enable fast screenshot mode:" wrapText="true" HBox.hgrow="ALWAYS" />
+                        <CheckBox fx:id="fastScreenshotModeCheckBox" mnemonicParsing="false" />
                     </children>
                 </HBox>
-                <Label prefWidth="400.0"
-                       text="WARNING: Highly experimental, speed increase depends on your system and may actually be detrimental, higher CPU usage is to be expected&#10;"
-                       wrapText="true"/>
+                <Label prefWidth="400.0" text="WARNING: Highly experimental, speed increase depends on your system and may actually be detrimental, higher CPU usage is to be expected&#10;" wrapText="true" />
             </children>
         </VBox>
-        <Separator prefWidth="200.0"/>
+        <Separator prefWidth="200.0" />
         <HBox spacing="10.0">
             <children>
-                <Label prefWidth="220.0" text="Max post battle clicks:"/>
-                <Spinner fx:id="maxPostBattleClickSpinner" editable="true"/>
+                <Label prefWidth="220.0" text="Max post battle clicks:" />
+                <Spinner fx:id="maxPostBattleClickSpinner" editable="true" />
             </children>
         </HBox>
         <HBox spacing="10.0">
             <children>
-                <Label prefHeight="16.0" prefWidth="369.0" text="Idle at home:"/>
-                <CheckBox fx:id="idleAtHomeCheckBox" mnemonicParsing="false"/>
+                <Label prefHeight="16.0" prefWidth="369.0" text="Idle at home:" />
+                <CheckBox fx:id="idleAtHomeCheckBox" mnemonicParsing="false" />
             </children>
         </HBox>
     </children>
     <padding>
-        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
     </padding>
 </VBox>
