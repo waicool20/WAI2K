@@ -19,6 +19,18 @@
 
 package com.waicool20.wai2k.script.modules.combat
 
+/* Some interfaces for the map runner function APIs */
+
 sealed interface Deployable
 sealed interface Retreatable
+
+/* Interfaces to "tag" what a map runner might do and change the script execution flow */
+
 interface CorpseDragging
+
+sealed interface CustomMapEntrance {
+    suspend fun enterMap()
+}
+
+interface EventMapRunner: CustomMapEntrance
+interface CampaignMapRunner: CustomMapEntrance
