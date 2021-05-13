@@ -134,7 +134,9 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
         }
 
         navigator.navigateTo(loc)
-        (mapRunner as EventMapRunner).enterMap()
+
+        (mapRunner as? EventMapRunner)?.enterMap()
+        (mapRunner as? CampaignMapRunner)?.enterMap()
 
         if (checkNeedsEnhancement()) return
         // Wait for start operation button to appear first before handing off control to

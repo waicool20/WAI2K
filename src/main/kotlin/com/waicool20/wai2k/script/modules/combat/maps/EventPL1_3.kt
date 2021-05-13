@@ -44,12 +44,12 @@ class EventPL1_3(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptC
             r2.swipeTo(r1)
 
             region.subRegion(1110, 685, 950, 210)
-                .findBest(FileTemplate("$PREFIX/entrance.png", 0.98))?.region?.click()
+                .findBest(FileTemplate("$PREFIX/entrance.png", 0.9))?.region?.click()
         } else {
             region.subRegion(1664, 800, 180, 35).click()
         }
 
-        delay(2000)
+        delay(3000)
         region.subRegion(1832, 589, 232, 111).click()
     }
 
