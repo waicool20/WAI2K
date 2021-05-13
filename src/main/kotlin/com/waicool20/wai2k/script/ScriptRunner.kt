@@ -251,6 +251,7 @@ class ScriptRunner(
     suspend fun restartGame(reason: String) {
         if (scriptStats.gameRestarts >= currentConfig.gameRestartConfig.maxRestarts) {
             logger.info("Maximum of restarts reached, terminating script instead")
+            YuuBot.postMessage(currentConfig.apiKey, "Script Stopped", "Max restarts reached")
             coroutineContext.cancelAndYield()
         }
         val device = requireNotNull(currentDevice)
