@@ -49,7 +49,7 @@ class EventPL1_3(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptC
             region.subRegion(1664, 800, 180, 35).click()
         }
 
-        delay(1000)
+        delay(2000)
         region.subRegion(1832, 589, 232, 111).click()
     }
 

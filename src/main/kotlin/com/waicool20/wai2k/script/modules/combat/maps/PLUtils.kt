@@ -43,10 +43,16 @@ object PLUtils {
         val r = region.subRegion(380, 500, 60, 60).asCachedRegion()
 
         when (val currentChapter =
-            (1..5).firstOrNull { r.has(FileTemplate("combat/maps/EventPL/Ch$it.png", 1.0)) }) {
+            (1..5).firstOrNull { r.has(FileTemplate("combat/maps/EventPL/Ch$it.png", 0.98)) }) {
             null -> logger.info("At chapter selection screen")
             targetChapter -> {
                 logger.info("Already at chapter $targetChapter")
+                region.pinch(
+                    Random.nextInt(900, 1000),
+                    Random.nextInt(300, 400),
+                    0.0,
+                    1000
+                )
                 return
             }
             else -> {
