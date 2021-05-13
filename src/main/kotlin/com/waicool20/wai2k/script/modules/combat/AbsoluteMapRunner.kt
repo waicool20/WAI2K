@@ -22,6 +22,7 @@ package com.waicool20.wai2k.script.modules.combat
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.waicool20.cvauto.android.AndroidRegion
+import com.waicool20.wai2k.script.MissingAssetException
 import com.waicool20.wai2k.script.ScriptComponent
 import kotlin.io.path.exists
 
@@ -40,9 +41,7 @@ abstract class AbsoluteMapRunner(scriptComponent: ScriptComponent) : MapRunner(s
         val path = config.assetsDirectory.resolve("$PREFIX/map.json")
         if (path.exists()) {
             jacksonObjectMapper().readValue<List<MapNode>>(path.toFile())
-        } else {
-            emptyList()
-        }
+        } else throw MissingAssetException(path)
     }
 
     override suspend fun MapNode.findRegion(): AndroidRegion {

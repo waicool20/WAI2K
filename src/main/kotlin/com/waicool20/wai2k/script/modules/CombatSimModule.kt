@@ -27,7 +27,8 @@ import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptException
 import com.waicool20.wai2k.script.ScriptTimeOutException
-import com.waicool20.wai2k.script.modules.combat.AbsoluteMapRunner
+import com.waicool20.wai2k.script.modules.combat.MapNode
+import com.waicool20.wai2k.script.modules.combat.MapRunner
 import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.wai2k.util.formatted
@@ -48,7 +49,10 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
     private val dataSimDays = arrayOf(DayOfWeek.TUESDAY, DayOfWeek.FRIDAY, DayOfWeek.SUNDAY)
     private var simTimer = Duration.ZERO
 
-    private val mapRunner = object : AbsoluteMapRunner(this@CombatSimModule) {
+    private val mapRunner = object : MapRunner(this@CombatSimModule) {
+        override val nodes = emptyList<MapNode>()
+        override suspend fun MapNode.findRegion() = region
+
         override suspend fun begin() {
             if (profile.combatSimulation.neuralFragment == Level.OFF) return
 

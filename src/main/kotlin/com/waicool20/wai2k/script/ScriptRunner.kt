@@ -172,9 +172,8 @@ class ScriptRunner(
         try {
             modules.forEach { it.execute() }
             justRestarted = false
-        } catch (e: UnsupportedMapException) {
-            logger.error("The map `${e.mapName}` is not supported by the current version of WAI2K")
-            logger.error("Please configure another map then save and restart.")
+        } catch (e: UnrecoverableScriptException) {
+            e.message?.lines()?.forEach { logger.error(it) }
             coroutineContext.cancelAndYield()
         } catch (e: ScriptException) {
             e.printStackTrace()
@@ -187,9 +186,15 @@ class ScriptRunner(
                 delay(10_000)
                 exceptionRestart(e)
             } else {
-                logger.error("Screen capture keeps timing out, something might be wrong with the emulator!" +
-                    " Exiting...")
-                YuuBot.postMessage(currentConfig.apiKey, "Script Stopped", "Too many capture timeouts")
+                logger.error(
+                    "Screen capture keeps timing out, something might be wrong with the emulator!" +
+                        " Exiting..."
+                )
+                YuuBot.postMessage(
+                    currentConfig.apiKey,
+                    "Script Stopped",
+                    "Too many capture timeouts"
+                )
                 coroutineContext.cancelAndYield()
             }
         } catch (e: Exception) {

@@ -29,6 +29,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.util.transformRect
 import com.waicool20.wai2k.game.MapRunnerRegions
+import com.waicool20.wai2k.script.MissingAssetException
 import com.waicool20.wai2k.script.NodeNotFoundException
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.util.ai.MatchingModel
@@ -40,6 +41,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlin.io.path.exists
+import kotlin.io.path.notExists
 import kotlin.math.pow
 import kotlin.math.roundToLong
 import kotlin.random.Random
@@ -93,10 +95,11 @@ abstract class HomographyMapRunner(scriptComponent: ScriptComponent) : MapRunner
 
     init {
         val p = async(Dispatchers.IO) {
-            val model = MatchingModel(
-                config.assetsDirectory.resolve("models/SuperPoint.pt"),
-                config.assetsDirectory.resolve("models/SuperGlue.pt")
-            )
+            val sppt = config.assetsDirectory.resolve("models/SuperPoint.pt")
+            val sgpt = config.assetsDirectory.resolve("models/SuperGlue.pt")
+            if (sppt.notExists()) throw MissingAssetException(sppt)
+            if (sgpt.notExists()) throw MissingAssetException(sgpt)
+            val model = MatchingModel(sppt, sgpt)
             val translator = MatchingTranslator(480, 360)
             // Preload the model to device memory
             translator.prepare(model.ndManager, model)
@@ -106,12 +109,13 @@ abstract class HomographyMapRunner(scriptComponent: ScriptComponent) : MapRunner
             val path = config.assetsDirectory.resolve("$PREFIX/map.json")
             if (path.exists()) {
                 jacksonObjectMapper().readValue<List<MapNode>>(path.toFile())
-            } else {
-                emptyList()
-            }
+            } else throw MissingAssetException(path)
         }
         val fm = async(Dispatchers.IO) {
-            ImageFactory.getInstance().fromFile(config.assetsDirectory.resolve("$PREFIX/map.png"))
+            val path = config.assetsDirectory.resolve("$PREFIX/map.png")
+            if (path.exists()) {
+                ImageFactory.getInstance().fromFile(path)
+            } else throw MissingAssetException(path)
         }
 
         predictor = runBlocking { p.await() }

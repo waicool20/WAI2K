@@ -22,6 +22,7 @@ package com.waicool20.wai2k.script
 import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.modules.combat.MapNode
+import java.nio.file.Path
 
 open class ScriptException(message: String? = null, cause: Throwable? = null) :
     Exception(message, cause)
@@ -42,7 +43,25 @@ class ChapterClickFailedException(chapter: Int) :
     ScriptException("Failed to find and click chapter $chapter")
 
 class InvalidLocationsJsonFileException : ScriptException("Bad or incomplete locations.json file")
-class UnsupportedMapException(val mapName: String) : ScriptException("Unsupported map: $mapName")
 class ReplacementDollNotFoundException : ScriptException("Could not find replacement dragging doll")
 class InvalidDollException(id: String) : ScriptException("Invalid doll: $id")
 class RepairUpdateException : ScriptException("Failed to update repair status, bad OCR?")
+
+
+open class UnrecoverableScriptException(message: String? = null, cause: Throwable? = null) :
+    Exception(message, cause) {
+}
+
+class UnsupportedMapException(mapName: String) : UnrecoverableScriptException(
+    """
+    The map `$mapName` is not supported by the current version of WAI2K
+    Please configure another map then save and restart
+    """.trimIndent()
+)
+
+class MissingAssetException(path: Path) : UnrecoverableScriptException(
+    """
+    The asset `$path` seems to be missing
+    Please check/re-download your assets and restart
+    """.trimIndent()
+)
