@@ -17,7 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.nio.file.Files
@@ -129,6 +128,7 @@ task("prepareDeploy") {
 
 task<Copy>("copyLibs") {
     from(project.configurations.filter { it.isCanBeResolved })
+    exclude { f -> gradle.includedBuilds.any { b -> f.name.contains(b.name, true) } }
     into("$buildDir/tmp/libs/")
 }
 
