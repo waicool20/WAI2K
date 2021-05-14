@@ -88,8 +88,7 @@ class CampaignDD_3_2(scriptComponent: ScriptComponent) : HomographyMapRunner(scr
     }
 
     private suspend fun planPath() {
-        logger.info("Entering planning mode")
-        mapRunnerRegions.planningMode.click()
+        enterPlanningMode()
 
         logger.info("Selecting node: ${nodes[3]}")
         nodes[3].findRegion().click(); yield()

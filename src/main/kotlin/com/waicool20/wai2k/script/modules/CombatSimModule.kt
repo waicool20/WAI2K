@@ -124,7 +124,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
                 throw ScriptTimeOutException("Could not start neural sim")
             }
             waitForGNKSplash(7000) // Map background makes it hard to find
-            mapRunnerRegions.planningMode.click(); delay(500)
+            enterPlanningMode(); delay(500)
             heliport.click(); delay(500)
             endNode.click(); delay(500)
             mapRunnerRegions.executePlan.click(); delay(7000)

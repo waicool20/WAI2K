@@ -61,8 +61,7 @@ class Map3_6(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptCompo
     }
 
     private suspend fun planPath() {
-        logger.info("Entering planning mode")
-        mapRunnerRegions.planningMode.click(); yield()
+        enterPlanningMode()
 
         logger.info("Selecting echelon at ${nodes[0]}")
         nodes[0].findRegion().click()

@@ -85,13 +85,11 @@ class Map12_4E(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptCom
     }
 
     private suspend fun planPath() {
-
         // Deselect echelon 2 to reduce getting them killed
         region.subRegion(151, 360, 72, 72).click()
         delay((300 * gameState.delayCoefficient).roundToLong())
 
-        logger.info("Entering planning mode")
-        mapRunnerRegions.planningMode.click(); yield()
+        enterPlanningMode()
 
         logger.info("Selecting echelon at ${nodes[0]}")
         nodes[0].findRegion().click()
@@ -108,7 +106,6 @@ class Map12_4E(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptCom
         delay((500 * gameState.delayCoefficient).roundToLong())
         if (!checkPoints(-1)) {
             mapH = null
-            mapRunnerRegions.planningMode.click(); yield()
             planPath()
         }
 

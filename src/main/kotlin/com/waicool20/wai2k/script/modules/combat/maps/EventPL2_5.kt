@@ -111,8 +111,7 @@ class EventPL2_5(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptC
     }
 
     private suspend fun planPath() {
-        logger.info("Entering planning mode")
-        mapRunnerRegions.planningMode.click(); yield()
+        enterPlanningMode()
 
         logger.info("Selecting echelon at ${nodes[1]}")
         nodes[1].findRegion().click()

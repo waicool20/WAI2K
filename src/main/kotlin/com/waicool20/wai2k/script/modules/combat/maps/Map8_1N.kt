@@ -77,8 +77,7 @@ class Map8_1N(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptCompon
     }
 
     private suspend fun planPath() {
-        logger.info("Entering planning mode")
-        mapRunnerRegions.planningMode.click(); yield()
+        enterPlanningMode()
 
         logger.info("Selecting echelon at ${nodes[3]}")
         nodes[3].findRegion().click()

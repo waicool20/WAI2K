@@ -81,8 +81,7 @@ class EventPL2_1(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptCom
     }
 
     private suspend fun planPath() {
-        logger.info("Entering planning mode")
-        mapRunnerRegions.planningMode.click(); yield()
+        enterPlanningMode()
 
         logger.info("Selecting echelon at ${nodes[0]}")
         nodes[0].findRegion().click()

@@ -24,6 +24,7 @@ import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.cvauto.core.template.ITemplate
 import com.waicool20.wai2k.game.*
 import com.waicool20.wai2k.script.ScriptComponent
+import com.waicool20.wai2k.script.ScriptException
 import com.waicool20.wai2k.script.ScriptTimeOutException
 import com.waicool20.wai2k.util.*
 import com.waicool20.waicoolutils.binarizeImage
@@ -734,6 +735,23 @@ abstract class MapRunner(
                 return false
             }
             return true
+        }
+    }
+
+    /**
+     * Enter planning mode if it isn't already
+     */
+    protected fun enterPlanningMode() {
+        val pmColor = Color(region.capture().getRGB(0, 860))
+        when {
+            pmColor.isSimilar(Color.WHITE) -> {
+                logger.info("Entering planning mode")
+                mapRunnerRegions.planningMode.click()
+            }
+            pmColor.isSimilar(Color(247, 219, 107)) -> {
+                logger.info("Already in planning mode")
+            }
+            else -> throw ScriptException("Game was not on planning mode screen, when expecting it")
         }
     }
 }

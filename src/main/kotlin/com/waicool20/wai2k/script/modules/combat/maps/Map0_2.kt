@@ -57,8 +57,7 @@ class Map0_2(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptCompo
         logger.info("Selecting echelon at command post")
         nodes[14].findRegion().click()
 
-        logger.info("Entering planning mode")
-        mapRunnerRegions.planningMode.click(); yield()
+        enterPlanningMode()
 
         logger.info("Selecting ${nodes[0]}")
         nodes[0].findRegion().click()
