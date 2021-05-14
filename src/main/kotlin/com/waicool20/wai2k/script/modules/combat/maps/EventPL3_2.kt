@@ -25,13 +25,12 @@ import com.waicool20.wai2k.script.modules.combat.EventMapRunner
 import com.waicool20.wai2k.script.modules.combat.HomographyMapRunner
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.yield
-import kotlin.math.roundToLong
-import kotlin.random.Random
 
 class EventPL3_2(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent),
     EventMapRunner {
     private val logger = loggerFor<EventPL3_2>()
+    override val ammoResupplyThreshold = 0.4
+    override val rationsResupplyThreshold = 0.4
 
     override suspend fun enterMap() {
         PLUtils.enterChapter(this)
@@ -42,11 +41,12 @@ class EventPL3_2(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptC
             val r2 = r1.copy(x = r1.x + 700)
 
             repeat(3) { r2.swipeTo(r1) }
+            repeat(2) { r1.swipeTo(r2) }
 
-            region.subRegion(550, 550, 1000, 100)
+            region.subRegion(600, 610, 800, 50)
                 .findBest(FileTemplate("$PREFIX/entrance.png"))?.region?.click()
         } else {
-            region.subRegion(960, 580, 140, 25).click()
+            region.subRegion(1163, 654, 150, 25).click()
         }
 
         delay(1000)
@@ -55,64 +55,32 @@ class EventPL3_2(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptC
     }
 
     override suspend fun begin() {
-        logger.info("Zoom out")
-        region.pinch(
-            Random.nextInt(800, 900),
-            Random.nextInt(250, 350),
-            0.0,
-            500
-        )
-        logger.info("Zoom in")
-        region.pinch(
-            Random.nextInt(360, 380),
-            Random.nextInt(445, 475),
-            0.0,
-            500
-        )
-        delay((1000 * gameState.delayCoefficient).roundToLong())
-
-        logger.info("Pan up")
-        val r = region.subRegion(1058, 224, 100, 22)
-        r.swipeTo(r.copy(y = r.y - 170))
 
         // Turn 1
-        deployEchelons(nodes[0])
+        val rEchelons = deployEchelons(nodes[0])
         mapRunnerRegions.startOperation.click()
         waitForGNKSplash()
-        resupplyEchelons(nodes[0])
+        resupplyEchelons(rEchelons)
+        if (rEchelons.isEmpty()) {
+            nodes[0].findRegion().click()
+        }
         nodes[1].findRegion().click()
         delay(2000)
+
         // De-select current echelon
         region.subRegion(318, 417, 180, 180).click()
         deployEchelons(nodes[0])
-        // Since this isnt planned if post battle clicks borks
-        // The script will timeout on battle results, sad face
-        logger.info("Ending Turn 1")
-        mapRunnerRegions.executePlan.click()
 
-        waitForTurnEnd(1, false)
-        // Turn 2
-        waitForGNKSplash()
-        mapH = null
-        logger.info("Zoom in")
-        region.pinch(
-            Random.nextInt(390, 400),
-            Random.nextInt(430, 440),
-            0.0,
-            500
-        )
-
+        // Turn 1
         planPath()
-
-        waitForTurnAndPoints(3, 2, false)
+        waitForTurnAndPoints(2, 1, false)
         mapH = null
         retreatEchelons(nodes[0])
         terminateMission()
     }
 
     private suspend fun planPath() {
-        logger.info("Entering planning mode")
-        mapRunnerRegions.planningMode.click(); yield()
+        enterPlanningMode()
 
         logger.info("Selecting echelon at ${nodes[1]}")
         nodes[1].findRegion().click()
@@ -120,14 +88,11 @@ class EventPL3_2(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptC
         logger.info("Select ${nodes[2]}")
         nodes[2].findRegion().click()
 
-        logger.info("Select ${nodes[3]}")
-        nodes[3].findRegion().click()
-
         logger.info("Select ${nodes[0]}")
         nodes[0].findRegion().click()
 
         mapRunnerRegions.window.waitHas(FileTemplate("combat/battle/move.png"), 3000)?.click()
-        delay(800)
+        delay(500)
 
         logger.info("Executing plan")
         mapRunnerRegions.executePlan.click()

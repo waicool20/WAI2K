@@ -24,7 +24,6 @@ import com.waicool20.wai2k.script.modules.combat.AbsoluteMapRunner
 import com.waicool20.wai2k.script.modules.combat.EventMapRunner
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.yield
 import kotlin.math.roundToLong
 import kotlin.random.Random
 
@@ -85,8 +84,7 @@ class EventPL2_4(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptCom
     }
 
     private suspend fun planPath() {
-        logger.info("Entering planning mode")
-        mapRunnerRegions.planningMode.click(); yield()
+        enterPlanningMode()
 
         logger.info("Selecting echelon at ${nodes[0]}")
         nodes[0].findRegion().click()
