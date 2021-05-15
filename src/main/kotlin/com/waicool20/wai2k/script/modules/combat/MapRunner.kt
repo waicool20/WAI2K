@@ -476,6 +476,7 @@ abstract class MapRunner(
                 battlesPassed++
                 wdt.reset()
             }
+            delay(500)
             if (wdt.hasExpired()) throw ScriptTimeOutException("Waiting for battles")
         }
         wdt.stop()
@@ -536,6 +537,7 @@ abstract class MapRunner(
         while (isActive) {
             if (isInBattle()) clickThroughBattle()
             if (region.has(FileTemplate("combat/battle/terminate.png"))) break
+            delay(500)
         }
         if (endTurn) endTurn()
     }
@@ -560,7 +562,7 @@ abstract class MapRunner(
                     if (isInBattle()) clickThroughBattle()
                     val r = region.asCachedRegion()
                     if (assets.all { r.has(it) }) break
-                    yield()
+                    delay(500)
                 }
             }
         } catch (e: TimeoutCancellationException) {
@@ -636,7 +638,7 @@ abstract class MapRunner(
         // Delay to stop COOL Beach fairy BG change from triggering battle counter
         delay(4000)
         // Wait until it disappears
-        while (isActive && isInBattle()) yield()
+        while (isActive && isInBattle()) delay(500)
         logger.info("Battle ${_battles++} complete, clicking through battle results")
         // Animation and load wheel until you can click through results/drops
         delay(Random.nextLong(1100, 1300))
