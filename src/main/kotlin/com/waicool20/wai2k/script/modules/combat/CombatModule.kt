@@ -490,7 +490,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
             if (loops++ == 5) return
             region.subRegion(1445, 830, 345, 135)
                 .findBest(FileTemplate("combat/battle/normal.png"))?.region?.click() ?: continue
-            delay(200)
+            delay(1000)
 
             if (checkNeedsEnhancement()) return
 

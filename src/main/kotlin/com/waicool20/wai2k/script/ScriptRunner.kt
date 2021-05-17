@@ -306,9 +306,9 @@ class ScriptRunner(
                     // any current battle to end.
                     val mapRunnerRegions = MapRunnerRegions(region)
                     while (isActive) {
-                        delay(3000)
+                        delay(5000)
                         region.waitHas(FileTemplate("combat/battle/terminate.png"), 30000)
-                        mapRunnerRegions.terminateMenu.click(); delay(700)
+                        mapRunnerRegions.terminateMenu.click(); delay(1000)
                         mapRunnerRegions.terminate.click(); delay(5000)
                         val locs =
                             arrayOf(LocationId.COMBAT_MENU, LocationId.CAMPAIGN, LocationId.EVENT)
