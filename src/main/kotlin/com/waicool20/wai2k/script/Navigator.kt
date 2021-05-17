@@ -25,16 +25,11 @@ import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.LocationId
-import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.waicoolutils.firstAsync
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withTimeoutOrNull
 import java.text.DecimalFormat
@@ -266,7 +261,7 @@ class Navigator(
                     logger.info("An echelon has arrived from logistics")
                     region.click()
                 }
-                Ocr.forConfig(config).doOCRAndTrim(region.subRegion(575, 425, 1000, 100))
+                ocr.doOCRAndTrim(region.subRegion(575, 425, 1000, 100))
                     .contains("Repeat") -> {
                     // Even if the logistics arrived didnt show up, its possible
                     // that it was clicked through by some other function

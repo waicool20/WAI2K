@@ -25,7 +25,6 @@ import com.waicool20.wai2k.game.TDoll
 import com.waicool20.wai2k.script.ChapterClickFailedException
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptComponent
-import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.YuuBot
 import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.wai2k.util.doOCRAndTrim
@@ -75,7 +74,7 @@ abstract class ScriptModule(
         withTimeoutOrNull(5000) {
             val checkRegion = region.subRegion(920, 168, 110, 39)
             while (true) {
-                if (Ocr.forConfig(config).doOCRAndTrim(checkRegion).contains("Rarity")) break
+                if (ocr.doOCRAndTrim(checkRegion).contains("Rarity")) break
                 yield()
             }
         }
@@ -89,7 +88,7 @@ abstract class ScriptModule(
         if (stars != null) {
             logger.info("Applying $stars stars filter")
             val unlockedStars = dollFilterRegions.starRegions[6]?.let {
-                Ocr.forConfig(config).doOCRAndTrim(it.subRegion(92, 70, 28, 39))
+                ocr.doOCRAndTrim(it.subRegion(92, 70, 28, 39))
             }
             if (unlockedStars?.contains("6") == true) {
                 logger.info("6 star filter is unlocked")

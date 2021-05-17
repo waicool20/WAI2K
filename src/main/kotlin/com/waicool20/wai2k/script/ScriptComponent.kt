@@ -22,10 +22,13 @@ package com.waicool20.wai2k.script
 import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
+import com.waicool20.wai2k.util.Ocr
 
 interface ScriptComponent {
     val scriptRunner: ScriptRunner
     val region: AndroidRegion
     val config: Wai2KConfig
     val profile: Wai2KProfile
+
+    val ocr get() = Ocr.forConfig(config)
 }

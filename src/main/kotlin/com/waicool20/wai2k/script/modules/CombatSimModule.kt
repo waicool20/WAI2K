@@ -29,7 +29,6 @@ import com.waicool20.wai2k.script.ScriptException
 import com.waicool20.wai2k.script.ScriptTimeOutException
 import com.waicool20.wai2k.script.modules.combat.MapNode
 import com.waicool20.wai2k.script.modules.combat.MapRunner
-import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.wai2k.util.formatted
 import com.waicool20.wai2k.util.useCharFilter
@@ -184,7 +183,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
         navigator.navigateTo(LocationId.COMBAT_SIMULATION)
 
         while (true) {
-            val energyString = Ocr.forConfig(config)
+            val energyString = ocr
                 .useCharFilter("0123456/")
                 .doOCRAndTrim(region.subRegion(1455, 165, 75, 75))
                 .replace(" ", "")
@@ -208,7 +207,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
         }
 
         while (true) {
-            val timerString = Ocr.forConfig(config)
+            val timerString = ocr
                 .useCharFilter("0123456789:")
                 .doOCRAndTrim(region.subRegion(1552, 182, 100, 45))
                 .replace(" ", "")

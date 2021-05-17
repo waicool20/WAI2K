@@ -302,7 +302,7 @@ abstract class MapRunner(
                 .map { it.region }
                 .map { it.copy(it.x + 93, it.y - 40, 60, 100) }
                 .mapAsync {
-                    Ocr.forConfig(config, true).doOCRAndTrim(it)
+                    ocr.digitsOnly().doOCRAndTrim(it)
                         .replace("18", "10").toInt() to it
                 }
                 .toMap()
@@ -706,7 +706,7 @@ abstract class MapRunner(
      * Reads the current turn and point count
      */
     protected fun getTurnInfo(): TurnInfo? {
-        val ocr = Ocr.forConfig(config).useCharFilter(Ocr.DIGITS + "-")
+        val ocr = ocr.useCharFilter(Ocr.DIGITS + "-")
         val screenshot = region.capture()
 
         val turn = ocr.doOCRAndTrim(screenshot.getSubimage(748, 53, 86, 72))

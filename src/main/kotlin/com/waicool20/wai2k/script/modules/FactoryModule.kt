@@ -457,11 +457,11 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
         logger.info("Updating doll count")
         var ocrResult: String
         while (isActive) {
-            ocrResult = Ocr.forConfig(config)
+            ocrResult = ocr
                 .doOCRAndTrim(countRegion.copy(y = 763).capture().binarizeImage(0.7))
             if (ocrResult.contains("capa", true)) break else yield()
         }
-        ocrResult = Ocr.forConfig(config).doOCRAndTrim(countRegion)
+        ocrResult = ocr.doOCRAndTrim(countRegion)
         ocrResult = Ocr.cleanNumericString(ocrResult)
         logger.info("Doll count ocr: $ocrResult")
         return countRegex.find(ocrResult)?.groupValues?.let {
@@ -477,10 +477,10 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
         logger.info("Updating equipment count")
         var ocrResult: String
         while (isActive) {
-            ocrResult = Ocr.forConfig(config).doOCRAndTrim(countRegion.copy(y = 763))
+            ocrResult = ocr.doOCRAndTrim(countRegion.copy(y = 763))
             if (ocrResult.contains("equip", true)) break else yield()
         }
-        ocrResult = Ocr.forConfig(config).doOCRAndTrim(countRegion)
+        ocrResult = ocr.doOCRAndTrim(countRegion)
         ocrResult = Ocr.cleanNumericString(ocrResult)
         logger.info("Equipment count ocr: $ocrResult")
         return countRegex.find(ocrResult)?.groupValues?.let {

@@ -23,7 +23,6 @@ import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.config.Wai2KProfile.CombatReport
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.Navigator
-import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.wai2k.util.formatted
 import com.waicool20.waicoolutils.logging.loggerFor
@@ -72,7 +71,7 @@ class CombatReportModule(navigator: Navigator) : ScriptModule(navigator) {
             else -> error("No such combat report type!")
         }
         delay(500)
-        val reports = Ocr.forConfig(config).doOCRAndTrim(reportRegion)
+        val reports = ocr.doOCRAndTrim(reportRegion)
             .takeWhile { it.isDigit() || it != '/' }
             .toIntOrNull()?.coerceAtMost(80)
         if (reports != null) {

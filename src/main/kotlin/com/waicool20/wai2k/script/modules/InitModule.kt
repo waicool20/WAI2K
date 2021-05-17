@@ -25,7 +25,7 @@ import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.game.LogisticsSupport
 import com.waicool20.wai2k.game.LogisticsSupport.Assignment
 import com.waicool20.wai2k.script.Navigator
-import com.waicool20.wai2k.util.Ocr
+import com.waicool20.wai2k.util.digitsOnly
 import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.wai2k.util.formatted
 import com.waicool20.waicoolutils.DurationUtils
@@ -93,12 +93,12 @@ class InitModule(navigator: Navigator) : ScriptModule(navigator) {
             .mapAsync {
                 listOf(
                     // Echelon number
-                    Ocr.forConfig(config, digitsOnly = true)
+                    ocr.digitsOnly()
                         .doOCRAndTrim(it.subRegion(2, 25, 80, 90)),
                     // Logistics number ie. 1-1
-                    Ocr.forConfig(config).doOCRAndTrim(it.subRegion(165, 0, 90, 42)),
+                    ocr.doOCRAndTrim(it.subRegion(165, 0, 90, 42)),
                     // Timer xx:xx:xx
-                    Ocr.forConfig(config).doOCRAndTrim(it.subRegion(600, 70, 190, 42))
+                    ocr.doOCRAndTrim(it.subRegion(600, 70, 190, 42))
                 )
             }
             .map { "${it[0]} ${it[1]} ${it[2]}" }
@@ -143,7 +143,7 @@ class InitModule(navigator: Navigator) : ScriptModule(navigator) {
             .map {
                 async {
                     // Echelon number
-                    Ocr.forConfig(config, digitsOnly = true)
+                    ocr.digitsOnly()
                         .doOCRAndTrim(it.getSubimage(0, 25, 80, 125))
                 } to async { readRepairTimers(it) }
             }.map { it.first.await().toInt() to it.second.await() }
@@ -168,7 +168,7 @@ class InitModule(navigator: Navigator) : ScriptModule(navigator) {
     private suspend fun readRepairTimers(image: BufferedImage): Map<Int, Duration> {
         return (0 until 5).mapAsync { entry ->
             // Single repair entry without the "Repairing" or "Standby"
-            Ocr.forConfig(config).doOCRAndTrim(image.getSubimage(115 + 145 * entry, 66, 122, 75))
+            ocr.doOCRAndTrim(image.getSubimage(115 + 145 * entry, 66, 122, 75))
                 .takeIf { it.contains("Repairing") }
                 ?.let { timer ->
                     Regex("(\\d\\d):(\\d\\d):(\\d\\d)").find(timer)?.groupValues?.let {

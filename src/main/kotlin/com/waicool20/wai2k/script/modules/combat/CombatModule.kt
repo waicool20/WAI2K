@@ -28,8 +28,8 @@ import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.game.TDoll
 import com.waicool20.wai2k.script.*
 import com.waicool20.wai2k.script.modules.ScriptModule
-import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.cancelAndYield
+import com.waicool20.wai2k.util.digitsOnly
 import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.waicoolutils.binarizeImage
 import com.waicool20.waicoolutils.countColor
@@ -260,7 +260,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
         // Temporary convenience class for storing doll regions
         class DollRegions(nameImage: BufferedImage, hpImage: BufferedImage) {
             val tdollOcr = run {
-                val ocr = Ocr.forConfig(config).doOCRAndTrim(nameImage.binarizeImage(0.72))
+                val ocr = ocr.doOCRAndTrim(nameImage.binarizeImage(0.72))
                 val tdoll = TDoll.lookup(config, ocr)
                 ocr to tdoll
             }
@@ -333,7 +333,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
                 region.subRegion(1660, 965, 358, 98).click()
                 region.waitHas(FileTemplate("ok.png"), 2000)
                 while (isActive) {
-                    val repairs = Ocr.forConfig(config, digitsOnly = true)
+                    val repairs = ocr.digitsOnly()
                         .doOCRAndTrim(region.subRegion(1472, 689, 68, 42))
                     scriptStats.repairs += repairs.toIntOrNull() ?: continue
 
@@ -365,7 +365,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
                     .filterAsync {
                         val isCritical = region.subRegion(it.x - 4, it.y - 258, 230, 413)
                             .has(FileTemplate("combat/critical-dmg.png"))
-                        val isDmgedMember = Ocr.forConfig(config).doOCRAndTrim(
+                        val isDmgedMember = ocr.doOCRAndTrim(
                             cache.capture().getSubimage(it.x + 61, it.y + 77, 166, 46)
                         )
                             .let { TDoll.lookup(config, it) }
@@ -469,7 +469,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
                                 ITouchInterface.Swipe(0, it.x, it.y, it.x, it.y - 650), 1000
                             )
                         }
-                        if (Ocr.forConfig(config).doOCRAndTrim(mapNameR).contains(mapName)) break
+                        if (ocr.doOCRAndTrim(mapNameR).contains(mapName)) break
                         yield()
                     }
                 }

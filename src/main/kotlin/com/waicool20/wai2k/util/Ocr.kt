@@ -91,6 +91,8 @@ fun ITesseract.useCharFilter(chars: String) = apply {
     setTessVariable("tessedit_char_whitelist", chars)
 }
 
+fun ITesseract.digitsOnly() = useCharFilter(Ocr.DIGITS)
+
 fun ITesseract.useLSTMEngine() = apply {
     setOcrEngineMode(ITessAPI.TessOcrEngineMode.OEM_TESSERACT_LSTM_COMBINED)
 }
