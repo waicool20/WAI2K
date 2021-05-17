@@ -141,6 +141,7 @@ class ScriptRunner(
         if (reloadModules) {
             logger.info("Reloading modules")
             modules.clear()
+            GameLocation.mappings(currentConfig, refresh = true)
             val nav = Navigator(this, region, currentConfig, currentProfile)
             navigator = nav
             modules.add(InitModule(nav))

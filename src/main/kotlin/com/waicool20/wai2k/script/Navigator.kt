@@ -51,7 +51,6 @@ class Navigator(
     private val logger = loggerFor<Navigator>()
     private val gameState get() = scriptRunner.gameState
     private val scriptStats get() = scriptRunner.scriptStats
-    private val locations by lazy { GameLocation.mappings(config, true) }
 
     companion object {
         private val transitionDelays = LinkedList<Long>()

@@ -215,7 +215,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
             disassemblyWindow.waitHas(sTemp, 10000)?.click(); delay(750)
 
             // If still on disassemble menu, maybe there's no more dolls to disassemble
-            if (GameLocation.mappings(config)[LocationId.TDOLL_DISASSEMBLY]?.isInRegion(region) == true) {
+            if (locations.getValue(LocationId.TDOLL_DISASSEMBLY).isInRegion(region)) {
                 gameState.dollOverflow = false
                 return
             }
@@ -304,7 +304,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
             disassemblyWindow.waitHas(sTemp, 10000)?.click(); delay(750)
 
             // If still on disassemble menu, maybe there's no more dolls to disassemble
-            if (GameLocation.mappings(config)[LocationId.TDOLL_DISASSEMBLY]?.isInRegion(region) == true) {
+            if (locations.getValue(LocationId.TDOLL_DISASSEMBLY).isInRegion(region)) {
                 gameState.dollOverflow = false
                 return
             }
@@ -326,7 +326,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
         disassemblyWindow.waitHas(sTemp, 10000)?.click(); delay(750)
 
         // If still on disassemble menu, maybe there's no more equips to disassemble
-        if (GameLocation.mappings(config)[LocationId.TDOLL_DISASSEMBLY]?.isInRegion(region) == true) {
+        if (locations.getValue(LocationId.TDOLL_DISASSEMBLY).isInRegion(region)) {
             gameState.equipOverflow = false
             return
         }
@@ -362,7 +362,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
         disassemblyWindow.waitHas(sTemp, 10000)?.click(); delay(750)
 
         // If still on disassemble menu, maybe there's no more equips to disassemble
-        if (GameLocation.mappings(config)[LocationId.TDOLL_DISASSEMBLY]?.isInRegion(region) == true) {
+        if (locations.getValue(LocationId.TDOLL_DISASSEMBLY).isInRegion(region)) {
             gameState.equipOverflow = false
             return
         }
@@ -442,7 +442,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
             disassemblyWindow.waitHas(sTemp, 10000)?.click(); delay(750)
 
             // If still on disassemble menu, maybe there's no more equips to disassemble
-            if (GameLocation.mappings(config)[LocationId.TDOLL_DISASSEMBLY]?.isInRegion(region) == true) {
+            if (locations.getValue(LocationId.TDOLL_DISASSEMBLY).isInRegion(region)) {
                 gameState.equipOverflow = false
                 return
             }

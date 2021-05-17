@@ -132,7 +132,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
             while (true) {
                 mapRunnerRegions.battleEndClick.click()
                 delay(300)
-                if (GameLocation.mappings(config)[LocationId.COMBAT_SIMULATION]!!.isInRegion(region)) {
+                if (locations.getValue(LocationId.COMBAT_SIMULATION).isInRegion(region)) {
                     energySpent += level.cost
                     break
                 }
@@ -265,7 +265,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
         while (true) {
             region.subRegion(992, 24, 1100, 121).click() // endBattleClick
             delay(300)
-            if (GameLocation.mappings(config)[LocationId.COMBAT_SIMULATION]!!.isInRegion(region)) {
+            if (locations.getValue(LocationId.COMBAT_SIMULATION).isInRegion(region)) {
                 energySpent += level.cost
                 break
             }

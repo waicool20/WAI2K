@@ -580,12 +580,11 @@ abstract class MapRunner(
         logger.info("Battle ended, clicking through battle results")
         val location = if (this@MapRunner is EventMapRunner) {
             logger.info("Waiting for event menu")
-            GameLocation.mappings(config)[LocationId.EVENT]
+            locations.getValue(LocationId.EVENT)
         } else {
             logger.info("Waiting for combat menu")
-            GameLocation.mappings(config)[LocationId.COMBAT_MENU]
+            locations.getValue(LocationId.COMBAT_MENU)
         }
-        checkNotNull(location)
 
         try {
             withTimeout(60000) {

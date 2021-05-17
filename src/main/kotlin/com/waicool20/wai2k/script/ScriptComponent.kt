@@ -22,6 +22,7 @@ package com.waicool20.wai2k.script
 import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
+import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.util.Ocr
 
 interface ScriptComponent {
@@ -31,4 +32,5 @@ interface ScriptComponent {
     val profile: Wai2KProfile
 
     val ocr get() = Ocr.forConfig(config)
+    val locations get() = GameLocation.mappings(config)
 }
