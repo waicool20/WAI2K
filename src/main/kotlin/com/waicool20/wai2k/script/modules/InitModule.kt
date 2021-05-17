@@ -25,15 +25,19 @@ import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.game.LogisticsSupport
 import com.waicool20.wai2k.game.LogisticsSupport.Assignment
 import com.waicool20.wai2k.script.Navigator
+import com.waicool20.wai2k.script.modules.combat.EmptyMapRunner
 import com.waicool20.wai2k.util.digitsOnly
 import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.wai2k.util.formatted
+import com.waicool20.wai2k.util.isSimilar
 import com.waicool20.waicoolutils.DurationUtils
 import com.waicool20.waicoolutils.logging.loggerFor
 import com.waicool20.waicoolutils.mapAsync
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import java.awt.Color
 import java.awt.image.BufferedImage
 import java.time.Duration
 import java.time.Instant
@@ -44,14 +48,7 @@ class InitModule(navigator: Navigator) : ScriptModule(navigator) {
     override suspend fun execute() {
         navigator.checkRequiresRestart()
         navigator.checkLogistics()
-        if (Instant.now() > gameState.dailyReset) {
-            logger.info("Server has reset!")
-            navigator.navigateTo(LocationId.DAILY_LOGIN)
-            delay(5000)
-            gameState.dailyReset = gameState.nextReset()
-            logger.info("Next server reset: ${gameState.dailyReset.formatted()}")
-            navigator.navigateTo(LocationId.HOME)
-        }
+        checkReset()
         if (gameState.requiresUpdate) {
             updateGameState()
             if (!config.scriptConfig.idleAtHome && profile.logistics.enabled && !profile.combat.enabled) {
@@ -67,8 +64,26 @@ class InitModule(navigator: Navigator) : ScriptModule(navigator) {
         }
     }
 
+    private suspend fun checkReset() {
+        if (Instant.now() > gameState.dailyReset) {
+            logger.info("Server has reset!")
+            navigator.navigateTo(LocationId.DAILY_LOGIN)
+            delay(5000)
+            gameState.dailyReset = gameState.nextReset()
+            logger.info("Next server reset: ${gameState.dailyReset.formatted()}")
+            navigator.navigateTo(LocationId.HOME)
+        }
+    }
+
     private suspend fun updateGameState() {
         navigator.navigateTo(LocationId.HOME_STATUS)
+        if (region.subRegion(428, 0, 240, region.height / 2)
+                .has(FileTemplate("init/in-combat.png"))
+        ) {
+            terminateExistingBattle()
+            updateGameState()
+            return
+        }
         logger.info("Updating gamestate")
         val region = region.asCachedRegion()
         measureTimeMillis {
@@ -176,5 +191,35 @@ class InitModule(navigator: Navigator) : ScriptModule(navigator) {
                     }
                 } ?: entry to Duration.ZERO
         }.toMap()
+    }
+
+    private suspend fun terminateExistingBattle() {
+        logger.info("Detected ongoing battle, terminating it first")
+        while(isActive) {
+            val capture = region.capture()
+            if (Color(capture.getRGB(50, 1050)).isSimilar(Color(16, 16, 16)) &&
+                Color(capture.getRGB(680, 580)).isSimilar(Color(222, 223, 74))
+            ) break
+            // Region that contains the word `RESUME` if there's an ongoing battle
+            region.subRegion(1800, 780, 170, 75).click()
+            navigator.checkLogistics()
+        }
+        logger.info("Transitioning to map")
+        while (isActive) {
+            if (region.has(FileTemplate("combat/battle/terminate.png"))) break
+            delay(500)
+        }
+        logger.info("Entered map")
+
+        val terminateMapRunner = object : EmptyMapRunner(this@InitModule) {
+            override suspend fun begin() {
+                delay(5000)
+                waitForTurnAssets(listOf(FileTemplate("combat/battle/terminate.png")), false)
+                terminateMission(false)
+            }
+        }
+
+        terminateMapRunner.begin()
+        delay(5000)
     }
 }

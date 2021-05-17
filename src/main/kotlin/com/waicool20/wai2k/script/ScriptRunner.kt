@@ -280,7 +280,7 @@ class ScriptRunner(
         logger.info("Logging in")
         region.subRegion(630, 400, 900, 300).click()
         val locations = GameLocation.mappings(currentConfig)
-        loop@ while (isActive) {
+        while (isActive) {
             navigator?.checkLogistics()
             // Check for sign in or achievement popup
             if (region.subRegion(396, 244, 80, 80).has(FileTemplate("home-popup.png"))) {
@@ -288,48 +288,14 @@ class ScriptRunner(
             }
             region.subRegion(900, 720, 350, 185)
                 .findBest(FileTemplate("close.png"))?.region?.click()
-            val r = region.subRegion(1800, 780, 170, 75)
-            when {
-                Ocr.forConfig(currentConfig).doOCRAndTrim(r).distanceTo("RESUME") <= 3 -> {
-                    logger.info("Detected ongoing battle, terminating it first")
-                    while (isActive) {
-                        if (Ocr.forConfig(currentConfig).doOCRAndTrim(r)
-                                .distanceTo("RESUME") <= 3
-                        ) {
-                            r.click()
-                        }
-                        navigator?.checkLogistics()
-                        if (region.has(FileTemplate("combat/battle/terminate.png"))) {
-                            break
-                        }
-                    }
-                    // Two terminate button checks, one for when we just entered, the other to wait for
-                    // any current battle to end.
-                    val mapRunnerRegions = MapRunnerRegions(region)
-                    while (isActive) {
-                        delay(5000)
-                        region.waitHas(FileTemplate("combat/battle/terminate.png"), 30000)
-                        mapRunnerRegions.terminateMenu.click(); delay(1000)
-                        mapRunnerRegions.terminate.click(); delay(5000)
-                        val locs =
-                            arrayOf(LocationId.COMBAT_MENU, LocationId.CAMPAIGN, LocationId.EVENT)
-                        for (l in locs) {
-                            if (locations[l]!!.isInRegion(region)) {
-                                logger.info("Terminated the battle")
-                                gameState.currentGameLocation = locations[l]!!
-                                break@loop
-                            }
-                        }
-                    }
-                }
-                locations[LocationId.HOME]?.isInRegion(region) == true -> {
-                    gameState.currentGameLocation = locations[LocationId.HOME]!!
-                    break@loop
-                }
+            if (locations[LocationId.HOME]?.isInRegion(region) == true) {
+                gameState.currentGameLocation = locations[LocationId.HOME]!!
+                break
             }
         }
         logger.info("Finished logging in")
         justRestarted = true
+        gameState.requiresUpdate = true
     }
 
     private fun postStats() {
