@@ -556,17 +556,19 @@ abstract class MapRunner(
     ) {
         logger.info("Waiting for ${assets.size} assets to appear:")
         assets.forEach { logger.info("Waiting on: ${it.source}") }
-        try {
-            withTimeout(timeout) {
-                while (isActive) {
-                    if (isInBattle()) clickThroughBattle()
-                    val r = region.asCachedRegion()
-                    if (assets.all { r.has(it) }) break
-                    delay(500)
-                }
+        val wdt = WatchDogTimer(profile.combat.battleTimeout * 1000L + timeout)
+        wdt.start()
+        while (isActive) {
+            if (isInBattle()) {
+                wdt.reset()
+                wdt.addTime((30 * gameState.delayCoefficient).roundToLong(), TimeUnit.SECONDS)
+                clickThroughBattle()
+                wdt.reset()
             }
-        } catch (e: TimeoutCancellationException) {
-            throw ScriptTimeOutException("Waiting for assets", e)
+            val r = region.asCachedRegion()
+            if (assets.all { r.has(it) }) break
+            if (wdt.hasExpired()) throw ScriptTimeOutException("Waiting for turn assets")
+            delay(500)
         }
         logger.info("All assets are now on screen")
         region.waitHas(FileTemplate("combat/battle/terminate.png"), 10000)
