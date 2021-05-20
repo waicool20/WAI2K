@@ -29,15 +29,15 @@ import com.waicool20.wai2k.Wai2K
 import com.waicool20.wai2k.android.ProcessManager
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
-import com.waicool20.wai2k.game.*
+import com.waicool20.wai2k.game.GFL
+import com.waicool20.wai2k.game.GameLocation
+import com.waicool20.wai2k.game.GameState
+import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.modules.InitModule
 import com.waicool20.wai2k.script.modules.ScriptModule
 import com.waicool20.wai2k.script.modules.StopModule
-import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.YuuBot
 import com.waicool20.wai2k.util.cancelAndYield
-import com.waicool20.wai2k.util.doOCRAndTrim
-import com.waicool20.waicoolutils.distanceTo
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.*
 import org.reflections.Reflections
@@ -206,7 +206,8 @@ class ScriptRunner(
                         "Uncaught error during script execution, please report this to the devs"
                     logger.error(msg)
                     YuuBot.postMessage(currentConfig.apiKey, "Script Stopped", msg)
-                    e.printStackTrace()
+                    Thread.getDefaultUncaughtExceptionHandler()
+                        .uncaughtException(Thread.currentThread(), e)
                     coroutineContext.cancelAndYield()
                 }
             }
