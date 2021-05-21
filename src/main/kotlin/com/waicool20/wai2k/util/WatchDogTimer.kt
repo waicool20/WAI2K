@@ -28,12 +28,21 @@ import kotlin.concurrent.thread
  * Implements a simple watchdog timer, which operates with 1s precision
  *
  * @param initialTime Initial time in ms
+ * @param startImmediately Starts the timer immediately
  * @param onExpire Callback for when this timer expires
  */
-class WatchDogTimer(private val initialTime: Long, private val onExpire: () -> Unit = {}) {
+class WatchDogTimer(
+    private val initialTime: Long,
+    startImmediately: Boolean = true,
+    private val onExpire: () -> Unit = {}
+) {
     private val ticks = AtomicLong(initialTime)
     private val stopFlag = AtomicBoolean(false)
     private val expiredFlag = AtomicBoolean(false)
+
+    init {
+        if (startImmediately) start()
+    }
 
     /**
      * Starts the timer

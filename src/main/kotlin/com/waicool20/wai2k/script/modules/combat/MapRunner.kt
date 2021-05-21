@@ -467,7 +467,6 @@ abstract class MapRunner(
         logger.info("Waiting for turn to end, expected battles: $battles")
         var battlesPassed = 0
         val wdt = WatchDogTimer(profile.combat.battleTimeout * 1000L + timeout)
-        wdt.start()
         while (isActive && battlesPassed < battles) {
             if (isInBattle()) {
                 wdt.reset()
@@ -505,7 +504,6 @@ abstract class MapRunner(
         var oldTurn = 0
         var oldPoints = 0
         val wdt = WatchDogTimer(profile.combat.battleTimeout * 1000L + timeout)
-        wdt.start()
         loop@ while (isActive && !interruptWaitFlag) {
             delay(500)
             when {
@@ -557,7 +555,6 @@ abstract class MapRunner(
         logger.info("Waiting for ${assets.size} assets to appear:")
         assets.forEach { logger.info("Waiting on: ${it.source}") }
         val wdt = WatchDogTimer(profile.combat.battleTimeout * 1000L + timeout)
-        wdt.start()
         while (isActive) {
             if (isInBattle()) {
                 wdt.reset()
@@ -728,7 +725,6 @@ abstract class MapRunner(
      */
     protected fun checkPoints(targetPoints: Int): Boolean {
         val wdt = WatchDogTimer(20_000)
-        wdt.start()
         while (true) {
             if (wdt.hasExpired()) throw ScriptTimeOutException("Checking points")
             val (_, points) = getTurnInfo() ?: continue
