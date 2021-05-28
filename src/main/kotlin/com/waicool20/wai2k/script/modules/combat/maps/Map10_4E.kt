@@ -55,7 +55,8 @@ class Map10_4E(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptCom
             mapH = null
         }
         delay((900 * gameState.delayCoefficient).roundToLong()) //Wait to settle
-        val rEchelons = deployEchelons(nodes[0], nodes[1], nodes[2])
+        val rEchelons = deployEchelons(nodes[0])
+        deployEchelons(nodes[1], nodes[2]) // dummy
 
         //Heavyports are configured now
         gameState.requiresMapInit = false

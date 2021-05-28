@@ -45,10 +45,11 @@ class Map4_4N(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComp
             gameState.requiresMapInit = false
         }
 
-        deployEchelons(nodes[0], nodes[1])
+        val rEchelons = deployEchelons(nodes[0])
+        deployEchelons(nodes[1])
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
-        resupplyEchelons(nodes[0])
+        resupplyEchelons(rEchelons)
         planPath()
         waitForTurnEnd(4)
         terminateMission()
@@ -56,6 +57,9 @@ class Map4_4N(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComp
 
     private suspend fun planPath() {
         enterPlanningMode()
+
+        logger.info("Selecting Echelon at ${nodes[0]}")
+        nodes[0].findRegion().click()
 
         logger.info("Selecting ${nodes[2]}")
         nodes[2].findRegion().click()

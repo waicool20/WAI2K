@@ -48,10 +48,10 @@ class Map1_6(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptCompo
             gameState.requiresMapInit = false
         }
 
-        deployEchelons(nodes[0])
+        val rEchelons = deployEchelons(nodes[0])
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
-        resupplyEchelons(nodes[0]) //Force resupply so echelons with no doll in slot 2 can run
+        resupplyEchelons(rEchelons)
         planPath()
 
         // SF moves random, can cap a HP, scarecrow can run away and hide

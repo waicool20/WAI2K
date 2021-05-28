@@ -30,6 +30,8 @@ import kotlin.random.Random
 
 class Map2_6(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent) {
     private val logger = loggerFor<Map2_6>()
+    override val ammoResupplyThreshold = 0.6
+    override val rationsResupplyThreshold = 0.6
 
     override suspend fun begin() {
         if (gameState.requiresMapInit) {
