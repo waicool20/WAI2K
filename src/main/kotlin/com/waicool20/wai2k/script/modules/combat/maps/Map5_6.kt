@@ -28,7 +28,8 @@ import kotlin.random.Random
 
 class Map5_6(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent) {
     private val logger = loggerFor<Map5_6>()
-    override val rationsResupplyThreshold = 0.5 // only 2 battles
+    override val ammoResupplyThreshold = 0.4
+    override val rationsResupplyThreshold = 0.4
 
     override suspend fun begin() {
         if (gameState.requiresMapInit) {
@@ -49,7 +50,8 @@ class Map5_6(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptCompo
             delay(500)
             gameState.requiresMapInit = false
         }
-        val rEchelons = deployEchelons(nodes[0], nodes[1])
+        val rEchelons = deployEchelons(nodes[0])
+        deployEchelons(nodes[1])
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
         resupplyEchelons(rEchelons)

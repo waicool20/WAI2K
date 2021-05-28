@@ -20,7 +20,6 @@
 package com.waicool20.wai2k.script.modules.combat.maps
 
 
-import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.modules.combat.HomographyMapRunner
 import com.waicool20.waicoolutils.logging.loggerFor
@@ -31,6 +30,8 @@ import kotlin.random.Random
 
 class Map3_6(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent) {
     private val logger = loggerFor<Map3_6>()
+    override val ammoResupplyThreshold = 0.6
+    override val rationsResupplyThreshold = 0.6
 
     override suspend fun begin() {
         if (gameState.requiresMapInit) {
@@ -48,15 +49,13 @@ class Map3_6(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptCompo
             gameState.requiresMapInit = false
         }
 
-        val rEchelons = deployEchelons(nodes[0], nodes[1])
+        val rEchelons = deployEchelons(nodes[0])
+        deployEchelons(nodes[1])
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
         resupplyEchelons(rEchelons)
         planPath()
-        // Possible to get ambushed, so battle count unreliable
         waitForTurnAndPoints(1, 1, false); delay(500)
-        // Need to stop these turn end methods triggering before the battle
-        waitForTurnAssets(listOf(FileTemplate("combat/battle/plan.png", 0.96)), false)
         handleBattleResults()
     }
 

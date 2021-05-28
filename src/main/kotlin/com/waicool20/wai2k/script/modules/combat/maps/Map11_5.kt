@@ -35,7 +35,7 @@ class Map11_5(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptCompon
         // No need to zoom, delay for map lag
         delay((1000 * gameState.delayCoefficient).roundToLong())
         val rEchelons = deployEchelons(nodes[1], nodes[0])
-        // Dummy do not supply
+        // dummy
         deployEchelons(nodes[2])
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
@@ -43,14 +43,12 @@ class Map11_5(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptCompon
         retreatEchelons(nodes[0])
         planPath()
         // Wait for team to move all the way
-        waitForTurnEnd(5, false); delay(1000)
         waitForTurnAndPoints(1, 0, false); delay(1000)
         retreatEchelons(nodes[0])
         terminateMission()
     }
 
     private suspend fun planPath() {
-
         enterPlanningMode()
 
         logger.info("Selecting echelon at ${nodes[1]}")
@@ -65,5 +63,4 @@ class Map11_5(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptCompon
         logger.info("Executing plan")
         mapRunnerRegions.executePlan.click()
     }
-
 }
