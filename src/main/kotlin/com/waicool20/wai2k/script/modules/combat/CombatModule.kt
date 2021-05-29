@@ -33,7 +33,6 @@ import com.waicool20.wai2k.util.digitsOnly
 import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.waicoolutils.binarizeImage
 import com.waicool20.waicoolutils.countColor
-import com.waicool20.waicoolutils.filterAsync
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.*
 import java.awt.Color
@@ -327,84 +326,22 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
 
             navigator.navigateTo(LocationId.REPAIR)
 
-            if (profile.combat.enableOneClickRepair) {
-                logger.info("Using one-click repair")
-                // one-click repair
-                region.subRegion(1660, 965, 358, 98).click()
-                region.waitHas(FileTemplate("ok.png"), 2000)
-                while (isActive) {
-                    val repairs = ocr.digitsOnly()
-                        .doOCRAndTrim(region.subRegion(1472, 689, 68, 42))
-                    scriptStats.repairs += repairs.toIntOrNull() ?: continue
-
-                    logger.info("Repairing $repairs dolls")
-                    break
-                }
-                // Click ok
-                region.subRegion(1441, 772, 250, 96).click()
-                gameState.echelons.flatMap { it.members }.forEach { it.needsRepair = false }
-                return
-            }
-
+            logger.info("Using one-click repair")
+            // one-click repair
+            region.subRegion(1660, 965, 358, 98).click()
+            region.waitHas(FileTemplate("ok.png"), 2000)
             while (isActive) {
-                val repairSlots = region.findBest(FileTemplate("combat/empty-repair.png"), 7)
-                    .map { it.region }
-                repairSlots.firstOrNull()?.click()
-                    ?: run {
-                        logger.info("No available repair slots, cancelling sortie")
-                        return
-                    }
-                delay(1000)
+                val repairs = ocr.digitsOnly()
+                    .doOCRAndTrim(region.subRegion(1472, 689, 68, 42))
+                scriptStats.repairs += repairs.toIntOrNull() ?: continue
 
-                val cache = region.asCachedRegion()
-                // Set matcher to high resolution, otherwise sometimes not all lock.png are found
-                region.matcher.settings.matchDimension = ScriptRunner.HIGH_RES
-                val repairRegions = cache.findBest(FileTemplate("doll-list/lock.png"), 12)
-                    .also { logger.info("Found ${it.size} dolls on screen") }
-                    .map { it.region }
-                    .filterAsync {
-                        val isCritical = region.subRegion(it.x - 4, it.y - 258, 230, 413)
-                            .has(FileTemplate("combat/critical-dmg.png"))
-                        val isDmgedMember = ocr.doOCRAndTrim(
-                            cache.capture().getSubimage(it.x + 61, it.y + 77, 166, 46)
-                        )
-                            .let { TDoll.lookup(config, it) }
-                            ?.let { tdoll -> members.any { it.name == tdoll.name } } == true
-                        isCritical || isDmgedMember
-                    }.map { region.subRegion(it.x - 4, it.y - 258, 230, 413) }
-                    .also { logger.info("${it.size} dolls need repair") }
-                region.matcher.settings.matchDimension = ScriptRunner.NORMAL_RES
-                if (repairRegions.isEmpty()) {
-                    // Click close popup
-                    region.subRegion(10, 10, 350, 130)
-                    break
-                }
-
-                // Select all T-Dolls
-                logger.info("Selecting dolls that need repairing")
-                repairRegions.take(repairSlots.size).sortedBy { it.y * 10 + it.x }.forEach {
-                    it.click()
-                    delay(100)
-                    scriptStats.repairs++
-                }
-
-                // Click ok
-                region.subRegion(1768, 749, 250, 158).click(); delay(400)
-                // Use quick repair
-                region.subRegion(512, 780, 80, 80)
-                    .waitHas(FileTemplate("combat/quick-repair.png"), 2000)?.click()
-                // Click ok
-                region.subRegion(1441, 772, 250, 96).click()
-                // Click close
-                region.waitHas(FileTemplate("close.png"), 15000)?.click()
-                // If dolls that needed repair is equal or less than the repair slot count then
-                // no more dolls need repairs and we can exit
-                if (repairRegions.size <= repairSlots.size) break
-                delay(500)
+                logger.info("Repairing $repairs dolls")
+                break
             }
-
-            logger.info("No more dolls need repairing!")
+            // Click ok
+            region.subRegion(1441, 772, 250, 96).click()
             gameState.echelons.flatMap { it.members }.forEach { it.needsRepair = false }
+            return
         }
     }
 

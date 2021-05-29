@@ -36,7 +36,6 @@ class CombatView : AbstractProfileView() {
     private val mapComboBox: ComboBox<String> by fxid()
     private val battleTimeoutSpinner: Spinner<Int> by fxid()
     private val repairThresholdSpinner: Spinner<Int> by fxid()
-    private val enableOneClickRepairCheckBox: CheckBox by fxid()
 
     override fun setValues() {
         mapHyperlink.action {
@@ -75,7 +74,6 @@ class CombatView : AbstractProfileView() {
             mapComboBox.bind(mapProperty)
             repairThresholdSpinner.bind(repairThresholdProperty)
             battleTimeoutSpinner.bind(battleTimeoutProperty)
-            enableOneClickRepairCheckBox.bind(enableOneClickRepairProperty)
         }
     }
 }
