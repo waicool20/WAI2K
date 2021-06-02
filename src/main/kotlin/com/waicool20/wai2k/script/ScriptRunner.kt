@@ -41,6 +41,7 @@ import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.*
 import org.reflections.Reflections
+import java.lang.reflect.InvocationTargetException
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -201,6 +202,7 @@ class ScriptRunner(
         } catch (e: Exception) {
             when (e) {
                 is CancellationException -> Unit // Do nothing
+                is InvocationTargetException -> if (e.cause !is CancellationException) throw e
                 else -> {
                     val msg =
                         "Uncaught error during script execution, please report this to the devs"
@@ -281,18 +283,30 @@ class ScriptRunner(
         logger.info("Logging in")
         region.subRegion(630, 400, 900, 300).click()
         val locations = GameLocation.mappings(currentConfig)
+        val login = region.subRegion(200, 19, 96, 87)
         while (isActive) {
             navigator?.checkLogistics()
             // Check for sign in or achievement popup
             if (region.subRegion(396, 244, 80, 80).has(FileTemplate("home-popup.png"))) {
+                logger.info("Detected popup, dismissing...")
                 repeat(2) { region.subRegion(2017, 151, 129, 733).click() }
+            }
+            // Check for daily login
+            if (login.has(FileTemplate("home-popup1.png"))) {
+                logger.info("Detected daily login/event screen, dismissing...")
+                login.click()
             }
             region.subRegion(900, 720, 350, 185)
                 .findBest(FileTemplate("close.png"))?.region?.click()
-            if (locations[LocationId.HOME]?.isInRegion(region) == true) {
-                gameState.currentGameLocation = locations[LocationId.HOME]!!
-                break
+            if (locations.getValue(LocationId.HOME).isInRegion(region)) {
+                logger.info("Logged in, waiting for 10s to see if anything happens")
+                delay(10_000)
+                if (locations.getValue(LocationId.HOME).isInRegion(region)) {
+                    gameState.currentGameLocation = locations.getValue(LocationId.HOME)
+                    break
+                }
             }
+            delay(1000)
         }
         logger.info("Finished logging in")
         justRestarted = true
