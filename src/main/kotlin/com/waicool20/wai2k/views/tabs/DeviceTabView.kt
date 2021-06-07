@@ -30,7 +30,6 @@ import javafx.embed.swing.SwingFXUtils
 import javafx.event.ActionEvent
 import javafx.geometry.Pos
 import javafx.scene.control.Button
-import javafx.scene.control.CheckBox
 import javafx.scene.control.ComboBox
 import javafx.scene.control.Label
 import javafx.scene.image.ImageView
@@ -63,7 +62,6 @@ class DeviceTabView : CoroutineScopeView(), Binder {
     private val captureSeriesButton: Button by fxid()
     private val testLatencyButton: Button by fxid()
 
-    private val realtimePreviewCheckbox: CheckBox by fxid()
     private val deviceView: ImageView by fxid()
     private var renderJob: Job? = null
     private var capturingJob: Job? = null
@@ -198,9 +196,6 @@ class DeviceTabView : CoroutineScopeView(), Binder {
             }
         }
         with(context.wai2KConfig) {
-            scriptConfig.fastScreenshotModeProperty.addListener("DeviceTabViewFSMListener") { newVal ->
-                deviceComboBox.selectedItem?.screens?.forEach { it.fastCaptureMode = newVal }
-            }
             captureCompressionModeProperty.addListener("DeviceTabViewCCMListener") { newVal ->
                 deviceComboBox.selectedItem?.screens?.forEach { it.compressionMode = newVal }
             }
@@ -261,7 +256,6 @@ class DeviceTabView : CoroutineScopeView(), Binder {
                 lastDeviceSerial = device.serial
                 save()
                 device.screens.forEach { s ->
-                    s.fastCaptureMode = scriptConfig.fastScreenshotMode
                     s.compressionMode = captureCompressionMode
                 }
             }
@@ -276,17 +270,12 @@ class DeviceTabView : CoroutineScopeView(), Binder {
             var lastCaptureTime = System.currentTimeMillis()
             while (isActive && owningTab?.isSelected == true) {
                 try {
-                    val image =
-                        if (realtimePreviewCheckbox.isSelected && device.screens[0].fastCaptureMode) {
-                            device.screens[0].capture()
-                        } else {
-                            device.screens[0].getLastScreenCapture()?.takeIf {
-                                System.currentTimeMillis() - lastCaptureTime < 3000
-                            } ?: run {
-                                lastCaptureTime = System.currentTimeMillis()
-                                device.screens[0].capture()
-                            }
-                        }
+                    val image = device.screens[0].getLastScreenCapture()?.takeIf {
+                        System.currentTimeMillis() - lastCaptureTime < 3000
+                    } ?: run {
+                        lastCaptureTime = System.currentTimeMillis()
+                        device.screens[0].capture()
+                    }
                     withContext(Dispatchers.Main) {
                         deviceView.image = SwingFXUtils.toFXImage(image, null)
                     }

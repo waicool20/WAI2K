@@ -30,7 +30,6 @@ class ScriptConfig(
     defaultSimilarityThreshold: Double = 0.9,
     mapRunnerSimilarityThreshold: Double = 0.85,
     ocrThreshold: Double = 0.9,
-    fastScreenshotMode: Boolean = false,
     maxPostBattleClick: Int = -1,
     idleAtHome: Boolean = true
 ) {
@@ -40,7 +39,6 @@ class ScriptConfig(
     val defaultSimilarityThresholdProperty = defaultSimilarityThreshold.toProperty()
     val mapRunnerSimilarityThresholdProperty = mapRunnerSimilarityThreshold.toProperty()
     val ocrThresholdProperty = ocrThreshold.toProperty()
-    val fastScreenshotModeProperty = fastScreenshotMode.toProperty()
     val maxPostBattleClickProperty = maxPostBattleClick.toProperty()
     val idleAtHomeProperty = idleAtHome.toProperty()
 
@@ -50,7 +48,6 @@ class ScriptConfig(
     var defaultSimilarityThreshold by defaultSimilarityThresholdProperty
     var mapRunnerSimilarityThreshold by mapRunnerSimilarityThresholdProperty
     var ocrThreshold by ocrThresholdProperty
-    var fastScreenshotMode by fastScreenshotModeProperty
     var maxPostBattleClick by maxPostBattleClickProperty
     var idleAtHome by idleAtHomeProperty
 }

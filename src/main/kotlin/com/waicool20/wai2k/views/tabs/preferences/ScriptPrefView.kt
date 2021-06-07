@@ -35,7 +35,6 @@ class ScriptPrefView : View() {
     private val mouseDelaySpinner: Spinner<Double> by fxid()
     private val defaultSimThresholdSpinner: Spinner<Double> by fxid()
     private val mapRunnerSimThresholdSpinner: Spinner<Double> by fxid()
-    private val fastScreenshotModeCheckBox: CheckBox by fxid()
     private val ocrThresholdSpinner: Spinner<Double> by fxid()
     private val maxPostBattleClickSpinner: Spinner<Int> by fxid()
     private val idleAtHomeCheckBox: CheckBox by fxid()
@@ -58,7 +57,6 @@ class ScriptPrefView : View() {
             defaultSimThresholdSpinner.bind(defaultSimilarityThresholdProperty)
             mapRunnerSimThresholdSpinner.bind(mapRunnerSimilarityThresholdProperty)
             ocrThresholdSpinner.bind(ocrThresholdProperty)
-            fastScreenshotModeCheckBox.bind(fastScreenshotModeProperty)
             maxPostBattleClickSpinner.bind(maxPostBattleClickProperty)
             idleAtHomeCheckBox.bind(idleAtHomeProperty)
         }

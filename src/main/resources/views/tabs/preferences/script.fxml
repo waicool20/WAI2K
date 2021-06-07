@@ -22,7 +22,6 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.Spinner?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
@@ -68,19 +67,6 @@
                 <Spinner fx:id="ocrThresholdSpinner" editable="true" />
             </children>
         </HBox>
-        <Separator prefWidth="200.0" />
-        <VBox spacing="10.0">
-            <children>
-                <HBox>
-                    <children>
-                        <Label prefWidth="375.0" text="Enable fast screenshot mode:" wrapText="true" HBox.hgrow="ALWAYS" />
-                        <CheckBox fx:id="fastScreenshotModeCheckBox" mnemonicParsing="false" />
-                    </children>
-                </HBox>
-                <Label prefWidth="400.0" text="WARNING: Highly experimental, speed increase depends on your system and may actually be detrimental, higher CPU usage is to be expected&#10;" wrapText="true" />
-            </children>
-        </VBox>
-        <Separator prefWidth="200.0" />
         <HBox spacing="10.0">
             <children>
                 <Label prefWidth="220.0" text="Max post battle clicks:" />
