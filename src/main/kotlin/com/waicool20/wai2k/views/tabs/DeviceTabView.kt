@@ -180,6 +180,9 @@ class DeviceTabView : CoroutineScopeView(), Binder {
         testLatencyButton.action {
             launch(Dispatchers.IO) {
                 renderJob?.cancelAndJoin()
+                withContext(Dispatchers.Main) {
+                    deviceView.image = null
+                }
                 val device = deviceComboBox.selectedItem ?: return@launch
                 logger.info("Testing capture latency")
                 val times = 10
