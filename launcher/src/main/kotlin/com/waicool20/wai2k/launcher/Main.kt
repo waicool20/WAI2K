@@ -68,15 +68,14 @@ object Main {
         SHA1(40)
     }
 
-    private val client by lazy {
-        OkHttpClient().newBuilder()
+    private val client
+        get() = OkHttpClient().newBuilder()
             .readTimeout(20, TimeUnit.SECONDS)
             .connectTimeout(30, TimeUnit.SECONDS)
             .retryOnConnectionFailure(true)
             .protocols(listOf(Protocol.HTTP_1_1))
             .build()
-    }
-    private val formatter by lazy { DecimalFormat("#.#") }
+    private val formatter get() = DecimalFormat("#.#")
     private val url = "https://wai2k.waicool20.com/files"
     private val appPath = Path(System.getProperty("user.home"), ".wai2k").absolute()
     private val libPath = appPath.resolve("libs")
@@ -279,26 +278,22 @@ object Main {
         label.text = msg
         while (true) TimeUnit.SECONDS.sleep(1)
     }
-
-    private fun verifyCheckSum(file: Path, hash: Hash): Boolean {
-        if (file.notExists()) return false
-        val sumPath = when (hash) {
-            Hash.MD5 -> Path("$file.md5")
-            Hash.SHA1 -> Path("$file.sha1")
-        }
-        if (sumPath.notExists()) return false
-        val chksum0 = sumPath.readText().take(hash.length)
-        val chksum1 = calcCheckSum(file, hash)
-        return chksum0.equals(chksum1, true)
-    }
-
+    
     private fun calcCheckSum(file: Path, hash: Hash): String {
         val digest = when (hash) {
             Hash.MD5 -> MessageDigest.getInstance("MD5")
             Hash.SHA1 -> MessageDigest.getInstance("SHA-1")
         }
-        return digest.digest(file.readBytes())
-            .joinToString("") { String.format("%02x", it) }
+        val buffer = ByteArray(1024)
+        file.inputStream().use { inputStream ->
+            var read = 0
+            while (true) {
+                read = inputStream.read(buffer, 0, buffer.size)
+                if (read < 0) break
+                digest.update(buffer, 0, read)
+            }
+        }
+        return digest.digest().joinToString("") { String.format("%02x", it) }
     }
 
     private fun unzip(file: Path, destination: Path) {
