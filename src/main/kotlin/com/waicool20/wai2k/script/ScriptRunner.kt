@@ -199,6 +199,16 @@ class ScriptRunner(
                 )
                 coroutineContext.cancelAndYield()
             }
+        } catch (e: Region.CaptureIOException) {
+            if (currentDevice?.isConnected() == true) {
+                logger.error("Screen capture error, will wait 10s before restarting")
+                delay(10_000)
+                exceptionRestart(e)
+            } else {
+                logger.error("Device no longer connected on ADB! Exiting...")
+                YuuBot.postMessage(currentConfig.apiKey, "Script Stopped", "Device is dead!")
+                coroutineContext.cancelAndYield()
+            }
         } catch (e: Exception) {
             when (e) {
                 is CancellationException -> Unit // Do nothing
