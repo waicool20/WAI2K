@@ -35,7 +35,8 @@
   {
     "name": "Stechkin",
     "stars": 4,
-    "type": "HG"
+    "type": "HG",
+    "moddable": true
   },
   {
     "name": "Makarov",
@@ -60,7 +61,8 @@
   {
     "name": "C96",
     "stars": 3,
-    "type": "HG"
+    "type": "HG",
+    "moddable": true
   },
   {
     "name": "Type92",
@@ -146,7 +148,8 @@
   {
     "name": "STEN MkII",
     "stars": 3,
-    "type": "SMG"
+    "type": "SMG",
+    "moddable": true
   },
   {
     "name": "M38",
@@ -156,7 +159,8 @@
   {
     "name": "Micro Uzi",
     "stars": 3,
-    "type": "SMG"
+    "type": "SMG",
+    "moddable": true
   },
   {
     "name": "m45",
@@ -305,7 +309,8 @@
   {
     "name": "StG44",
     "stars": 3,
-    "type": "AR"
+    "type": "AR",
+    "moddable": true
   },
   {
     "name": "Gr G41",
@@ -463,7 +468,8 @@
   {
     "name": "Type64",
     "stars": 2,
-    "type": "SMG"
+    "type": "SMG",
+    "moddable": true
   },
   {
     "name": "Type88",
@@ -479,7 +485,8 @@
   {
     "name": "M950A",
     "stars": 5,
-    "type": "HG"
+    "type": "HG",
+    "moddable": true
   },
   {
     "name": "SPP-1",
@@ -1380,6 +1387,31 @@
     "type": "AR"
   },
   {
+    "name": "MAT-49",
+    "stars": 4,
+    "type": "SMG"
+  },
+  {
+    "name": "CAWS",
+    "stars": 5,
+    "type": "SG"
+  },
+  {
+    "name": "DP-12",
+    "stars": 5,
+    "type": "SG"
+  },
+  {
+    "name": "Liberator",
+    "stars": 4,
+    "type": "SG"
+  },
+  {
+    "name": "Zas M76",
+    "stars": 3,
+    "type": "RF"
+  },
+  {
     "name": "C-93",
     "stars": 5,
     "type": "HG"
@@ -1398,6 +1430,86 @@
     "name": "CR-21",
     "stars": 4,
     "type": "AR"
+  },
+  {
+    "name": "R5",
+    "stars": 5,
+    "type": "AR"
+  },
+  {
+    "name": "43M",
+    "stars": 3,
+    "type": "SMG"
+  },
+  {
+    "name": "RPK-16",
+    "stars": 5,
+    "type": "MG"
+  },
+  {
+    "name": "AK-15",
+    "stars": 5,
+    "type": "AR"
+  },
+  {
+    "name": "Webley",
+    "stars": 5,
+    "type": "HG"
+  },
+  {
+    "name": "CF-05",
+    "stars": 4,
+    "type": "SMG"
+  },
+  {
+    "name": "Gr SL8",
+    "stars": 5,
+    "type": "RF"
+  },
+  {
+    "name": "FI M82",
+    "stars": 4,
+    "type": "AR"
+  },
+  {
+    "name": "VEPR",
+    "stars": 5,
+    "type": "AR"
+  },
+  {
+    "name": "HSM10",
+    "stars": 3,
+    "type": "SG"
+  },
+  {
+    "name": "CAR",
+    "stars": 3,
+    "type": "MG"
+  },
+  {
+    "name": "MAS-38",
+    "stars": 3,
+    "type": "SMG"
+  },
+  {
+    "name": "Tabuk",
+    "stars": 4,
+    "type": "RF"
+  },
+  {
+    "name": "AK-Alfa",
+    "stars": 5,
+    "type": "AR"
+  },
+  {
+    "name": "ZB-26",
+    "stars": 5,
+    "type": "MG"
+  },
+  {
+    "name": "WKp",
+    "stars": 3,
+    "type": "HG"
   },
   {
     "name": "Noel",
@@ -1471,6 +1583,16 @@
   },
   {
     "name": "Angelica",
+    "stars": 1,
+    "type": "AR"
+  },
+  {
+    "name": "Agent Vector",
+    "stars": 1,
+    "type": "SMG"
+  },
+  {
+    "name": "Agent 416",
     "stars": 1,
     "type": "AR"
   }
