@@ -61,7 +61,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
                 return
             }
 
-            region.findBest(FileTemplate("combat-simulation/neural.png"))?.region?.click()
+            region.findBest(FileTemplate("combat-simulation/neural.png", 0.8))?.region?.click()
             delay((1000 * gameState.delayCoefficient).roundToLong())
 
             logger.info("Running neural sim type $level $times times")
@@ -242,7 +242,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
             return
         }
 
-        region.findBest(FileTemplate("combat-simulation/data-mode.png"))?.region?.click()
+        region.findBest(FileTemplate("combat-simulation/data-mode.png", 0.8))?.region?.click()
         // Generous Delays here since combat sims don't occur often
         delay((1000 * gameState.delayCoefficient).roundToLong())
 
