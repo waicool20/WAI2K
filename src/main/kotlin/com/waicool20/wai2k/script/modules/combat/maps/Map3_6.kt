@@ -55,7 +55,7 @@ class Map3_6(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptCompo
         waitForGNKSplash()
         resupplyEchelons(rEchelons)
         planPath()
-        waitForTurnAndPoints(1, 1, false); delay(500)
+        waitForTurnEnd(3)
         handleBattleResults()
     }
 
@@ -67,6 +67,9 @@ class Map3_6(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptCompo
 
         logger.info("Selecting ${nodes[2]}")
         nodes[2].findRegion().click(); yield()
+
+        logger.info("Selecting ${nodes[3]}")
+        nodes[3].findRegion().click(); yield()
 
         logger.info("Executing plan")
         mapRunnerRegions.executePlan.click()
