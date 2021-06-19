@@ -257,7 +257,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
 
         logger.info("Disassembling 3 star T-dolls")
         logger.info("Applying filters")
-        applyDollFilters(3)
+        applyDollFilters(listOf(3, 4))
         delay(750)
 
         val (currentCount, _) = getCurrentDollCount()
@@ -269,6 +269,14 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
                 .map { it.region }
                 .also { logger.info("Found ${it.size} that can be disassembled") }
                 .map { region.subRegion(it.x - 102, it.y, 136, 427) }
+                .toMutableList()
+            yield()
+            if (profile.factory.disassembly.disassemble4Star) {
+                dolls += region.findBest(FileTemplate("doll-list/4star.png"), 12)
+                    .map { it.region }
+                    .also { logger.info("Found ${it.size} 4*s that can be disassembled") }
+                    .map { region.subRegion(it.x - 106, it.y - 3, 247, 436) }
+            }
             region.matcher.settings.matchDimension = ScriptRunner.NORMAL_RES
             if (dolls.isEmpty()) {
                 // Click cancel if no t dolls could be used for disassembly
@@ -295,10 +303,10 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
             scriptStats.disassemblesDone += 1
             // Can break if disassembled count is less than 12
             if (dolls.size < 12) {
-                logger.info("No more 3 star T-dolls to disassemble!")
+                logger.info("No more T-dolls to disassemble!")
                 break
             } else {
-                logger.info("Still more 3 star T-dolls to disassemble")
+                logger.info("Still more T-dolls to disassemble")
             }
 
             disassemblyWindow.waitHas(sTemp, 10000)?.click(); delay(750)

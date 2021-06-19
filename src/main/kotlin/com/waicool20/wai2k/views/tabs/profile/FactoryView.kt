@@ -27,6 +27,7 @@ class FactoryView : AbstractProfileView() {
     override val root: VBox by fxml("/views/tabs/profile/factory.fxml")
     private val enableEnhancementCheckBox: CheckBox by fxid()
     private val enableDisassemblyCheckBox: CheckBox by fxid()
+    private val enable4StarDisassemblyCheckBox: CheckBox by fxid()
     private val alwaysDisassembleAfterEnhanceCheckBox: CheckBox by fxid()
     private val enableEquipDisassemblyCheckBox: CheckBox by fxid()
     private val enableEquip4StarDisassemblyCheckBox: CheckBox by fxid()
@@ -34,6 +35,10 @@ class FactoryView : AbstractProfileView() {
     override fun setValues() = Unit
 
     override fun createBindings() {
+        enable4StarDisassemblyCheckBox.disableWhen {
+            enableDisassemblyCheckBox.selectedProperty().not()
+        }
+
         alwaysDisassembleAfterEnhanceCheckBox.disableWhen {
             enableEnhancementCheckBox.selectedProperty().not() or
                 enableDisassemblyCheckBox.selectedProperty().not()
@@ -46,6 +51,7 @@ class FactoryView : AbstractProfileView() {
         context.currentProfile.factory.apply {
             enableEnhancementCheckBox.bind(enhancement.enabledProperty)
             enableDisassemblyCheckBox.bind(disassembly.enabledProperty)
+            enable4StarDisassemblyCheckBox.bind(disassembly.disassemble4StarProperty)
             alwaysDisassembleAfterEnhanceCheckBox.bind(alwaysDisassembleAfterEnhanceProperty)
             enableEquipDisassemblyCheckBox.bind(equipDisassembly.enabledProperty)
             enableEquip4StarDisassemblyCheckBox.bind(equipDisassembly.disassemble4StarProperty)

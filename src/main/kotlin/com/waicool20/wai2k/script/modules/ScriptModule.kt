@@ -68,8 +68,22 @@ abstract class ScriptModule(
         stars: Int? = null,
         type: TDoll.Type? = null,
         reset: Boolean = false
+    ) = applyDollFilters(if (stars == null) emptyList() else listOf(stars), type, reset)
+
+    /**
+     * Applies the given corresponding doll filters, only works when the filter button
+     * is on screen. ( eg. Formation/Enhancement/Disassemble screens )
+     *
+     * @param stars No. of stars, null if you don't care (Default)
+     * @param type Doll type, null if you don't care (Default)
+     * @param reset Resets filters first before applying the filters
+     */
+    protected suspend fun applyDollFilters(
+        stars: List<Int> = emptyList(),
+        type: TDoll.Type? = null,
+        reset: Boolean = false
     ) {
-        if (stars == null && type == null && !reset) return
+        if (stars.isEmpty() && type == null && !reset) return
         dollFilterRegions.filter.click()
         withTimeoutOrNull(5000) {
             val checkRegion = region.subRegion(920, 168, 110, 39)
@@ -85,19 +99,24 @@ abstract class ScriptModule(
             dollFilterRegions.filter.click()
             delay(500)
         }
-        if (stars != null) {
+        if (stars.isNotEmpty()) {
             logger.info("Applying $stars stars filter")
             val unlockedStars = dollFilterRegions.starRegions[6]?.let {
                 ocr.doOCRAndTrim(it.subRegion(92, 70, 28, 39))
             }
             if (unlockedStars?.contains("6") == true) {
                 logger.info("6 star filter is unlocked")
-                dollFilterRegions.starRegions[stars]?.click()
+                stars.forEach {
+                    dollFilterRegions.starRegions[it]?.click()
+                    delay(100)
+                }
             } else {
                 logger.info("6 star filter isn't unlocked")
-                dollFilterRegions.starRegions[stars + 1]?.click()
+                stars.forEach {
+                    dollFilterRegions.starRegions[it + 1]?.click()
+                    delay(100)
+                }
             }
-            delay(100)
         }
         if (type != null) {
             logger.info("Applying $type doll type filter")
