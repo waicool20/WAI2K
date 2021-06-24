@@ -75,8 +75,8 @@ class ScriptRunner(
     private var currentConfig = wai2KConfig
     private var currentProfile = wai2KProfile
 
-    var config: Wai2KConfig? = null
-    var profile: Wai2KProfile? = null
+    var config: Wai2KConfig = currentConfig
+    var profile: Wai2KProfile = currentProfile
 
     var isPaused: Boolean = false
     val isRunning get() = scriptJob?.isActive == true
@@ -113,17 +113,13 @@ class ScriptRunner(
 
     fun reload(forceReload: Boolean = false) {
         var reloadModules = forceReload
-        config?.let {
-            if (currentConfig != it) {
-                currentConfig = it
-                reloadModules = true
-            }
+        if (currentConfig != config) {
+            currentConfig = config
+            reloadModules = true
         }
-        profile?.let {
-            if (currentProfile != it) {
-                currentProfile = it
-                reloadModules = true
-            }
+        if (currentProfile != profile) {
+            currentProfile = profile
+            reloadModules = true
         }
         currentConfig.scriptConfig.apply {
             Region.DEFAULT_MATCHER.settings.matchDimension = NORMAL_RES
