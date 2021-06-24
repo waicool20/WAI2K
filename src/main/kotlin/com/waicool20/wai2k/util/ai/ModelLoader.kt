@@ -37,6 +37,6 @@ object ModelLoader {
         require(path.extension == "pt") { "Model must have .pt extension" }
         val name = path.nameWithoutExtension
         val device = if (Device.getGpuCount() > 0) Device.gpu() else Device.cpu()
-        return engine.newModel(name, device).apply { load(path) }
+        return engine.newModel(name, device).apply { load(path.parent, name) }
     }
 }

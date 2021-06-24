@@ -323,8 +323,6 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
         logger.info("Checking for repairs")
         if (gameState.echelons.any { it.needsRepairs() }) {
             logger.info("Repairs required")
-            val members = gameState.echelons.flatMap { it.members }.filter { it.needsRepair }
-
             navigator.navigateTo(LocationId.REPAIR)
 
             logger.info("Using one-click repair")

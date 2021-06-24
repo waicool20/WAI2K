@@ -82,7 +82,7 @@ class DeviceTabView : CoroutineScopeView(), Binder {
                 createNewRenderJob(deviceComboBox.selectedItem ?: return@setOnAction)
             }
         }
-        ipButton.setOnAction(::connectByIP)
+        ipButton.setOnAction { connectByIP() }
         deviceComboBox.converter = object : StringConverter<AndroidDevice>() {
             override fun toString(device: AndroidDevice?) =
                 device?.properties?.name ?: "No device selected"
@@ -207,7 +207,7 @@ class DeviceTabView : CoroutineScopeView(), Binder {
         createNewRenderJob(deviceComboBox.selectedItem ?: return)
     }
 
-    private fun connectByIP(e: ActionEvent) {
+    private fun connectByIP() {
         dialog {
             stage.isResizable = false
             hbox {

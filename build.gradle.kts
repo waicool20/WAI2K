@@ -24,7 +24,7 @@ import java.nio.file.Paths
 import java.security.MessageDigest
 
 plugins {
-    kotlin("jvm") version "1.5.0"
+    kotlin("jvm") version "1.5.10"
     id("com.github.johnrengelman.shadow") version "latest.release"
     id("org.openjfx.javafxplugin") version "latest.release"
 }
@@ -47,9 +47,9 @@ repositories {
 dependencies {
     val versions = object {
         val Kotlin by lazy { plugins.getPlugin(KotlinPluginWrapper::class).kotlinPluginVersion }
-        val KotlinCoroutines = "1.5.0-RC"
+        val KotlinCoroutines = "1.5.0"
         val Jackson = "2.12.3"
-        val OpenJfx = "15"
+        val OpenJfx = "16"
     }
 
     implementation(kotlin("stdlib-jdk8"))
@@ -65,9 +65,9 @@ dependencies {
     implementation("no.tornado:tornadofx:2.0.0-SNAPSHOT")
     implementation("org.controlsfx:controlsfx:11.1.0")
     implementation("org.reflections", "reflections", "0.9.12")
-    implementation("com.squareup.okhttp3:okhttp:4.9.0")
-    implementation("ai.djl.pytorch:pytorch-engine:0.10.0")
-    implementation("ai.djl.pytorch:pytorch-native-auto:1.7.1")
+    implementation("com.squareup.okhttp3:okhttp:4.9.1")
+    implementation("ai.djl.pytorch:pytorch-engine:0.11.0")
+    implementation("ai.djl.pytorch:pytorch-native-auto:1.8.1")
 
     implementation("net.sourceforge.tess4j", "tess4j", "4.5.4") {
         exclude("org.ghost4j")

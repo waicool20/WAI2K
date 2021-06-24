@@ -29,7 +29,7 @@ import java.nio.file.Paths
 import java.security.MessageDigest
 
 plugins {
-    kotlin("jvm") version "1.5.0"
+    kotlin("jvm") version "1.5.10"
     id("com.github.johnrengelman.shadow") version "5.2.0"
 }
 
