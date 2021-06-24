@@ -33,6 +33,7 @@ import com.waicool20.waicoolutils.mapAsync
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import java.time.Instant
+import kotlin.coroutines.coroutineContext
 
 class LogisticsSupportModule(navigator: Navigator) : ScriptModule(navigator) {
     private val logger = loggerFor<LogisticsSupportModule>()
@@ -195,7 +196,7 @@ class LogisticsSupportModule(navigator: Navigator) : ScriptModule(navigator) {
         delay(100)
 
         val start = System.currentTimeMillis()
-        while (isActive) {
+        while (coroutineContext.isActive) {
             val echelons = eRegion.findBest(FileTemplate("echelons/echelon.png"), 8)
                 .map { it.region }
                 .map { it.copy(it.x + 93, it.y - 40, 60, 100) }

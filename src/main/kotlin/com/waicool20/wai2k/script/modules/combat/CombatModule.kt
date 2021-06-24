@@ -38,6 +38,7 @@ import kotlinx.coroutines.*
 import java.awt.Color
 import java.awt.image.BufferedImage
 import java.text.DecimalFormat
+import kotlin.coroutines.coroutineContext
 import kotlin.reflect.full.primaryConstructor
 
 class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
@@ -193,7 +194,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
             try {
                 withTimeout(90_000) {
                     val r = region.subRegion(167, 146, 1542, 934)
-                    while (isActive) {
+                    while (coroutineContext.isActive) {
                         // Trying this to improve search reliability, maybe put this upstream in cvauto
                         switchDoll =
                             r.findBest(FileTemplate("doll-list/echelon2-captain.png", 0.85), 5)
@@ -330,7 +331,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
             // one-click repair
             region.subRegion(1660, 965, 358, 98).click()
             region.waitHas(FileTemplate("ok.png"), 2000)
-            while (isActive) {
+            while (coroutineContext.isActive) {
                 val repairs = ocr.digitsOnly()
                     .doOCRAndTrim(region.subRegion(1472, 689, 68, 42))
                 scriptStats.repairs += repairs.toIntOrNull() ?: continue
@@ -400,7 +401,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
                 val mapNameR = region.subRegion(1100, 350, 250, 680)
                 val mapName = "${map.chapter}-${map.number}" // map.name might have suffix
                 withTimeout(10000) {
-                    while (isActive) {
+                    while (coroutineContext.isActive) {
                         region.subRegion(1020, 880, 675, 140).randomPoint().let {
                             region.device.input.touchInterface.swipe(
                                 ITouchInterface.Swipe(0, it.x, it.y, it.x, it.y - 650), 1000
@@ -423,7 +424,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
         // button which will be slightly transparent
         var loops = 0
         logger.info("Entering normal battle at $map")
-        while (isActive) {
+        while (coroutineContext.isActive) {
             if (loops++ == 5) return
             region.subRegion(1445, 830, 345, 135)
                 .findBest(FileTemplate("combat/battle/normal.png"))?.region?.click() ?: continue

@@ -23,7 +23,6 @@ import boofcv.alg.color.ColorHsv
 import com.waicool20.cvauto.core.input.ITouchInterface
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.cvauto.core.template.ImageTemplate
-import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
@@ -35,6 +34,7 @@ import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.*
 import java.awt.Color
 import java.awt.Point
+import kotlin.coroutines.coroutineContext
 import kotlin.random.Random
 
 class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
@@ -72,7 +72,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
 
         var oldCount: Int? = null
 
-        while (isActive) {
+        while (coroutineContext.isActive) {
             val selectCharacterButton = region.subRegion(468, 206, 246, 605)
             // Click select character
             selectCharacterButton.click(); delay(1000)
@@ -91,7 +91,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
 
             logger.info("Selecting highest level T-doll for enhancement")
             // Randomly select a doll on the screen for enhancement
-            while (isActive) {
+            while (coroutineContext.isActive) {
                 region.matcher.settings.matchDimension = ScriptRunner.HIGH_RES
                 val doll = // Map lock region to doll region
                     // Prioritize higher level dolls
@@ -209,7 +209,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
 
         val sTemp = FileTemplate("factory/select.png", 0.8)
 
-        while (isActive) {
+        while (coroutineContext.isActive) {
             logger.info("Start T-doll selection")
 
             disassemblyWindow.waitHas(sTemp, 10000)?.click(); delay(750)
@@ -263,7 +263,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
         val (currentCount, _) = getCurrentDollCount()
         oldCount?.let { scriptStats.dollsUsedForDisassembly += it - currentCount }
 
-        while (isActive) {
+        while (coroutineContext.isActive) {
             region.matcher.settings.matchDimension = ScriptRunner.HIGH_RES
             val dolls = region.findBest(FileTemplate("doll-list/3star.png"), 12)
                 .map { it.region }
@@ -393,7 +393,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
         val (currentCount, total) = getCurrentEquipCount()
         oldCount?.let { scriptStats.equipsUsedForDisassembly += it - currentCount }
 
-        while (isActive) {
+        while (coroutineContext.isActive) {
             region.matcher.settings.matchDimension = ScriptRunner.HIGH_RES
             val equips = region.findBest(FileTemplate("factory/equip-3star.png"), 12)
                 .map { it.region }
@@ -464,7 +464,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
     private tailrec suspend fun getCurrentDollCount(): Pair<Int, Int> {
         logger.info("Updating doll count")
         var ocrResult: String
-        while (isActive) {
+        while (coroutineContext.isActive) {
             ocrResult = ocr
                 .doOCRAndTrim(countRegion.copy(y = 763).capture().binarizeImage(0.7))
             if (ocrResult.contains("capa", true)) break else yield()
@@ -484,7 +484,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
     private tailrec suspend fun getCurrentEquipCount(): Pair<Int, Int> {
         logger.info("Updating equipment count")
         var ocrResult: String
-        while (isActive) {
+        while (coroutineContext.isActive) {
             ocrResult = ocr.doOCRAndTrim(countRegion.copy(y = 763))
             if (ocrResult.contains("equip", true)) break else yield()
         }

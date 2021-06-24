@@ -28,7 +28,6 @@ import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.waicoolutils.firstAsync
 import com.waicool20.waicoolutils.logging.loggerFor
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withTimeoutOrNull
@@ -36,7 +35,6 @@ import java.text.DecimalFormat
 import java.time.Duration
 import java.time.Instant
 import java.util.*
-import kotlin.coroutines.CoroutineContext
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 
@@ -45,9 +43,7 @@ class Navigator(
     override val region: AndroidRegion,
     override val config: Wai2KConfig,
     override val profile: Wai2KProfile
-) : ScriptComponent, CoroutineScope {
-    override val coroutineContext: CoroutineContext
-        get() = scriptRunner.coroutineContext
+) : ScriptComponent {
     private val logger = loggerFor<Navigator>()
     private val gameState get() = scriptRunner.gameState
     private val scriptStats get() = scriptRunner.scriptStats
@@ -331,5 +327,4 @@ class Navigator(
     private fun List<GameLocation.GameLocationLink>?.formatted(): String {
         return this?.joinToString("->") { "${it.dest.id}" } ?: ""
     }
-
 }

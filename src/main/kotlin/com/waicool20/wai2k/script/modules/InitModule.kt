@@ -41,6 +41,7 @@ import java.awt.Color
 import java.awt.image.BufferedImage
 import java.time.Duration
 import java.time.Instant
+import kotlin.coroutines.coroutineContext
 import kotlin.system.measureTimeMillis
 
 class InitModule(navigator: Navigator) : ScriptModule(navigator) {
@@ -87,7 +88,7 @@ class InitModule(navigator: Navigator) : ScriptModule(navigator) {
         logger.info("Updating gamestate")
         val region = region.asCachedRegion()
         measureTimeMillis {
-            val repairJob = launch { updateRepairs(region) }
+            val repairJob = scope.launch { updateRepairs(region) }
             updateLogistics(region)
             // Wait for repairs to finish updating if script just started
             if (scriptStats.sortiesDone == 0) repairJob.join()
@@ -140,13 +141,13 @@ class InitModule(navigator: Navigator) : ScriptModule(navigator) {
         logger.info("Reading repair status")
 
         val firstEntryRegion = cache.subRegion(388, 0, 159, region.height)
-        val repairRegions = async {
+        val repairRegions = scope.async {
             firstEntryRegion.findBest(FileTemplate("init/repairing.png"), 6)
         }
-        val standbyRegions = async {
+        val standbyRegions = scope.async {
             firstEntryRegion.findBest(FileTemplate("init/standby.png"), 6)
         }
-        val trainingRegions = async {
+        val trainingRegions = scope.async {
             firstEntryRegion.findBest(FileTemplate("init/in-training.png"), 6)
         }
         // Find all the echelons that have a girl in repair
@@ -156,11 +157,11 @@ class InitModule(navigator: Navigator) : ScriptModule(navigator) {
         val mappedEntries = entries.map { it.region }
             .map { cache.capture().getSubimage(it.x - 109, it.y - 31, 852, 184) }
             .map {
-                async {
+                scope.async {
                     // Echelon number
                     ocr.digitsOnly()
                         .doOCRAndTrim(it.getSubimage(0, 25, 80, 125))
-                } to async { readRepairTimers(it) }
+                } to scope.async { readRepairTimers(it) }
             }.map { it.first.await().toInt() to it.second.await() }
 
         // Clear existing timers
@@ -195,7 +196,7 @@ class InitModule(navigator: Navigator) : ScriptModule(navigator) {
 
     private suspend fun terminateExistingBattle() {
         logger.info("Detected ongoing battle, terminating it first")
-        while(isActive) {
+        while (coroutineContext.isActive) {
             val capture = region.capture()
             if (Color(capture.getRGB(50, 1050)).isSimilar(Color(16, 16, 16)) &&
                 Color(capture.getRGB(680, 580)).isSimilar(Color(222, 223, 74))
@@ -205,7 +206,7 @@ class InitModule(navigator: Navigator) : ScriptModule(navigator) {
             navigator.checkLogistics()
         }
         logger.info("Transitioning to map")
-        while (isActive) {
+        while (coroutineContext.isActive) {
             if (region.has(FileTemplate("combat/battle/terminate.png"))) break
             delay(500)
         }

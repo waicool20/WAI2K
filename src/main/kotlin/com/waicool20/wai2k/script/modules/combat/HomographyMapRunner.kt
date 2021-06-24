@@ -94,7 +94,7 @@ abstract class HomographyMapRunner(scriptComponent: ScriptComponent) : MapRunner
     protected val fullMap: Image
 
     init {
-        val p = async(Dispatchers.IO) {
+        val p = scope.async(Dispatchers.IO) {
             val sppt = config.assetsDirectory.resolve("models/SuperPoint.pt")
             val sgpt = config.assetsDirectory.resolve("models/SuperGlue.pt")
             if (sppt.notExists()) throw MissingAssetException(sppt)
@@ -105,13 +105,13 @@ abstract class HomographyMapRunner(scriptComponent: ScriptComponent) : MapRunner
             translator.prepare(model.ndManager, model)
             model.newPredictor(translator).apply { setMetrics(metrics) }
         }
-        val n = async(Dispatchers.IO) {
+        val n = scope.async(Dispatchers.IO) {
             val path = config.assetsDirectory.resolve("$PREFIX/map.json")
             if (path.exists()) {
                 jacksonObjectMapper().readValue<List<MapNode>>(path.toFile())
             } else throw MissingAssetException(path)
         }
-        val fm = async(Dispatchers.IO) {
+        val fm = scope.async(Dispatchers.IO) {
             val path = config.assetsDirectory.resolve("$PREFIX/map.png")
             if (path.exists()) {
                 ImageFactory.getInstance().fromFile(path)

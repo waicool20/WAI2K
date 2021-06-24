@@ -30,16 +30,17 @@ import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.waicoolutils.filterAsync
 import com.waicool20.waicoolutils.logging.loggerFor
-import kotlinx.coroutines.*
-import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.coroutines.yield
+import kotlin.coroutines.coroutineContext
 import kotlin.math.roundToLong
 import kotlin.system.exitProcess
 
 abstract class ScriptModule(
     val navigator: Navigator
-) : ScriptComponent by navigator, CoroutineScope {
-    override val coroutineContext: CoroutineContext
-        get() = scriptRunner.coroutineContext
+) : ScriptComponent by navigator {
 
     companion object {
         private const val CHAPTER_MIN = 0

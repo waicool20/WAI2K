@@ -46,7 +46,7 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.imageio.ImageIO
-import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.coroutineContext
 import kotlin.io.path.createDirectories
 import kotlin.math.roundToLong
 import kotlin.reflect.full.primaryConstructor
@@ -54,7 +54,7 @@ import kotlin.reflect.full.primaryConstructor
 class ScriptRunner(
     wai2KConfig: Wai2KConfig = Wai2KConfig(),
     wai2KProfile: Wai2KProfile = Wai2KProfile()
-) : CoroutineScope {
+) {
     companion object {
         const val NORMAL_RES = 480
         const val HIGH_RES = 1080
@@ -65,10 +65,8 @@ class ScriptRunner(
         (loggerFor<Reflections>() as Logger).level = Level.OFF
     }
 
-    private var scriptJob: Job? = null
-    override val coroutineContext: CoroutineContext
-        get() = scriptJob?.takeIf { it.isActive }?.let { it + Dispatchers.Default }
-            ?: Dispatchers.Default
+    lateinit var scope: CoroutineScope
+        private set
 
     private val logger = loggerFor<ScriptRunner>()
     private var currentDevice: AndroidDevice? = null
@@ -79,7 +77,7 @@ class ScriptRunner(
     var profile: Wai2KProfile = currentProfile
 
     var isPaused: Boolean = false
-    val isRunning get() = scriptJob?.isActive == true
+    val isRunning get() = this::scope.isInitialized && scope.isActive
     val gameState = GameState()
     val scriptStats = ScriptStats()
     var justRestarted = false
@@ -94,6 +92,7 @@ class ScriptRunner(
 
     fun run() {
         if (isRunning) return
+        scope = CoroutineScope(Dispatchers.Default)
         logger.info("Starting new WAI2K session")
         isPaused = false
         gameState.requiresUpdate = true
@@ -102,8 +101,8 @@ class ScriptRunner(
         statsHash = scriptStats.hashCode()
         gameState.reset()
         justRestarted = true
-        scriptJob = launch {
-            reload(true)
+        reload(true)
+        scope.launch {
             postStats()
             while (isActive) {
                 runScriptCycle()
@@ -155,16 +154,16 @@ class ScriptRunner(
     }
 
     fun join() = runBlocking {
-        scriptJob?.join()
+        scope.coroutineContext[Job]?.join()
     }
 
     fun stop() {
         logger.info("Stopping the script")
         isPaused = false
-        scriptJob?.cancel()
+        scope.cancel()
     }
 
-    private suspend fun runScriptCycle() = coroutineScope {
+    private suspend fun runScriptCycle() {
         reload()
         if (modules.isEmpty()) coroutineContext.cancelAndYield()
         try {
@@ -236,7 +235,7 @@ class ScriptRunner(
         val screenshot = device.screens.first().capture()
         val output = Wai2K.CONFIG_DIR.resolve("debug")
             .resolve("${DateTimeFormatter.ofPattern("yyyy-MM-dd HH-mm-ss").format(now)}.png")
-        launch(Dispatchers.IO) {
+        scope.launch(Dispatchers.IO) {
             output.parent.createDirectories()
             ImageIO.write(screenshot, "PNG", output.toFile())
             logger.info("Saved debug image to: ${output.toAbsolutePath()}")
@@ -290,7 +289,7 @@ class ScriptRunner(
         region.subRegion(630, 400, 900, 300).click()
         val locations = GameLocation.mappings(currentConfig)
         val login = region.subRegion(200, 19, 96, 87)
-        while (isActive) {
+        while (coroutineContext.isActive) {
             navigator?.checkLogistics()
             // Check for sign in or achievement popup
             if (region.subRegion(396, 244, 80, 80).has(FileTemplate("home-popup.png"))) {

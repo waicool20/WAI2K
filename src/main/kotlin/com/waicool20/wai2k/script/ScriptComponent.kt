@@ -33,4 +33,5 @@ interface ScriptComponent {
 
     val ocr get() = Ocr.forConfig(config)
     val locations get() = GameLocation.mappings(config)
+    val scope get() = scriptRunner.scope
 }

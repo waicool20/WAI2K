@@ -22,7 +22,10 @@ package com.waicool20.wai2k.script.modules.combat
 import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.cvauto.core.template.ITemplate
-import com.waicool20.wai2k.game.*
+import com.waicool20.wai2k.game.CombatMap
+import com.waicool20.wai2k.game.Echelon
+import com.waicool20.wai2k.game.LocationId
+import com.waicool20.wai2k.game.MapRunnerRegions
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.ScriptException
 import com.waicool20.wai2k.script.ScriptTimeOutException
@@ -38,7 +41,7 @@ import java.awt.Color
 import java.lang.reflect.Modifier
 import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
-import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.coroutineContext
 import kotlin.math.roundToLong
 import kotlin.random.Random
 import kotlin.reflect.KClass
@@ -57,7 +60,7 @@ import kotlin.reflect.KClass
  */
 abstract class MapRunner(
     scriptComponent: ScriptComponent
-) : ScriptComponent by scriptComponent, CoroutineScope {
+) : ScriptComponent by scriptComponent {
 
     class Deployment(val echelon: Int, val mapNode: MapNode) : Deployable
     class Retreat(val mapNode: MapNode) : Retreatable
@@ -97,9 +100,6 @@ abstract class MapRunner(
 
     private val logger = loggerFor<MapRunner>()
     private var _battles = 1
-
-    override val coroutineContext: CoroutineContext
-        get() = scriptRunner.coroutineContext
 
     val gameState get() = scriptRunner.gameState
     val scriptStats get() = scriptRunner.scriptStats
@@ -297,7 +297,7 @@ abstract class MapRunner(
         delay(100)
 
         val start = System.currentTimeMillis()
-        while (isActive) {
+        while (coroutineContext.isActive) {
             val echelons = eRegion.findBest(FileTemplate("echelons/echelon.png"), 8)
                 .map { it.region }
                 .map { it.copy(it.x + 93, it.y - 40, 60, 100) }
@@ -432,11 +432,11 @@ abstract class MapRunner(
      * @param timeout Max amount of time to wait for splash, can be set to longer lengths for
      * between turns
      */
-    protected suspend fun waitForGNKSplash(timeout: Long = 10000) = coroutineScope {
+    protected suspend fun waitForGNKSplash(timeout: Long = 10000) {
         logger.info("Waiting for G&K splash screen")
         val start = System.currentTimeMillis()
         // Wait for the G&K splash to appear within 10 seconds
-        while (isActive) {
+        while (coroutineContext.isActive) {
             delay(500)
             if (mapRunnerRegions.endBattle.has(FileTemplate("combat/battle/end.png", 0.8))) {
                 logger.info("G&K splash screen appeared")
@@ -467,7 +467,7 @@ abstract class MapRunner(
         logger.info("Waiting for turn to end, expected battles: $battles")
         var battlesPassed = 0
         val wdt = WatchDogTimer(profile.combat.battleTimeout * 1000L + timeout)
-        while (isActive && battlesPassed < battles) {
+        while (coroutineContext.isActive && battlesPassed < battles) {
             if (isInBattle()) {
                 wdt.reset()
                 wdt.addTime((30 * gameState.delayCoefficient).roundToLong(), TimeUnit.SECONDS)
@@ -499,12 +499,12 @@ abstract class MapRunner(
         points: Int,
         endTurn: Boolean = true,
         timeout: Long = 120_000
-    ) = coroutineScope {
+    ) {
         logger.info("Waiting for turn $turn and action points $points")
         var oldTurn = 0
         var oldPoints = 0
         val wdt = WatchDogTimer(profile.combat.battleTimeout * 1000L + timeout)
-        loop@ while (isActive && !interruptWaitFlag) {
+        loop@ while (coroutineContext.isActive && !interruptWaitFlag) {
             delay(500)
             when {
                 isInBattle() -> {
@@ -532,7 +532,7 @@ abstract class MapRunner(
             logger.info("Reached required turns and action points!")
         }
         delay(1000)
-        while (isActive) {
+        while (coroutineContext.isActive) {
             if (isInBattle()) clickThroughBattle()
             if (region.has(FileTemplate("combat/battle/terminate.png"))) break
             delay(500)
@@ -555,7 +555,7 @@ abstract class MapRunner(
         logger.info("Waiting for ${assets.size} assets to appear:")
         assets.forEach { logger.info("Waiting on: ${it.source}") }
         val wdt = WatchDogTimer(profile.combat.battleTimeout * 1000L + timeout)
-        while (isActive) {
+        while (coroutineContext.isActive) {
             if (isInBattle()) {
                 wdt.reset()
                 wdt.addTime((30 * gameState.delayCoefficient).roundToLong(), TimeUnit.SECONDS)
@@ -575,7 +575,7 @@ abstract class MapRunner(
     /**
      * Clicks through the battle results and waits for the game to return to the combat menu
      */
-    protected suspend fun handleBattleResults(): Unit = coroutineScope {
+    protected suspend fun handleBattleResults() {
         logger.info("Battle ended, clicking through battle results")
         val location = if (this@MapRunner is EventMapRunner) {
             logger.info("Waiting for event menu")
@@ -636,7 +636,7 @@ abstract class MapRunner(
         // Delay to stop COOL Beach fairy BG change from triggering battle counter
         delay(4000)
         // Wait until it disappears
-        while (isActive && isInBattle()) delay(500)
+        while (coroutineContext.isActive && isInBattle()) delay(500)
         logger.info("Battle ${_battles++} complete, clicking through battle results")
         // Animation and load wheel until you can click through results/drops
         delay(Random.nextLong(1100, 1300))
