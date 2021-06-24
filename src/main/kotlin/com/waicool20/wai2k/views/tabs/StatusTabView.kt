@@ -21,6 +21,7 @@ package com.waicool20.wai2k.views.tabs
 
 import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.script.ScriptContext
+import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.formatted
 import com.waicool20.waicoolutils.divAssign
 import com.waicool20.waicoolutils.javafx.CoroutineScopeView
@@ -83,13 +84,15 @@ class StatusTabView : CoroutineScopeView() {
 
     private fun updateView() {
         updateTimes()
-        if (scriptRunner.isRunning) updateScriptStats()
+        if (scriptRunner.state != ScriptRunner.State.STOPPED) updateScriptStats()
         updateEchelonStats()
     }
 
     private fun updateTimes() {
         startTimeLabel.text = scriptRunner.lastStartTime?.formatted() ?: ""
-        if (scriptRunner.isRunning) elapsedTimeLabel.text = timeDelta(scriptRunner.lastStartTime)
+        if (scriptRunner.state != ScriptRunner.State.STOPPED) {
+            elapsedTimeLabel.text = timeDelta(scriptRunner.lastStartTime)
+        }
     }
 
     private fun updateScriptStats() {
@@ -158,7 +161,7 @@ class StatusTabView : CoroutineScopeView() {
 
             if (context.currentProfile.combatReport.enabled
                 && context.currentProfile.combat.enabled
-                && scriptRunner.isRunning
+                && scriptRunner.state != ScriptRunner.State.STOPPED
             ) {
                 if (reportsNextCheck > Instant.now()) {
                     builder /= "Combat Report ETA:"

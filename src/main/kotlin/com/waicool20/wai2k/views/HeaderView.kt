@@ -22,6 +22,7 @@ package com.waicool20.wai2k.views
 import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.script.ScriptContext
+import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.waicoolutils.javafx.AlertFactory
 import com.waicool20.waicoolutils.javafx.CoroutineScopeView
 import com.waicool20.waicoolutils.javafx.addListener
@@ -153,34 +154,33 @@ class HeaderView : CoroutineScopeView() {
     }
 
     private fun onStartPause() = launch {
-        if (scriptRunner.isRunning) {
-            if (scriptRunner.isPaused) {
-                scriptRunner.isPaused = false
-                startPauseButton.text = "Pause"
-            } else {
-                scriptRunner.isPaused = true
+        when (scriptRunner.state) {
+            ScriptRunner.State.RUNNING -> {
+                scriptRunner.pause()
                 startPauseButton.text = "Cont."
                 logger.info("Script will pause when the current cycle ends")
             }
-        } else {
-            scriptRunner.apply {
-                config = wai2KContext.wai2KConfig
-                profile = wai2KContext.currentProfile
-            }.run()
-            startPauseButton.text = "Pause"
-            stopButton.show()
-            startScriptMonitor()
+            ScriptRunner.State.PAUSED -> {
+                scriptRunner.unpause()
+                startPauseButton.text = "Pause"
+            }
+            ScriptRunner.State.STOPPED -> {
+                scriptRunner.apply {
+                    config = wai2KContext.wai2KConfig
+                    profile = wai2KContext.currentProfile
+                }.run()
+                startPauseButton.text = "Pause"
+                stopButton.show()
+                startScriptMonitor()
+            }
         }
-    }
-
-
-    private fun onStop() = launch {
-        startPauseButton.text = "Start"
-        stopButton.hide()
     }
 
     private fun startScriptMonitor() = launch(Dispatchers.IO) {
         scriptRunner.join()
-        onStop()
+        withContext(Dispatchers.JavaFx) {
+            startPauseButton.text = "Start"
+            stopButton.hide()
+        }
     }
 }

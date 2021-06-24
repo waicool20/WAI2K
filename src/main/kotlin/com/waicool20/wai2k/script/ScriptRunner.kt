@@ -60,6 +60,10 @@ class ScriptRunner(
         const val HIGH_RES = 1080
     }
 
+    enum class State {
+        RUNNING, PAUSED, STOPPED
+    }
+
     init {
         // Turn off logging for reflections library
         (loggerFor<Reflections>() as Logger).level = Level.OFF
@@ -76,13 +80,13 @@ class ScriptRunner(
     var config: Wai2KConfig = currentConfig
     var profile: Wai2KProfile = currentProfile
 
-    var isPaused: Boolean = false
-    val isRunning get() = this::scope.isInitialized && scope.isActive
     val gameState = GameState()
     val scriptStats = ScriptStats()
     var justRestarted = false
         private set
     var lastStartTime: Instant? = null
+        private set
+    var state: State = State.STOPPED
         private set
 
     private var statsHash: Int = scriptStats.hashCode()
@@ -91,10 +95,11 @@ class ScriptRunner(
     private var captureTimeoutCount: Int = 0
 
     fun run() {
-        if (isRunning) return
+        if (state != State.STOPPED) return
+        state = State.RUNNING
         scope = CoroutineScope(Dispatchers.Default)
+        scope.coroutineContext.job.invokeOnCompletion { state = State.STOPPED }
         logger.info("Starting new WAI2K session")
-        isPaused = false
         gameState.requiresUpdate = true
         lastStartTime = Instant.now()
         scriptStats.reset()
@@ -153,13 +158,20 @@ class ScriptRunner(
         }
     }
 
+    fun pause() {
+        if (state == State.RUNNING) state = State.PAUSED
+    }
+
+    fun unpause() {
+        if (state == State.PAUSED) state = State.RUNNING
+    }
+
     fun join() = runBlocking {
         scope.coroutineContext[Job]?.join()
     }
 
     fun stop() {
         logger.info("Stopping the script")
-        isPaused = false
         scope.cancel()
     }
 
@@ -220,9 +232,11 @@ class ScriptRunner(
             }
         }
         postStats()
-        if (isPaused) {
+        if (state == State.PAUSED) {
             logger.info("Script is now paused")
-            while (isPaused) delay(currentConfig.scriptConfig.loopDelay * 1000L)
+            while (state == State.PAUSED && coroutineContext.isActive) {
+                delay(currentConfig.scriptConfig.loopDelay * 1000L)
+            }
             logger.info("Script will now resume")
         } else {
             delay((currentConfig.scriptConfig.loopDelay * 1000L).coerceAtLeast(500))
