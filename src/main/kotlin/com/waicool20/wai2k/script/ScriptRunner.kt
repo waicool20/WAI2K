@@ -92,7 +92,6 @@ class ScriptRunner(
     private var statsHash: Int = scriptStats.hashCode()
     private val modules = mutableSetOf<ScriptModule>()
     private var navigator: Navigator? = null
-    private var captureTimeoutCount: Int = 0
 
     fun run() {
         if (state != State.STOPPED) return
@@ -190,22 +189,31 @@ class ScriptRunner(
             saveDebugImage()
             exceptionRestart(e)
         } catch (e: Region.CaptureTimeoutException) {
-            if (captureTimeoutCount <= 3) {
-                logger.error("Screen capture timed out, will wait 10s before restarting")
-                delay(10_000)
-                exceptionRestart(e)
-            } else {
-                logger.error(
-                    "Screen capture keeps timing out, something might be wrong with the emulator!" +
-                        " Exiting..."
-                )
-                YuuBot.postMessage(
-                    currentConfig.apiKey,
-                    "Script Stopped",
-                    "Too many capture timeouts"
-                )
-                coroutineContext.cancelAndYield()
+            var captureTimeoutCount = 0
+            while (coroutineContext.isActive) {
+                if (++captureTimeoutCount <= 5) {
+                    logger.error("Screen capture timed out, will wait 10s before restarting")
+                    delay(10_000)
+                    try {
+                        currentDevice?.screens?.firstOrNull()?.capture()
+                        break
+                    } catch (e: Region.CaptureTimeoutException) {
+                        // Do Nothing
+                    }
+                } else {
+                    logger.error(
+                        "Screen capture keeps timing out, something might be wrong with the emulator!" +
+                            " Exiting..."
+                    )
+                    YuuBot.postMessage(
+                        currentConfig.apiKey,
+                        "Script Stopped",
+                        "Too many capture timeouts"
+                    )
+                    coroutineContext.cancelAndYield()
+                }
             }
+            exceptionRestart(e)
         } catch (e: Region.CaptureIOException) {
             if (currentDevice?.isConnected() == true) {
                 logger.error("Screen capture error, will wait 10s before restarting")
@@ -225,9 +233,7 @@ class ScriptRunner(
                         "Uncaught error during script execution, please report this to the devs"
                     logger.error(msg)
                     YuuBot.postMessage(currentConfig.apiKey, "Script Stopped", msg)
-                    Thread.getDefaultUncaughtExceptionHandler()
-                        .uncaughtException(Thread.currentThread(), e)
-                    coroutineContext.cancelAndYield()
+                    throw e
                 }
             }
         }
