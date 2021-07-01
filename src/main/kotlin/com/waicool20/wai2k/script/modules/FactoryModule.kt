@@ -153,7 +153,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
             // Click "Select t-doll" button
             logger.info("Selecting T-dolls that will be used for enhancement")
             region.subRegion(798, 212, 1217, 555)
-                .findBest(FileTemplate("factory/select.png"))?.region?.click()
+                .findBest(FileTemplate("factory/enhance-select-tdoll.png"))?.region?.click()
             delay(200)
 
             // Click smart select button
@@ -189,7 +189,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
                 }
 
             region.subRegion(798, 212, 1217, 555)
-                .waitHas(FileTemplate("factory/select.png"), 1000)
+                .waitHas(FileTemplate("factory/enhance-select-tdoll.png"), 1000)
             delay(1000)
         }
 
@@ -207,7 +207,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
 
         logger.info("Disassembling 2 star T-dolls")
 
-        val sTemp = FileTemplate("factory/select.png", 0.8)
+        val sTemp = FileTemplate("factory/disassemble-select-tdoll.png", 0.8)
 
         while (coroutineContext.isActive) {
             logger.info("Start T-doll selection")
@@ -328,8 +328,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
         logger.info("Disassembling 2 star equipment")
         logger.info("Start equipment selection")
 
-
-        val sTemp = FileTemplate("factory/select-equip.png")
+        val sTemp = FileTemplate("factory/disassemble-select-equip.png")
 
         disassemblyWindow.waitHas(sTemp, 10000)?.click(); delay(750)
 
