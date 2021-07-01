@@ -39,6 +39,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.awt.Color
 import java.awt.image.BufferedImage
+import java.awt.image.RasterFormatException
 import java.time.Duration
 import java.time.Instant
 import kotlin.coroutines.coroutineContext
@@ -155,7 +156,14 @@ class InitModule(navigator: Navigator) : ScriptModule(navigator) {
 
         // Map each region to whole logistic support entry
         val mappedEntries = entries.map { it.region }
-            .map { cache.capture().getSubimage(it.x - 109, it.y - 31, 852, 184) }
+            .mapNotNull {
+                try {
+                    cache.capture().getSubimage(it.x - 109, it.y - 31, 852, 184)
+                } catch (e: RasterFormatException) {
+                    logger.warn("One status entry is out of bounds, ignoring!")
+                    null
+                }
+            }
             .map {
                 scope.async {
                     // Echelon number
