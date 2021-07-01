@@ -541,10 +541,20 @@
   {
     "id": "combat_simulation",
     "isIntermediate": true,
+    "matchingMode": "OR",
     "landmarks": [
       {
         "asset": {
           "imageName": "combat_simulation",
+          "x": 1959,
+          "y": 179,
+          "width": 60,
+          "height": 60
+        }
+      },
+      {
+        "asset": {
+          "imageName": "combat_simulation0",
           "x": 1959,
           "y": 179,
           "width": 60,
