@@ -29,6 +29,7 @@ import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.wai2k.util.doOCRAndTrim
+import com.waicool20.wai2k.util.useCharFilter
 import com.waicool20.waicoolutils.binarizeImage
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.*
@@ -458,7 +459,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
     }
 
     private val countRegex = Regex("(\\d+)\\s*?/\\s*?(\\d+)")
-    private val countRegion = region.subRegion(1790, 815, 220, 60)
+    private val countRegion = region.subRegion(1770, 815, 240, 60)
 
     private tailrec suspend fun getCurrentDollCount(): Pair<Int, Int> {
         logger.info("Updating doll count")
@@ -468,7 +469,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
                 .doOCRAndTrim(countRegion.copy(y = 763).capture().binarizeImage(0.7))
             if (ocrResult.contains("capa", true)) break else yield()
         }
-        ocrResult = ocr.doOCRAndTrim(countRegion)
+        ocrResult = ocr.useCharFilter("0123456789/").doOCRAndTrim(countRegion)
         ocrResult = Ocr.cleanNumericString(ocrResult)
         logger.info("Doll count ocr: $ocrResult")
         return countRegex.find(ocrResult)?.groupValues?.let {
@@ -487,7 +488,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
             ocrResult = ocr.doOCRAndTrim(countRegion.copy(y = 763))
             if (ocrResult.contains("equip", true)) break else yield()
         }
-        ocrResult = ocr.doOCRAndTrim(countRegion)
+        ocrResult = ocr.useCharFilter("0123456789/").doOCRAndTrim(countRegion)
         ocrResult = Ocr.cleanNumericString(ocrResult)
         logger.info("Equipment count ocr: $ocrResult")
         return countRegex.find(ocrResult)?.groupValues?.let {
