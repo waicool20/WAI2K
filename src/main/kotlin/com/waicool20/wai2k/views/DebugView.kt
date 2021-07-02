@@ -78,7 +78,6 @@ class DebugView : CoroutineScopeView() {
     private val annotateSetButton: Button by fxid()
     private val saveAnnotationsCheckBox: CheckBox by fxid()
 
-    private val useLSTMCheckBox: CheckBox by fxid()
     private val filterCheckBox: CheckBox by fxid()
     private val filterOptions: ToggleGroup by fxid()
     private val filterOptionsVBox: VBox by fxid()
@@ -268,8 +267,7 @@ class DebugView : CoroutineScopeView() {
     private fun getOCR(): ITesseract {
         val ocr = Ocr.forConfig(
             config = wai2KContext.wai2KConfig,
-            digitsOnly = filterCheckBox.isSelected && filterOptions.selectedToggle == digitsOnlyRadioButton,
-            useLSTM = useLSTMCheckBox.isSelected
+            digitsOnly = filterCheckBox.isSelected && filterOptions.selectedToggle == digitsOnlyRadioButton
         )
         if (filterCheckBox.isSelected && filterOptions.selectedToggle == customRadioButton) {
             ocr.useCharFilter(allowedCharsTextField.text)

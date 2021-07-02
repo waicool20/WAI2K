@@ -65,20 +65,13 @@ object Ocr {
      * Returns an instance of [Tesseract] which can be used to do ocr.
      *
      * @param digitsOnly Applies the digit character filter to the engine if true
-     * @param useLSTM Uses the new LSTM engine instead of legacy if true
      */
     fun forConfig(
         config: Wai2KConfig,
-        digitsOnly: Boolean = false,
-        useLSTM: Boolean = false
+        digitsOnly: Boolean = false
     ) = Tesseract().apply {
         setTessVariable("user_defined_dpi", "300")
         setDatapath(config.ocrDirectory.toString())
-        if (useLSTM) {
-            useLSTMEngine()
-        } else {
-            useLegacyEngine()
-        }
         setPageSegMode(ITessAPI.TessPageSegMode.PSM_SINGLE_BLOCK)
         if (digitsOnly) useCharFilter(DIGITS)
     }
@@ -94,9 +87,14 @@ fun ITesseract.useCharFilter(chars: String) = apply {
 fun ITesseract.digitsOnly() = useCharFilter(Ocr.DIGITS)
 
 fun ITesseract.useLSTMEngine() = apply {
-    setOcrEngineMode(ITessAPI.TessOcrEngineMode.OEM_TESSERACT_LSTM_COMBINED)
+    setOcrEngineMode(ITessAPI.TessOcrEngineMode.OEM_LSTM_ONLY)
 }
 
 fun ITesseract.useLegacyEngine() = apply {
     setOcrEngineMode(ITessAPI.TessOcrEngineMode.OEM_TESSERACT_ONLY)
+}
+
+fun ITesseract.disableDictionaries() = apply {
+    setTessVariable("load_system_dawg", "false")
+    setTessVariable("load_freq_dawg", "false")
 }
