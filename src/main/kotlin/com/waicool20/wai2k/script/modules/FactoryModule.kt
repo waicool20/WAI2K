@@ -208,7 +208,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
 
         logger.info("Disassembling 2 star T-dolls")
 
-        val sTemp = FileTemplate("factory/disassemble-select-tdoll.png", 0.8)
+        val sTemp = FileTemplate("factory/disassemble-select-tdoll.png", 0.98)
 
         while (coroutineContext.isActive) {
             logger.info("Start T-doll selection")
@@ -329,7 +329,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
         logger.info("Disassembling 2 star equipment")
         logger.info("Start equipment selection")
 
-        val sTemp = FileTemplate("factory/disassemble-select-equip.png")
+        val sTemp = FileTemplate("factory/disassemble-select-equip.png", 0.98)
 
         disassemblyWindow.waitHas(sTemp, 10000)?.click(); delay(750)
 
