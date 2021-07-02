@@ -26,10 +26,7 @@ import com.waicool20.wai2k.game.LogisticsSupport
 import com.waicool20.wai2k.game.LogisticsSupport.Assignment
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.modules.combat.EmptyMapRunner
-import com.waicool20.wai2k.util.digitsOnly
-import com.waicool20.wai2k.util.doOCRAndTrim
-import com.waicool20.wai2k.util.formatted
-import com.waicool20.wai2k.util.isSimilar
+import com.waicool20.wai2k.util.*
 import com.waicool20.waicoolutils.DurationUtils
 import com.waicool20.waicoolutils.logging.loggerFor
 import com.waicool20.waicoolutils.mapAsync
@@ -113,14 +110,17 @@ class InitModule(navigator: Navigator) : ScriptModule(navigator) {
                     ocr.digitsOnly()
                         .doOCRAndTrim(it.subRegion(2, 25, 80, 90)),
                     // Logistics number ie. 1-1
-                    ocr.doOCRAndTrim(it.subRegion(165, 0, 90, 42)),
+                    Ocr.cleanNumericString(ocr.doOCRAndTrim(it.subRegion(165, 0, 90, 42))),
                     // Timer xx:xx:xx
                     ocr.doOCRAndTrim(it.subRegion(600, 70, 190, 42))
                 )
             }
             .map { "${it[0]} ${it[1]} ${it[2]}" }
             .mapNotNull {
-                Regex("(\\d+) (\\d\\d?).*?(\\d) (\\d\\d):(\\d\\d):(\\d\\d)").matchEntire(it)?.destructured
+                val m =
+                    Regex("(\\d+) (\\d\\d?).*?(\\d) (\\d\\d):(\\d\\d):(\\d\\d)").matchEntire(it)?.destructured
+                if (m == null) logger.debug("Detected something on status but failed OCR match: $it")
+                m
             }
         // Clear existing timers
         gameState.echelons.forEach { it.logisticsSupportAssignment = null }
