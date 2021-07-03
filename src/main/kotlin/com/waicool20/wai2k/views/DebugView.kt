@@ -19,14 +19,19 @@
 
 package com.waicool20.wai2k.views
 
+import ai.djl.Model
+import ai.djl.inference.Predictor
+import ai.djl.modality.cv.Image
 import ai.djl.modality.cv.ImageFactory
 import com.waicool20.cvauto.android.ADB
 import com.waicool20.cvauto.android.AndroidDevice
+import com.waicool20.cvauto.core.Region
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.cvauto.util.asGrayF32
 import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.Ocr
+import com.waicool20.wai2k.util.ai.GFLObject
 import com.waicool20.wai2k.util.ai.ModelLoader
 import com.waicool20.wai2k.util.ai.YoloTranslator
 import com.waicool20.wai2k.util.ai.toDetectedObjects
@@ -75,6 +80,7 @@ class DebugView : CoroutineScopeView() {
     private val ocrImageView: ImageView by fxid()
     private val OCRButton: Button by fxid()
     private val resetOCRButton: Button by fxid()
+    private val annotatePreviewCheckBox: CheckBox by fxid()
     private val annotateSetButton: Button by fxid()
     private val saveAnnotationsCheckBox: CheckBox by fxid()
 
@@ -92,16 +98,8 @@ class DebugView : CoroutineScopeView() {
 
     private val logger = loggerFor<DebugView>()
 
-    private val predictor by lazy {
-        try {
-            val model =
-                ModelLoader.loadModel(wai2KContext.wai2KConfig.assetsDirectory.resolve("models/gfl.pt"))
-            model.setProperty("InputSize", "640")
-            model.newPredictor(YoloTranslator(model, 0.6))
-        } catch (e: Exception) {
-            null
-        }
-    }
+    private var model: Model? = null
+    private var predictor: Predictor<Image, List<GFLObject>>? = null
 
     init {
         title = "WAI2K - Debugging tools"
@@ -115,7 +113,45 @@ class DebugView : CoroutineScopeView() {
         assetOCRButton.setOnAction { doAssetOCR() }
         OCRButton.setOnAction { doOCR() }
         resetOCRButton.setOnAction { createNewRenderJob() }
+        annotatePreviewCheckBox.selectedProperty().addListener("DebugAPCB") { newVal ->
+            onAnnotatePreviewCheckBox(newVal)
+        }
         annotateSetButton.setOnAction { annotateSet() }
+        root.children.filterIsInstance(TitledPane::class.java).forEach { tp ->
+            tp.expandedProperty().addListener("Debug${tp.id}") { _ ->
+                tp.scene.window.sizeToScene()
+                tp.requestLayout()
+            }
+        }
+    }
+
+    private fun onAnnotatePreviewCheckBox(newVal: Boolean) {
+        launch(Dispatchers.IO) {
+            if (newVal) {
+                if (model == null) {
+                    model = try {
+                        ModelLoader.loadModel(
+                            wai2KContext.wai2KConfig.assetsDirectory.resolve("models/gfl.pt")
+                        ).apply { setProperty("InputSize", "640") }
+                    } catch (e: Exception) {
+                        logger.error("Error loading annotation model", e)
+                        null
+                    }
+                }
+                model?.let { predictor = it.newPredictor(YoloTranslator(it, 0.6)) }
+            } else {
+                predictor?.close()
+                predictor = null
+            }
+        }
+    }
+
+    override fun onUndock() {
+        predictor?.close()
+        predictor = null
+        model?.close()
+        model = null
+        super.onUndock()
     }
 
     private fun uiSetup() {
@@ -123,6 +159,17 @@ class DebugView : CoroutineScopeView() {
         createNewRenderJob()
         wai2KContext.wai2KConfig.lastDeviceSerialProperty
             .addListener("DebugViewDeviceListener") { _ -> createNewRenderJob() }
+    }
+
+    private fun grabScreenshot(): BufferedImage? {
+        return try {
+            lastAndroidDevice?.screens?.firstOrNull()
+                ?.capture()
+                ?.getSubimage(xSpinner.value, ySpinner.value, wSpinner.value, hSpinner.value)
+        } catch (e: Region.CaptureTimeoutException) {
+            logger.warn("Capture time out!")
+            null
+        }
     }
 
     private fun createNewRenderJob(serial: String = wai2KContext.wai2KConfig.lastDeviceSerial) {
@@ -159,22 +206,21 @@ class DebugView : CoroutineScopeView() {
                     }
                 }
             }
-            while (isActive) {
+            while (coroutineContext.isActive) {
                 val predictor = this@DebugView.predictor
-                val bImg = device.screens[0].capture()
-                    .getSubimage(xSpinner.value, ySpinner.value, wSpinner.value, hSpinner.value)
-                if (predictor == null) {
-                    withContext(Dispatchers.JavaFx) {
-                        ocrImageView.image = SwingFXUtils.toFXImage(bImg, null)
+                var bImg = grabScreenshot() ?: continue
+                if (predictor != null) {
+                    try {
+                        val image = ImageFactory.getInstance().fromImage(bImg)
+                        val objects = predictor.predict(image)
+                        image.drawBoundingBoxes(objects.toDetectedObjects())
+                        bImg = image.wrappedImage as BufferedImage
+                    } catch (e: IllegalStateException) {
+                        // Do nothing, predictor was prob closed
                     }
-                } else {
-                    val image = ImageFactory.getInstance().fromImage(bImg)
-                    val objects = predictor.predict(image)
-                    image.drawBoundingBoxes(objects.toDetectedObjects())
-                    withContext(Dispatchers.JavaFx) {
-                        ocrImageView.image =
-                            SwingFXUtils.toFXImage(image.wrappedImage as BufferedImage, null)
-                    }
+                }
+                withContext(Dispatchers.JavaFx) {
+                    ocrImageView.image = SwingFXUtils.toFXImage(bImg, null)
                 }
             }
         }
@@ -207,9 +253,7 @@ class DebugView : CoroutineScopeView() {
                         logger.warn("Could not find device!")
                         return@launch
                     }
-                    val image = device.screens[0].capture()
-                        .getSubimage(xSpinner.value, ySpinner.value, wSpinner.value, hSpinner.value)
-                        .asGrayF32()
+                    val image = grabScreenshot()?.asGrayF32() ?: return@launch
                     val matcher = device.screens[0].matcher
                     matcher.settings.matchDimension = ScriptRunner.HIGH_RES
                     // Set similarity to 0.6f to make cvauto report the similarity value down to 0.6
@@ -248,29 +292,23 @@ class DebugView : CoroutineScopeView() {
 
     private fun doOCR() {
         launch(Dispatchers.IO) {
-            lastAndroidDevice?.let {
-                val image = it.screens[0].capture().let { bi ->
-                    if (wSpinner.value > 0 && hSpinner.value > 0) {
-                        bi.getSubimage(
-                            xSpinner.value,
-                            ySpinner.value,
-                            wSpinner.value,
-                            hSpinner.value
-                        )
-                    } else bi
-                }
-                logger.info("Result: \n${getOCR().doOCR(image)}\n----------")
-            }
+            val img = grabScreenshot() ?: return@launch
+            logger.info("Result: \n${getOCR().doOCR(img)}\n----------")
         }
     }
 
     private fun getOCR(): ITesseract {
-        val ocr = Ocr.forConfig(
-            config = wai2KContext.wai2KConfig,
-            digitsOnly = filterCheckBox.isSelected && filterOptions.selectedToggle == digitsOnlyRadioButton
-        )
-        if (filterCheckBox.isSelected && filterOptions.selectedToggle == customRadioButton) {
-            ocr.useCharFilter(allowedCharsTextField.text)
+        val ocr = Ocr.forConfig(wai2KContext.wai2KConfig)
+        if (filterCheckBox.isSelected) {
+            when(filterOptions.selectedToggle) {
+                digitsOnlyRadioButton -> {
+                    ocr.useCharFilter(Ocr.DIGITS)
+                }
+                customRadioButton -> {
+                    ocr.useCharFilter(allowedCharsTextField.text)
+                }
+            }
+
         }
         return ocr
     }
