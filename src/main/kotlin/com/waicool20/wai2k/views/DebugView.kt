@@ -50,6 +50,7 @@ import javafx.scene.Node
 import javafx.scene.control.*
 import javafx.scene.control.SpinnerValueFactory.IntegerSpinnerValueFactory
 import javafx.scene.image.ImageView
+import javafx.scene.input.Clipboard
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.VBox
 import javafx.stage.DirectoryChooser
@@ -86,6 +87,8 @@ class DebugView : CoroutineScopeView() {
     private val ySpinner: Spinner<Int> by fxid()
     private val wSpinner: Spinner<Int> by fxid()
     private val hSpinner: Spinner<Int> by fxid()
+    private val copyBoundsButton: Button by fxid()
+    private val pasteBoundsButton: Button by fxid()
     private val ocrImageView: ImageView by fxid()
     private val OCRButton: Button by fxid()
     private val resetOCRButton: Button by fxid()
@@ -171,6 +174,25 @@ class DebugView : CoroutineScopeView() {
 
         thresholdSpinner.valueFactory =
             SpinnerValueFactory.DoubleSpinnerValueFactory(-0.1, 1.0, -1.0, 0.1)
+
+        copyBoundsButton.setOnAction {
+            Clipboard.getSystemClipboard()
+                .putString("${xSpinner.value}, ${ySpinner.value}, ${wSpinner.value}, ${hSpinner.value}")
+            Tooltip("Copied coordinates").apply {
+                fadeAfter(500)
+                showAt(copyBoundsButton)
+            }
+        }
+        pasteBoundsButton.setOnAction {
+            Regex("(\\d+),?\\s*?(\\d+),?\\s*?(\\d+),?\\s*?(\\d+)")
+                .find(Clipboard.getSystemClipboard().string)
+                ?.destructured?.let { (x, y, w, h) ->
+                    xSpinner.valueFactory.value = x.toInt()
+                    ySpinner.valueFactory.value = y.toInt()
+                    wSpinner.valueFactory.value = w.toInt()
+                    hSpinner.valueFactory.value = h.toInt()
+                }
+        }
     }
 
     private fun onAnnotatePreviewCheckBox(newVal: Boolean) {
