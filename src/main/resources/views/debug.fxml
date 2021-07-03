@@ -59,7 +59,7 @@
          </VBox.margin></Separator>
       <VBox VBox.vgrow="ALWAYS">
          <children>
-              <Label text="Preview:" />
+              <Label fx:id="previewLabel" text="Preview:" />
               <HBox fx:id="container" alignment="CENTER" minHeight="300.0" minWidth="600.0" VBox.vgrow="ALWAYS">
                   <children>
                       <ImageView fx:id="ocrImageView" fitHeight="${container.height}" fitWidth="${container.width}" pickOnBounds="true" preserveRatio="true" HBox.hgrow="ALWAYS" />

@@ -38,11 +38,17 @@ import com.waicool20.wai2k.util.ai.toDetectedObjects
 import com.waicool20.wai2k.util.useCharFilter
 import com.waicool20.waicoolutils.javafx.CoroutineScopeView
 import com.waicool20.waicoolutils.javafx.addListener
+import com.waicool20.waicoolutils.javafx.tooltips.TooltipSide
+import com.waicool20.waicoolutils.javafx.tooltips.fadeAfter
+import com.waicool20.waicoolutils.javafx.tooltips.showAt
 import com.waicool20.waicoolutils.logging.loggerFor
 import javafx.embed.swing.SwingFXUtils
+import javafx.event.EventHandler
+import javafx.scene.Node
 import javafx.scene.control.*
 import javafx.scene.control.SpinnerValueFactory.IntegerSpinnerValueFactory
 import javafx.scene.image.ImageView
+import javafx.scene.input.MouseEvent
 import javafx.scene.layout.VBox
 import javafx.stage.DirectoryChooser
 import javafx.stage.FileChooser
@@ -61,6 +67,7 @@ import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 import kotlin.io.path.extension
+import kotlin.math.roundToInt
 import kotlin.streams.asSequence
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTimedValue
@@ -101,6 +108,8 @@ class DebugView : CoroutineScopeView() {
     private var model: Model? = null
     private var predictor: Predictor<Image, List<GFLObject>>? = null
 
+    private var mouseEvent: MouseEvent? = null
+
     init {
         title = "WAI2K - Debugging tools"
     }
@@ -123,6 +132,37 @@ class DebugView : CoroutineScopeView() {
                 tp.requestLayout()
             }
         }
+        ocrImageView.setOnMousePressed {
+            mouseEvent = it
+            Tooltip("Start selection ${it.x} ${it.y}").apply {
+                fadeAfter(500)
+                showAt(fxmlLoader.namespace["previewLabel"] as Node, TooltipSide.TOP_LEFT)
+            }
+        }
+        val handler = EventHandler<MouseEvent> { e ->
+            val se = mouseEvent ?: return@EventHandler
+            Tooltip("Stop selection ${e.x} ${e.y}").apply {
+                fadeAfter(500)
+                showAt(fxmlLoader.namespace["previewLabel"] as Node, TooltipSide.TOP_LEFT)
+            }
+            val newX = xSpinner.value + (se.x / ocrImageView.boundsInParent.width * wSpinner.value)
+                .roundToInt()
+            val newY = ySpinner.value + (se.y / ocrImageView.boundsInParent.height * hSpinner.value)
+                .roundToInt()
+            val newW = ((e.x - se.x) / ocrImageView.boundsInParent.width * wSpinner.value)
+                .roundToInt()
+            val newH = ((e.y - se.y) / ocrImageView.boundsInParent.height * hSpinner.value)
+                .roundToInt()
+            if (newW > 0 && newH > 0) {
+                xSpinner.valueFactory.value = newX
+                ySpinner.valueFactory.value = newY
+                wSpinner.valueFactory.value = newW
+                hSpinner.valueFactory.value = newH
+            }
+            mouseEvent = null
+        }
+        ocrImageView.onMouseReleased = handler
+        ocrImageView.onMouseExited = handler
     }
 
     private fun onAnnotatePreviewCheckBox(newVal: Boolean) {
@@ -300,7 +340,7 @@ class DebugView : CoroutineScopeView() {
     private fun getOCR(): ITesseract {
         val ocr = Ocr.forConfig(wai2KContext.wai2KConfig)
         if (filterCheckBox.isSelected) {
-            when(filterOptions.selectedToggle) {
+            when (filterOptions.selectedToggle) {
                 digitsOnlyRadioButton -> {
                     ocr.useCharFilter(Ocr.DIGITS)
                 }
