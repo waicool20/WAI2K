@@ -204,7 +204,7 @@ abstract class MapRunner(
                 logger.info("Deploying echelon ${i + 1} to $node")
                 openEchelon(node)
                 if (echelon in 1..10) {
-                    while (!clickEchelon(Echelon(echelon))) delay(200)
+                    while (!Echelon(echelon).clickEchelon(this@MapRunner, 140)) delay(200)
                 }
                 val screenshot = region.capture()
                 val formatter = DecimalFormat("##.#")

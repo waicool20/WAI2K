@@ -101,7 +101,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
 
             heliport.click()
             region.waitHas(FileTemplate("ok.png"), 3000)
-            val deploy = clickEchelon(echelon)
+            val deploy = echelon.clickEchelon(this, 140)
             if (!deploy) {
                 throw ScriptException("Could not deploy echelon $echelon")
             }
