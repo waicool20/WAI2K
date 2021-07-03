@@ -66,14 +66,10 @@ object Ocr {
      *
      * @param digitsOnly Applies the digit character filter to the engine if true
      */
-    fun forConfig(
-        config: Wai2KConfig,
-        digitsOnly: Boolean = false
-    ) = Tesseract().apply {
+    fun forConfig(config: Wai2KConfig) = Tesseract().apply {
         setTessVariable("user_defined_dpi", "300")
         setDatapath(config.ocrDirectory.toString())
         setPageSegMode(ITessAPI.TessPageSegMode.PSM_SINGLE_BLOCK)
-        if (digitsOnly) useCharFilter(DIGITS)
     }
 }
 
