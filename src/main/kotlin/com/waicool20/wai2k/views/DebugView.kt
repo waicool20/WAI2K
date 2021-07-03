@@ -236,8 +236,8 @@ class DebugView : CoroutineScopeView() {
             val img = lastAndroidDevice?.screens?.firstOrNull()
                 ?.capture()
                 ?.getSubimage(xSpinner.value, ySpinner.value, wSpinner.value, hSpinner.value)
-            if (invertCheckBox.isSelected) img?.invert()
             if (thresholdSpinner.value >= 0.0) img?.binarizeImage(thresholdSpinner.value)
+            if (invertCheckBox.isSelected) img?.invert()
             img
         } catch (e: Region.CaptureTimeoutException) {
             logger.warn("Capture time out!")
@@ -291,6 +291,8 @@ class DebugView : CoroutineScopeView() {
                     } catch (e: IllegalStateException) {
                         // Do nothing, predictor was prob closed
                     }
+                } else {
+                    delay(100) // Add some delay, otherwise it might glitch out
                 }
                 withContext(Dispatchers.JavaFx) {
                     ocrImageView.image = SwingFXUtils.toFXImage(bImg, null)
