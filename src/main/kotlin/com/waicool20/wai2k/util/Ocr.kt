@@ -21,9 +21,13 @@ package com.waicool20.wai2k.util
 
 import com.waicool20.cvauto.core.AnyRegion
 import com.waicool20.wai2k.config.Wai2KConfig
+import com.waicool20.waicoolutils.binarizeImage
+import com.waicool20.waicoolutils.invert
+import com.waicool20.waicoolutils.pad
 import net.sourceforge.tess4j.ITessAPI
 import net.sourceforge.tess4j.ITesseract
 import net.sourceforge.tess4j.Tesseract
+import java.awt.Color
 import java.awt.image.BufferedImage
 
 object Ocr {
@@ -69,12 +73,37 @@ object Ocr {
     fun forConfig(config: Wai2KConfig) = Tesseract().apply {
         setTessVariable("user_defined_dpi", "300")
         setDatapath(config.ocrDirectory.toString())
-        setPageSegMode(ITessAPI.TessPageSegMode.PSM_SINGLE_BLOCK)
+        blockMode()
     }
 }
 
-fun ITesseract.doOCRAndTrim(region: AnyRegion) = doOCRAndTrim(region.capture())
-fun ITesseract.doOCRAndTrim(image: BufferedImage) = doOCR(image).trim()
+fun ITesseract.readText(
+    region: AnyRegion,
+    threshold: Double = 0.4,
+    invert: Boolean = false,
+    pad: Int = 20,
+    trim: Boolean = true
+): String = readText(region.capture(), threshold, invert, pad, trim)
+
+fun ITesseract.readText(
+    image: BufferedImage,
+    threshold: Double = 0.4,
+    invert: Boolean = false,
+    pad: Int = 20,
+    trim: Boolean = true
+): String {
+    var img = BufferedImage(
+        image.colorModel,
+        image.copyData(image.raster.createCompatibleWritableRaster()),
+        image.colorModel.isAlphaPremultiplied,
+        null
+    )
+    if (threshold in 0.0..1.0) img.binarizeImage(threshold)
+    if (invert) img.invert()
+    if (pad > 0) img = img.pad(20, 20, Color.WHITE)
+    val txt = doOCR(img)
+    return if (trim) txt.trim() else txt
+}
 
 fun ITesseract.useCharFilter(chars: String) = apply {
     setTessVariable("tessedit_char_whitelist", chars)
@@ -93,4 +122,16 @@ fun ITesseract.useLegacyEngine() = apply {
 fun ITesseract.disableDictionaries() = apply {
     setTessVariable("load_system_dawg", "false")
     setTessVariable("load_freq_dawg", "false")
+}
+
+fun ITesseract.wordMode() = apply {
+    setPageSegMode(ITessAPI.TessPageSegMode.PSM_SINGLE_WORD)
+}
+
+fun ITesseract.lineMode() = apply {
+    setPageSegMode(ITessAPI.TessPageSegMode.PSM_SINGLE_LINE)
+}
+
+fun ITesseract.blockMode() = apply {
+    setPageSegMode(ITessAPI.TessPageSegMode.PSM_SINGLE_BLOCK)
 }

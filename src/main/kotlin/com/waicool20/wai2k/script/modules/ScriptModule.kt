@@ -27,7 +27,7 @@ import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.util.YuuBot
 import com.waicool20.wai2k.util.cancelAndYield
-import com.waicool20.wai2k.util.doOCRAndTrim
+import com.waicool20.wai2k.util.readText
 import com.waicool20.waicoolutils.filterAsync
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.Job
@@ -89,7 +89,7 @@ abstract class ScriptModule(
         withTimeoutOrNull(5000) {
             val checkRegion = region.subRegion(920, 168, 110, 39)
             while (true) {
-                if (ocr.doOCRAndTrim(checkRegion).contains("Rarity")) break
+                if (ocr.readText(checkRegion, threshold = 0.2).contains("Rarity")) break
                 yield()
             }
         }
@@ -103,7 +103,7 @@ abstract class ScriptModule(
         if (stars.isNotEmpty()) {
             logger.info("Applying $stars stars filter")
             val unlockedStars = dollFilterRegions.starRegions[6]?.let {
-                ocr.doOCRAndTrim(it.subRegion(92, 70, 28, 39))
+                ocr.readText(it.subRegion(92, 70, 28, 39))
             }
             if (unlockedStars?.contains("6") == true) {
                 logger.info("6 star filter is unlocked")

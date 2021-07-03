@@ -105,14 +105,20 @@ class InitModule(navigator: Navigator) : ScriptModule(navigator) {
             // Map each region to whole logistic support entry
             .map { cache.subRegion(it.x - 133, it.y - 87, 852, 115) }
             .mapAsync {
+                val capture = it.capture()
                 listOf(
                     // Echelon number
-                    ocr.digitsOnly()
-                        .doOCRAndTrim(it.subRegion(2, 25, 80, 90)),
+                    ocr.digitsOnly().readText(
+                        capture.getSubimage(2, 25, 80, 90)
+                    ),
                     // Logistics number ie. 1-1
-                    Ocr.cleanNumericString(ocr.doOCRAndTrim(it.subRegion(165, 0, 90, 42))),
+                    ocr.useCharFilter(Ocr.DIGITS + "-").readText(
+                        capture.getSubimage(165, 0, 90, 42), threshold = 0.2, invert = true
+                    ),
                     // Timer xx:xx:xx
-                    ocr.doOCRAndTrim(it.subRegion(600, 70, 190, 42))
+                    ocr.useCharFilter(Ocr.DIGITS + ":").readText(
+                        capture.getSubimage(600, 70, 190, 42), threshold = 0.2, invert = true
+                    )
                 )
             }
             .map { "${it[0]} ${it[1]} ${it[2]}" }
@@ -167,8 +173,7 @@ class InitModule(navigator: Navigator) : ScriptModule(navigator) {
             .map {
                 scope.async {
                     // Echelon number
-                    ocr.digitsOnly()
-                        .doOCRAndTrim(it.getSubimage(0, 25, 80, 125))
+                    ocr.digitsOnly().readText(it.getSubimage(0, 25, 80, 125))
                 } to scope.async { readRepairTimers(it) }
             }.map { it.first.await().toInt() to it.second.await() }
 
@@ -192,7 +197,7 @@ class InitModule(navigator: Navigator) : ScriptModule(navigator) {
     private suspend fun readRepairTimers(image: BufferedImage): Map<Int, Duration> {
         return (0 until 5).mapAsync { entry ->
             // Single repair entry without the "Repairing" or "Standby"
-            ocr.doOCRAndTrim(image.getSubimage(115 + 145 * entry, 66, 122, 75))
+            ocr.readText(image.getSubimage(115 + 145 * entry, 66, 122, 75), invert = true)
                 .takeIf { it.contains("Repairing") }
                 ?.let { timer ->
                     Regex("(\\d\\d):(\\d\\d):(\\d\\d)").find(timer)?.groupValues?.let {

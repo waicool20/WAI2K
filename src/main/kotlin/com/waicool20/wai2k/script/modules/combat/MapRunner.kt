@@ -34,7 +34,6 @@ import com.waicool20.waicoolutils.binarizeImage
 import com.waicool20.waicoolutils.countColor
 import com.waicool20.waicoolutils.logging.loggerFor
 import com.waicool20.waicoolutils.mapAsync
-import com.waicool20.waicoolutils.pad
 import kotlinx.coroutines.*
 import org.reflections.Reflections
 import java.awt.Color
@@ -300,9 +299,9 @@ abstract class MapRunner(
         while (coroutineContext.isActive) {
             val echelons = eRegion.findBest(FileTemplate("echelons/echelon.png"), 8)
                 .map { it.region }
-                .map { it.copy(it.x + 93, it.y - 40, 60, 100) }
+                .map { it.copy(it.x + it.width, it.y - 40, 70, 80) }
                 .mapAsync {
-                    ocr.digitsOnly().doOCRAndTrim(it)
+                    ocr.digitsOnly().readText(it)
                         .replace("18", "10").toInt() to it
                 }
                 .toMap()
@@ -707,14 +706,13 @@ abstract class MapRunner(
         val ocr = ocr.useCharFilter(Ocr.DIGITS + "-")
         val screenshot = region.capture()
 
-        val turn = ocr.doOCRAndTrim(screenshot.getSubimage(748, 53, 86, 72))
+        val turn = ocr.readText(screenshot.getSubimage(748, 53, 86, 72), invert = true)
             .let { if (it.firstOrNull() == '8') it.replaceFirst("8", "0") else it }
             .toIntOrNull() ?: return null
 
-
-        val points = ocr.doOCRAndTrim(
-            screenshot.getSubimage(1730, 970, 140, 76)
-                .binarizeImage(0.3).pad(10, 10, Color.BLACK)
+        val points = ocr.readText(
+            screenshot.getSubimage(1730, 970, 140, 76),
+            threshold = 0.2, invert = true
         ).toIntOrNull() ?: return null
 
         return TurnInfo(turn, points)

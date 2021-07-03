@@ -26,11 +26,9 @@ import com.waicool20.cvauto.core.template.ImageTemplate
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
-import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.cancelAndYield
-import com.waicool20.wai2k.util.doOCRAndTrim
+import com.waicool20.wai2k.util.readText
 import com.waicool20.wai2k.util.useCharFilter
-import com.waicool20.waicoolutils.binarizeImage
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.*
 import java.awt.Color
@@ -81,7 +79,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
             // Find the old doll count
             try {
                 withTimeout(5000) {
-                    val (currentCount, _) = getCurrentDollCount()
+                    val (currentCount, _) = getCurrentCount(Count.DOLL)
                     oldCount?.let { scriptStats.dollsUsedForEnhancement += it - currentCount }
                     oldCount = currentCount
                 }
@@ -224,7 +222,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
             // Find the old doll count
             try {
                 withTimeout(5000) {
-                    val (currentCount, _) = getCurrentDollCount()
+                    val (currentCount, _) = getCurrentCount(Count.DOLL)
                     oldCount?.let { scriptStats.dollsUsedForDisassembly += it - currentCount }
                     oldCount = currentCount
                 }
@@ -261,7 +259,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
         applyDollFilters(listOf(3, 4))
         delay(750)
 
-        val (currentCount, _) = getCurrentDollCount()
+        val (currentCount, _) = getCurrentCount(Count.DOLL)
         oldCount?.let { scriptStats.dollsUsedForDisassembly += it - currentCount }
 
         while (coroutineContext.isActive) {
@@ -342,7 +340,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
         // Find the old equip count
         try {
             withTimeout(5000) {
-                val (currentCount, _) = getCurrentEquipCount()
+                val (currentCount, _) = getCurrentCount(Count.EQUIP)
                 oldCount?.let { scriptStats.equipsUsedForDisassembly += it - currentCount }
                 oldCount = currentCount
             }
@@ -390,7 +388,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
         region.subRegion(1320, 979, 413, 83).click(); yield()
         delay(750)
 
-        val (currentCount, total) = getCurrentEquipCount()
+        val (currentCount, total) = getCurrentCount(Count.EQUIP)
         oldCount?.let { scriptStats.equipsUsedForDisassembly += it - currentCount }
 
         while (coroutineContext.isActive) {
@@ -458,45 +456,28 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
         if (!gameState.equipOverflow) logger.info("The base now has space for new equipment")
     }
 
-    private val countRegex = Regex("(\\d+)\\s*?/\\s*?(\\d+)")
-    private val countRegion = region.subRegion(1770, 815, 240, 60)
+    private enum class Count(val keyword: String) {
+        DOLL("capa"), EQUIP("equip")
+    }
 
-    private tailrec suspend fun getCurrentDollCount(): Pair<Int, Int> {
-        logger.info("Updating doll count")
+    private tailrec suspend fun getCurrentCount(type: Count): Pair<Int, Int> {
+        logger.info("Updating $type count")
+        val countRegex = Regex("(\\d+)\\s*?/\\s*?(\\d+)")
+        val countRegion = region.subRegion(1770, 815, 240, 60)
         var ocrResult: String
         while (coroutineContext.isActive) {
-            ocrResult = ocr
-                .doOCRAndTrim(countRegion.copy(y = 763).capture().binarizeImage(0.7))
-            if (ocrResult.contains("capa", true)) break else yield()
+            ocrResult = ocr.readText(countRegion.copy(y = 763), threshold = 0.72, invert = true)
+            if (ocrResult.contains(type.keyword, true)) break else yield()
         }
-        ocrResult = ocr.useCharFilter("0123456789/").doOCRAndTrim(countRegion)
-        ocrResult = Ocr.cleanNumericString(ocrResult)
-        logger.info("Doll count ocr: $ocrResult")
+        ocrResult = ocr.useCharFilter("0123456789/")
+            .readText(countRegion, threshold = 0.72, invert = true)
+        logger.info("$type count ocr: $ocrResult")
         return countRegex.find(ocrResult)?.groupValues?.let {
             val count = it[1].toInt()
             val total = it[2].toInt()
             gameState.dollOverflow = count >= total
             logger.info("Count: $count | Total: $total")
             count to total
-        } ?: getCurrentDollCount()
-    }
-
-    private tailrec suspend fun getCurrentEquipCount(): Pair<Int, Int> {
-        logger.info("Updating equipment count")
-        var ocrResult: String
-        while (coroutineContext.isActive) {
-            ocrResult = ocr.doOCRAndTrim(countRegion.copy(y = 763))
-            if (ocrResult.contains("equip", true)) break else yield()
-        }
-        ocrResult = ocr.useCharFilter("0123456789/").doOCRAndTrim(countRegion)
-        ocrResult = Ocr.cleanNumericString(ocrResult)
-        logger.info("Equipment count ocr: $ocrResult")
-        return countRegex.find(ocrResult)?.groupValues?.let {
-            val count = it[1].toInt()
-            val total = it[2].toInt()
-            gameState.equipOverflow = count >= total
-            logger.info("Count: $count | Total: $total")
-            count to total
-        } ?: getCurrentEquipCount()
+        } ?: getCurrentCount(type)
     }
 }

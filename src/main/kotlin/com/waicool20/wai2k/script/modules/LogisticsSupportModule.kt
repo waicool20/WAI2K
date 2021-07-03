@@ -26,8 +26,8 @@ import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.game.LogisticsSupport
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.util.digitsOnly
-import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.wai2k.util.formatted
+import com.waicool20.wai2k.util.readText
 import com.waicool20.waicoolutils.logging.loggerFor
 import com.waicool20.waicoolutils.mapAsync
 import kotlinx.coroutines.delay
@@ -201,7 +201,7 @@ class LogisticsSupportModule(navigator: Navigator) : ScriptModule(navigator) {
                 .map { it.region }
                 .map { it.copy(it.x + 93, it.y - 40, 60, 100) }
                 .mapAsync {
-                    ocr.digitsOnly().doOCRAndTrim(it)
+                    ocr.digitsOnly().readText(it)
                         .replace("18", "10").toInt() to it
                 }
                 .toMap()
