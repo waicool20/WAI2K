@@ -69,6 +69,11 @@
                   <children>
                       <Button fx:id="OCRButton" mnemonicParsing="false" text="OCR" />
                       <Button fx:id="resetOCRButton" mnemonicParsing="false" text="Reset" />
+                  <Separator orientation="VERTICAL" />
+                  <CheckBox fx:id="invertCheckBox" mnemonicParsing="false" text="Invert" />
+                  <Separator orientation="VERTICAL" />
+                  <Label text="Threshold:" />
+                  <Spinner fx:id="thresholdSpinner" editable="true" prefWidth="100.0" />
                   </children>
               </HBox>
          </children>

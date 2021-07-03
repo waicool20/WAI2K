@@ -36,6 +36,8 @@ import com.waicool20.wai2k.util.ai.ModelLoader
 import com.waicool20.wai2k.util.ai.YoloTranslator
 import com.waicool20.wai2k.util.ai.toDetectedObjects
 import com.waicool20.wai2k.util.useCharFilter
+import com.waicool20.waicoolutils.binarizeImage
+import com.waicool20.waicoolutils.invert
 import com.waicool20.waicoolutils.javafx.CoroutineScopeView
 import com.waicool20.waicoolutils.javafx.addListener
 import com.waicool20.waicoolutils.javafx.tooltips.TooltipSide
@@ -97,6 +99,9 @@ class DebugView : CoroutineScopeView() {
     private val digitsOnlyRadioButton: RadioButton by fxid()
     private val customRadioButton: RadioButton by fxid()
     private val allowedCharsTextField: TextField by fxid()
+
+    private val invertCheckBox: CheckBox by fxid()
+    private val thresholdSpinner: Spinner<Double> by fxid()
 
     private var lastAndroidDevice: AndroidDevice? = null
     private var lastJob: Job? = null
@@ -163,6 +168,9 @@ class DebugView : CoroutineScopeView() {
         }
         ocrImageView.onMouseReleased = handler
         ocrImageView.onMouseExited = handler
+
+        thresholdSpinner.valueFactory =
+            SpinnerValueFactory.DoubleSpinnerValueFactory(-0.1, 1.0, -1.0, 0.1)
     }
 
     private fun onAnnotatePreviewCheckBox(newVal: Boolean) {
@@ -203,9 +211,12 @@ class DebugView : CoroutineScopeView() {
 
     private fun grabScreenshot(): BufferedImage? {
         return try {
-            lastAndroidDevice?.screens?.firstOrNull()
+            val img = lastAndroidDevice?.screens?.firstOrNull()
                 ?.capture()
                 ?.getSubimage(xSpinner.value, ySpinner.value, wSpinner.value, hSpinner.value)
+            if (invertCheckBox.isSelected) img?.invert()
+            if (thresholdSpinner.value >= 0.0) img?.binarizeImage(thresholdSpinner.value)
+            img
         } catch (e: Region.CaptureTimeoutException) {
             logger.warn("Capture time out!")
             null
