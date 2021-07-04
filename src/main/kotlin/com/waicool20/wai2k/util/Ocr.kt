@@ -72,7 +72,7 @@ object Ocr {
      */
     fun forConfig(config: Wai2KConfig) = Tesseract().apply {
         setTessVariable("user_defined_dpi", "300")
-        setDatapath(config.ocrDirectory.toString())
+        setDatapath(config.assetsDirectory.resolve("models").toString())
         blockMode()
     }
 }

@@ -44,7 +44,6 @@ import kotlin.io.path.notExists
 class Wai2KConfig(
     currentProfile: String = Wai2KProfile.DEFAULT_NAME,
     assetsDirectory: Path = Wai2K.CONFIG_DIR.resolve("assets"),
-    ocrDirectory: Path = Wai2K.CONFIG_DIR.resolve("tessdata"),
     clearConsoleOnStart: Boolean = true,
     showConsoleOnStart: Boolean = true,
     debugModeEnabled: Boolean = true,
@@ -58,14 +57,12 @@ class Wai2KConfig(
 ) {
     private val logger = loggerFor<Wai2K>()
 
-    @get:JsonIgnore val isValid get() = ocrIsValid()
     @get:JsonIgnore val logLevel get() = if (debugModeEnabled) "DEBUG" else "INFO"
 
     //<editor-fold desc="Properties">
 
     val currentProfileProperty = currentProfile.toProperty()
     val assetsDirectoryProperty = assetsDirectory.toProperty()
-    val ocrDirectoryProperty = ocrDirectory.toProperty()
     val clearConsoleOnStartProperty = clearConsoleOnStart.toProperty()
     val showConsoleOnStartProperty = showConsoleOnStart.toProperty()
     val debugModeEnabledProperty = debugModeEnabled.toProperty()
@@ -79,7 +76,6 @@ class Wai2KConfig(
 
     var currentProfile by currentProfileProperty
     @get:JsonIgnore var assetsDirectory by assetsDirectoryProperty
-    @get:JsonIgnore var ocrDirectory by ocrDirectoryProperty
     var clearConsoleOnStart by clearConsoleOnStartProperty
     var showConsoleOnStart by showConsoleOnStartProperty
     var debugModeEnabled by debugModeEnabledProperty
@@ -96,10 +92,6 @@ class Wai2KConfig(
     companion object Loader {
         private val mapper = fxJacksonObjectMapper()
         private val loaderLogger = loggerFor<Loader>()
-
-        val requiredOcrFiles = listOf(
-            "eng.traineddata", "osd.traineddata"
-        )
 
         val path: Path = Wai2K.CONFIG_DIR.resolve("preferences.json")
 
@@ -133,10 +125,6 @@ class Wai2KConfig(
         debugModeEnabledProperty.addListener("LogLevel") { _ ->
             LoggerUtils.setLogLevel(Level.toLevel(logLevel))
         }
-    }
-
-    fun ocrIsValid(): Boolean {
-        return requiredOcrFiles.all { ocrDirectory.resolve(it).exists() }
     }
 
     fun save() {
