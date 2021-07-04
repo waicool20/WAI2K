@@ -391,6 +391,8 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
         val (currentCount, total) = getCurrentCount(Count.EQUIP)
         oldCount?.let { scriptStats.equipsUsedForDisassembly += it - currentCount }
 
+        var disassemblyCount = 0
+
         while (coroutineContext.isActive) {
             region.matcher.settings.matchDimension = ScriptRunner.HIGH_RES
             val equips = region.findBest(FileTemplate("factory/equip-3star.png"), 12)
@@ -420,7 +422,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
                 it.click()
                 delay(250)
             }
-            scriptStats.equipsUsedForDisassembly += equips.size
+            disassemblyCount += equips.size
             logger.info("Confirm equipment selections")
             // Click ok
             region.subRegion(1768, 889, 250, 170)
@@ -450,9 +452,11 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
             // If still on disassemble menu, maybe there's no more equips to disassemble
             if (locations.getValue(LocationId.TDOLL_DISASSEMBLY).isInRegion(region)) {
                 gameState.equipOverflow = false
-                return
+                break
             }
         }
+        scriptStats.equipsUsedForDisassembly += disassemblyCount
+        gameState.equipOverflow = currentCount - disassemblyCount >= total
         if (!gameState.equipOverflow) logger.info("The base now has space for new equipment")
     }
 
