@@ -26,8 +26,8 @@ import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.game.LogisticsSupport
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.util.digitsOnly
-import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.wai2k.util.formatted
+import com.waicool20.wai2k.util.readText
 import com.waicool20.waicoolutils.logging.loggerFor
 import com.waicool20.waicoolutils.mapAsync
 import kotlinx.coroutines.delay
@@ -120,7 +120,7 @@ class LogisticsSupportModule(navigator: Navigator) : ScriptModule(navigator) {
             ?.region?.click()
 
         region.waitHas(FileTemplate("logistics/formation.png"), 10000)
-        if (!clickEchelon(echelon)) return
+        if (!echelon.clickEchelon(this, 162)) return
         // Click ok button
         delay(300)
 
@@ -182,63 +182,6 @@ class LogisticsSupportModule(navigator: Navigator) : ScriptModule(navigator) {
         // Need a separate check region because the ammo icon might not be covered by the resource limit popup
         val checkRegion = region.subRegion(704 + (333 * 1), 219, 306, 856)
         missionRegion.clickWhile { checkRegion.has(FileTemplate("logistics/ammo.png")) }
-    }
-
-    /**
-     * Clicks on the echelon when in the dispatch screen
-     *
-     * @param echelon Echelon to click
-     * @return true if clicked succesfully
-     */
-    private suspend fun clickEchelon(echelon: Echelon): Boolean {
-        logger.debug("Clicking the echelon")
-        val eRegion = region.subRegion(162, 40, 170, region.height - 140)
-        delay(100)
-
-        val start = System.currentTimeMillis()
-        while (coroutineContext.isActive) {
-            val echelons = eRegion.findBest(FileTemplate("echelons/echelon.png"), 8)
-                .map { it.region }
-                .map { it.copy(it.x + 93, it.y - 40, 60, 100) }
-                .mapAsync {
-                    ocr.digitsOnly().doOCRAndTrim(it)
-                        .replace("18", "10").toInt() to it
-                }
-                .toMap()
-            logger.debug("Visible echelons: ${echelons.keys}")
-            when {
-                echelons.keys.isEmpty() -> {
-                    logger.info("No echelons available...")
-                    return false
-                }
-                echelon.number in echelons.keys -> {
-                    logger.info("Found echelon!")
-                    echelons[echelon.number]?.click()
-                    return true
-                }
-            }
-            val lEchelon = echelons.keys.minOrNull() ?: echelons.keys.firstOrNull() ?: continue
-            val hEchelon = echelons.keys.maxOrNull() ?: echelons.keys.lastOrNull() ?: continue
-            val lEchelonRegion = echelons[lEchelon] ?: continue
-            val hEchelonRegion = echelons[hEchelon] ?: continue
-            when {
-                echelon.number <= lEchelon -> {
-                    logger.debug("Swiping down the echelons")
-                    lEchelonRegion.swipeTo(hEchelonRegion)
-                }
-                echelon.number >= hEchelon -> {
-                    logger.debug("Swiping up the echelons")
-                    hEchelonRegion.swipeTo(lEchelonRegion)
-                }
-            }
-            delay(300)
-            if (System.currentTimeMillis() - start > 45000) {
-                gameState.requiresUpdate = true
-                logger.warn("Failed to find echelon for logistics, maybe ocr failed?")
-                break
-            }
-        }
-        return false
     }
 
     /**

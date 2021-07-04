@@ -27,8 +27,8 @@ import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptException
 import com.waicool20.wai2k.script.ScriptTimeOutException
 import com.waicool20.wai2k.script.modules.combat.EmptyMapRunner
-import com.waicool20.wai2k.util.doOCRAndTrim
 import com.waicool20.wai2k.util.formatted
+import com.waicool20.wai2k.util.readText
 import com.waicool20.wai2k.util.useCharFilter
 import com.waicool20.waicoolutils.DurationUtils
 import com.waicool20.waicoolutils.logging.loggerFor
@@ -46,7 +46,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
     private val dataSimDays = arrayOf(DayOfWeek.TUESDAY, DayOfWeek.FRIDAY, DayOfWeek.SUNDAY)
     private var simTimer = Duration.ZERO
 
-    private val mapRunner = object: EmptyMapRunner(this@CombatSimModule) {
+    private val mapRunner = object : EmptyMapRunner(this@CombatSimModule) {
         override suspend fun begin() {
             if (profile.combatSimulation.neuralFragment == Level.OFF) return
 
@@ -101,7 +101,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
 
             heliport.click()
             region.waitHas(FileTemplate("ok.png"), 3000)
-            val deploy = clickEchelon(echelon)
+            val deploy = echelon.clickEchelon(this, 140)
             if (!deploy) {
                 throw ScriptException("Could not deploy echelon $echelon")
             }
@@ -180,7 +180,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
         while (true) {
             val energyString = ocr
                 .useCharFilter("0123456/")
-                .doOCRAndTrim(region.subRegion(1455, 165, 75, 75))
+                .readText(region.subRegion(1455, 165, 75, 75))
                 .replace(" ", "")
             logger.info("Sim energy OCR: $energyString")
 
@@ -204,7 +204,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
         while (true) {
             val timerString = ocr
                 .useCharFilter("0123456789:")
-                .doOCRAndTrim(region.subRegion(1552, 182, 100, 45))
+                .readText(region.subRegion(1552, 182, 100, 45))
                 .replace(" ", "")
             logger.info("Sim timer OCR: $timerString")
 

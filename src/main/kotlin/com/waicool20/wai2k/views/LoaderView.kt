@@ -101,29 +101,6 @@ class LoaderView : CoroutineScopeView() {
     private fun loadWai2KConfig() {
         wai2KConfig = Wai2KConfig.load()
         parseCommandLine()
-        if (!wai2KConfig.isValid) {
-            wai2KConfig.ocrDirectory.createDirectories()
-            val client = OkHttpClient()
-            runBlocking {
-                coroutineScope {
-                    Wai2KConfig.requiredOcrFiles.forEach { file ->
-                        launch(Dispatchers.IO) {
-                            val url =
-                                "https://github.com/tesseract-ocr/tessdata/blob/master/$file?raw=true"
-                            logger.info("Downloading $file")
-                            val request = Request.Builder().url(url).build()
-                            val response = client.newCall(request).execute()
-                            val input = response.body!!.byteStream()
-                            val output = wai2KConfig.ocrDirectory.resolve(file).outputStream()
-                            input.copyTo(output)
-                            input.close()
-                            output.close()
-                            logger.info("Done downloading: $file")
-                        }
-                    }
-                }
-            }
-        }
     }
 
     private fun loadWai2KProfile() {
@@ -169,13 +146,6 @@ class LoaderView : CoroutineScopeView() {
                 logger.info("Assets directory passed in through command line: $dir")
                 if (dir.exists()) {
                     wai2KConfig.assetsDirectory = dir
-                }
-            }
-
-            named["ocr-dir"]?.let { Path(it) }?.let { dir ->
-                logger.info("OCR directory passed in through command line: $dir")
-                if (dir.exists()) {
-                    wai2KConfig.ocrDirectory = dir
                 }
             }
         }

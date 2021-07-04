@@ -30,7 +30,7 @@ import com.waicool20.wai2k.script.*
 import com.waicool20.wai2k.script.modules.ScriptModule
 import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.wai2k.util.digitsOnly
-import com.waicool20.wai2k.util.doOCRAndTrim
+import com.waicool20.wai2k.util.readText
 import com.waicool20.waicoolutils.binarizeImage
 import com.waicool20.waicoolutils.countColor
 import com.waicool20.waicoolutils.logging.loggerFor
@@ -260,7 +260,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
         // Temporary convenience class for storing doll regions
         class DollRegions(nameImage: BufferedImage, hpImage: BufferedImage) {
             val tdollOcr = run {
-                val ocr = ocr.doOCRAndTrim(nameImage.binarizeImage(0.72))
+                val ocr = ocr.readText(nameImage, threshold = 0.72, invert = true)
                 val tdoll = TDoll.lookup(config, ocr)
                 ocr to tdoll
             }
@@ -331,7 +331,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
             region.waitHas(FileTemplate("ok.png"), 2000)
             while (coroutineContext.isActive) {
                 val repairs = ocr.digitsOnly()
-                    .doOCRAndTrim(region.subRegion(1472, 689, 68, 42))
+                    .readText(region.subRegion(1472, 689, 68, 42), invert = true)
                 scriptStats.repairs += repairs.toIntOrNull() ?: continue
 
                 logger.info("Repairing $repairs dolls")
@@ -405,7 +405,9 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
                                 ITouchInterface.Swipe(0, it.x, it.y, it.x, it.y - 650), 1000
                             )
                         }
-                        if (ocr.doOCRAndTrim(mapNameR).contains(mapName)) break
+                        if (ocr.readText(mapNameR, threshold = 0.6, invert = true)
+                                .contains(mapName)
+                        ) break
                         yield()
                     }
                 }

@@ -19,25 +19,39 @@
 
 package com.waicool20.wai2k.views
 
+import ai.djl.Model
+import ai.djl.inference.Predictor
+import ai.djl.modality.cv.Image
 import ai.djl.modality.cv.ImageFactory
 import com.waicool20.cvauto.android.ADB
 import com.waicool20.cvauto.android.AndroidDevice
+import com.waicool20.cvauto.core.Region
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.cvauto.util.asGrayF32
 import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.Ocr
+import com.waicool20.wai2k.util.ai.GFLObject
 import com.waicool20.wai2k.util.ai.ModelLoader
 import com.waicool20.wai2k.util.ai.YoloTranslator
 import com.waicool20.wai2k.util.ai.toDetectedObjects
 import com.waicool20.wai2k.util.useCharFilter
+import com.waicool20.waicoolutils.binarizeImage
+import com.waicool20.waicoolutils.invert
 import com.waicool20.waicoolutils.javafx.CoroutineScopeView
 import com.waicool20.waicoolutils.javafx.addListener
+import com.waicool20.waicoolutils.javafx.tooltips.TooltipSide
+import com.waicool20.waicoolutils.javafx.tooltips.fadeAfter
+import com.waicool20.waicoolutils.javafx.tooltips.showAt
 import com.waicool20.waicoolutils.logging.loggerFor
 import javafx.embed.swing.SwingFXUtils
+import javafx.event.EventHandler
+import javafx.scene.Node
 import javafx.scene.control.*
 import javafx.scene.control.SpinnerValueFactory.IntegerSpinnerValueFactory
 import javafx.scene.image.ImageView
+import javafx.scene.input.Clipboard
+import javafx.scene.input.MouseEvent
 import javafx.scene.layout.VBox
 import javafx.stage.DirectoryChooser
 import javafx.stage.FileChooser
@@ -56,6 +70,7 @@ import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 import kotlin.io.path.extension
+import kotlin.math.roundToInt
 import kotlin.streams.asSequence
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTimedValue
@@ -72,19 +87,24 @@ class DebugView : CoroutineScopeView() {
     private val ySpinner: Spinner<Int> by fxid()
     private val wSpinner: Spinner<Int> by fxid()
     private val hSpinner: Spinner<Int> by fxid()
+    private val copyBoundsButton: Button by fxid()
+    private val pasteBoundsButton: Button by fxid()
     private val ocrImageView: ImageView by fxid()
     private val OCRButton: Button by fxid()
     private val resetOCRButton: Button by fxid()
+    private val annotatePreviewCheckBox: CheckBox by fxid()
     private val annotateSetButton: Button by fxid()
     private val saveAnnotationsCheckBox: CheckBox by fxid()
 
-    private val useLSTMCheckBox: CheckBox by fxid()
     private val filterCheckBox: CheckBox by fxid()
     private val filterOptions: ToggleGroup by fxid()
     private val filterOptionsVBox: VBox by fxid()
     private val digitsOnlyRadioButton: RadioButton by fxid()
     private val customRadioButton: RadioButton by fxid()
     private val allowedCharsTextField: TextField by fxid()
+
+    private val invertCheckBox: CheckBox by fxid()
+    private val thresholdSpinner: Spinner<Double> by fxid()
 
     private var lastAndroidDevice: AndroidDevice? = null
     private var lastJob: Job? = null
@@ -93,16 +113,10 @@ class DebugView : CoroutineScopeView() {
 
     private val logger = loggerFor<DebugView>()
 
-    private val predictor by lazy {
-        try {
-            val model =
-                ModelLoader.loadModel(wai2KContext.wai2KConfig.assetsDirectory.resolve("models/gfl.pt"))
-            model.setProperty("InputSize", "640")
-            model.newPredictor(YoloTranslator(model, 0.6))
-        } catch (e: Exception) {
-            null
-        }
-    }
+    private var model: Model? = null
+    private var predictor: Predictor<Image, List<GFLObject>>? = null
+
+    private var mouseEvent: MouseEvent? = null
 
     init {
         title = "WAI2K - Debugging tools"
@@ -116,7 +130,98 @@ class DebugView : CoroutineScopeView() {
         assetOCRButton.setOnAction { doAssetOCR() }
         OCRButton.setOnAction { doOCR() }
         resetOCRButton.setOnAction { createNewRenderJob() }
+        annotatePreviewCheckBox.selectedProperty().addListener("DebugAPCB") { newVal ->
+            onAnnotatePreviewCheckBox(newVal)
+        }
         annotateSetButton.setOnAction { annotateSet() }
+        root.children.filterIsInstance(TitledPane::class.java).forEach { tp ->
+            tp.expandedProperty().addListener("Debug${tp.id}") { _ ->
+                tp.scene.window.sizeToScene()
+                tp.requestLayout()
+            }
+        }
+        ocrImageView.setOnMousePressed {
+            mouseEvent = it
+            Tooltip("Start selection ${it.x} ${it.y}").apply {
+                fadeAfter(500)
+                showAt(fxmlLoader.namespace["previewLabel"] as Node, TooltipSide.TOP_LEFT)
+            }
+        }
+        val handler = EventHandler<MouseEvent> { e ->
+            val se = mouseEvent ?: return@EventHandler
+            Tooltip("Stop selection ${e.x} ${e.y}").apply {
+                fadeAfter(500)
+                showAt(fxmlLoader.namespace["previewLabel"] as Node, TooltipSide.TOP_LEFT)
+            }
+            val newX = xSpinner.value + (se.x / ocrImageView.boundsInParent.width * wSpinner.value)
+                .roundToInt()
+            val newY = ySpinner.value + (se.y / ocrImageView.boundsInParent.height * hSpinner.value)
+                .roundToInt()
+            val newW = ((e.x - se.x) / ocrImageView.boundsInParent.width * wSpinner.value)
+                .roundToInt()
+            val newH = ((e.y - se.y) / ocrImageView.boundsInParent.height * hSpinner.value)
+                .roundToInt()
+            if (newW > 0 && newH > 0) {
+                xSpinner.valueFactory.value = newX
+                ySpinner.valueFactory.value = newY
+                wSpinner.valueFactory.value = newW
+                hSpinner.valueFactory.value = newH
+            }
+            mouseEvent = null
+        }
+        ocrImageView.onMouseReleased = handler
+        ocrImageView.onMouseExited = handler
+
+        thresholdSpinner.valueFactory =
+            SpinnerValueFactory.DoubleSpinnerValueFactory(-0.1, 1.0, -1.0, 0.1)
+
+        copyBoundsButton.setOnAction {
+            Clipboard.getSystemClipboard()
+                .putString("${xSpinner.value}, ${ySpinner.value}, ${wSpinner.value}, ${hSpinner.value}")
+            Tooltip("Copied coordinates").apply {
+                fadeAfter(500)
+                showAt(copyBoundsButton)
+            }
+        }
+        pasteBoundsButton.setOnAction {
+            Regex("(\\d+),?\\s*?(\\d+),?\\s*?(\\d+),?\\s*?(\\d+)")
+                .find(Clipboard.getSystemClipboard().string)
+                ?.destructured?.let { (x, y, w, h) ->
+                    xSpinner.valueFactory.value = x.toInt()
+                    ySpinner.valueFactory.value = y.toInt()
+                    wSpinner.valueFactory.value = w.toInt()
+                    hSpinner.valueFactory.value = h.toInt()
+                }
+        }
+    }
+
+    private fun onAnnotatePreviewCheckBox(newVal: Boolean) {
+        launch(Dispatchers.IO) {
+            if (newVal) {
+                if (model == null) {
+                    model = try {
+                        ModelLoader.loadModel(
+                            wai2KContext.wai2KConfig.assetsDirectory.resolve("models/gfl.pt")
+                        ).apply { setProperty("InputSize", "640") }
+                    } catch (e: Exception) {
+                        logger.error("Error loading annotation model", e)
+                        null
+                    }
+                }
+                model?.let { predictor = it.newPredictor(YoloTranslator(it, 0.6)) }
+            } else {
+                predictor?.close()
+                predictor = null
+            }
+        }
+    }
+
+    override fun onUndock() {
+        predictor?.close()
+        predictor = null
+        model?.close()
+        model = null
+        super.onUndock()
     }
 
     private fun uiSetup() {
@@ -124,6 +229,20 @@ class DebugView : CoroutineScopeView() {
         createNewRenderJob()
         wai2KContext.wai2KConfig.lastDeviceSerialProperty
             .addListener("DebugViewDeviceListener") { _ -> createNewRenderJob() }
+    }
+
+    private fun grabScreenshot(): BufferedImage? {
+        return try {
+            val img = lastAndroidDevice?.screens?.firstOrNull()
+                ?.capture()
+                ?.getSubimage(xSpinner.value, ySpinner.value, wSpinner.value, hSpinner.value)
+            if (thresholdSpinner.value >= 0.0) img?.binarizeImage(thresholdSpinner.value)
+            if (invertCheckBox.isSelected) img?.invert()
+            img
+        } catch (e: Region.CaptureTimeoutException) {
+            logger.warn("Capture time out!")
+            null
+        }
     }
 
     private fun createNewRenderJob(serial: String = wai2KContext.wai2KConfig.lastDeviceSerial) {
@@ -160,22 +279,23 @@ class DebugView : CoroutineScopeView() {
                     }
                 }
             }
-            while (isActive) {
+            while (coroutineContext.isActive) {
                 val predictor = this@DebugView.predictor
-                val bImg = device.screens[0].capture()
-                    .getSubimage(xSpinner.value, ySpinner.value, wSpinner.value, hSpinner.value)
-                if (predictor == null) {
-                    withContext(Dispatchers.JavaFx) {
-                        ocrImageView.image = SwingFXUtils.toFXImage(bImg, null)
+                var bImg = grabScreenshot() ?: continue
+                if (predictor != null) {
+                    try {
+                        val image = ImageFactory.getInstance().fromImage(bImg)
+                        val objects = predictor.predict(image)
+                        image.drawBoundingBoxes(objects.toDetectedObjects())
+                        bImg = image.wrappedImage as BufferedImage
+                    } catch (e: IllegalStateException) {
+                        // Do nothing, predictor was prob closed
                     }
                 } else {
-                    val image = ImageFactory.getInstance().fromImage(bImg)
-                    val objects = predictor.predict(image)
-                    image.drawBoundingBoxes(objects.toDetectedObjects())
-                    withContext(Dispatchers.JavaFx) {
-                        ocrImageView.image =
-                            SwingFXUtils.toFXImage(image.wrappedImage as BufferedImage, null)
-                    }
+                    delay(100) // Add some delay, otherwise it might glitch out
+                }
+                withContext(Dispatchers.JavaFx) {
+                    ocrImageView.image = SwingFXUtils.toFXImage(bImg, null)
                 }
             }
         }
@@ -208,9 +328,7 @@ class DebugView : CoroutineScopeView() {
                         logger.warn("Could not find device!")
                         return@launch
                     }
-                    val image = device.screens[0].capture()
-                        .getSubimage(xSpinner.value, ySpinner.value, wSpinner.value, hSpinner.value)
-                        .asGrayF32()
+                    val image = grabScreenshot()?.asGrayF32() ?: return@launch
                     val matcher = device.screens[0].matcher
                     matcher.settings.matchDimension = ScriptRunner.HIGH_RES
                     // Set similarity to 0.6f to make cvauto report the similarity value down to 0.6
@@ -249,30 +367,23 @@ class DebugView : CoroutineScopeView() {
 
     private fun doOCR() {
         launch(Dispatchers.IO) {
-            lastAndroidDevice?.let {
-                val image = it.screens[0].capture().let { bi ->
-                    if (wSpinner.value > 0 && hSpinner.value > 0) {
-                        bi.getSubimage(
-                            xSpinner.value,
-                            ySpinner.value,
-                            wSpinner.value,
-                            hSpinner.value
-                        )
-                    } else bi
-                }
-                logger.info("Result: \n${getOCR().doOCR(image)}\n----------")
-            }
+            val img = grabScreenshot() ?: return@launch
+            logger.info("Result: \n${getOCR().doOCR(img)}\n----------")
         }
     }
 
     private fun getOCR(): ITesseract {
-        val ocr = Ocr.forConfig(
-            config = wai2KContext.wai2KConfig,
-            digitsOnly = filterCheckBox.isSelected && filterOptions.selectedToggle == digitsOnlyRadioButton,
-            useLSTM = useLSTMCheckBox.isSelected
-        )
-        if (filterCheckBox.isSelected && filterOptions.selectedToggle == customRadioButton) {
-            ocr.useCharFilter(allowedCharsTextField.text)
+        val ocr = Ocr.forConfig(wai2KContext.wai2KConfig)
+        if (filterCheckBox.isSelected) {
+            when (filterOptions.selectedToggle) {
+                digitsOnlyRadioButton -> {
+                    ocr.useCharFilter(Ocr.DIGITS)
+                }
+                customRadioButton -> {
+                    ocr.useCharFilter(allowedCharsTextField.text)
+                }
+            }
+
         }
         return ocr
     }
