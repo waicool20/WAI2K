@@ -286,62 +286,6 @@ abstract class MapRunner(
         }
 
     /**
-     * Selects an echelon in the deploy list
-     *
-     * @param echelon echelon number to deploy
-     */
-    protected suspend fun clickEchelon(echelon: Echelon): Boolean {
-        logger.debug("Clicking the echelon")
-        val eRegion = region.subRegion(140, 40, 170, region.height - 140)
-        delay(100)
-
-        val start = System.currentTimeMillis()
-        while (coroutineContext.isActive) {
-            val echelons = eRegion.findBest(FileTemplate("echelons/echelon.png"), 8)
-                .map { it.region }
-                .map { it.copy(it.x + it.width, it.y - 40, 70, 80) }
-                .mapAsync {
-                    ocr.digitsOnly().readText(it)
-                        .replace("18", "10").toInt() to it
-                }
-                .toMap()
-            logger.debug("Visible echelons: ${echelons.keys}")
-            when {
-                echelons.keys.isEmpty() -> {
-                    logger.info("No echelons available...")
-                    return false
-                }
-                echelon.number in echelons.keys -> {
-                    logger.info("Found echelon!")
-                    echelons[echelon.number]?.click()
-                    return true
-                }
-            }
-            val lEchelon = echelons.keys.minOrNull() ?: echelons.keys.firstOrNull() ?: continue
-            val hEchelon = echelons.keys.maxOrNull() ?: echelons.keys.lastOrNull() ?: continue
-            val lEchelonRegion = echelons[lEchelon] ?: continue
-            val hEchelonRegion = echelons[hEchelon] ?: continue
-            when {
-                echelon.number <= lEchelon -> {
-                    logger.debug("Swiping down the echelons")
-                    lEchelonRegion.swipeTo(hEchelonRegion)
-                }
-                echelon.number >= hEchelon -> {
-                    logger.debug("Swiping up the echelons")
-                    hEchelonRegion.swipeTo(lEchelonRegion)
-                }
-            }
-            delay(300)
-            if (System.currentTimeMillis() - start > 45000) {
-                gameState.requiresUpdate = true
-                logger.warn("Failed to find echelon, maybe ocr failed?")
-                break
-            }
-        }
-        return false
-    }
-
-    /**
      * Resupplies an echelon at the given nodes, skips normal type nodes
      *
      * @param node Nodes to resupply

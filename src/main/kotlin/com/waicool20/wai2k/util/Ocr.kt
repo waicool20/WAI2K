@@ -24,6 +24,7 @@ import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.waicoolutils.binarizeImage
 import com.waicool20.waicoolutils.invert
 import com.waicool20.waicoolutils.pad
+import com.waicool20.waicoolutils.scale
 import net.sourceforge.tess4j.ITessAPI
 import net.sourceforge.tess4j.ITesseract
 import net.sourceforge.tess4j.Tesseract
@@ -79,14 +80,16 @@ object Ocr {
 
 fun ITesseract.readText(
     region: AnyRegion,
+    scale: Double = 1.0,
     threshold: Double = 0.4,
     invert: Boolean = false,
     pad: Int = 20,
     trim: Boolean = true
-): String = readText(region.capture(), threshold, invert, pad, trim)
+): String = readText(region.capture(), scale, threshold, invert, pad, trim)
 
 fun ITesseract.readText(
     image: BufferedImage,
+    scale: Double = 1.0,
     threshold: Double = 0.4,
     invert: Boolean = false,
     pad: Int = 20,
@@ -98,6 +101,7 @@ fun ITesseract.readText(
         image.colorModel.isAlphaPremultiplied,
         null
     )
+    if (scale > 0.0 && scale != 1.0) img = img.scale(scale)
     if (threshold in 0.0..1.0) img.binarizeImage(threshold)
     if (invert) img.invert()
     if (pad > 0) img = img.pad(20, 20, Color.WHITE)

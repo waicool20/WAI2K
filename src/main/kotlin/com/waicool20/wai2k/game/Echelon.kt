@@ -61,7 +61,7 @@ data class Echelon(val number: Int) {
                 .map { it.region }
                 .map { it.copy(it.x + it.width, it.y - 40, 70, 95) }
                 .mapAsync {
-                    val n = ocr.digitsOnly().readText(it)
+                    val n = ocr.digitsOnly().readText(it, scale = 0.5)
                         .replace("18", "10").toIntOrNull() ?: return@mapAsync null
                     n to it
                 }.filterNotNull()
