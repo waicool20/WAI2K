@@ -286,7 +286,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
         logger.info("Clicking through sim results")
 
         var energySpent = 0
-        while (true) {
+        while (coroutineContext.isActive) {
             region.subRegion(992, 24, 1100, 121).click() // endBattleClick
             delay(300)
             if (locations.getValue(LocationId.COMBAT_SIMULATION).isInRegion(region)) {
@@ -316,8 +316,8 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
 
     private suspend fun runCoalition() {
         if (!profile.combatSimulation.coalitionEnabled) return
-
-        val drillType = when (OffsetDateTime.now(ZoneOffset.ofHours(-8)).dayOfWeek) {
+        val drills = arrayOf(Type.EXPDISKS, Type.PETRIDISH, Type.DATACHIPS)
+        var drillType = when (OffsetDateTime.now(ZoneOffset.ofHours(-8)).dayOfWeek) {
             DayOfWeek.MONDAY -> Type.EXPDISKS
             DayOfWeek.TUESDAY -> Type.PETRIDISH
             DayOfWeek.WEDNESDAY -> Type.DATACHIPS
@@ -326,6 +326,10 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
             DayOfWeek.SATURDAY -> Type.DATACHIPS
             DayOfWeek.SUNDAY -> profile.combatSimulation.preferredDrill
             else -> error("Unreachable")
+        }
+
+        if (drillType == Type.RANDOM) {
+            drillType = drills[Random.nextInt(2)]
         }
         var times = gameState.coalitionEnergy / 3
         if (times == 0) {
@@ -337,7 +341,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
         delay((1000 * gameState.delayCoefficient).roundToLong())
 
         logger.info("Running Coalition Drill: $drillType $times times.")
-        region.subRegion(0, 0, 0, 0).click()
+        region.subRegion(781 + (440 * drills.indexOf(drillType)), 855, 307, 110).click()
         delay((1000 * gameState.delayCoefficient).roundToLong())
 
         val capture = region.capture()
@@ -355,7 +359,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
         // wait for results, select run again if times > 1 else exit
 
         var energySpent = 0
-        while (true) {
+        while (coroutineContext.isActive) {
             region.subRegion(992, 24, 1100, 121).click() // endBattleClick
             delay(300)
             if (locations.getValue(LocationId.COMBAT_SIMULATION).isInRegion(region)) {
@@ -373,7 +377,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
                 }
             }
         }
-        logger.info("Completed all data sim")
+        logger.info("Completed all coalition drill")
         scriptStats.simEnergySpent += energySpent
         gameState.coalitionEnergy -= energySpent
         updateCoalNextCheck()
@@ -396,7 +400,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
         region.findBest(FileTemplate("combat-simulation/coalition-drill.png"))?.region?.click()
         gameState.coalitionNextCheck = Instant.now().plusSeconds(
             (
-                (3 - gameState.coalitionEnergy - 1)
+                (2 - gameState.coalitionEnergy)
                     * 7200) + coalitionTimer.seconds
         )
         gameState.requiresUpdate
