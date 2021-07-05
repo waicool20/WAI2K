@@ -34,7 +34,8 @@ data class ScriptStats(
     var repairs: Int = 0,
     var gameRestarts: Int = 0,
     var combatReportsWritten: Int = 0,
-    var simEnergySpent: Int = 0
+    var simEnergySpent: Int = 0,
+    var coalitionEnergySpent: Int = 0
 ) {
     fun reset() {
         logisticsSupportReceived = 0
@@ -50,6 +51,7 @@ data class ScriptStats(
         gameRestarts = 0
         combatReportsWritten = 0
         simEnergySpent = 0
+        coalitionEnergySpent = 0
     }
 
     override fun toString(): String = jacksonObjectMapper().writerWithDefaultPrettyPrinter()

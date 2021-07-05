@@ -19,15 +19,17 @@
 
 package com.waicool20.wai2k.script.modules
 
+import com.waicool20.cvauto.core.AnyRegion
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.config.Wai2KProfile.CombatSimulation.Level
+import com.waicool20.wai2k.config.Wai2KProfile.CombatSimulation.Type
 import com.waicool20.wai2k.game.Echelon
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptException
 import com.waicool20.wai2k.script.ScriptTimeOutException
 import com.waicool20.wai2k.script.modules.combat.EmptyMapRunner
-import com.waicool20.wai2k.util.formatted
+import com.waicool20.wai2k.util.isSimilar
 import com.waicool20.wai2k.util.readText
 import com.waicool20.wai2k.util.useCharFilter
 import com.waicool20.waicoolutils.DurationUtils
@@ -35,8 +37,11 @@ import com.waicool20.waicoolutils.logging.loggerFor
 import com.waicool20.waicoolutils.prettyString
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import java.awt.Color
 import java.time.*
 import java.time.temporal.ChronoUnit
+import kotlin.coroutines.coroutineContext
 import kotlin.math.roundToLong
 import kotlin.random.Random
 
@@ -45,6 +50,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
     private val logger = loggerFor<CombatReportModule>()
     private val dataSimDays = arrayOf(DayOfWeek.TUESDAY, DayOfWeek.FRIDAY, DayOfWeek.SUNDAY)
     private var simTimer = Duration.ZERO
+    private var coalitionTimer = Duration.ZERO
 
     private val mapRunner = object : EmptyMapRunner(this@CombatSimModule) {
         override suspend fun begin() {
@@ -57,7 +63,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
             val level = profile.combatSimulation.neuralFragment
             var times = gameState.simEnergy / level.cost
             if (times == 0) {
-                updateNextCheck(level)
+                updateSimNextCheck(level)
                 return
             }
 
@@ -147,7 +153,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
             logger.info("Completed all neural sim")
             scriptStats.simEnergySpent += energySpent
             gameState.simEnergy -= energySpent
-            updateNextCheck(level)
+            updateSimNextCheck(level)
         }
     }
 
@@ -155,11 +161,29 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
         if (!profile.combatSimulation.enabled) return
         if (Instant.now() < gameState.simNextCheck) return
         if (!combatSimAvailable()) return
-        checkSimEnergy()
+
+        val (timer, energy) = checkSimEnergy(
+            region.subRegion(1455, 165, 75, 75),
+            region.subRegion(1552, 182, 100, 45)
+        ) ?: return
+
+        simTimer = timer
+        gameState.simEnergy = energy
         runDataSimulation()
         runNeuralFragment()
         logger.info("Sim energy remaining : ${gameState.simEnergy}")
-        logger.info("Next sim check at: ${gameState.simNextCheck.formatted()}")
+
+        if (profile.combatSimulation.coalitionEnabled) {
+            val (cTimer, cEnergy) = checkSimEnergy(
+                region.subRegion(1468, 165, 75, 75),
+                region.subRegion(1542, 182, 115, 45)
+            ) ?: return
+
+            coalitionTimer = cTimer
+            gameState.coalitionEnergy = cEnergy
+            runCoalition()
+            logger.info("Coalition drill energy remaining : ${gameState.coalitionEnergy}")
+        }
     }
 
     /**
@@ -172,63 +196,68 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
         return OffsetDateTime.now(ZoneOffset.ofHours(-8)).dayOfWeek in daysOpen
     }
 
-    private suspend fun checkSimEnergy() {
+    private suspend fun checkSimEnergy(
+        energyRegion: AnyRegion,
+        timerRegion: AnyRegion,
+        retries: Int = 5
+    ): Pair<Duration, Int>? {
         // Check the current sim energy and the duration until the next energy recharges
-        // Perhaps put this in gameState if it didn't take so long to check
+        var energy = -1
+        var r = retries
         navigator.navigateTo(LocationId.COMBAT_SIMULATION)
 
-        while (true) {
+        while (coroutineContext.isActive) {
             val energyString = ocr
                 .useCharFilter("0123456/")
-                .readText(region.subRegion(1455, 165, 75, 75))
+                .readText(energyRegion)
                 .replace(" ", "")
             logger.info("Sim energy OCR: $energyString")
 
             // Continue if not in X/6 format
             if (!energyString.matches(Regex("\\d/6"))) {
-                delay(500)
-                continue
+                energy = energyString.take(1).toIntOrNull()
+                    ?: if (++r <= 5) continue else return null
+                break
             }
+            delay(500)
+        }
+        logger.info("Current sim energy is ${energy}/6")
 
-            gameState.simEnergy = energyString.take(1).toIntOrNull() ?: continue
-
-            logger.info("Current sim energy is ${gameState.simEnergy}/6")
-
-            if (gameState.simEnergy == 6) {
-                simTimer = Duration.ZERO
-                return
-            }
-            break
+        if (energy == 6) {
+            return Duration.ZERO to energy
         }
 
-        while (true) {
-            val timerString = ocr
-                .useCharFilter("0123456789:")
-                .readText(region.subRegion(1552, 182, 100, 45))
-                .replace(" ", "")
+        r = retries
+        while (coroutineContext.isActive) {
+            val timerString = ocr.readText(timerRegion)
             logger.info("Sim timer OCR: $timerString")
 
-            if (!timerString.matches(Regex("\\d:\\d\\d:\\d\\d"))) {
-                delay(500)
-                continue
+            // micaaa
+            if (timerString.length == 6) {
+                logger.info("Did the last digit get cut off?")
+                timerString.plus("0")
             }
 
-            var seconds = timerString.substring(5, 7)
-            var minutes = timerString.substring(2, 4)
-            var hours = timerString.substring(0, 1)
+            if (!timerString.matches(Regex("\\d:\\d\\d:\\d\\d"))) {
+                if (++r <= 5) {
+                    delay(500)
+                    continue
+                } else return null
+            }
 
-            if (seconds[0] == '8') seconds = seconds.replaceFirst('8', '0')
-            if (minutes[0] == '8') minutes = minutes.replaceFirst('8', '0')
-            if (hours[0] == '8') hours = hours.replaceFirst('8', '0')
+            val seconds = timerString.substring(5, 7)
+            val minutes = timerString.substring(2, 4)
+            val hours = timerString.substring(0, 1)
 
-            simTimer = DurationUtils.of(
+            val timer = DurationUtils.of(
                 seconds.toLong(),
                 minutes.toLong(),
                 hours.toLong()
             )
-            logger.info("Time until next sim energy: ${simTimer.prettyString()}")
-            return
+            logger.info("Time until next sim energy: ${timer.prettyString()}")
+            return timer to energy
         }
+        return null
     }
 
     private suspend fun runDataSimulation() {
@@ -238,7 +267,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
         val level = profile.combatSimulation.dataSim
         var times = gameState.simEnergy / level.cost
         if (times == 0) {
-            updateNextCheck(level)
+            updateSimNextCheck(level)
             return
         }
 
@@ -278,21 +307,97 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
         logger.info("Completed all data sim")
         scriptStats.simEnergySpent += energySpent
         gameState.simEnergy -= energySpent
-        updateNextCheck(level)
+        updateSimNextCheck(level)
     }
 
     private suspend fun runNeuralFragment() {
         mapRunner.execute()
     }
 
+    private suspend fun runCoalition() {
+        if (!profile.combatSimulation.coalitionEnabled) return
+
+        val drillType = when (OffsetDateTime.now(ZoneOffset.ofHours(-8)).dayOfWeek) {
+            DayOfWeek.MONDAY -> Type.EXPDISKS
+            DayOfWeek.TUESDAY -> Type.PETRIDISH
+            DayOfWeek.WEDNESDAY -> Type.DATACHIPS
+            DayOfWeek.THURSDAY -> Type.EXPDISKS
+            DayOfWeek.FRIDAY -> Type.PETRIDISH
+            DayOfWeek.SATURDAY -> Type.DATACHIPS
+            DayOfWeek.SUNDAY -> profile.combatSimulation.preferredDrill
+            else -> error("Unreachable")
+        }
+        var times = gameState.coalitionEnergy / 3
+        if (times == 0) {
+            updateCoalNextCheck()
+            return
+        }
+
+        region.findBest(FileTemplate("combat-simulation/coalition-drill.png"))?.region?.click()
+        delay((1000 * gameState.delayCoefficient).roundToLong())
+
+        logger.info("Running Coalition Drill: $drillType $times times.")
+        region.subRegion(0, 0, 0, 0).click()
+        delay((1000 * gameState.delayCoefficient).roundToLong())
+
+        val capture = region.capture()
+        val sample = Color(capture.getRGB(1100, 666))
+        if (sample.isSimilar(Color(156, 154, 156))
+            && Color(capture.getRGB(1175, 547)).isSimilar(Color(239, 235, 239))
+        ) {
+            logger.info("Tdolls not assigned, using automatic assignment")
+            region.subRegion(294, 792, 348, 91).click()
+            delay(500)
+        }
+        region.subRegion(1570, 845, 305, 108).click()// Attack
+        region.waitHas(FileTemplate("ok.png"), 2000)?.click()
+        logger.info("Starting drill, waiting for results screen")
+        // wait for results, select run again if times > 1 else exit
+
+        var energySpent = 0
+        while (true) {
+            region.subRegion(992, 24, 1100, 121).click() // endBattleClick
+            delay(300)
+            if (locations.getValue(LocationId.COMBAT_SIMULATION).isInRegion(region)) {
+                energySpent += 3
+                break
+            }
+            if (region.subRegion(1100, 680, 275, 130).has(FileTemplate("ok.png"))) {
+                energySpent += 3
+                if (--times == 0) {
+                    region.subRegion(788, 695, 250, 96).click() // Cancel
+                    break
+                } else {
+                    region.subRegion(1115, 695, 250, 96).click() // ok
+                    logger.info("Done one cycle, remaining: $times")
+                }
+            }
+        }
+        logger.info("Completed all data sim")
+        scriptStats.simEnergySpent += energySpent
+        gameState.coalitionEnergy -= energySpent
+        updateCoalNextCheck()
+    }
+
     /**
      * Schedules the next check up time based on the required level passed in
      */
-    private fun updateNextCheck(level: Level) {
+    private fun updateSimNextCheck(level: Level) {
+        region.subRegion(400, 315, 185, 130).click()
         gameState.simNextCheck = Instant.now().plusSeconds(
             (
                 (level.cost - gameState.simEnergy - 1)
                     * 7200) + simTimer.seconds
+        )
+        gameState.requiresUpdate
+    }
+
+    private fun updateCoalNextCheck() {
+        region.findBest(FileTemplate("combat-simulation/coalition-drill.png"))?.region?.click()
+        gameState.coalitionNextCheck = Instant.now().plusSeconds(
+            (
+                (3 - gameState.coalitionEnergy - 1)
+                    * 7200) + coalitionTimer.seconds
         )
         gameState.requiresUpdate
     }

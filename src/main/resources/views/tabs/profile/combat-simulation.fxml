@@ -22,10 +22,9 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
-<VBox xmlns:fx="http://javafx.com/fxml/1" minHeight="-Infinity" minWidth="-Infinity"
-      spacing="10.0" xmlns="http://javafx.com/javafx/8.0.171">
+<?import javafx.scene.layout.*?>
+<VBox minHeight="-Infinity" minWidth="-Infinity" spacing="10.0" xmlns="http://javafx.com/javafx/16"
+      xmlns:fx="http://javafx.com/fxml/1">
     <children>
         <CheckBox fx:id="enableCombatSimulationCheckBox" mnemonicParsing="false"
                   text="Enable combat simulation"/>
@@ -47,6 +46,16 @@
             <children>
                 <Label prefWidth="120.0" text="Echelon to use:"/>
                 <ComboBox fx:id="neuralEchelonComboBox" prefHeight="25.0" prefWidth="190.0"/>
+            </children>
+        </HBox>
+        <Separator prefWidth="200.0"/>
+        <CheckBox fx:id="enableCoalitionCheckBox" mnemonicParsing="false"
+                  text="Enable coalition drill"/>
+        <HBox alignment="CENTER_LEFT" prefHeight="25.0" prefWidth="292.0" spacing="5.0">
+            <children>
+                <Label prefWidth="120.0" text="Preferred sunday drill:"/>
+                <ComboBox fx:id="coalitionPreferredTypeComboBox" prefHeight="25.0"
+                          prefWidth="190.0"/>
             </children>
         </HBox>
     </children>
