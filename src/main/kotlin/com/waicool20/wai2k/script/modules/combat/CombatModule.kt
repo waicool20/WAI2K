@@ -31,6 +31,7 @@ import com.waicool20.wai2k.script.modules.ScriptModule
 import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.wai2k.util.digitsOnly
 import com.waicool20.wai2k.util.readText
+import com.waicool20.wai2k.util.disableDictionaries
 import com.waicool20.waicoolutils.binarizeImage
 import com.waicool20.waicoolutils.countColor
 import com.waicool20.waicoolutils.logging.loggerFor
@@ -260,9 +261,10 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
         // Temporary convenience class for storing doll regions
         class DollRegions(nameImage: BufferedImage, hpImage: BufferedImage) {
             val tdollOcr = run {
-                val ocr = ocr.readText(nameImage, threshold = 0.72, invert = true)
-                val tdoll = TDoll.lookup(config, ocr)
-                ocr to tdoll
+                val txt = ocr.disableDictionaries()
+                    .readText(nameImage, threshold = 0.72, invert = true, scale = 0.8)
+                val tdoll = TDoll.lookup(config, txt)
+                txt to tdoll
             }
             val percent = run {
                 val image = hpImage.binarizeImage()
