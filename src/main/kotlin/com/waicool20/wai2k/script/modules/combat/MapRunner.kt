@@ -220,10 +220,14 @@ abstract class MapRunner(
                     (0..4).toList()
                 }.filter { hasMember(it) }
 
+                // MICA why are your things 1 pixel off :(
+                val xOffsets = arrayOf(373, 645, 918, 1191, 1464)
+                val wOffsets = arrayOf(217, 218, 218, 218, 217)
                 val ammoNeedsSupply = async {
                     members.mapAsync { m ->
-                        val image =
-                            screenshot.getSubimage(373 + m * 272, 820, 218, 1).binarizeImage()
+                        val image = screenshot.getSubimage(
+                            xOffsets[m], 820, wOffsets[m], 1
+                        ).binarizeImage()
                         val ammoCount = image.countColor(Color.WHITE) / image.width.toDouble()
                         if (ammoCount < ammoResupplyThreshold) needsResupply += node
                         m to ammoCount
@@ -231,8 +235,9 @@ abstract class MapRunner(
                 }
                 val rationNeedsSupply = async {
                     members.mapAsync { m ->
-                        val image =
-                            screenshot.getSubimage(373 + m * 272, 860, 218, 1).binarizeImage()
+                        val image = screenshot.getSubimage(
+                            xOffsets[m], 860, wOffsets[m], 1
+                        ).binarizeImage()
                         val rationCount = image.countColor(Color.WHITE) / image.width.toDouble()
                         if (rationCount < rationsResupplyThreshold) needsResupply += node
                         m to rationCount
@@ -244,12 +249,12 @@ abstract class MapRunner(
                         // Don't need to check health if corpse dragging map because it's already checked
                         // when going to formation
                         if (this@MapRunner is CorpseDragging) {
-                            m to -1.0
-                        } else {
-                            val hpImage =
-                                screenshot.getSubimage(373 + m * 272, 778, 217, 1).binarizeImage()
-                            m to hpImage.countColor(Color.WHITE) / hpImage.width.toDouble() * 100
+                            return@mapAsync m to -1.0
                         }
+                        val image = screenshot.getSubimage(
+                            xOffsets[m], 778, wOffsets[m], 1
+                        ).binarizeImage()
+                        m to image.countColor(Color.WHITE) / image.width.toDouble() * 100
                     }.toMap()
                 }
 
