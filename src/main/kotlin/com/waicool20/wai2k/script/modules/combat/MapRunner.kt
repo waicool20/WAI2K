@@ -214,8 +214,8 @@ abstract class MapRunner(
                 }
 
                 val members = if (this@MapRunner is CorpseDragging) {
-                    logger.info("Corpse dragging map, only member 2 will be scanned")
-                    listOf(1)
+                    logger.info("Corpse dragging map, only member ${profile.combat.draggerSlot} will be scanned")
+                    listOf(profile.combat.draggerSlot - 1)
                 } else {
                     (0..4).toList()
                 }.filter { hasMember(it) }

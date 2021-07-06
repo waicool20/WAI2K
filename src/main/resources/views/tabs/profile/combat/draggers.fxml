@@ -20,41 +20,67 @@
   -->
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 <?import org.controlsfx.control.PrefixSelectionComboBox?>
-<VBox xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
-      minWidth="-Infinity" spacing="15.0" xmlns="http://javafx.com/javafx/8.0.171">
+
+<?import javafx.scene.control.Tooltip?>
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="15.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1">
     <children>
+      <HBox alignment="CENTER_LEFT">
+         <children>
+            <Label text="Slot:">
+               <padding>
+                  <Insets right="10.0" />
+               </padding>
+            </Label>
+            <ToggleButton fx:id="slotButton1" mnemonicParsing="false" text="1" userData="1">
+               <toggleGroup>
+                  <ToggleGroup fx:id="draggerSlotGroup" />
+               </toggleGroup>
+            </ToggleButton>
+            <ToggleButton fx:id="slotButton2" mnemonicParsing="false" selected="true" text="2" toggleGroup="$draggerSlotGroup" userData="2" />
+            <ToggleButton fx:id="slotButton3" mnemonicParsing="false" text="3" toggleGroup="$draggerSlotGroup" userData="3" />
+            <ToggleButton fx:id="slotButton4" mnemonicParsing="false" text="4" toggleGroup="$draggerSlotGroup" userData="4" />
+            <ToggleButton fx:id="slotButton5" mnemonicParsing="false" text="5" toggleGroup="$draggerSlotGroup" userData="5">
+                <tooltip><Tooltip wrapText="true" prefWidth="200" showDelay="0s" text="Do NOT use slot 5 on maps with echelon limits (eg. Night Maps), script will go to infinite loop because MICA blocked the parts required to read T-Doll supplies correctly!" /></tooltip>
+            </ToggleButton>
+         </children>
+      </HBox>
         <VBox spacing="10.0">
             <children>
                 <HBox alignment="CENTER_LEFT" spacing="5.0">
                     <children>
-                        <Label text="Name:"/>
-                        <PrefixSelectionComboBox fx:id="doll1NameComboBox" prefWidth="210.0"/>
+                        <Label text="Name:" />
+                        <PrefixSelectionComboBox fx:id="doll1NameComboBox" prefWidth="210.0" />
                     </children>
                 </HBox>
             </children>
         </VBox>
         <HBox alignment="CENTER" spacing="10.0">
             <children>
-                <Separator HBox.hgrow="ALWAYS"/>
-                <Button fx:id="swapButton" mnemonicParsing="false" text="↑Swap↓"/>
-                <Separator HBox.hgrow="ALWAYS"/>
+                <Separator HBox.hgrow="ALWAYS" />
+                <Button fx:id="swapButton" mnemonicParsing="false" text="↑Swap↓" />
+                <Separator HBox.hgrow="ALWAYS" />
             </children>
         </HBox>
         <VBox spacing="10.0">
             <children>
                 <HBox alignment="CENTER_LEFT" spacing="5.0">
                     <children>
-                        <Label text="Name:"/>
-                        <PrefixSelectionComboBox fx:id="doll2NameComboBox" prefWidth="210.0"/>
+                        <Label text="Name:" />
+                        <PrefixSelectionComboBox fx:id="doll2NameComboBox" prefWidth="210.0" />
                     </children>
                 </HBox>
             </children>
         </VBox>
     </children>
     <padding>
-        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0"/>
+        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
     </padding>
 </VBox>

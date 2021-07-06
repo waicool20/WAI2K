@@ -164,6 +164,8 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
         navigator.navigateTo(LocationId.FORMATION)
         delay(1000) // Formation takes a while to load/render
 
+        val slot = profile.combat.draggerSlot
+
         val tdoll = run {
             val tdolls = profile.combat.draggers
                 .map { TDoll.lookup(config, it.id) ?: throw InvalidDollException(it.id) }
@@ -176,9 +178,9 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
 
         if (gameState.switchDolls) {
             val startTime = System.currentTimeMillis()
-            logger.info("Switching doll 2 of echelon 1")
-            // Doll 2 region ( excludes stuff below name/type )
-            region.subRegion(635, 206, 237, 544).click(); yield()
+            logger.info("Switching doll $slot of echelon 1")
+            // Dragger region ( excludes stuff below name/type )
+            region.subRegion(362 + (slot - 1) * 273, 206, 237, 544).click(); yield()
             region.waitHas(FileTemplate("doll-list/lock.png"), 5000)
 
             region.matcher.settings.matchDimension = ScriptRunner.HIGH_RES
@@ -234,9 +236,9 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
 
         // Sometimes update echelon repair status reads the old dolls name because old doll is still
         // on screen briefly after the switch
-        if (scriptStats.sortiesDone >= 1 && gameState.echelons[0].members[1].name != tdoll.name) {
-            logger.warn("Expected new dragger to be ${tdoll.name}, got ${gameState.echelons[0].members[1].name}")
-            gameState.echelons[0].members[1].name = tdoll.name
+        if (scriptStats.sortiesDone >= 1 && gameState.echelons[0].members[slot - 1].name != tdoll.name) {
+            logger.warn("Expected new dragger to be ${tdoll.name}, got ${gameState.echelons[0].members[slot - 1].name}")
+            gameState.echelons[0].members[slot - 1].name = tdoll.name
         }
     }
 
@@ -296,12 +298,12 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
 
             // Checking if the ocr results were gibberish
             // Skip check if game state hasnt been initialized yet
-            val member2 = members.getOrNull(1)?.tdollOcr?.second?.name
-            if (member2 == null || profile.combat.draggers.none { it.id.contains(member2) }) {
+            val dragger = members.getOrNull(profile.combat.draggerSlot - 1)?.tdollOcr?.second?.name
+            if (dragger == null || profile.combat.draggers.none { it.id.contains(dragger) }) {
                 logger.info("Update repair status ocr failed after $i attempts, retries remaining: ${retries - i}")
                 if (i == retries) {
                     logger.warn("Could not update repair status after $retries attempts")
-                    logger.warn("Check if you set the right T doll as dragger")
+                    logger.warn("Check if you set the right T doll as dragger and slot positions")
                     if (scriptStats.sortiesDone > 1 && members.map { it.tdollOcr.second?.name }
                             .all { it == null }) {
                         wasCancelled = true
@@ -317,7 +319,11 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
         }
         logger.info("Updating repair status complete")
         gameState.echelons[echelon - 1].members.forEachIndexed { i, member ->
-            logger.info("[Echelon $echelon member ${i + 1}] Name: ${member.name} | Needs repairs: ${member.needsRepair}")
+            logger.info("[Echelon $echelon member ${i + 1}] " +
+                "Name: ${member.name} | " +
+                "Needs repairs: ${member.needsRepair}" +
+                if(i == profile.combat.draggerSlot - 1) " | Dragger" else ""
+            )
         }
     }
 

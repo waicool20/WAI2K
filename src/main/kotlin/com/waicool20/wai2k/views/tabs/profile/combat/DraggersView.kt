@@ -23,12 +23,16 @@ import com.waicool20.wai2k.game.TDoll
 import com.waicool20.wai2k.views.tabs.profile.AbstractProfileView
 import com.waicool20.waicoolutils.javafx.addListener
 import javafx.scene.control.Button
+import javafx.scene.control.ToggleButton
+import javafx.scene.control.ToggleGroup
 import javafx.scene.layout.VBox
 import javafx.util.StringConverter
 import org.controlsfx.control.PrefixSelectionComboBox
+import tornadofx.*
 
 class DraggersView : AbstractProfileView() {
     override val root: VBox by fxml("/views/tabs/profile/combat/draggers.fxml")
+    private val draggerSlotGroup: ToggleGroup by fxid()
     private val doll1NameComboBox: PrefixSelectionComboBox<TDoll> by fxid()
     private val doll2NameComboBox: PrefixSelectionComboBox<TDoll> by fxid()
 
@@ -62,6 +66,11 @@ class DraggersView : AbstractProfileView() {
             doll2NameComboBox.selectionModel.select(TDoll.lookup(context.wai2KConfig, doll2.id))
         }
         with(context.currentProfile.combat) {
+            draggerSlotProperty.bind(
+                draggerSlotGroup.selectedToggleProperty().integerBinding {
+                    it?.userData?.toString()?.toInt() ?: 2
+                }
+            )
             doll1NameComboBox.selectionModel.selectedItemProperty()
                 .addListener("Doll1NameListener") { tdoll ->
                     draggers[0].id = tdoll.id
