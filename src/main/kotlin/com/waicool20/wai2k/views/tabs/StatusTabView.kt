@@ -164,7 +164,7 @@ class StatusTabView : CoroutineScopeView() {
             if (context.currentProfile.combatSimulation.coalitionEnabled) {
                 val coalSims = listOf(coalitionEnergy, timeDelta(coalitionNextCheck))
                     .filter { coalitionNextCheck >= Instant.now() }
-                if (coalSims.isEmpty()) {
+                if (coalSims.isNotEmpty()) {
                     builder /= "Coalition Energy ETA:"
                     builder += "\t- ${coalSims[0]}/6 : ${coalSims[1]}\n"
                 }
