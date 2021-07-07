@@ -22,7 +22,7 @@ package com.waicool20.wai2k.script.modules
 import com.waicool20.cvauto.core.AnyRegion
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.config.Wai2KProfile.CombatSimulation.Level
-import com.waicool20.wai2k.config.Wai2KProfile.CombatSimulation.Type
+import com.waicool20.wai2k.config.Wai2KProfile.CombatSimulation.Coalition.Type
 import com.waicool20.wai2k.game.Echelon
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.Navigator
@@ -180,7 +180,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
         runNeuralFragment()
         logger.info("Sim energy remaining : ${gameState.simEnergy}")
 
-        if (profile.combatSimulation.coalitionEnabled) {
+        if (profile.combatSimulation.coalition.enabled) {
             region.findBest(FileTemplate("combat-simulation/coalition-drill.png"))?.region?.click()
 
             logger.info("Checking coalition energy...")
@@ -320,7 +320,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
     }
 
     private suspend fun runCoalition() {
-        if (!profile.combatSimulation.coalitionEnabled) return
+        if (!profile.combatSimulation.coalition.enabled) return
         val drills = arrayOf(Type.EXPDISKS, Type.PETRIDISH, Type.DATACHIPS)
         var drillType = when (OffsetDateTime.now(ZoneOffset.ofHours(-8)).dayOfWeek) {
             DayOfWeek.MONDAY -> Type.EXPDISKS
@@ -329,7 +329,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
             DayOfWeek.THURSDAY -> Type.EXPDISKS
             DayOfWeek.FRIDAY -> Type.PETRIDISH
             DayOfWeek.SATURDAY -> Type.DATACHIPS
-            DayOfWeek.SUNDAY -> profile.combatSimulation.preferredDrill
+            DayOfWeek.SUNDAY -> profile.combatSimulation.coalition.preferredType
             else -> error("Unreachable")
         }
 

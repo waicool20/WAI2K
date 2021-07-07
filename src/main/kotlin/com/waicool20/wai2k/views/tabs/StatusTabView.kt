@@ -161,7 +161,7 @@ class StatusTabView : CoroutineScopeView() {
                 }
             }
 
-            if (context.currentProfile.combatSimulation.coalitionEnabled) {
+            if (context.currentProfile.combatSimulation.coalition.enabled) {
                 val coalSims = listOf(coalitionEnergy, timeDelta(coalitionNextCheck))
                     .filter { coalitionNextCheck >= Instant.now() }
                 if (coalSims.isNotEmpty()) {
