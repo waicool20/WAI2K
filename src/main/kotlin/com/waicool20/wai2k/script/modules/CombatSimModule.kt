@@ -21,8 +21,8 @@ package com.waicool20.wai2k.script.modules
 
 import com.waicool20.cvauto.core.AnyRegion
 import com.waicool20.cvauto.core.template.FileTemplate
-import com.waicool20.wai2k.config.Wai2KProfile.CombatSimulation.Level
 import com.waicool20.wai2k.config.Wai2KProfile.CombatSimulation.Coalition.Type
+import com.waicool20.wai2k.config.Wai2KProfile.CombatSimulation.Level
 import com.waicool20.wai2k.game.Echelon
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.Navigator
@@ -270,7 +270,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
         if (OffsetDateTime.now(ZoneOffset.ofHours(-8)).dayOfWeek !in dataSimDays) return
 
         val level = profile.combatSimulation.dataSim
-        var times = gameState.simEnergy / level.cost
+        val times = gameState.simEnergy / level.cost
         if (times == 0) {
             updateSimNextCheck(level)
             return
@@ -290,28 +290,10 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
 
         logger.info("Clicking through sim results")
 
-        var energySpent = 0
-        while (coroutineContext.isActive) {
-            region.subRegion(992, 24, 1100, 121).click() // endBattleClick
-            delay(300)
-            if (locations.getValue(LocationId.COMBAT_SIMULATION).isInRegion(region)) {
-                energySpent += level.cost
-                break
-            }
-            if (region.subRegion(1100, 680, 275, 130).has(FileTemplate("ok.png"))) {
-                energySpent += level.cost
-                if (--times == 0) {
-                    region.subRegion(788, 695, 250, 96).click() // Cancel
-                    break
-                } else {
-                    region.subRegion(1115, 695, 250, 96).click() // ok
-                    logger.info("Done one cycle, remaining: $times")
-                }
-            }
-        }
+        runSimCycles(times)
         logger.info("Completed all data sim")
-        scriptStats.simEnergySpent += energySpent
-        gameState.simEnergy -= energySpent
+        scriptStats.simEnergySpent += times * level.cost
+        gameState.simEnergy -= times * level.cost
         updateSimNextCheck(level)
     }
 
@@ -321,29 +303,19 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
 
     private suspend fun runCoalition() {
         if (!profile.combatSimulation.coalition.enabled) return
-        val drills = arrayOf(Type.EXPDISKS, Type.PETRIDISH, Type.DATACHIPS)
-        var drillType = when (OffsetDateTime.now(ZoneOffset.ofHours(-8)).dayOfWeek) {
-            DayOfWeek.MONDAY -> Type.EXPDISKS
-            DayOfWeek.TUESDAY -> Type.PETRIDISH
-            DayOfWeek.WEDNESDAY -> Type.DATACHIPS
-            DayOfWeek.THURSDAY -> Type.EXPDISKS
-            DayOfWeek.FRIDAY -> Type.PETRIDISH
-            DayOfWeek.SATURDAY -> Type.DATACHIPS
-            DayOfWeek.SUNDAY -> profile.combatSimulation.coalition.preferredType
-            else -> error("Unreachable")
+        val drills = getBonusCoalitionDrills()
+
+        val drillType = if (drills.size > 1) {
+            drills.random()
+        } else {
+            drills.first()
         }
 
-        if (drillType == Type.RANDOM) {
-            drillType = drills[Random.nextInt(2)]
-        }
-        var times = gameState.coalitionEnergy / 3
+        val times = gameState.coalitionEnergy / 3
         if (times == 0) {
             updateCoalNextCheck()
             return
         }
-
-        region.findBest(FileTemplate("combat-simulation/coalition-drill.png"))?.region?.click()
-        delay((1000 * gameState.delayCoefficient).roundToLong())
 
         logger.info("Running Coalition Drill: $drillType $times times.")
         region.subRegion(781 + (440 * drills.indexOf(drillType)), 855, 307, 110).click()
@@ -358,34 +330,50 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
             region.subRegion(294, 792, 348, 91).click()
             delay(500)
         }
-        region.subRegion(1570, 845, 305, 108).click()// Attack
+        region.subRegion(1570, 845, 305, 108).click() // Attack
         region.waitHas(FileTemplate("ok.png"), 2000)?.click()
         logger.info("Starting drill, waiting for results screen")
         // wait for results, select run again if times > 1 else exit
 
-        var energySpent = 0
+        runSimCycles(times)
+        logger.info("Completed all coalition drill")
+        scriptStats.coalitionEnergySpent += times * 3
+        gameState.coalitionEnergy -= times * 3
+        updateCoalNextCheck()
+    }
+
+    /**
+     * Returns the bonus coalition drills, usually only 1 is open but may return all 3 if
+     * we have all bonus event or its sunday
+     */
+    private fun getBonusCoalitionDrills(): List<Type> {
+        val bonus = Color(247, 53, 66)
+        val capture = region.capture()
+        val list = mutableListOf<Type>()
+        if (Color(capture.getRGB(1050, 410)).isSimilar(bonus)) list += Type.EXPDISKS
+        if (Color(capture.getRGB(1492, 410)).isSimilar(bonus)) list += Type.PETRIDISH
+        if (Color(capture.getRGB(1935, 410)).isSimilar(bonus)) list += Type.DATACHIPS
+        return list
+    }
+
+    private suspend fun runSimCycles(times: Int) {
+        var t = times
         while (coroutineContext.isActive) {
-            region.subRegion(992, 24, 1100, 121).click() // endBattleClick
+            region.subRegion(1200, 24, 800, 121).click() // endBattleClick
             delay(300)
             if (locations.getValue(LocationId.COMBAT_SIMULATION).isInRegion(region)) {
-                energySpent += 3
                 break
             }
             if (region.subRegion(1100, 680, 275, 130).has(FileTemplate("ok.png"))) {
-                energySpent += 3
-                if (--times == 0) {
+                if (--t == 0) {
                     region.subRegion(788, 695, 250, 96).click() // Cancel
                     break
                 } else {
                     region.subRegion(1115, 695, 250, 96).click() // ok
-                    logger.info("Done one cycle, remaining: $times")
+                    logger.info("Done one cycle, remaining: $t")
                 }
             }
         }
-        logger.info("Completed all coalition drill")
-        scriptStats.simEnergySpent += energySpent
-        gameState.coalitionEnergy -= energySpent
-        updateCoalNextCheck()
     }
 
     /**
