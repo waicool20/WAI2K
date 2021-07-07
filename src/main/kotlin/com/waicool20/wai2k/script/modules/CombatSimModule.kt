@@ -162,6 +162,13 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
         if (Instant.now() < gameState.simNextCheck) return
         if (!combatSimAvailable()) return
 
+        navigator.navigateTo(LocationId.COMBAT_SIMULATION)
+        delay(1000) // Delay for settle
+
+        // Select normal combat sim
+        region.subRegion(396, 155, 199, 105).click()
+
+        logger.info("Checking sim energy...")
         val (timer, energy) = checkSimEnergy(
             region.subRegion(1455, 165, 75, 75),
             region.subRegion(1552, 182, 100, 45)
@@ -174,6 +181,9 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
         logger.info("Sim energy remaining : ${gameState.simEnergy}")
 
         if (profile.combatSimulation.coalitionEnabled) {
+            region.findBest(FileTemplate("combat-simulation/coalition-drill.png"))?.region?.click()
+
+            logger.info("Checking coalition energy...")
             val (cTimer, cEnergy) = checkSimEnergy(
                 region.subRegion(1468, 165, 75, 75),
                 region.subRegion(1542, 182, 115, 45)
@@ -182,7 +192,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
             coalitionTimer = cTimer
             gameState.coalitionEnergy = cEnergy
             runCoalition()
-            logger.info("Coalition drill energy remaining : ${gameState.coalitionEnergy}")
+            logger.info("Coalition energy remaining : ${gameState.coalitionEnergy}")
         }
     }
 
@@ -204,7 +214,6 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
         // Check the current sim energy and the duration until the next energy recharges
         var energy = -1
         var r = retries
-        navigator.navigateTo(LocationId.COMBAT_SIMULATION)
 
         while (coroutineContext.isActive) {
             val energyString = ocr
@@ -215,11 +224,14 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
 
             // Continue if not in X/6 format
             if (!energyString.matches(Regex("\\d/6"))) {
-                energy = energyString.take(1).toIntOrNull()
-                    ?: if (++r <= 5) continue else return null
-                break
+                if (--r >= 0) {
+                    delay(500)
+                    continue
+                } else return null
             }
-            delay(500)
+
+            energy = energyString.take(1).toInt()
+            break
         }
         logger.info("Current sim energy is ${energy}/6")
 
@@ -232,22 +244,15 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
             val timerString = ocr.readText(timerRegion)
             logger.info("Sim timer OCR: $timerString")
 
-            // micaaa
-            if (timerString.length == 6) {
-                logger.info("Did the last digit get cut off?")
-                timerString.plus("0")
-            }
-
-            if (!timerString.matches(Regex("\\d:\\d\\d:\\d\\d"))) {
-                if (++r <= 5) {
+            val m = Regex("(\\d).(\\d\\d).(\\d\\d?)").matchEntire(timerString)
+                ?: if (--r >= 0) {
                     delay(500)
                     continue
                 } else return null
-            }
 
-            val seconds = timerString.substring(5, 7)
-            val minutes = timerString.substring(2, 4)
-            val hours = timerString.substring(0, 1)
+            var (hours, minutes, seconds) = m.destructured
+
+            if (seconds.length == 1) seconds += "0"
 
             val timer = DurationUtils.of(
                 seconds.toLong(),
