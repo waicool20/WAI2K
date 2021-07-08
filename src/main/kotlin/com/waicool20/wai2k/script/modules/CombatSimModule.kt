@@ -29,6 +29,7 @@ import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptException
 import com.waicool20.wai2k.script.ScriptTimeOutException
 import com.waicool20.wai2k.script.modules.combat.EmptyMapRunner
+import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.isSimilar
 import com.waicool20.wai2k.util.readText
 import com.waicool20.wai2k.util.useCharFilter
@@ -218,7 +219,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
         while (coroutineContext.isActive) {
             val energyString = ocr
                 .useCharFilter("0123456/")
-                .readText(energyRegion)
+                .readText(energyRegion, scale = 0.8, threshold = 0.7, pad = 50)
                 .replace(" ", "")
             logger.info("Sim energy OCR: $energyString")
 
@@ -241,10 +242,11 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
 
         r = retries
         while (coroutineContext.isActive) {
-            val timerString = ocr.readText(timerRegion)
+            val timerString = ocr.useCharFilter(Ocr.DIGITS + ":")
+                .readText(timerRegion, scale = 0.8, threshold = 0.7, pad = 50)
             logger.info("Sim timer OCR: $timerString")
 
-            val m = Regex("(\\d).(\\d\\d).(\\d\\d?)").matchEntire(timerString)
+            val m = Regex("(\\d?\\d)\\D(\\d\\d)\\D(\\d\\d?)").find(timerString)
                 ?: if (--r >= 0) {
                     delay(500)
                     continue
