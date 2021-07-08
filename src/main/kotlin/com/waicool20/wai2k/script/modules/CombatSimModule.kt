@@ -160,6 +160,11 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
 
     override suspend fun execute() {
         if (!profile.combatSimulation.enabled) return
+        executeNormal()
+        executeCoalition()
+    }
+
+    private suspend fun executeNormal() {
         if (Instant.now() < gameState.simNextCheck) return
         if (!combatSimAvailable()) return
 
@@ -180,21 +185,27 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
         runDataSimulation()
         runNeuralFragment()
         logger.info("Sim energy remaining : ${gameState.simEnergy}")
+    }
 
-        if (profile.combatSimulation.coalition.enabled) {
-            region.findBest(FileTemplate("combat-simulation/coalition-drill.png"))?.region?.click()
+    private suspend fun executeCoalition() {
+        if (!profile.combatSimulation.coalition.enabled) return
+        if (Instant.now() < gameState.coalitionNextCheck) return
 
-            logger.info("Checking coalition energy...")
-            val (cTimer, cEnergy) = checkSimEnergy(
-                region.subRegion(1468, 165, 75, 75),
-                region.subRegion(1542, 182, 115, 45)
-            ) ?: return
+        navigator.navigateTo(LocationId.COMBAT_SIMULATION)
+        delay(1000) // Delay for settle
 
-            coalitionTimer = cTimer
-            gameState.coalitionEnergy = cEnergy
-            runCoalition()
-            logger.info("Coalition energy remaining : ${gameState.coalitionEnergy}")
-        }
+        region.findBest(FileTemplate("combat-simulation/coalition-drill.png"))?.region?.click()
+
+        logger.info("Checking coalition energy...")
+        val (cTimer, cEnergy) = checkSimEnergy(
+            region.subRegion(1468, 165, 75, 75),
+            region.subRegion(1542, 182, 115, 45)
+        ) ?: return
+
+        coalitionTimer = cTimer
+        gameState.coalitionEnergy = cEnergy
+        runCoalition()
+        logger.info("Coalition energy remaining : ${gameState.coalitionEnergy}")
     }
 
     /**
@@ -304,7 +315,6 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
     }
 
     private suspend fun runCoalition() {
-        if (!profile.combatSimulation.coalition.enabled) return
         val drills = getBonusCoalitionDrills()
 
         val drillType = if (drills.size > 1) {
