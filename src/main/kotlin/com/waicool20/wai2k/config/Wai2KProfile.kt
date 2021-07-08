@@ -109,8 +109,8 @@ data class Wai2KProfile(
         enabled: Boolean = false,
         dataSim: Level = Level.ADVANCED,
         neuralFragment: Level = Level.ADVANCED,
-        neuralEchelon: Int = 6
-
+        neuralEchelon: Int = 6,
+        coalition: Coalition = Coalition()
     ) {
         enum class Level {
             OFF, BASIC, INTERMEDIATE, ADVANCED;
@@ -118,15 +118,32 @@ data class Wai2KProfile(
             val cost = ordinal
         }
 
+        class Coalition(
+            enabled: Boolean = false,
+            preferredType: Type = Type.RANDOM
+        ) {
+            enum class Type {
+                RANDOM, EXPDISKS, PETRIDISH, DATACHIPS
+            }
+
+            val enabledProperty = enabled.toProperty()
+            val preferredTypeProperty = preferredType.toProperty()
+
+            val enabled by enabledProperty
+            val preferredType by preferredTypeProperty
+        }
+
         val enabledProperty = enabled.toProperty()
         val dataSimProperty = dataSim.toProperty()
         val neuralFragmentProperty = neuralFragment.toProperty()
         val neuralEchelonProperty = neuralEchelon.toProperty()
+        val coalitionProperty = coalition.toProperty()
 
         val enabled by enabledProperty
         val dataSim by dataSimProperty
         val neuralFragment by neuralFragmentProperty
         val neuralEchelon by neuralEchelonProperty
+        val coalition by coalitionProperty
     }
 
     class Factory(

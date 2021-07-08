@@ -64,6 +64,7 @@ class StatusTabView : CoroutineScopeView() {
 
     private val combatReportsWrittenLabel: Label by fxid()
     private val simulationEnergyUsedLabel: Label by fxid()
+    private val coalitionEnergyUsedLabel: Label by fxid()
     private val gameRestartsLabel: Label by fxid()
 
     private val timersLabel: Label by fxid()
@@ -114,6 +115,7 @@ class StatusTabView : CoroutineScopeView() {
 
             combatReportsWrittenLabel.text = "$combatReportsWritten"
             simulationEnergyUsedLabel.text = "$simEnergySpent"
+            coalitionEnergyUsedLabel.text = "$coalitionEnergySpent"
             gameRestartsLabel.text = "$gameRestarts"
         }
     }
@@ -156,6 +158,15 @@ class StatusTabView : CoroutineScopeView() {
                 if (combatSims.isNotEmpty()) {
                     builder /= "Combat Energy ETA:"
                     builder += "\t- ${combatSims[0]}/6 : ${combatSims[1]}\n"
+                }
+            }
+
+            if (context.currentProfile.combatSimulation.coalition.enabled) {
+                val coalSims = listOf(coalitionEnergy, timeDelta(coalitionNextCheck))
+                    .filter { coalitionNextCheck >= Instant.now() }
+                if (coalSims.isNotEmpty()) {
+                    builder /= "Coalition Energy ETA:"
+                    builder += "\t- ${coalSims[0]}/6 : ${coalSims[1]}\n"
                 }
             }
 

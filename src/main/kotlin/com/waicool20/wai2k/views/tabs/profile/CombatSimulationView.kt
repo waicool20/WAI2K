@@ -20,6 +20,7 @@
 package com.waicool20.wai2k.views.tabs.profile
 
 import com.waicool20.wai2k.config.Wai2KProfile.CombatSimulation.Level
+import com.waicool20.wai2k.config.Wai2KProfile.CombatSimulation.Coalition.Type
 import com.waicool20.waicoolutils.javafx.bind
 import javafx.scene.control.CheckBox
 import javafx.scene.control.ComboBox
@@ -32,12 +33,14 @@ class CombatSimulationView : AbstractProfileView() {
     private val dataSimComboBox: ComboBox<Level> by fxid()
     private val neuralSimComboBox: ComboBox<Level> by fxid()
     private val neuralEchelonComboBox: ComboBox<Int> by fxid()
-
+    private val enableCoalitionCheckBox: CheckBox by fxid()
+    private val coalitionPreferredTypeComboBox: ComboBox<Type> by fxid()
 
     override fun setValues() {
         dataSimComboBox.items.setAll(Level.values().toList())
         neuralSimComboBox.items.setAll(listOf(Level.OFF, Level.ADVANCED))
         neuralEchelonComboBox.items.setAll((1..10).toList())
+        coalitionPreferredTypeComboBox.items.setAll(Type.values().toList())
     }
 
     override fun createBindings() {
@@ -46,6 +49,8 @@ class CombatSimulationView : AbstractProfileView() {
             dataSimComboBox.bind(dataSimProperty)
             neuralSimComboBox.bind(neuralFragmentProperty)
             neuralEchelonComboBox.bind(neuralEchelonProperty)
+            enableCoalitionCheckBox.bind(coalition.enabledProperty)
+            coalitionPreferredTypeComboBox.bind(coalition.preferredTypeProperty)
         }
     }
 }
