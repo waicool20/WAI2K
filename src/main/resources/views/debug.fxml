@@ -106,7 +106,7 @@
               <VBox alignment="CENTER_LEFT" spacing="15.0">
                   <children>
                       <CheckBox fx:id="filterCheckBox" mnemonicParsing="false" text="Use filters:" />
-                      <VBox fx:id="filterOptionsVBox" spacing="5.0">
+                      <VBox fx:id="filterOptionsVBox" spacing="5.0" disable="${!filterCheckBox.selected}">
                           <children>
                               <RadioButton fx:id="digitsOnlyRadioButton" mnemonicParsing="false" selected="true" text="Digits Only [0-9]">
                                   <toggleGroup>

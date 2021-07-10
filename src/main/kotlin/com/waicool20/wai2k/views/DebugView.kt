@@ -245,7 +245,6 @@ class DebugView : CoroutineScopeView() {
     }
 
     private fun uiSetup() {
-        filterOptionsVBox.disableWhen { filterCheckBox.selectedProperty().not() }
         createNewRenderJob()
         wai2KContext.wai2KConfig.lastDeviceSerialProperty
             .addListener("DebugViewDeviceListener") { _ -> createNewRenderJob() }
