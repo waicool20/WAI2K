@@ -61,6 +61,7 @@ import net.sourceforge.tess4j.ITesseract
 import tornadofx.*
 import java.awt.image.BufferedImage
 import java.nio.file.Files
+import javax.imageio.ImageIO
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.OutputKeys
 import javax.xml.transform.TransformerFactory
@@ -89,8 +90,10 @@ class DebugView : CoroutineScopeView() {
     private val hSpinner: Spinner<Int> by fxid()
     private val copyBoundsButton: Button by fxid()
     private val pasteBoundsButton: Button by fxid()
+    private val windowBoundsButton: Button by fxid()
     private val ocrImageView: ImageView by fxid()
     private val OCRButton: Button by fxid()
+    private val saveButton: Button by fxid()
     private val resetOCRButton: Button by fxid()
     private val annotatePreviewCheckBox: CheckBox by fxid()
     private val annotateSetButton: Button by fxid()
@@ -192,6 +195,23 @@ class DebugView : CoroutineScopeView() {
                     wSpinner.valueFactory.value = w.toInt()
                     hSpinner.valueFactory.value = h.toInt()
                 }
+        }
+        windowBoundsButton.setOnAction {
+            xSpinner.valueFactory.value = 455
+            ySpinner.valueFactory.value = 151
+            wSpinner.valueFactory.value = 1281
+            hSpinner.valueFactory.value = 929
+        }
+        saveButton.setOnAction {
+            FileChooser().apply {
+                title = "Save screenshot to?"
+                extensionFilters.add(FileChooser.ExtensionFilter("PNG files (*.png)", "*.png"))
+                showSaveDialog(null)?.let { file ->
+                    launch(Dispatchers.IO) {
+                        ImageIO.write(grabScreenshot(), "PNG", file)
+                    }
+                }
+            }
         }
     }
 
