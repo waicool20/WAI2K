@@ -331,6 +331,11 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
         logger.info("Checking for repairs")
         if (gameState.echelons.any { it.needsRepairs() }) {
             logger.info("Repairs required")
+
+            if (profile.combat.repairThreshold !in 1..100) {
+                stopScript("Repairs needed, but repairs are disabled")
+            }
+
             navigator.navigateTo(LocationId.REPAIR)
 
             logger.info("Using one-click repair")

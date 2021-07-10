@@ -63,7 +63,7 @@ class CombatView : AbstractProfileView() {
                 addAll(eventMaps.map { it.name }.sortedWith(comparator))
             }
         }
-        repairThresholdSpinner.valueFactory = SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100)
+        repairThresholdSpinner.valueFactory = SpinnerValueFactory.IntegerSpinnerValueFactory(0, 100)
         battleTimeoutSpinner.valueFactory =
             SpinnerValueFactory.IntegerSpinnerValueFactory(0, Int.MAX_VALUE)
     }
