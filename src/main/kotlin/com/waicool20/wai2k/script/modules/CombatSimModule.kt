@@ -371,7 +371,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
     private suspend fun runSimCycles(times: Int) {
         var t = times
         while (coroutineContext.isActive) {
-            region.subRegion(1200, 24, 800, 121).click() // endBattleClick
+            region.subRegion(1250, 25, 710, 121).click() // endBattleClick
             delay(300)
             if (locations.getValue(LocationId.COMBAT_SIMULATION).isInRegion(region)) {
                 break
