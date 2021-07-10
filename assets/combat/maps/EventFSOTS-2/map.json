@@ -1,14 +1,14 @@
 [
   {
     "type": "CommandPost",
-    "x": 562,
-    "y": 127,
-    "width": 58,
-    "height": 58
+    "x": 760,
+    "y": 204,
+    "width": 55,
+    "height": 55
   },
   {
-    "x": 54,
-    "y": 190,
+    "x": 246,
+    "y": 267,
     "width": 34,
     "height": 34
   }
