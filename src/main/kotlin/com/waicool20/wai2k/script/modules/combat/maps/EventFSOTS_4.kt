@@ -57,14 +57,13 @@ class EventFSOTS_4(scriptComponent: ScriptComponent) : HomographyMapRunner(scrip
             gameState.requiresMapInit = false
         }
         val rEchelons = deployEchelons(nodes[0])
-        deployEchelons(nodes[1])
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
         // Mission Objectives popup if this is too lag dependant will need an asset test
         region.subRegion(349, 159, 163, 86).click()
         resupplyEchelons(rEchelons)
         planPath()
-        waitForTurnAndPoints(2, 0)
+        waitForTurnAndPoints(1, 0)
         handleBattleResults()
     }
 
