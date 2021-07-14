@@ -482,7 +482,10 @@ abstract class MapRunner(
         delay(1000)
         while (coroutineContext.isActive) {
             if (isInBattle()) clickThroughBattle()
-            if (region.has(FileTemplate("combat/battle/terminate.png"))) break
+            if (region.has(FileTemplate("combat/battle/terminate.png"))) {
+                delay(5000)
+                if (region.has(FileTemplate("combat/battle/terminate.png"))) break
+            }
             delay(500)
         }
         if (endTurn) endTurn()
