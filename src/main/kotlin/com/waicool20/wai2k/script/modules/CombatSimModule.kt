@@ -330,7 +330,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
         }
 
         logger.info("Running Coalition Drill: $drillType $times times.")
-        region.subRegion(781 + (440 * drills.indexOf(drillType)), 855, 307, 110).click()
+        region.subRegion(781 + (440 * (drillType.ordinal - 1)), 855, 307, 110).click()
         delay((1000 * gameState.delayCoefficient).roundToLong())
 
         val capture = region.capture()
