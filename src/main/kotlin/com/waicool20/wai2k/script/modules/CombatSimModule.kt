@@ -254,7 +254,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
         r = retries
         while (coroutineContext.isActive) {
             val timerString = ocr.useCharFilter(Ocr.DIGITS + ":")
-                .readText(timerRegion, scale = 0.8, threshold = 0.7, pad = 50)
+                .readText(timerRegion, scale = 1.2, threshold = 0.7, pad = 50)
             logger.info("Sim timer OCR: $timerString")
 
             val m = Regex("(\\d?\\d)\\D(\\d\\d)\\D(\\d\\d?)").find(timerString)
