@@ -334,13 +334,10 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
         delay((1000 * gameState.delayCoefficient).roundToLong())
 
         val capture = region.capture()
-        val sample = Color(capture.getRGB(1100, 666))
-        if (sample.isSimilar(Color(156, 154, 156))
-            && Color(capture.getRGB(1175, 547)).isSimilar(Color(239, 235, 239))
-        ) {
-            logger.info("Tdolls not assigned, using automatic assignment")
+        if (Color(capture.getRGB(292, 706)).isSimilar(Color(156, 154, 156))) {
+            logger.info("T dolls not assigned, using automatic assignment")
             region.subRegion(294, 792, 348, 91).click()
-            delay(500)
+            delay(1000)
         }
         region.subRegion(1570, 845, 305, 108).click() // Attack
         region.waitHas(FileTemplate("ok.png"), 2000)?.click()
