@@ -192,9 +192,10 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
         if (Instant.now() < gameState.coalitionNextCheck) return
 
         navigator.navigateTo(LocationId.COMBAT_SIMULATION)
-        delay(1000) // Delay for settle
+        delay(3000) // Delay for settle
 
         region.findBest(FileTemplate("combat-simulation/coalition-drill.png"))?.region?.click()
+            ?: throw ScriptException("Couldn't click coalition drill")
 
         logger.info("Checking coalition energy...")
         val (cTimer, cEnergy) = checkSimEnergy(
