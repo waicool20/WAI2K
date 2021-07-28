@@ -192,10 +192,15 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
         if (Instant.now() < gameState.coalitionNextCheck) return
 
         navigator.navigateTo(LocationId.COMBAT_SIMULATION)
-        delay(3000) // Delay for settle
 
-        region.findBest(FileTemplate("combat-simulation/coalition-drill.png"))?.region?.click()
-            ?: throw ScriptException("Couldn't click coalition drill")
+        while(coroutineContext.isActive) {
+            delay(3000)
+            logger.info("Selecting coalition tab")
+            region.findBest(FileTemplate("combat-simulation/coalition-drill.png"))?.region?.click()
+            if (Color(region.capture().getRGB(1780,235)).isSimilar(Color(156, 36, 33))) {
+                break
+            }
+        }
 
         logger.info("Checking coalition energy...")
         val (cTimer, cEnergy) = checkSimEnergy(
