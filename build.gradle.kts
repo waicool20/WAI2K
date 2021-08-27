@@ -24,7 +24,7 @@ import java.nio.file.Paths
 import java.security.MessageDigest
 
 plugins {
-    kotlin("jvm") version "1.5.10"
+    kotlin("jvm") version "1.5.30"
     id("com.github.johnrengelman.shadow") version "latest.release"
     id("org.openjfx.javafxplugin") version "latest.release"
 }
@@ -34,7 +34,7 @@ version = System.getenv("APPVEYOR_REPO_COMMIT")?.take(8) ?: "dev"
 defaultTasks = mutableListOf("build")
 
 javafx {
-    version = "15"
+    version = "16"
     modules = listOf("javafx.controls", "javafx.fxml", "javafx.swing")
 }
 
@@ -47,7 +47,7 @@ repositories {
 dependencies {
     val versions = object {
         val Kotlin by lazy { plugins.getPlugin(KotlinPluginWrapper::class).kotlinPluginVersion }
-        val KotlinCoroutines = "1.5.0"
+        val KotlinCoroutines = "1.5.1"
         val Jackson = "2.12.3"
         val OpenJfx = "16"
     }
