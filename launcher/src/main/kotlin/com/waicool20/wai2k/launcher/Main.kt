@@ -82,7 +82,7 @@ object Main {
             }
         }
     private val formatter get() = DecimalFormat("#.#")
-    private val url = "https://wai2k.waicool20.com.s3.nl-ams.scw.cloud/files"
+    private val url = "https://wai2k.waicool20.com/files"
     private val appPath = Path(System.getProperty("user.home"), ".wai2k").absolute()
     private val libPath = appPath.resolve("libs")
     private val jarPath = run {
