@@ -40,6 +40,7 @@ import javax.swing.JLabel
 import javax.swing.JPanel
 import kotlin.concurrent.thread
 import kotlin.io.path.*
+import kotlin.streams.toList
 import kotlin.system.exitProcess
 
 /*
@@ -294,7 +295,7 @@ object Main {
         }
         val buffer = ByteArray(1024)
         file.inputStream().use { inputStream ->
-            var read = 0
+            var read: Int
             while (true) {
                 read = inputStream.read(buffer, 0, buffer.size)
                 if (read < 0) break

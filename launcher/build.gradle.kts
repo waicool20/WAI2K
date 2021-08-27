@@ -51,6 +51,9 @@ tasks {
         enabled = false
         manifest { attributes(mapOf("Main-Class" to "com.waicool20.wai2k.launcher.Main")) }
     }
+    compileJava {
+        targetCompatibility = JavaVersion.VERSION_1_8.toString()
+    }
     withType<KotlinCompile> {
         kotlinOptions.jvmTarget = JavaVersion.VERSION_1_8.toString()
     }

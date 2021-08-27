@@ -115,10 +115,8 @@ tasks {
         dependencies { include { it.moduleGroup.startsWith("com.waicool20") } }
         doLast { md5sum(archiveFile.get()) }
     }
-    withType<KotlinCompile> {
-        kotlinOptions {
-            jvmTarget = JavaVersion.VERSION_1_8.toString()
-        }
+    withType<KotlinCompile>().configureEach {
+        kotlinOptions.freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
     }
 }
 

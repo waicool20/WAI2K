@@ -303,7 +303,7 @@ class ScriptRunner(
         }
         logger.info("Game restarted, waiting for login screen")
         region.subRegion(550, 960, 250, 93)
-            .waitHas(FileTemplate("login.png", 0.8), 5 * 60 * 1000)
+            .waitHas(FileTemplate("login.png", 0.8), 5 * 60 * 1000L)
             ?: logger.warn("Timed out on login!")
         logger.info("Logging in")
         region.subRegion(630, 400, 900, 300).click()
