@@ -68,15 +68,22 @@ object Main {
         SHA1(40)
     }
 
-    private val client
-        get() = OkHttpClient().newBuilder()
-            .readTimeout(20, TimeUnit.SECONDS)
-            .connectTimeout(30, TimeUnit.SECONDS)
-            .retryOnConnectionFailure(true)
-            .protocols(listOf(Protocol.HTTP_1_1))
-            .build()
+    private var ignoreSSL = false
+    private val client: OkHttpClient
+        get() {
+            val b = OkHttpClient().newBuilder()
+                .readTimeout(20, TimeUnit.SECONDS)
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .retryOnConnectionFailure(true)
+                .protocols(listOf(Protocol.HTTP_1_1))
+            return if (ignoreSSL) {
+                b.hostnameVerifier { _, _ -> true }.build()
+            } else {
+                b.build()
+            }
+        }
     private val formatter get() = DecimalFormat("#.#")
-    private val url = "https://wai2k.waicool20.com/files"
+    private val url = "https://wai2k.waicool20.com.s3.nl-ams.scw.cloud/files"
     private val appPath = Path(System.getProperty("user.home"), ".wai2k").absolute()
     private val libPath = appPath.resolve("libs")
     private val jarPath = run {
@@ -114,6 +121,7 @@ object Main {
     fun main(args: Array<String>) {
         println("Launcher path: $jarPath")
         checkJavaVersion()
+        ignoreSSL = args.contains("--ignore-ssl") || jarPath?.name?.contains("IgnoreSSL") == true
         if (!args.contains("--skip-updates") && jarPath?.name?.contains("SkipUpdates") != true) {
             try {
                 if (!args.contains("--skip-launcher-update")) {
