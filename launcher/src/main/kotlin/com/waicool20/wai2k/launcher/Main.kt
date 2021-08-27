@@ -40,7 +40,6 @@ import javax.swing.JLabel
 import javax.swing.JPanel
 import kotlin.concurrent.thread
 import kotlin.io.path.*
-import kotlin.streams.toList
 import kotlin.system.exitProcess
 
 /*
@@ -173,7 +172,7 @@ object Main {
                 e.printStackTrace()
                 return
             } else {
-                halt("Could not grab initial copy of $file")
+                halt("Could not grab initial copy of $file: $e")
             }
         }
     }
@@ -283,10 +282,11 @@ object Main {
     }
 
     private fun halt(msg: String): Nothing {
-        label.text = msg
+        label.text = "<html><div style=\"width:250px;\">$msg</div></html>"
+        frame.pack()
         while (true) TimeUnit.SECONDS.sleep(1)
     }
-    
+
     private fun calcCheckSum(file: Path, hash: Hash): String {
         val digest = when (hash) {
             Hash.MD5 -> MessageDigest.getInstance("MD5")
