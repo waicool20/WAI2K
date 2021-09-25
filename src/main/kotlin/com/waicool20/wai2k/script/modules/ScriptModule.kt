@@ -102,17 +102,25 @@ abstract class ScriptModule(
         }
         if (stars.isNotEmpty()) {
             logger.info("Applying $stars stars filter")
-            val unlockedStars = dollFilterRegions.starRegions[6]?.let {
-                ocr.readText(it.subRegion(92, 70, 28, 39))
+            if (gameState.sixStarFilter == null) {
+                val unlockedStars = dollFilterRegions.starRegions[6]?.let {
+                    ocr.readText(it.subRegion(92, 70, 28, 39))
+                }
+                if (unlockedStars?.contains("6") == true) {
+                    logger.info("6 star filter is unlocked")
+                    gameState.sixStarFilter = true                
+                } else {
+                    logger.info("6 star filter isn't unlocked")
+                    gameState.sixStarFilter = false
+                } 
             }
-            if (unlockedStars?.contains("6") == true) {
-                logger.info("6 star filter is unlocked")
+
+            if (gameState.sixStarFilter == true) {
                 stars.forEach {
                     dollFilterRegions.starRegions[it]?.click()
                     delay(100)
                 }
             } else {
-                logger.info("6 star filter isn't unlocked")
                 stars.forEach {
                     dollFilterRegions.starRegions[it + 1]?.click()
                     delay(100)
