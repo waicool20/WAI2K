@@ -20,21 +20,28 @@
 package com.waicool20.wai2k.script.modules.combat.maps
 
 import com.waicool20.wai2k.script.ScriptComponent
-import com.waicool20.wai2k.script.modules.combat.AbsoluteMapRunner
 import com.waicool20.wai2k.script.modules.combat.EventMapRunner
+import com.waicool20.wai2k.script.modules.combat.HomographyMapRunner
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.yield
 import kotlin.random.Random
 
-class EventDJMax_1_1(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptComponent),
+class EventBIAC_1_4(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent),
     EventMapRunner {
-    private val logger = loggerFor<EventDJMax_1_1>()
+    private val logger = loggerFor<EventBIAC_1_4>()
 
     override suspend fun enterMap() {
-        region.subRegion(695, 516, 467, 233).click()
-        delay(1000)
-        region.subRegion(1454, 842, 325, 110).click()
-        delay(4000)
+        delay(2000)
+        region.pinch(
+            Random.nextInt(900, 1000),
+            Random.nextInt(300, 400),
+            15.0,
+            500
+        )
+        region.subRegion(1023, 405, 128, 21).click()
+        delay(300)
+        region.subRegion(1831, 589, 232, 111).click()
     }
 
     override suspend fun begin() {
@@ -46,15 +53,32 @@ class EventDJMax_1_1(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scrip
                 500
             )
             delay(2000)
+            region.pinch(
+                Random.nextInt(300, 400),
+                Random.nextInt(400, 500),
+                0.0,
+                500
+            )
         }
         deployEchelons(nodes[0])
         mapRunnerRegions.startOperation.click()
         waitForGNKSplash()
         resupplyEchelons(nodes[0])
-        mapRunnerRegions.planningMode.click()
+        enterPlanningMode()
+
+        logger.info("Selecting ${nodes[1]}")
         nodes[1].findRegion().click()
+
+        logger.info("Selecting ${nodes[2]}")
+        nodes[2].findRegion().click(); yield()
+
+        logger.info("Selecting ${nodes[3]}")
+        nodes[3].findRegion().click(); yield()
+
+        logger.info("Executing plan")
         mapRunnerRegions.executePlan.click()
-        waitForTurnEnd(4)
+
+        waitForTurnEnd(5)
         handleBattleResults()
     }
 }
