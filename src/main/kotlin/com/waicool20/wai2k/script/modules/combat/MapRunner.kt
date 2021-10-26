@@ -506,7 +506,11 @@ abstract class MapRunner(
         logger.info("Waiting for ${assets.size} assets to appear:")
         assets.forEach { logger.info("Waiting on: ${it.source}") }
         val wdt = WatchDogTimer(profile.combat.battleTimeout * 1000L + timeout)
+        val popup = region.subRegion(915, 730, 490, 60)
         while (coroutineContext.isActive) {
+            if (ocr.readText(popup).contains("start", true)) {
+                popup.click()
+            }
             if (isInBattle()) {
                 wdt.reset()
                 wdt.addTime((30 * gameState.delayCoefficient).roundToLong(), TimeUnit.SECONDS)
