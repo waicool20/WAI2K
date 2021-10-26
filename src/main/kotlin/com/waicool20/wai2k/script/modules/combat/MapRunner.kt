@@ -508,7 +508,9 @@ abstract class MapRunner(
         val wdt = WatchDogTimer(profile.combat.battleTimeout * 1000L + timeout)
         val popup = region.subRegion(915, 730, 490, 60)
         while (coroutineContext.isActive) {
-            if (ocr.readText(popup).contains("start", true)) {
+            if (ocr.readText(popup, scale = 0.8, threshold = 0.7).contains("start", true)) {
+                logger.info("Enemy encounter!")
+                delay(1000)
                 popup.click()
             }
             if (isInBattle()) {
