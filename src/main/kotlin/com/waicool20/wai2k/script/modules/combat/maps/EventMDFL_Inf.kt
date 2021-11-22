@@ -38,7 +38,7 @@ abstract class EventMDFL_Inf(scriptComponent: ScriptComponent) :
     override suspend fun enterMap() {
         delay(3000) // Wait for the difficulty mode popup to settle
         val capture = region.capture()
-        if (!Color(capture.getRGB(145, 960)).isSimilar(Color(238, 243, 238), 5.0)) {
+        if (!Color(capture.getRGB(145, 960)).isSimilar(Color(238, 243, 238), 7.0)) {
             logger.info("Not on Normal mode, switching...")
             region.subRegion(115, 947, 174, 61).click()
         }
