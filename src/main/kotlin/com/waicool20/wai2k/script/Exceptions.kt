@@ -34,8 +34,6 @@ class InvalidDestinationException(location: LocationId) :
     ScriptException("Invalid destination: $location")
 
 class UnknownLocationException : ScriptException("Current location could not be identified")
-class PathFindingException(from: GameLocation, to: GameLocation) :
-    ScriptException("No path found from $from to $to")
 
 class InvalidMapNameException(mapName: String) : ScriptException("Invalid map name: $mapName")
 class NodeNotFoundException(node: MapNode) : ScriptException("Could not find node: $node")
@@ -65,3 +63,6 @@ class MissingAssetException(path: Path) : UnrecoverableScriptException(
     Please check/re-download your assets and restart
     """.trimIndent()
 )
+
+class PathFindingException(from: GameLocation, to: GameLocation) :
+    UnrecoverableScriptException("No path found from $from to $to")
