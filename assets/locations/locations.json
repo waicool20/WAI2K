@@ -99,8 +99,8 @@
         }
       },
       {
-        "dest-": "event",
-        "dest": "unknown",
+        "dest": "event",
+        "dest-": "unknown",
         "asset": {
           "imageName": "",
           "x": 1536,
@@ -191,8 +191,8 @@
         }
       },
       {
-        "dest-": "event",
-        "dest": "unknown",
+        "dest": "event",
+        "dest-": "unknown",
         "asset": {
           "imageName": "",
           "x": 1536,
