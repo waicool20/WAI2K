@@ -227,7 +227,6 @@ class ScriptRunner(
         } catch (e: Exception) {
             when (e) {
                 is CancellationException -> Unit // Do nothing
-                is InvocationTargetException -> if (e.cause !is CancellationException) throw e
                 else -> {
                     val msg =
                         "Uncaught error during script execution, please report this to the devs"
