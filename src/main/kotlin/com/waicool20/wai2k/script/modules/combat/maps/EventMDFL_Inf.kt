@@ -23,10 +23,13 @@ import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.modules.combat.EventMapRunner
 import com.waicool20.wai2k.script.modules.combat.HomographyMapRunner
 import com.waicool20.wai2k.util.isSimilar
+import com.waicool20.wai2k.util.readText
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.yield
 import java.awt.Color
+import kotlin.coroutines.coroutineContext
 import kotlin.math.roundToLong
 import kotlin.random.Random
 
@@ -37,10 +40,13 @@ abstract class EventMDFL_Inf(scriptComponent: ScriptComponent) :
 
     override suspend fun enterMap() {
         delay(3000) // Wait for the difficulty mode popup to settle
-        val capture = region.capture()
-        if (!Color(capture.getRGB(145, 960)).isSimilar(Color(238, 243, 238), 7.0)) {
-            logger.info("Not on Normal mode, switching...")
-            region.subRegion(115, 947, 174, 61).click()
+        while (coroutineContext.isActive) {
+            val r = region.subRegion(151, 947, 139, 61)
+            if (ocr.readText(r) != "Normal") {
+                logger.info("Not on Normal mode, switching...")
+                r.click()
+            } else break
+            delay(3000)
         }
 
         repeat(3) {
