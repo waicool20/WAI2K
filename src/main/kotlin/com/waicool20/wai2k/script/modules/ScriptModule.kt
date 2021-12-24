@@ -153,13 +153,8 @@ abstract class ScriptModule(
             30,
             cRegion.height / 4
         )
-        // Lower 1/4 part of lsRegion
-        val lowerSwipeRegion = cRegion.subRegion(
-            cRegion.width / 2 - 15,
-            cRegion.height / 4 + cRegion.height / 2,
-            30,
-            cRegion.height / 4
-        )
+        // 3rd 1/4 part of lsRegion
+        val lowerSwipeRegion = upperSwipeRegion.copy(y = upperSwipeRegion.y + cRegion.height / 4)
         var retries = 0
         while (cRegion.doesntHave(FileTemplate("chapters/$chapter.png", CHAPTER_SIMILARITY))) {
             navigator.checkLogistics()
