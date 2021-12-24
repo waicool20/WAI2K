@@ -92,7 +92,7 @@ data class Echelon(val number: Int) {
                     hEchelonRegion.swipeTo(lEchelonRegion)
                 }
             }
-            delay(300)
+            delay(2000)
             if (System.currentTimeMillis() - start > 45000) {
                 scriptRunner.gameState.requiresUpdate = true
                 logger.warn("Failed to find echelon, maybe ocr failed?")

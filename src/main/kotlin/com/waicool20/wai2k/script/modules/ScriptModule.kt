@@ -178,7 +178,7 @@ abstract class ScriptModule(
                     lowerSwipeRegion.swipeTo(upperSwipeRegion)
                 }
             }
-            delay(300)
+            delay(2000)
             if (retries++ >= 3) throw ChapterClickFailedException(chapter)
         }
         // Wait for bounce back, usually on top/bottom chapter

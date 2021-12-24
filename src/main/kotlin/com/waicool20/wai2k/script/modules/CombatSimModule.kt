@@ -337,7 +337,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
 
         logger.info("Running Coalition Drill: $drillType $times times.")
         region.subRegion(781 + (440 * (drillType.ordinal - 1)), 855, 307, 110).click()
-        delay((1000 * gameState.delayCoefficient).roundToLong())
+        delay((2500 * gameState.delayCoefficient).roundToLong())
 
         val capture = region.capture()
         if (Color(capture.getRGB(292, 706)).isSimilar(Color(156, 154, 156))) {
