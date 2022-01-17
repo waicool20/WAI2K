@@ -32,7 +32,7 @@ class GameState {
     var switchDolls: Boolean = false
     var sixStarFilter: Boolean? = null
     var currentGameLocation: GameLocation = GameLocation(LocationId.UNKNOWN)
-    val echelons: List<Echelon> = List(10) { Echelon(it + 1) }
+    val echelons: List<Echelon> = List(14) { Echelon(it + 1) }
     var simEnergy: Int = 0
     var simNextCheck: Instant = Instant.now()
     var coalitionEnergy: Int = 0
