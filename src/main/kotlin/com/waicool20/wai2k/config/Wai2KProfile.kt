@@ -300,7 +300,7 @@ data class Wai2KProfile(
         logger.info("Saving Wai2K profile")
         if (path.notExists()) {
             logger.debug("Profile not found, creating file $path")
-            path.parent.createDirectories().createFile()
+            path.parent.createDirectories()
             path.createFile()
         }
         mapper.writerWithDefaultPrettyPrinter().writeValue(path.toFile(), this)
