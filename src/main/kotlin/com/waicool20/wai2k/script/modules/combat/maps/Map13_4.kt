@@ -48,7 +48,7 @@ class Map13_4(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComp
         planPath()
 
         // End turn automatically, save frames
-        waitForTurnEnd(4, false)
+        waitForTurnEnd(5, false)
         delay(3000)
         handleBattleResults()
     }
@@ -67,10 +67,7 @@ class Map13_4(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComp
         nodes[2].findRegion().click()
 
         logger.info("Selecting ${nodes[3]}")
-        nodes[3].findRegion().click()
-
-        logger.info("Selecting ${nodes[4]}")
-        nodes[4].findRegion().click(); yield()
+        nodes[3].findRegion().click(); yield()
 
         logger.info("Executing plan")
         mapRunnerRegions.executePlan.click()
