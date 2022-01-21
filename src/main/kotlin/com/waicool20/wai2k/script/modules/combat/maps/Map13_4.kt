@@ -26,12 +26,25 @@ import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
 import kotlin.math.roundToLong
+import kotlin.random.Random
 
 class Map13_4(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent),
     CorpseDragging {
     private val logger = loggerFor<Map13_4>()
     override val ammoResupplyThreshold = 0.8
     override val rationsResupplyThreshold = 0.4
+
+    override suspend fun resetView() {
+        logger.info("Zoom out")
+        region.pinch(
+            Random.nextInt(800, 900),
+            Random.nextInt(150, 250),
+            0.0,
+            800
+        )
+        delay((1000 * gameState.delayCoefficient).roundToLong())
+        mapH = null
+    }
 
     override suspend fun begin() {
         if (gameState.requiresMapInit) {
