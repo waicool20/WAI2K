@@ -19,36 +19,49 @@
 
 package com.waicool20.wai2k.views.tabs.profile.logistics
 
+import com.waicool20.wai2k.game.GFL
 import com.waicool20.wai2k.game.LogisticsSupport
 import com.waicool20.wai2k.views.tabs.profile.AbstractProfileView
 import com.waicool20.waicoolutils.controlsfx.bind
 import javafx.beans.property.SimpleListProperty
+import javafx.geometry.Insets
 import javafx.scene.layout.VBox
 import javafx.util.StringConverter
 import org.controlsfx.control.CheckComboBox
+import tornadofx.*
 
 @Suppress("UNCHECKED_CAST")
 class AssignmentsView : AbstractProfileView() {
     override val root: VBox by fxml("/views/tabs/profile/logistics/assignments.fxml")
-    private val comboBoxes = (1..10).mapNotNull {
-        fxmlLoader.namespace["echelon${it}CCBox"] as? CheckComboBox<Int>
+    private val comboBoxes = mutableListOf<CheckComboBox<Int>>()
+
+    init {
+        for (i in 1..GFL.MAX_ECHELON) {
+            hbox {
+                label("Echelon $i") {
+                    prefWidth = 100.0
+                }
+                val box = CheckComboBox<Int>().apply {
+                    converter = object : StringConverter<Int>() {
+                        override fun toString(i: Int) = LogisticsSupport.list[i - 1].formattedString
+                        override fun fromString(s: String): Int? = null
+                    }
+                    items.setAll(LogisticsSupport.list.map { it.number })
+                    prefWidth = 200.0
+                }
+                add(box)
+                comboBoxes.add(box)
+                padding = Insets(3.0, 10.0, 10.0, 3.0)
+            }
+        }
     }
 
-    override fun setValues() {
-        val converter = object : StringConverter<Int>() {
-            override fun toString(i: Int) = LogisticsSupport.list[i - 1].formattedString
-            override fun fromString(s: String): Int? = null
-        }
-        comboBoxes.forEach {
-            it.converter = converter
-            it.items.setAll(LogisticsSupport.list.map { it.number })
-        }
-    }
+    override fun setValues() = Unit
 
     override fun createBindings() {
         comboBoxes.forEachIndexed { index, box ->
             context.currentProfile.logistics.assignments.getOrPut(index + 1) {
-                SimpleListProperty<Int>()
+                SimpleListProperty()
             }.let { box.bind(it) }
         }
     }

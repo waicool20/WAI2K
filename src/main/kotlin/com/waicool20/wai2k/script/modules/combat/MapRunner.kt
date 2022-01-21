@@ -22,10 +22,7 @@ package com.waicool20.wai2k.script.modules.combat
 import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.cvauto.core.template.ITemplate
-import com.waicool20.wai2k.game.CombatMap
-import com.waicool20.wai2k.game.Echelon
-import com.waicool20.wai2k.game.LocationId
-import com.waicool20.wai2k.game.MapRunnerRegions
+import com.waicool20.wai2k.game.*
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.ScriptException
 import com.waicool20.wai2k.script.ScriptTimeOutException
@@ -203,7 +200,7 @@ abstract class MapRunner(
 
                 logger.info("Deploying echelon ${i + 1} to $node")
                 openEchelon(node)
-                if (echelon in 1..10) {
+                if (echelon in 1..GFL.MAX_ECHELON) {
                     while (!Echelon(echelon).clickEchelon(this@MapRunner, 140)) delay(200)
                 }
                 val screenshot = region.capture()

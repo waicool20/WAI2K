@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.waicool20.wai2k.Wai2K
+import com.waicool20.wai2k.game.GFL
 import com.waicool20.waicoolutils.javafx.json.fxJacksonObjectMapper
 import com.waicool20.waicoolutils.javafx.toProperty
 import com.waicool20.waicoolutils.logging.loggerFor
@@ -54,8 +55,8 @@ data class Wai2KProfile(
     class Logistics(
         enabled: Boolean = false,
         receivalMode: ReceivalMode = ReceivalMode.RANDOM,
-        assignments: MutableMap<Int, ListProperty<Int>> = (1..10).associateWith {
-            SimpleListProperty<Int>(ArrayList<Int>().asObservable())
+        assignments: MutableMap<Int, ListProperty<Int>> = (1..GFL.MAX_ECHELON).associateWith {
+            SimpleListProperty(ArrayList<Int>().asObservable())
         }.toMutableMap()
     ) {
         enum class ReceivalMode {

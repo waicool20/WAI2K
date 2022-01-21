@@ -41,7 +41,6 @@ import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.*
 import org.reflections.Reflections
-import java.lang.reflect.InvocationTargetException
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -296,9 +295,9 @@ class ScriptRunner(
         }
         logger.info("Game will now restart")
         ProcessManager(device).apply {
-            kill(GFL.pkgName)
+            kill(GFL.PKG_NAME)
             delay(1000)
-            start(GFL.pkgName, GFL.mainActivity)
+            start(GFL.PKG_NAME, GFL.MAIN_ACTIVITY)
         }
         logger.info("Game restarted, waiting for login screen")
         region.subRegion(550, 960, 250, 93)
