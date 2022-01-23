@@ -100,10 +100,14 @@ abstract class HomographyMapRunner(scriptComponent: ScriptComponent) : MapRunner
             if (sppt.notExists()) throw MissingAssetException(sppt)
             if (sgpt.notExists()) throw MissingAssetException(sgpt)
             val model = MatchingModel(sppt, sgpt)
-            val translator = MatchingTranslator(480, 360)
-            // Preload the model to device memory
-            translator.prepare(model.ndManager, model)
-            model.newPredictor(translator).apply { setMetrics(metrics) }
+            model.newPredictor(MatchingTranslator(480, 360)).apply {
+                setMetrics(metrics)
+                try {
+                    batchPredict(emptyList())
+                } catch (e: TranslateException) {
+                    // Expected, this preloads the model to device memory
+                }
+            }
         }
         val n = scope.async(Dispatchers.IO) {
             val path = config.assetsDirectory.resolve("$PREFIX/map.json")

@@ -21,7 +21,7 @@ package com.waicool20.wai2k.util.ai
 
 import ai.djl.Device
 import ai.djl.Model
-import ai.djl.pytorch.engine.PtEngine
+import ai.djl.engine.Engine
 import java.nio.file.Path
 import kotlin.io.path.exists
 import kotlin.io.path.extension
@@ -29,14 +29,12 @@ import kotlin.io.path.isRegularFile
 import kotlin.io.path.nameWithoutExtension
 
 object ModelLoader {
-    val engine by lazy { PtEngine.getInstance() }
-
     fun loadModel(path: Path): Model {
         require(path.isRegularFile()) { "Must be path to model file" }
         require(path.exists()) { "Model file does not exist" }
         require(path.extension == "pt") { "Model must have .pt extension" }
         val name = path.nameWithoutExtension
-        val device = if (Device.getGpuCount() > 0) Device.gpu() else Device.cpu()
-        return engine.newModel(name, device).apply { load(path.parent, name) }
+        val device = if (Engine.getInstance().gpuCount > 0) Device.gpu() else Device.cpu()
+        return Engine.getInstance().newModel(name, device).apply { load(path.parent, name) }
     }
 }

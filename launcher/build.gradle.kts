@@ -29,8 +29,8 @@ import java.nio.file.Paths
 import java.security.MessageDigest
 
 plugins {
-    kotlin("jvm") version "1.5.30"
-    id("com.github.johnrengelman.shadow") version "5.2.0"
+    kotlin("jvm") version "1.6.0"
+    id("com.github.johnrengelman.shadow") version "latest.release"
 }
 
 group = "com.waicool20"
@@ -42,7 +42,7 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-    implementation("com.squareup.okhttp3:okhttp:4.9.0")
+    implementation("com.squareup.okhttp3:okhttp:4.9.3")
 }
 
 tasks {

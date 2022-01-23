@@ -23,7 +23,7 @@ import java.nio.file.Paths
 import java.security.MessageDigest
 
 plugins {
-    kotlin("jvm") version "1.5.30"
+    kotlin("jvm") version "1.6.0"
     id("com.github.johnrengelman.shadow") version "latest.release"
     id("org.openjfx.javafxplugin") version "latest.release"
 }
@@ -61,11 +61,11 @@ dependencies {
     implementation("com.fasterxml.jackson.datatype", "jackson-datatype-jsr310", versions.Jackson)
     implementation("ch.qos.logback", "logback-classic", "1.2.3")
     implementation("no.tornado:tornadofx:2.0.0-SNAPSHOT")
-    implementation("org.controlsfx:controlsfx:11.1.0")
+    implementation("org.controlsfx:controlsfx:11.1.1")
     implementation("org.reflections", "reflections", "0.9.12")
-    implementation("com.squareup.okhttp3:okhttp:4.9.1")
-    implementation("ai.djl.pytorch:pytorch-engine:0.11.0")
-    implementation("ai.djl.pytorch:pytorch-native-auto:1.8.1")
+    implementation("com.squareup.okhttp3:okhttp:4.9.3")
+    implementation("ai.djl.pytorch:pytorch-engine:0.15.0")
+    implementation("ai.djl.pytorch:pytorch-native-auto:1.9.1")
 
     implementation("net.sourceforge.tess4j", "tess4j", "4.5.4") {
         exclude("org.ghost4j")

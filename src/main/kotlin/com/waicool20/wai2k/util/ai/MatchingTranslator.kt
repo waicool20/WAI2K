@@ -45,10 +45,12 @@ class MatchingTranslator(
     private var img1Width = -1
     private var img1Height = -1
 
-    override fun getBatchifier() = Batchifier.STACK
+    private val pipeline = Pipeline(
+        Resize(resizeWidth, resizeHeight),
+        TransposeNormalizeTransform()
+    )
 
-    override fun getPipeline() =
-        Pipeline(Resize(resizeWidth, resizeHeight), TransposeNormalizeTransform())
+    override fun getBatchifier() = Batchifier.STACK
 
     override fun processInput(ctx: TranslatorContext, input: Pair<Image, Image>): NDList {
         val (img0, img1) = input

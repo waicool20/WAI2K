@@ -20,6 +20,7 @@
 package com.waicool20.wai2k.views
 
 import ai.djl.modality.cv.ImageFactory
+import ai.djl.translate.TranslateException
 import boofcv.alg.distort.PixelTransformHomography_F32
 import boofcv.alg.distort.impl.DistortSupport
 import boofcv.factory.interpolate.FactoryInterpolation
@@ -83,8 +84,13 @@ class HomographyViewer(
                 wai2KContext.wai2KConfig.assetsDirectory.resolve("models/SuperGlue.pt")
             )
             val translator = MatchingTranslator(480, 360)
-            translator.prepare(model.ndManager, model)
-            val predictor = model.newPredictor(translator)
+            val predictor = model.newPredictor(translator).apply {
+                try {
+                    batchPredict(emptyList())
+                } catch (e: TranslateException) {
+                    // Expected, this preloads the model to device memory
+                }
+            }
             val imf = ImageFactory.getInstance()
 
             val baseImage = imf.fromImage(image)

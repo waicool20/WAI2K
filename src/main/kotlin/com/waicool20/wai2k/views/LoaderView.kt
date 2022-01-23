@@ -20,6 +20,7 @@
 package com.waicool20.wai2k.views
 
 import ai.djl.Device
+import ai.djl.engine.Engine
 import com.waicool20.cvauto.android.ADB
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.Wai2K
@@ -28,21 +29,18 @@ import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.script.ScriptContext
 import com.waicool20.wai2k.script.ScriptRunner
-import com.waicool20.wai2k.util.ai.ModelLoader
 import com.waicool20.waicoolutils.javafx.CoroutineScopeView
 import com.waicool20.waicoolutils.logging.LoggingEventBus
 import com.waicool20.waicoolutils.logging.loggerFor
 import javafx.application.Application
 import javafx.scene.control.Label
 import javafx.scene.layout.AnchorPane
-import kotlinx.coroutines.*
-import okhttp3.OkHttpClient
-import okhttp3.Request
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import tornadofx.*
 import kotlin.io.path.Path
-import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
-import kotlin.io.path.outputStream
 
 class LoaderView : CoroutineScopeView() {
     override val root: AnchorPane by fxml("/views/loader.fxml")
@@ -113,7 +111,7 @@ class LoaderView : CoroutineScopeView() {
 
     private fun loadAI() {
         logger.info("Loading detection model...")
-        val gpus = Device.getGpuCount()
+        val gpus = Engine.getInstance().gpuCount
         val device = if (gpus > 0) {
             logger.info("Detected GPUs: $gpus")
             Device.gpu()
@@ -122,7 +120,7 @@ class LoaderView : CoroutineScopeView() {
             logger.warn("Some operations may run slower")
             Device.cpu()
         }
-        ModelLoader.engine.newModel("Loading", device).close()
+        Engine.getInstance().newModel("Loading", device).close()
     }
 
     private fun parseCommandLine() {
