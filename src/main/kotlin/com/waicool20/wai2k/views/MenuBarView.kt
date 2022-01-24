@@ -21,16 +21,21 @@ package com.waicool20.wai2k.views
 
 import com.waicool20.cvauto.android.ADB
 import com.waicool20.wai2k.Wai2K
+import com.waicool20.wai2k.android.ProcessManager
 import com.waicool20.wai2k.config.Wai2KContext
+import com.waicool20.wai2k.game.GFL
 import com.waicool20.waicoolutils.DesktopUtils
+import com.waicool20.waicoolutils.javafx.CoroutineScopeView
 import javafx.scene.control.MenuBar
 import javafx.scene.control.MenuItem
 import javafx.stage.FileChooser
 import javafx.stage.StageStyle
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import tornadofx.*
 import kotlin.system.exitProcess
 
-class MenuBarView : View() {
+class MenuBarView : CoroutineScopeView() {
     override val root: MenuBar by fxml("/views/menu.fxml")
     private val quitItem: MenuItem by fxid()
     private val consoleItem: MenuItem by fxid()
@@ -44,6 +49,7 @@ class MenuBarView : View() {
     private val logsItem: MenuItem by fxid()
     private val homographyItem: MenuItem by fxid()
     private val logcatItem: MenuItem by fxid()
+    private val restartGameItem: MenuItem by fxid()
 
     private val wai2KContext: Wai2KContext by inject()
 
@@ -70,5 +76,13 @@ class MenuBarView : View() {
             ).firstOrNull()?.let { HomographyViewer(device, it).openWindow() }
         }
         logcatItem.setOnAction { find<LogcatView>().openWindow(owner = null)?.toFront() }
+        restartGameItem.setOnAction {
+            launch {
+                val device =
+                    ADB.getDevices().find { it.serial == wai2KContext.wai2KConfig.lastDeviceSerial }
+                        ?: return@launch
+                ProcessManager(device).restart(GFL.PKG_NAME)
+            }
+        }
     }
 }
