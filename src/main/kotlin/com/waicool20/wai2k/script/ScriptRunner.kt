@@ -187,32 +187,6 @@ class ScriptRunner(
             logger.warn("Recoverable fault detected, restarting game")
             saveDebugImage()
             exceptionRestart(e)
-        } catch (e: Region.CaptureTimeoutException) {
-            var captureTimeoutCount = 0
-            while (coroutineContext.isActive) {
-                if (++captureTimeoutCount <= 5) {
-                    logger.error("Screen capture timed out, will wait 10s before restarting")
-                    delay(10_000)
-                    try {
-                        currentDevice?.screens?.firstOrNull()?.capture()
-                        break
-                    } catch (e: Region.CaptureTimeoutException) {
-                        // Do Nothing
-                    }
-                } else {
-                    logger.error(
-                        "Screen capture keeps timing out, something might be wrong with the emulator!" +
-                            " Exiting..."
-                    )
-                    YuuBot.postMessage(
-                        currentConfig.apiKey,
-                        "Script Stopped",
-                        "Too many capture timeouts"
-                    )
-                    coroutineContext.cancelAndYield()
-                }
-            }
-            exceptionRestart(e)
         } catch (e: Region.CaptureIOException) {
             if (currentDevice?.isConnected() == true) {
                 logger.error("Screen capture error, will wait 10s before restarting")
@@ -283,7 +257,7 @@ class ScriptRunner(
     suspend fun restartGame(reason: String) {
         if (scriptStats.gameRestarts >= currentConfig.gameRestartConfig.maxRestarts) {
             logger.info("Maximum of restarts reached, terminating script instead")
-            YuuBot.postMessage(currentConfig.apiKey, "Script Stopped", "Max restarts reached")
+            YuuBot.postMessage(currentConfig.apiKey, "Script Terminated", "Max restarts reached")
             coroutineContext.cancelAndYield()
         }
         val device = requireNotNull(currentDevice)
@@ -294,46 +268,48 @@ class ScriptRunner(
             YuuBot.postMessage(currentConfig.apiKey, "Script Restarted", "Reason: $reason")
         }
         logger.info("Game will now restart")
-        ProcessManager(device).apply {
-            kill(GFL.PKG_NAME)
-            delay(1000)
-            start(GFL.PKG_NAME, GFL.MAIN_ACTIVITY)
-        }
-        logger.info("Game restarted, waiting for login screen")
-        region.subRegion(550, 960, 250, 93)
-            .waitHas(FileTemplate("login.png", 0.8), 5 * 60 * 1000L)
-            ?: logger.warn("Timed out on login!")
-        logger.info("Logging in")
-        region.subRegion(630, 400, 900, 300).click()
-        val locations = GameLocation.mappings(currentConfig)
-        val login = region.subRegion(200, 19, 96, 87)
-        while (coroutineContext.isActive) {
-            navigator?.checkLogistics()
-            // Check for sign in or achievement popup
-            if (region.subRegion(396, 244, 80, 80).has(FileTemplate("home-popup.png"))) {
-                logger.info("Detected popup, dismissing...")
-                repeat(2) { region.subRegion(2017, 151, 129, 733).click() }
-            }
-            // Check for daily login
-            if (login.has(FileTemplate("home-popup1.png"))) {
-                logger.info("Detected daily login/event screen, dismissing...")
-                login.click()
-            }
-            region.subRegion(900, 720, 350, 185)
-                .findBest(FileTemplate("close.png"))?.region?.click()
-            if (locations.getValue(LocationId.HOME).isInRegion(region)) {
-                logger.info("Logged in, waiting for 10s to see if anything happens")
-                delay(10_000)
-                if (locations.getValue(LocationId.HOME).isInRegion(region)) {
-                    gameState.currentGameLocation = locations.getValue(LocationId.HOME)
-                    break
+        try {
+            ProcessManager(device).restart(GFL.PKG_NAME)
+            logger.info("Game restarted, waiting for login screen")
+            region.subRegion(550, 960, 250, 93)
+                .waitHas(FileTemplate("login.png", 0.8), 5 * 60 * 1000L)
+                ?: logger.warn("Timed out on login!")
+            logger.info("Logging in")
+            region.subRegion(630, 400, 900, 300).click()
+            val locations = GameLocation.mappings(currentConfig)
+            val login = region.subRegion(200, 19, 96, 87)
+            while (coroutineContext.isActive) {
+                navigator?.checkLogistics()
+                // Check for sign in or achievement popup
+                if (region.subRegion(396, 244, 80, 80).has(FileTemplate("home-popup.png"))) {
+                    logger.info("Detected popup, dismissing...")
+                    repeat(2) { region.subRegion(2017, 151, 129, 733).click() }
                 }
+                // Check for daily login
+                if (login.has(FileTemplate("home-popup1.png"))) {
+                    logger.info("Detected daily login/event screen, dismissing...")
+                    login.click()
+                }
+                region.subRegion(900, 720, 350, 185)
+                    .findBest(FileTemplate("close.png"))?.region?.click()
+                if (locations.getValue(LocationId.HOME).isInRegion(region)) {
+                    logger.info("Logged in, waiting for 10s to see if anything happens")
+                    delay(10_000)
+                    if (locations.getValue(LocationId.HOME).isInRegion(region)) {
+                        gameState.currentGameLocation = locations.getValue(LocationId.HOME)
+                        break
+                    }
+                }
+                delay(1000)
             }
-            delay(1000)
+            logger.info("Finished logging in")
+            justRestarted = true
+            gameState.requiresUpdate = true
+        } catch (e: AndroidDevice.UnexpectedDisconnectException) {
+            logger.error("Emulator disconnected unexpectedly")
+            YuuBot.postMessage(currentConfig.apiKey, "Script Terminated", "Reason: Emulator disconnected")
+            coroutineContext.cancelAndYield()
         }
-        logger.info("Finished logging in")
-        justRestarted = true
-        gameState.requiresUpdate = true
     }
 
     private fun postStats() {

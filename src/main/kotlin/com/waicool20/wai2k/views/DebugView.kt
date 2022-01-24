@@ -258,8 +258,8 @@ class DebugView : CoroutineScopeView() {
             if (thresholdSpinner.value >= 0.0) img?.binarizeImage(thresholdSpinner.value)
             if (invertCheckBox.isSelected) img?.invert()
             img
-        } catch (e: Region.CaptureTimeoutException) {
-            logger.warn("Capture time out!")
+        } catch (e: Region.CaptureIOException) {
+            logger.warn("Capture error!")
             null
         }
     }

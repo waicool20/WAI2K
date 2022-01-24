@@ -20,6 +20,7 @@
 package com.waicool20.wai2k.android
 
 import com.waicool20.cvauto.android.AndroidDevice
+import java.util.concurrent.TimeUnit
 
 class ProcessManager(val device: AndroidDevice) {
     /**
@@ -38,12 +39,11 @@ class ProcessManager(val device: AndroidDevice) {
      * Starts an app
      *
      * @param pkg Name of the package that the app belongs to
-     * @param activity Name of the main activity of the app
      *
      * @return true if started successfully
      */
-    fun start(pkg: String, activity: String): Boolean {
-        return !device.execute("am", "start", "-n", "$pkg/$activity")
+    fun start(pkg: String): Boolean {
+        return !device.execute("monkey", "-p", pkg, "1")
             .inputStream.bufferedReader().readText()
             .contains("Error")
     }
@@ -55,5 +55,17 @@ class ProcessManager(val device: AndroidDevice) {
      */
     fun kill(pkg: String) {
         device.execute("am", "force-stop", pkg)
+    }
+
+    /**
+     * Restart an app
+     *
+     * @param pkg Name of the package that the app belongs to
+     * @param delay Delay millis after killing app to start
+     */
+    fun restart(pkg: String, delay: Long = 5000) {
+        kill(pkg)
+        TimeUnit.MILLISECONDS.sleep(delay)
+        start(pkg)
     }
 }

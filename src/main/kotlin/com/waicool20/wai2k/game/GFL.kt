@@ -21,7 +21,6 @@ package com.waicool20.wai2k.game
 
 object GFL {
     const val PKG_NAME = "com.sunborn.girlsfrontline.en"
-    const val MAIN_ACTIVITY = "com.sunborn.girlsfrontline.MainActivity"
 
     const val MAX_ECHELON = 14
 }
