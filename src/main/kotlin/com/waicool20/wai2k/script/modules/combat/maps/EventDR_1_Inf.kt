@@ -56,7 +56,7 @@ class EventDR_1_Inf(scriptComponent: ScriptComponent) :
         delay(500)
         // Click on map pin
         region.subRegion(2034, 470, 94, 35).click()
-        delay(500)
+        delay(1000)
 
         // Enter
         region.subRegion(1832, 590, 232, 110).click()
