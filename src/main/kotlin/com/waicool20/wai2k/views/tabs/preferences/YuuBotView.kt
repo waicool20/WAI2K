@@ -24,9 +24,8 @@ import com.waicool20.wai2k.util.YuuBot
 import com.waicool20.waicoolutils.DesktopUtils
 import com.waicool20.waicoolutils.javafx.listen
 import com.waicool20.waicoolutils.javafx.listenDebounced
-import javafx.scene.control.CheckBox
-import javafx.scene.control.Hyperlink
-import javafx.scene.control.TextField
+import com.waicool20.waicoolutils.logging.loggerFor
+import javafx.scene.control.*
 import javafx.scene.layout.VBox
 import tornadofx.*
 
@@ -37,6 +36,9 @@ class YuuBotView : View() {
     private val setupHyperlink: Hyperlink by fxid()
     private val onRestartCheckBox: CheckBox by fxid()
     private val onStopConditionCheckBox: CheckBox by fxid()
+    private val sendButton: Button by fxid()
+    private val titleTextField: TextField by fxid()
+    private val messageTextArea: TextArea by fxid()
 
     private val context: Wai2KContext by inject()
 
@@ -57,6 +59,10 @@ class YuuBotView : View() {
         with(context.wai2KConfig.notificationsConfig) {
             onRestartCheckBox.bind(onRestartProperty)
             onStopConditionCheckBox.bind(onStopConditionProperty)
+        }
+
+        sendButton.action {
+            YuuBot.postMessage(apiKeyTextField.text, titleTextField.text, messageTextArea.text)
         }
     }
 
