@@ -164,17 +164,17 @@ abstract class ScriptModule(
             logger.debug("Visible chapters: $chapters")
             when {
                 chapters.isEmpty() -> delay(1000)
-                chapter <= chapters.minOrNull() ?: CHAPTER_MAX / 2 -> {
+                chapter <= (chapters.minOrNull() ?: (CHAPTER_MAX / 2)) -> {
                     logger.debug("Swiping down the chapters")
                     upperSwipeRegion.swipeTo(lowerSwipeRegion)
                 }
-                chapter >= chapters.maxOrNull() ?: CHAPTER_MAX / 2 + 1 -> {
+                chapter >= (chapters.maxOrNull() ?: (CHAPTER_MAX / 2 + 1)) -> {
                     logger.debug("Swiping up the chapters")
                     lowerSwipeRegion.swipeTo(upperSwipeRegion)
                 }
             }
             delay(2000)
-            if (retries++ >= 3) throw ChapterClickFailedException(chapter)
+            if (retries++ >= 6) throw ChapterClickFailedException(chapter)
         }
         // Wait for bounce back, usually on top/bottom chapter
         delay((500 * gameState.delayCoefficient).roundToLong())
