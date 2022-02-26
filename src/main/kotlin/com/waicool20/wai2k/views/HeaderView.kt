@@ -35,7 +35,9 @@ import javafx.scene.control.ComboBox
 import javafx.scene.control.SplitMenuButton
 import javafx.scene.control.Tooltip
 import javafx.scene.layout.HBox
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.javafx.JavaFx
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -154,7 +156,7 @@ class HeaderView : CoroutineScopeView() {
     }
 
     private fun onStartPause() = launch {
-        when (scriptRunner.state) {
+        when (scriptRunner.state.value) {
             ScriptRunner.State.RUNNING -> {
                 scriptRunner.pause()
                 startPauseButton.text = "Cont."
@@ -176,8 +178,8 @@ class HeaderView : CoroutineScopeView() {
         }
     }
 
-    private fun startScriptMonitor() = launch(Dispatchers.IO) {
-        scriptRunner.join()
+    private fun startScriptMonitor() = launch(CoroutineName("SCRIPT_MONITOR") + Dispatchers.IO) {
+        scriptRunner.state.first { it == ScriptRunner.State.STOPPED }
         withContext(Dispatchers.JavaFx) {
             startPauseButton.text = "Start"
             stopButton.hide()

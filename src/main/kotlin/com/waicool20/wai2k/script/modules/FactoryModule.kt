@@ -26,7 +26,6 @@ import com.waicool20.cvauto.core.template.ImageTemplate
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
-import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.wai2k.util.readText
 import com.waicool20.wai2k.util.useCharFilter
 import com.waicool20.waicoolutils.logging.loggerFor
@@ -414,7 +413,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
                 if (currentCount >= total) {
                     // This doesn't really apply anymore since 4* equip disassembly is implemented, but ehh SPEQ are a thing too
                     logger.info("Equipment capacity reached but could not disassemble anymore equipment, stopping script")
-                    coroutineContext.cancelAndYield()
+                    scriptRunner.stopNow()
                 } else break
             }
             // Select all equips

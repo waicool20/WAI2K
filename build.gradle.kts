@@ -45,7 +45,7 @@ repositories {
 
 dependencies {
     val versions = object {
-        val KotlinCoroutines = "1.5.1"
+        val KotlinCoroutines = "1.6.0"
         val Jackson = "2.12.3"
         val OpenJfx = "16"
     }

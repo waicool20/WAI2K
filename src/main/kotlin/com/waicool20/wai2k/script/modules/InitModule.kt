@@ -203,7 +203,7 @@ class InitModule(navigator: Navigator) : ScriptModule(navigator) {
                     Regex("(\\d\\d):(\\d\\d):(\\d\\d)").find(timer)?.groupValues?.let {
                         entry to DurationUtils.of(it[3].toLong(), it[2].toLong(), it[1].toLong())
                     }
-                } ?: entry to Duration.ZERO
+                } ?: (entry to Duration.ZERO)
         }.toMap()
     }
 

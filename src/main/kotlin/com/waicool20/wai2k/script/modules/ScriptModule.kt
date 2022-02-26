@@ -26,7 +26,6 @@ import com.waicool20.wai2k.script.ChapterClickFailedException
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.util.YuuBot
-import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.wai2k.util.readText
 import com.waicool20.waicoolutils.filterAsync
 import com.waicool20.waicoolutils.logging.loggerFor
@@ -34,7 +33,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.yield
-import kotlin.coroutines.coroutineContext
 import kotlin.math.roundToLong
 import kotlin.system.exitProcess
 
@@ -108,11 +106,11 @@ abstract class ScriptModule(
                 }
                 if (unlockedStars?.contains("6") == true) {
                     logger.info("6 star filter is unlocked")
-                    gameState.sixStarFilter = true                
+                    gameState.sixStarFilter = true
                 } else {
                     logger.info("6 star filter isn't unlocked")
                     gameState.sixStarFilter = false
-                } 
+                }
             }
 
             if (gameState.sixStarFilter == true) {
@@ -200,8 +198,7 @@ abstract class ScriptModule(
         if (profile.stop.exitProgram) {
             wait.join()
             exitProcess(0)
-        } else {
-            coroutineContext.cancelAndYield()
         }
+        scriptRunner.stopNow()
     }
 }

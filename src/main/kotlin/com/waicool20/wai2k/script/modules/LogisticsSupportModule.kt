@@ -25,15 +25,10 @@ import com.waicool20.wai2k.game.Echelon
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.game.LogisticsSupport
 import com.waicool20.wai2k.script.Navigator
-import com.waicool20.wai2k.util.digitsOnly
 import com.waicool20.wai2k.util.formatted
-import com.waicool20.wai2k.util.readText
 import com.waicool20.waicoolutils.logging.loggerFor
-import com.waicool20.waicoolutils.mapAsync
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 import java.time.Instant
-import kotlin.coroutines.coroutineContext
 
 class LogisticsSupportModule(navigator: Navigator) : ScriptModule(navigator) {
     private val logger = loggerFor<LogisticsSupportModule>()

@@ -85,13 +85,13 @@ class StatusTabView : CoroutineScopeView() {
 
     private fun updateView() {
         updateTimes()
-        if (scriptRunner.state != ScriptRunner.State.STOPPED) updateScriptStats()
+        if (scriptRunner.state.value != ScriptRunner.State.STOPPED) updateScriptStats()
         updateEchelonStats()
     }
 
     private fun updateTimes() {
         startTimeLabel.text = scriptRunner.lastStartTime?.formatted() ?: ""
-        if (scriptRunner.state != ScriptRunner.State.STOPPED) {
+        if (scriptRunner.state.value != ScriptRunner.State.STOPPED) {
             elapsedTimeLabel.text = timeDelta(scriptRunner.lastStartTime)
         }
     }
@@ -172,7 +172,7 @@ class StatusTabView : CoroutineScopeView() {
 
             if (context.currentProfile.combatReport.enabled
                 && context.currentProfile.combat.enabled
-                && scriptRunner.state != ScriptRunner.State.STOPPED
+                && scriptRunner.state.value != ScriptRunner.State.STOPPED
             ) {
                 if (reportsNextCheck > Instant.now()) {
                     builder /= "Combat Report ETA:"

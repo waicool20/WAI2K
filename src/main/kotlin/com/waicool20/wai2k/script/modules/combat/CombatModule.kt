@@ -28,10 +28,9 @@ import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.game.TDoll
 import com.waicool20.wai2k.script.*
 import com.waicool20.wai2k.script.modules.ScriptModule
-import com.waicool20.wai2k.util.cancelAndYield
 import com.waicool20.wai2k.util.digitsOnly
-import com.waicool20.wai2k.util.readText
 import com.waicool20.wai2k.util.disableDictionaries
+import com.waicool20.wai2k.util.readText
 import com.waicool20.waicoolutils.binarizeImage
 import com.waicool20.waicoolutils.countColor
 import com.waicool20.waicoolutils.logging.loggerFor
@@ -308,9 +307,8 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
                             .all { it == null }) {
                         wasCancelled = true
                         throw RepairUpdateException()
-                    } else {
-                        coroutineContext.cancelAndYield()
                     }
+                    scriptRunner.stopNow()
                 }
                 delay(2000)
                 continue
@@ -319,10 +317,11 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
         }
         logger.info("Updating repair status complete")
         gameState.echelons[echelon - 1].members.forEachIndexed { i, member ->
-            logger.info("[Echelon $echelon member ${i + 1}] " +
-                "Name: ${member.name} | " +
-                "Needs repairs: ${member.needsRepair}" +
-                if(i == profile.combat.draggerSlot - 1) " | Dragger" else ""
+            logger.info(
+                "[Echelon $echelon member ${i + 1}] " +
+                    "Name: ${member.name} | " +
+                    "Needs repairs: ${member.needsRepair}" +
+                    if (i == profile.combat.draggerSlot - 1) " | Dragger" else ""
             )
         }
     }
