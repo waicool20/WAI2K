@@ -31,9 +31,9 @@ import kotlinx.coroutines.yield
 import kotlin.math.roundToLong
 import kotlin.random.Random
 
-class EventPI_Inf(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent),
+class EventTPSM_Inf(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent),
     EventMapRunner {
-    private val logger = loggerFor<EventPI_Inf>()
+    private val logger = loggerFor<EventTPSM_Inf>()
 
     override suspend fun enterMap() {
         withTimeout(7000) {
