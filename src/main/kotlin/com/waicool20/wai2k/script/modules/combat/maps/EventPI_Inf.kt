@@ -41,7 +41,7 @@ class EventPI_Inf(scriptComponent: ScriptComponent) : HomographyMapRunner(script
                 val entrance = region.waitHas(FileTemplate("$PREFIX/map-entrance.png", 0.9), 1000)
                 if (entrance != null) {
                     entrance.click()
-
+                    break
                 } else {
                     region.pinch(
                         Random.nextInt(800, 900),
