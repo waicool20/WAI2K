@@ -31,9 +31,9 @@ import kotlinx.coroutines.yield
 import kotlin.math.roundToLong
 import kotlin.random.Random
 
-class EventPhotoInfinity(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent),
+class EventPI_Inf(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent),
     EventMapRunner {
-    private val logger = loggerFor<EventPhotoInfinity>()
+    private val logger = loggerFor<EventPI_Inf>()
 
     override suspend fun enterMap() {
         withTimeout(7000) {
@@ -41,10 +41,20 @@ class EventPhotoInfinity(scriptComponent: ScriptComponent) : HomographyMapRunner
                 val entrance = region.waitHas(FileTemplate("$PREFIX/map-entrance.png", 0.9), 1000)
                 if (entrance != null) {
                     entrance.click()
-                    break
+
                 } else {
-                    val r = region.subRegion(150, 250, 200, 200)
-                    r.swipeTo(r.copy(x = r.x + 500), 500)
+                    region.pinch(
+                        Random.nextInt(800, 900),
+                        Random.nextInt(300, 400),
+                        0.0,
+                        500
+                    )
+                    repeat(2) {
+                        val r = region.subRegion(150, 250, 200, 50)
+                        r.swipeTo(r.copy(x = r.x + 1000), 500)
+                    }
+                    region.subRegion(1491, 419, 86, 25).click()
+                    break
                 }
             }
         }
