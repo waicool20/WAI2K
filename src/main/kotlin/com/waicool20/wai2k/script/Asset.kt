@@ -39,7 +39,8 @@ data class Asset(
     val x: Int = 0,
     val y: Int = 0,
     val width: Int = 0,
-    val height: Int = 0
+    val height: Int = 0,
+    val threshold: Double = 0.94
 ) {
     /**
      * Path prefix
