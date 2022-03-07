@@ -14,20 +14,11 @@
     ],
     "links": [
       {
-        "dest": "combat_menu",
-        "asset": {
-          "imageName": "",
-          "x": 1328,
-          "y-": 646,
-          "y": 544,
-          "width": 375,
-          "height": 161
-        }
+        "dest": "home_menu"
       },
       {
         "dest": "home_status",
         "asset": {
-          "imageName": "",
           "x": 104,
           "y": 484,
           "width": 80,
@@ -35,31 +26,8 @@
         }
       },
       {
-        "dest": "formation",
-        "asset": {
-          "imageName": "",
-          "x": 1720,
-          "y-": 645,
-          "y": 543,
-          "width": 286,
-          "height": 162
-        }
-      },
-      {
-        "dest": "factory_menu",
-        "asset": {
-          "imageName": "",
-          "x": 1730,
-          "y-": 470,
-          "y": 368,
-          "width": 273,
-          "height": 143
-        }
-      },
-      {
         "dest": "repair",
         "asset": {
-          "imageName": "",
           "x": 1204,
           "y-": 645,
           "y": 543,
@@ -68,20 +36,8 @@
         }
       },
       {
-        "dest": "research_menu",
-        "asset": {
-          "imageName": "",
-          "x": 1371,
-          "y-": 470,
-          "y": 368,
-          "width": 354,
-          "height": 144
-        }
-      },
-      {
         "dest": "profile",
         "asset": {
-          "imageName": "",
           "x": 140,
           "y": 10,
           "width": 1823,
@@ -91,29 +47,16 @@
       {
         "dest": "daily_login",
         "asset": {
-          "imageName": "",
           "x": 685,
           "y": 991,
           "width": 189,
           "height": 57
-        }
-      },
-      {
-        "dest": "event",
-        "dest-": "unknown",
-        "asset": {
-          "imageName": "",
-          "x": 1536,
-          "y": 733,
-          "width": 469,
-          "height": 151
         }
       }
     ]
   },
   {
     "id": "home_status",
-    "isIntermediate": true,
     "landmarks": [
       {
         "asset": {
@@ -127,9 +70,11 @@
     ],
     "links": [
       {
+        "dest": "home_menu"
+      },
+      {
         "dest": "home",
         "asset": {
-          "imageName": "",
           "x": 1176,
           "y": 513,
           "width": 53,
@@ -137,9 +82,22 @@
         }
       },
       {
+        "dest": "data_room",
+        "asset": {
+          "x": 105,
+          "y": 225,
+          "width": 121,
+          "height": 121
+        }
+      }
+    ]
+  },
+  {
+    "id": "home_menu",
+    "links": [
+      {
         "dest": "combat_menu",
         "asset": {
-          "imageName": "",
           "x": 1328,
           "y-": 646,
           "y": 544,
@@ -150,7 +108,6 @@
       {
         "dest": "formation",
         "asset": {
-          "imageName": "",
           "x": 1720,
           "y-": 645,
           "y": 543,
@@ -161,7 +118,6 @@
       {
         "dest": "factory_menu",
         "asset": {
-          "imageName": "",
           "x": 1730,
           "y-": 470,
           "y": 368,
@@ -172,7 +128,6 @@
       {
         "dest": "research_menu",
         "asset": {
-          "imageName": "",
           "x": 1371,
           "y-": 470,
           "y": 368,
@@ -181,20 +136,9 @@
         }
       },
       {
-        "dest": "data_room",
-        "asset": {
-          "imageName": "",
-          "x": 105,
-          "y": 225,
-          "width": 121,
-          "height": 121
-        }
-      },
-      {
         "dest": "event",
         "dest-": "unknown",
         "asset": {
-          "imageName": "",
           "x": 1536,
           "y": 733,
           "width": 469,
@@ -220,7 +164,6 @@
       {
         "dest": "home",
         "asset": {
-          "imageName": "",
           "x": 120,
           "y": 0,
           "width": 205,
@@ -231,7 +174,6 @@
   },
   {
     "id": "factory_menu",
-    "isIntermediate": true,
     "landmarks": [
       {
         "asset": {
@@ -247,7 +189,6 @@
       {
         "dest": "home",
         "asset": {
-          "imageName": "",
           "x": 120,
           "y": 0,
           "width": 205,
@@ -257,7 +198,6 @@
       {
         "dest": "tdoll_production",
         "asset": {
-          "imageName": "",
           "x": 131,
           "y": 164,
           "width": 257,
@@ -267,7 +207,6 @@
       {
         "dest": "dummy_link",
         "asset": {
-          "imageName": "",
           "x": 131,
           "y": 296,
           "width": 257,
@@ -277,7 +216,6 @@
       {
         "dest": "tdoll_enhancement",
         "asset": {
-          "imageName": "",
           "x": 131,
           "y": 429,
           "width": 257,
@@ -287,7 +225,6 @@
       {
         "dest": "tdoll_disassembly",
         "asset": {
-          "imageName": "",
           "x": 131,
           "y": 561,
           "width": 257,
@@ -297,7 +234,6 @@
       {
         "dest": "equipment_production",
         "asset": {
-          "imageName": "",
           "x": 131,
           "y": 693,
           "width": 257,
@@ -403,7 +339,6 @@
   },
   {
     "id": "combat_menu",
-    "isIntermediate": true,
     "landmarks": [
       {
         "asset": {
@@ -419,7 +354,6 @@
       {
         "dest": "home",
         "asset": {
-          "imageName": "",
           "x": 120,
           "y": 0,
           "width": 205,
@@ -429,7 +363,6 @@
       {
         "dest": "combat",
         "asset": {
-          "imageName": "",
           "x": 131,
           "y-": 164,
           "y": 296,
@@ -440,7 +373,6 @@
       {
         "dest": "logistics_support",
         "asset": {
-          "imageName": "",
           "x": 131,
           "y-": 296,
           "y": 428,
@@ -451,7 +383,6 @@
       {
         "dest": "combat_simulation",
         "asset": {
-          "imageName": "",
           "x": 131,
           "y-": 428,
           "y": 562,
@@ -462,7 +393,6 @@
       {
         "dest": "campaign",
         "asset": {
-          "imageName": "",
           "x": 131,
           "y-": 562,
           "y": 694,
@@ -489,7 +419,6 @@
       {
         "dest": "combat_menu",
         "asset": {
-          "imageName": "",
           "x": 444,
           "y": 96,
           "width": 169,
@@ -500,7 +429,6 @@
   },
   {
     "id": "combat",
-    "isIntermediate": true,
     "landmarks": [
       {
         "asset": {
@@ -520,7 +448,6 @@
   },
   {
     "id": "logistics_support",
-    "isIntermediate": true,
     "landmarks": [
       {
         "asset": {
@@ -540,7 +467,6 @@
   },
   {
     "id": "combat_simulation",
-    "isIntermediate": true,
     "matchingMode": "OR",
     "landmarks": [
       {
@@ -570,7 +496,6 @@
   },
   {
     "id": "campaign",
-    "isIntermediate": true,
     "matchingMode": "OR",
     "landmarks": [
       {
@@ -615,7 +540,6 @@
       {
         "dest": "home",
         "asset": {
-          "imageName": "",
           "x": 120,
           "y": 0,
           "width": 205,
@@ -626,7 +550,6 @@
   },
   {
     "id": "research_menu",
-    "isIntermediate": true,
     "landmarks": [
       {
         "asset": {
@@ -642,7 +565,6 @@
       {
         "dest": "home",
         "asset": {
-          "imageName": "",
           "x": 120,
           "y": 0,
           "width": 205,
@@ -668,7 +590,6 @@
       {
         "dest": "home",
         "asset": {
-          "imageName": "",
           "x": 135,
           "y": 15,
           "width": 259,
@@ -694,7 +615,6 @@
       {
         "dest": "home",
         "asset": {
-          "imageName": "",
           "x": 133,
           "y": 120,
           "width": 715,
@@ -720,7 +640,6 @@
       {
         "dest": "home",
         "asset": {
-          "imageName": "",
           "x": 120,
           "y": 5,
           "width": 140,
@@ -746,7 +665,6 @@
       {
         "dest": "home",
         "asset": {
-          "imageName": "",
           "x": 120,
           "y": 0,
           "width": 138,
@@ -782,7 +700,6 @@
       {
         "dest": "home",
         "asset": {
-          "imageName": "",
           "x": 120,
           "y": 0,
           "width": 138,

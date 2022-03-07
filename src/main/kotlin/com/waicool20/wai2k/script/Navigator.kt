@@ -61,7 +61,7 @@ class Navigator(
     suspend fun identifyCurrentLocation(retries: Int = 5): GameLocation {
         logger.info("Identifying current location")
         val start = System.currentTimeMillis()
-        val locations = locations.entries.sortedBy { it.value.isIntermediate }.map { it.value }
+        val locations = locations.entries.map { it.value }
         repeat(retries) { i ->
             checkLogistics(true)
             val r = region.asCachedRegion()
@@ -95,7 +95,7 @@ class Navigator(
             }
             logger.debug("Found solution: CURRENT(${cLocation.id})->${path.formatted()}")
             for ((srcLoc, destLoc, link) in path) {
-                if (link.skippable || (srcLoc.isIntermediate && destLoc.isInRegion(region))) {
+                if (link.skippable) {
                     logger.info(
                         "At ${destLoc.id} | ${
                             path.dropWhile { it.dest != destLoc }.formatted()
@@ -104,8 +104,6 @@ class Navigator(
                     continue
                 }
                 logger.info("Going to ${destLoc.id}")
-                // Flag for skipping the final destination check or not
-                var skipDestinationCheck = false
                 // Flag for ignoring transition delay because of logistics
                 var skipTransitionDelay = false
                 var ticks = 0
@@ -121,45 +119,32 @@ class Navigator(
                             // Shrink region slightly to 90% of defined size
                             grow((width * -0.1).roundToInt(), (height * -0.1).roundToInt())
                         }.click()
-                        // Wait around average transition delay if not an intermediate location
-                        // since it cant transition immediately
-                        if (srcLoc.isIntermediate) {
-                            delay(config.scriptConfig.baseNavigationDelay.toLong())
-                        } else {
-                            delay(avgTransitionDelay + config.scriptConfig.baseNavigationDelay)
-                            ticks++
-                        }
+                        delay(avgTransitionDelay + config.scriptConfig.baseNavigationDelay)
+                        ticks++
                     }
                     val ntdStart = System.currentTimeMillis()
-                    if (!srcLoc.isInRegion(region)) break
-                    // Source will always be on screen if it is an intermediate menu
-                    if (srcLoc.isIntermediate && destLoc.isInRegion(region)) {
-                        skipDestinationCheck = true
-                        break
-                    }
+                    if (!srcLoc.isInRegion(region) || destLoc.isInRegion(region)) break
                     noneTransitionDelay += System.currentTimeMillis() - ntdStart
                     if (checkLogistics()) skipTransitionDelay = true
                 }
 
                 logger.info("Waiting for transition to ${destLoc.id}")
-                if (!skipDestinationCheck) {
-                    val ntdStart = System.currentTimeMillis()
-                    // Re navigate if destination doesnt come up after timeout, make this a setting?
-                    val timeout = 20
-                    val atDestination = withTimeoutOrNull(timeout * 1000L) {
-                        while (isActive) {
-                            if (destLoc.isInRegion(region)) return@withTimeoutOrNull true
-                            if (checkLogistics()) skipTransitionDelay = true
-                        }
-                        false
+                val ntdStart = System.currentTimeMillis()
+                // Re navigate if destination doesnt come up after timeout, make this a setting?
+                val timeout = 20
+                val atDestination = withTimeoutOrNull(timeout * 1000L) {
+                    while (isActive) {
+                        if (destLoc.isInRegion(region)) return@withTimeoutOrNull true
+                        if (checkLogistics()) skipTransitionDelay = true
                     }
-
-                    if (atDestination != true) {
-                        logger.info("Destination not on screen after ${timeout}s, will try to re-navigate")
-                        continue@retry
-                    }
-                    noneTransitionDelay += System.currentTimeMillis() - ntdStart
+                    false
                 }
+
+                if (atDestination != true) {
+                    logger.info("Destination not on screen after ${timeout}s, will try to re-navigate")
+                    continue@retry
+                }
+                noneTransitionDelay += System.currentTimeMillis() - ntdStart
 
                 // Calculate the transition delays and delay coefficients
                 // Update the restart counter as needed

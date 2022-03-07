@@ -36,12 +36,10 @@ import java.util.*
  * Represents a location in the game
  *
  * @param id Id of this location
- * @param isIntermediate If this is intermediate then that means this location
  * can potentially be skipped to get to a destination when traversing a path.
  */
 data class GameLocation(
     val id: LocationId,
-    val isIntermediate: Boolean = false,
     val matchingMode: Mode = Mode.AND
 ) {
     enum class Mode {
