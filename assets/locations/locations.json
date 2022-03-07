@@ -707,5 +707,31 @@
         }
       }
     ]
+  },
+  {
+    "id": "game_start",
+    "landmarks": [
+      {
+        "asset": {
+          "imageName": "game_start",
+          "x": 613,
+          "y": 975,
+          "width": 60,
+          "height": 60,
+          "threshold": 0.8
+        }
+      }
+    ],
+    "links": [
+      {
+        "dest": "home",
+        "asset": {
+          "x": 838,
+          "y": 895,
+          "width": 482,
+          "height": 103
+        }
+      }
+    ]
   }
 ]

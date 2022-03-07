@@ -45,5 +45,6 @@ enum class LocationId {
     DATA_ROOM,
     CAMPAIGN,
     DAILY_LOGIN,
+    GAME_START,
     UNKNOWN
 }
