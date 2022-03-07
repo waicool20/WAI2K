@@ -44,6 +44,7 @@ import kotlin.io.path.*
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Wai2KProfile(
     val logistics: Logistics = Logistics(),
+    val autoBattle: AutoBattle = AutoBattle(),
     val combat: Combat = Combat(),
     val combatReport: CombatReport = CombatReport(),
     val combatSimulation: CombatSimulation = CombatSimulation(),
@@ -68,6 +69,13 @@ data class Wai2KProfile(
         val receiveModeProperty = receivalMode.toProperty()
         var assignments by assignmentsProperty
         var receiveMode by receiveModeProperty
+        val enabled by enabledProperty
+    }
+
+    class AutoBattle(
+        enabled: Boolean = true
+    ) {
+        val enabledProperty = enabled.toProperty()
         val enabled by enabledProperty
     }
 

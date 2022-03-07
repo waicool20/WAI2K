@@ -64,6 +64,7 @@ class Navigator(
         val locations = locations.entries.map { it.value }
         repeat(retries) { i ->
             checkLogistics(true)
+            checkAutoBattle()
             val r = region.asCachedRegion()
             val l = locations.firstAsync { it.isInRegion(r) }
             if (l == null) {
@@ -295,6 +296,28 @@ class Navigator(
             }
         }
         return logisticsArrived
+    }
+
+    /**
+     * Checks if any auto battle echelons arrived and continues them
+     */
+    suspend fun checkAutoBattle() {
+        if (!profile.autoBattle.enabled) return
+        while (true) {
+            if (region.has(FileTemplate("navigator/autobattle_arrived.png"))) {
+                logger.info("An echelon has arrived from auto battle")
+                // Dismiss mission accomplished and rewards
+                repeat(2) {
+                    region.click()
+                    delay(500)
+                }
+                logger.info("Continuing this auto battle")
+                region.subRegion(1432, 822, 336, 134)
+                    .clickTemplateWhile(FileTemplate("navigator/autobattle_repeat.png")) { has(it) }
+                logger.info("Waiting a bit to see if anymore echelons arrive")
+                delay(5000)
+            } else break
+        }
     }
 
     /**
