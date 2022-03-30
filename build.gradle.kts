@@ -33,7 +33,7 @@ version = System.getenv("APPVEYOR_REPO_COMMIT")?.take(8) ?: "dev"
 defaultTasks = mutableListOf("build")
 
 javafx {
-    version = "16"
+    version = "17"
     modules = listOf("javafx.controls", "javafx.fxml", "javafx.swing")
 }
 

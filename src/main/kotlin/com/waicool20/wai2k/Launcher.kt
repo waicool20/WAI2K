@@ -39,6 +39,10 @@ fun main(args: Array<String>) {
  */
 class WAI2KExceptionHandler : Thread.UncaughtExceptionHandler {
     val logger = LoggerFactory.getLogger("ErrorHandler")
+    val ignoreStrings = listOf(
+        // Infinite window spawning workaround
+        "com.sun.scenario.animation.shared.PulseReceiver.timePulse"
+    )
 
     class ErrorEvent(val thread: Thread, val error: Throwable) {
         internal var consumed = false
@@ -48,6 +52,10 @@ class WAI2KExceptionHandler : Thread.UncaughtExceptionHandler {
     }
 
     override fun uncaughtException(t: Thread, error: Throwable) {
+        if (ignoreStrings.any { error.localizedMessage.contains(it) }) {
+            error.printStackTrace()
+            return
+        }
         logger.error("Uncaught error", error)
         if (isCycle(error)) {
             logger.info("Detected cycle handling error, aborting.", error)
