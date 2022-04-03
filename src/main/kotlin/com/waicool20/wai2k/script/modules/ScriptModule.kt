@@ -25,16 +25,13 @@ import com.waicool20.wai2k.game.TDoll
 import com.waicool20.wai2k.script.ChapterClickFailedException
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptComponent
-import com.waicool20.wai2k.util.YuuBot
 import com.waicool20.wai2k.util.readText
 import com.waicool20.waicoolutils.filterAsync
 import com.waicool20.waicoolutils.logging.loggerFor
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.yield
 import kotlin.math.roundToLong
-import kotlin.system.exitProcess
 
 abstract class ScriptModule(
     val navigator: Navigator
@@ -180,25 +177,5 @@ abstract class ScriptModule(
             template = FileTemplate("chapters/$chapter.png", CHAPTER_SIMILARITY),
             timeout = 20000
         ) { has(it) }
-    }
-
-    protected suspend fun stopScript(reason: String) {
-        val msg = """
-            |Script stop condition reached: $reason
-            |Terminating further execution, final script statistics: 
-            |```
-            |${scriptRunner.scriptStats}
-            |```
-            """.trimMargin()
-        logger.info(msg)
-        val wait = Job()
-        if (config.notificationsConfig.onStopCondition) {
-            YuuBot.postMessage(config.apiKey, "Script Terminated", msg) { wait.complete() }
-        }
-        if (profile.stop.exitProgram) {
-            wait.join()
-            exitProcess(0)
-        }
-        scriptRunner.stopNow()
     }
 }

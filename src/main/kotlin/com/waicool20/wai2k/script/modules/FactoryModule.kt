@@ -47,13 +47,13 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
         if (!gameState.dollOverflow) return
         if (profile.factory.enhancement.enabled) enhanceDolls()
 
-        if (gameState.dollOverflow && !profile.factory.disassembly.enabled) stopScript("Doll limit reached")
+        if (gameState.dollOverflow && !profile.factory.disassembly.enabled) stopScriptWithReason("Doll limit reached")
 
         // Bypass overflow check if always disassemble
         if (!profile.factory.alwaysDisassembleAfterEnhance && !gameState.dollOverflow) return
         if (profile.factory.disassembly.enabled) disassembleDolls()
 
-        if (gameState.dollOverflow) stopScript("Doll limit reached")
+        if (gameState.dollOverflow) stopScriptWithReason("Doll limit reached")
     }
 
     private suspend fun checkEquipOverflow() {
@@ -413,7 +413,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
                 if (currentCount >= total) {
                     // This doesn't really apply anymore since 4* equip disassembly is implemented, but ehh SPEQ are a thing too
                     logger.info("Equipment capacity reached but could not disassemble anymore equipment, stopping script")
-                    scriptRunner.stopNow()
+                    stopScriptWithReason("Equipment capacity reached")
                 } else break
             }
             // Select all equips

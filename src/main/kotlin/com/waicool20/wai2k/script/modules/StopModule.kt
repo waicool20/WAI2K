@@ -49,7 +49,7 @@ class StopModule(navigator: Navigator) : ScriptModule(navigator) {
                 }
                 else -> false
             }
-            if (stop) stopScript("$mode")
+            if (stop) stopScriptWithReason("$mode")
         }
     }
 
@@ -64,7 +64,7 @@ class StopModule(navigator: Navigator) : ScriptModule(navigator) {
     private suspend fun checkCount() {
         with(profile.stop.count) {
             if (!enabled) return
-            if (scriptStats.sortiesDone >= sorties) stopScript("Sorties >= $sorties")
+            if (scriptStats.sortiesDone >= sorties) stopScriptWithReason("Sorties >= $sorties")
         }
     }
 }

@@ -56,7 +56,6 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
     private var wasCancelled = false
 
     override suspend fun execute() {
-        if (scriptRunner.justRestarted) gameState.requiresMapInit = true
         if (!profile.combat.enabled) return
         // Return if the base doll limit is already reached
         if (gameState.dollOverflow) return
@@ -308,7 +307,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
                         wasCancelled = true
                         throw RepairUpdateException()
                     }
-                    scriptRunner.stopNow()
+                    stopScriptWithReason("Could not update repair status")
                 }
                 delay(2000)
                 continue
@@ -332,7 +331,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
             logger.info("Repairs required")
 
             if (profile.combat.repairThreshold !in 1..100) {
-                stopScript("Repairs needed, but repairs are disabled")
+                stopScriptWithReason("Repairs needed, but repairs are disabled")
             }
 
             navigator.navigateTo(LocationId.REPAIR)
@@ -383,7 +382,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
         logger.info("Choosing combat map $map")
         navigator.checkLogistics()
         // Only needed when script first starts/just restarted as we are unsure what map mode the game is in
-        if (scriptRunner.justRestarted) {
+        if (gameState.justRestarted) {
             when (map.type) {
                 CombatMap.Type.NORMAL -> {
                     // Normal map

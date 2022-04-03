@@ -21,10 +21,13 @@ package com.waicool20.wai2k.script
 
 import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.core.template.FileTemplate
+import com.waicool20.wai2k.android.ProcessManager
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
+import com.waicool20.wai2k.game.GFL
 import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.LocationId
+import com.waicool20.wai2k.util.YuuBot
 import com.waicool20.wai2k.util.readText
 import com.waicool20.waicoolutils.firstAsync
 import com.waicool20.waicoolutils.logging.loggerFor
@@ -35,6 +38,7 @@ import java.text.DecimalFormat
 import java.time.Duration
 import java.time.Instant
 import java.util.*
+import kotlin.coroutines.coroutineContext
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 
@@ -326,10 +330,60 @@ class Navigator(
      */
     suspend fun checkRequiresRestart() {
         if (config.gameRestartConfig.enabled && gameState.requiresRestart) {
-            scriptRunner.restartGame("Game is slowing down")
+            restartGame("Game is slowing down")
             restartCounter = 0
             transitionDelays.clear()
         }
+    }
+
+    /**
+     * Restarts the game
+     * This assumes that automatic login is enabled and no updates are required
+     */
+    suspend fun restartGame(reason: String) {
+        if (scriptStats.gameRestarts >= config.gameRestartConfig.maxRestarts) {
+            logger.info("Maximum of restarts reached, terminating script instead")
+            stopScriptWithReason("Max restarts reached")
+        }
+        gameState.requiresRestart = false
+        scriptStats.gameRestarts++
+        if (config.notificationsConfig.onRestart) {
+            YuuBot.postMessage(config.apiKey, "Script Restarted", "Reason: $reason")
+        }
+        logger.info("Game will now restart")
+        ProcessManager(region.device).restart(GFL.PKG_NAME)
+        logger.info("Game restarted, waiting for login screen")
+        while (!locations.getValue(LocationId.GAME_START).isInRegion(region)) delay(5000)
+        logger.info("Logging in")
+        region.subRegion(630, 400, 900, 300).click()
+        val login = region.subRegion(200, 19, 96, 87)
+        while (coroutineContext.isActive) {
+            checkLogistics()
+            // Check for sign in or achievement popup
+            if (region.subRegion(396, 244, 80, 80).has(FileTemplate("home-popup.png"))) {
+                logger.info("Detected popup, dismissing...")
+                repeat(2) { region.subRegion(2017, 151, 129, 733).click() }
+            }
+            // Check for daily login
+            if (login.has(FileTemplate("home-popup1.png"))) {
+                logger.info("Detected daily login/event screen, dismissing...")
+                login.click()
+            }
+            region.subRegion(900, 720, 350, 185)
+                .findBest(FileTemplate("close.png"))?.region?.click()
+            if (locations.getValue(LocationId.HOME).isInRegion(region)) {
+                logger.info("Logged in, waiting for 10s to see if anything happens")
+                delay(10_000)
+                if (locations.getValue(LocationId.HOME).isInRegion(region)) {
+                    gameState.currentGameLocation = locations.getValue(LocationId.HOME)
+                    break
+                }
+            }
+            delay(1000)
+        }
+        logger.info("Finished logging in")
+        gameState.requiresMapInit = true
+        gameState.requiresUpdate = true
     }
 
     private fun List<GameLocation.GameLocationLink>?.formatted(): String {

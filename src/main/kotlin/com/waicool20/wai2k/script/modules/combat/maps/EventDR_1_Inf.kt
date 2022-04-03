@@ -34,8 +34,7 @@ class EventDR_1_Inf(scriptComponent: ScriptComponent) :
     private val logger = loggerFor<EventDR_1_Inf>()
 
     override suspend fun enterMap() {
-
-        if (scriptRunner.justRestarted) {
+        if (gameState.requiresMapInit) {
             logger.info("Zoom out")
             region.pinch(
                 Random.nextInt(900, 1000),

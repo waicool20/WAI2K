@@ -24,15 +24,11 @@ import ch.qos.logback.classic.Logger
 import com.waicool20.cvauto.android.ADB
 import com.waicool20.cvauto.android.AndroidDevice
 import com.waicool20.cvauto.core.Region
-import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.Wai2K
-import com.waicool20.wai2k.android.ProcessManager
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
-import com.waicool20.wai2k.game.GFL
 import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.GameState
-import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.modules.InitModule
 import com.waicool20.wai2k.script.modules.ScriptModule
 import com.waicool20.wai2k.script.modules.StopModule
@@ -48,7 +44,6 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.imageio.ImageIO
-import kotlin.coroutines.coroutineContext
 import kotlin.io.path.createDirectories
 import kotlin.math.roundToLong
 import kotlin.reflect.full.primaryConstructor
@@ -84,8 +79,6 @@ class ScriptRunner(
 
     val gameState = GameState()
     val scriptStats = ScriptStats()
-    var justRestarted = false
-        private set
     var lastStartTime: Instant? = null
         private set
     private val _state = MutableStateFlow(State.STOPPED)
@@ -105,7 +98,6 @@ class ScriptRunner(
         scriptStats.reset()
         statsHash = scriptStats.hashCode()
         gameState.reset()
-        justRestarted = true
         reload(true)
         scope.launch {
             postStats()
@@ -119,7 +111,7 @@ class ScriptRunner(
                     exceptionRestart(e)
                 } catch (e: UnrecoverableScriptException) {
                     e.message?.lines()?.forEach { logger.error(it) }
-                    stopNow()
+                    stop()
                 } catch (e: AndroidDevice.UnexpectedDisconnectException) {
                     logger.error("Emulator disconnected unexpectedly")
                     YuuBot.postMessage(
@@ -127,7 +119,7 @@ class ScriptRunner(
                         "Script Terminated",
                         "Reason: Emulator disconnected"
                     )
-                    stopNow()
+                    stop()
                 } catch (e: Region.CaptureIOException) {
                     if (currentDevice?.isConnected() == true) {
                         logger.error("Screen capture error, will wait 10s before restarting")
@@ -140,7 +132,7 @@ class ScriptRunner(
                             "Script Stopped",
                             "Device is dead!"
                         )
-                        stopNow()
+                        stop()
                     }
                 } catch (e: Exception) {
                     when (e) {
@@ -212,18 +204,18 @@ class ScriptRunner(
     fun stop() {
         logger.info("Stopping the script")
         scope.cancel()
-    }
-
-    fun stopNow() {
-        stop()
-        runBlocking(scope.coroutineContext) { yield() }
+        try {
+            runBlocking(scope.coroutineContext) { yield() }
+        } catch (e: CancellationException) {
+            // Ignore
+        }
     }
 
     private suspend fun runScriptCycle() {
         reload()
-        if (modules.isEmpty()) stopNow()
+        if (modules.isEmpty()) stop()
         modules.forEach { it.execute() }
-        justRestarted = false
+        gameState.justRestarted = false
 
         postStats()
         if (state.value == State.PAUSED) {
@@ -250,7 +242,7 @@ class ScriptRunner(
 
     private suspend fun exceptionRestart(e: Exception) {
         if (currentConfig.gameRestartConfig.enabled) {
-            restartGame(e.localizedMessage)
+            navigator?.restartGame(e.localizedMessage)
         } else {
             if (currentConfig.notificationsConfig.onRestart) {
                 YuuBot.postMessage(
@@ -260,62 +252,8 @@ class ScriptRunner(
                 )
             }
             logger.warn("Restart not enabled, ending script here")
-            stopNow()
+            stop()
         }
-    }
-
-    /**
-     * Restarts the game
-     * This assumes that automatic login is enabled and no updates are required
-     */
-    suspend fun restartGame(reason: String) {
-        if (scriptStats.gameRestarts >= currentConfig.gameRestartConfig.maxRestarts) {
-            logger.info("Maximum of restarts reached, terminating script instead")
-            YuuBot.postMessage(currentConfig.apiKey, "Script Terminated", "Max restarts reached")
-            stopNow()
-        }
-        val device = requireNotNull(currentDevice)
-        val region = device.screens.first()
-        gameState.requiresRestart = false
-        scriptStats.gameRestarts++
-        if (currentConfig.notificationsConfig.onRestart) {
-            YuuBot.postMessage(currentConfig.apiKey, "Script Restarted", "Reason: $reason")
-        }
-        logger.info("Game will now restart")
-        ProcessManager(device).restart(GFL.PKG_NAME)
-        logger.info("Game restarted, waiting for login screen")
-        val locations = GameLocation.mappings(currentConfig)
-        while (!locations.getValue(LocationId.GAME_START).isInRegion(region)) delay(5000)
-        logger.info("Logging in")
-        region.subRegion(630, 400, 900, 300).click()
-        val login = region.subRegion(200, 19, 96, 87)
-        while (coroutineContext.isActive) {
-            navigator?.checkLogistics()
-            // Check for sign in or achievement popup
-            if (region.subRegion(396, 244, 80, 80).has(FileTemplate("home-popup.png"))) {
-                logger.info("Detected popup, dismissing...")
-                repeat(2) { region.subRegion(2017, 151, 129, 733).click() }
-            }
-            // Check for daily login
-            if (login.has(FileTemplate("home-popup1.png"))) {
-                logger.info("Detected daily login/event screen, dismissing...")
-                login.click()
-            }
-            region.subRegion(900, 720, 350, 185)
-                .findBest(FileTemplate("close.png"))?.region?.click()
-            if (locations.getValue(LocationId.HOME).isInRegion(region)) {
-                logger.info("Logged in, waiting for 10s to see if anything happens")
-                delay(10_000)
-                if (locations.getValue(LocationId.HOME).isInRegion(region)) {
-                    gameState.currentGameLocation = locations.getValue(LocationId.HOME)
-                    break
-                }
-            }
-            delay(1000)
-        }
-        logger.info("Finished logging in")
-        justRestarted = true
-        gameState.requiresUpdate = true
     }
 
     private fun postStats() {

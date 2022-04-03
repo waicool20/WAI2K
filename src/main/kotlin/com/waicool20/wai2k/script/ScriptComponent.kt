@@ -24,6 +24,10 @@ import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
 import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.util.Ocr
+import com.waicool20.wai2k.util.YuuBot
+import com.waicool20.waicoolutils.logging.loggerFor
+import kotlinx.coroutines.Job
+import kotlin.system.exitProcess
 
 interface ScriptComponent {
     val scriptRunner: ScriptRunner
@@ -34,4 +38,24 @@ interface ScriptComponent {
     val ocr get() = Ocr.forConfig(config)
     val locations get() = GameLocation.mappings(config)
     val scope get() = scriptRunner.scope
+
+    suspend fun stopScriptWithReason(reason: String) {
+        val msg = """
+            |Script stop condition reached: $reason
+            |Terminating further execution, final script statistics: 
+            |```
+            |${scriptRunner.scriptStats}
+            |```
+            """.trimMargin()
+        loggerFor<ScriptComponent>().info(msg)
+        val wait = Job()
+        if (config.notificationsConfig.onStopCondition) {
+            YuuBot.postMessage(config.apiKey, "Script Terminated", msg) { wait.complete() }
+        }
+        if (profile.stop.exitProgram) {
+            wait.join()
+            exitProcess(0)
+        }
+        scriptRunner.stop()
+    }
 }
