@@ -63,6 +63,7 @@ class Navigator(
      * @return Current [GameLocation]
      */
     suspend fun identifyCurrentLocation(retries: Int = 5): GameLocation {
+        if (!isGameActive()) restartGame("Game is not active!")
         logger.info("Identifying current location")
         val start = System.currentTimeMillis()
         val locations = locations.entries.map { it.value }
@@ -348,7 +349,7 @@ class Navigator(
         gameState.requiresRestart = false
         scriptStats.gameRestarts++
         if (config.notificationsConfig.onRestart) {
-            YuuBot.postMessage(config.apiKey, "Script Restarted", "Reason: $reason")
+            YuuBot.postMessage(config.apiKey, "Game Restarted", "Reason: $reason")
         }
         logger.info("Game will now restart")
         ProcessManager(region.device).restart(GFL.PKG_NAME)
@@ -388,5 +389,9 @@ class Navigator(
 
     private fun List<GameLocation.GameLocationLink>?.formatted(): String {
         return this?.joinToString("->") { "${it.dest.id}" } ?: ""
+    }
+
+    private fun isGameActive(): Boolean {
+        return ProcessManager(region.device).currentActivity.contains(GFL.PKG_NAME)
     }
 }
