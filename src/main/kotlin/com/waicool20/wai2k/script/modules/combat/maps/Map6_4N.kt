@@ -48,8 +48,7 @@ class Map6_4N(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComp
             gameState.requiresMapInit = false
         }
 
-        val rEchelons = deployEchelons(nodes[0])
-        deployEchelons(nodes[1])
+        val rEchelons = deployEchelons(nodes[0], nodes[2])
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
         resupplyEchelons(rEchelons)
