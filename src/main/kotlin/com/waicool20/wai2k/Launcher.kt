@@ -52,7 +52,7 @@ class WAI2KExceptionHandler : Thread.UncaughtExceptionHandler {
     }
 
     override fun uncaughtException(t: Thread, error: Throwable) {
-        if (ignoreStrings.any { error.localizedMessage.contains(it) }) {
+        if (ignoreStrings.any { error.message?.contains(it) == true }) {
             error.printStackTrace()
             return
         }
