@@ -23,7 +23,6 @@ import com.waicool20.wai2k.game.TDoll
 import com.waicool20.wai2k.views.tabs.profile.AbstractProfileView
 import com.waicool20.waicoolutils.javafx.addListener
 import javafx.scene.control.Button
-import javafx.scene.control.ToggleButton
 import javafx.scene.control.ToggleGroup
 import javafx.scene.layout.VBox
 import javafx.util.StringConverter
@@ -64,6 +63,9 @@ class DraggersView : AbstractProfileView() {
 
             doll1NameComboBox.selectionModel.select(TDoll.lookup(context.wai2KConfig, doll1.id))
             doll2NameComboBox.selectionModel.select(TDoll.lookup(context.wai2KConfig, doll2.id))
+            draggerSlotGroup.selectToggle(draggerSlotGroup.toggles.find {
+                it.userData.toString().toInt() == draggerSlot
+            })
         }
         with(context.currentProfile.combat) {
             draggerSlotProperty.bind(
