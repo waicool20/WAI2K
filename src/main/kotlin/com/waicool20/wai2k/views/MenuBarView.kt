@@ -30,7 +30,6 @@ import javafx.scene.control.MenuBar
 import javafx.scene.control.MenuItem
 import javafx.stage.FileChooser
 import javafx.stage.StageStyle
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import tornadofx.*
 import kotlin.system.exitProcess
@@ -67,8 +66,7 @@ class MenuBarView : CoroutineScopeView() {
         donateItem.setOnAction { DesktopUtils.browse("https://ko-fi.com/waicool20") }
         homographyItem.setOnAction {
             val device =
-                ADB.getDevices().find { it.serial == wai2KContext.wai2KConfig.lastDeviceSerial }
-                    ?: return@setOnAction
+                ADB.getDevice(wai2KContext.wai2KConfig.lastDeviceSerial) ?: return@setOnAction
             chooseFile(
                 "Select base image...",
                 arrayOf(FileChooser.ExtensionFilter("PNG files (*.png)", "*.png")),
@@ -79,8 +77,7 @@ class MenuBarView : CoroutineScopeView() {
         restartGameItem.setOnAction {
             launch {
                 val device =
-                    ADB.getDevices().find { it.serial == wai2KContext.wai2KConfig.lastDeviceSerial }
-                        ?: return@launch
+                    ADB.getDevice(wai2KContext.wai2KConfig.lastDeviceSerial) ?: return@launch
                 ProcessManager(device).restart(GFL.PKG_NAME)
             }
         }

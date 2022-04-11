@@ -26,7 +26,8 @@ import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.waicool20.cvauto.android.AndroidRegion
+import com.waicool20.cvauto.android.ADB
+import com.waicool20.cvauto.android.AndroidDevice
 import com.waicool20.wai2k.Wai2K
 import com.waicool20.waicoolutils.javafx.addListener
 import com.waicool20.waicoolutils.javafx.json.fxJacksonObjectMapper
@@ -36,7 +37,6 @@ import tornadofx.*
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createFile
-import kotlin.io.path.exists
 import kotlin.io.path.notExists
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
@@ -47,7 +47,8 @@ class Wai2KConfig(
     clearConsoleOnStart: Boolean = true,
     showConsoleOnStart: Boolean = true,
     debugModeEnabled: Boolean = true,
-    captureCompressionMode: AndroidRegion.CompressionMode = AndroidRegion.CompressionMode.LZ4,
+    captureMethod: AndroidDevice.CaptureMethod = AndroidDevice.CaptureMethod.SCRCPY,
+    captureCompressionMode: AndroidDevice.CompressionMode = AndroidDevice.CompressionMode.LZ4,
     lastDeviceSerial: String = "",
     scriptConfig: ScriptConfig = ScriptConfig(),
     gameRestartConfig: GameRestartConfig = GameRestartConfig(),
@@ -66,6 +67,7 @@ class Wai2KConfig(
     val clearConsoleOnStartProperty = clearConsoleOnStart.toProperty()
     val showConsoleOnStartProperty = showConsoleOnStart.toProperty()
     val debugModeEnabledProperty = debugModeEnabled.toProperty()
+    val captureMethodProperty = captureMethod.toProperty()
     val captureCompressionModeProperty = captureCompressionMode.toProperty()
     val lastDeviceSerialProperty = lastDeviceSerial.toProperty()
     val scriptConfigProperty = scriptConfig.toProperty()
@@ -79,6 +81,7 @@ class Wai2KConfig(
     var clearConsoleOnStart by clearConsoleOnStartProperty
     var showConsoleOnStart by showConsoleOnStartProperty
     var debugModeEnabled by debugModeEnabledProperty
+    var captureMethod by captureMethodProperty
     var captureCompressionMode by captureCompressionModeProperty
     var lastDeviceSerial by lastDeviceSerialProperty
     var scriptConfig by scriptConfigProperty
@@ -125,6 +128,19 @@ class Wai2KConfig(
         debugModeEnabledProperty.addListener("LogLevel") { _ ->
             LoggerUtils.setLogLevel(Level.toLevel(logLevel))
         }
+        captureMethodProperty.addListener("CMListener") { newVal ->
+            ADB.getDevice(lastDeviceSerial)?.captureMethod = newVal
+        }
+        captureCompressionModeProperty.addListener("CCMListener") { newVal ->
+            ADB.getDevice(lastDeviceSerial)?.compressionMode = newVal
+        }
+    }
+
+    @JsonIgnore
+    fun setNewDevice(device: AndroidDevice) {
+        lastDeviceSerial = device.serial
+        device.captureMethod = captureMethod
+        device.compressionMode = captureCompressionMode
     }
 
     fun save() {

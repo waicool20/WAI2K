@@ -265,8 +265,7 @@ class DebugView : CoroutineScopeView() {
     }
 
     private fun createNewRenderJob(serial: String = wai2KContext.wai2KConfig.lastDeviceSerial) {
-        val device = ADB.getDevices().find { it.serial == serial }
-            .also { lastAndroidDevice = it } ?: return
+        val device = ADB.getDevice(serial).also { lastAndroidDevice = it } ?: return
         lastJob?.cancel()
         lastJob = launch(Dispatchers.IO) {
             withContext(Dispatchers.JavaFx) {
@@ -342,7 +341,7 @@ class DebugView : CoroutineScopeView() {
                 val path = Path(pathField.text)
                 if (path.exists()) {
                     logger.info("Finding $path")
-                    val device = ADB.getDevices().find { it.serial == wai2KConfig.lastDeviceSerial }
+                    val device = ADB.getDevice(wai2KConfig.lastDeviceSerial)
                     if (device == null) {
                         logger.warn("Could not find device!")
                         return@launch

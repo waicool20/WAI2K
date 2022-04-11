@@ -168,7 +168,7 @@ class ScriptRunner(
         }
 
         if (currentDevice == null || currentDevice?.serial != currentConfig.lastDeviceSerial) {
-            currentDevice = ADB.getDevices().find { it.serial == currentConfig.lastDeviceSerial }
+            currentDevice = ADB.getDevice(currentConfig.lastDeviceSerial)
         }
         val region = currentDevice?.screens?.firstOrNull() ?: run {
             logger.info("Could not start due to invalid device")

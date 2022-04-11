@@ -19,7 +19,7 @@
 
 package com.waicool20.wai2k.views.tabs.preferences
 
-import com.waicool20.cvauto.android.AndroidRegion
+import com.waicool20.cvauto.android.AndroidDevice
 import com.waicool20.wai2k.views.tabs.profile.AbstractProfileView
 import javafx.scene.control.CheckBox
 import javafx.scene.control.ComboBox
@@ -29,15 +29,18 @@ import tornadofx.*
 class MiscPrefView : AbstractProfileView() {
     override val root: VBox by fxml("/views/tabs/preferences/misc.fxml")
     private val debugModeEnabledCheckBox: CheckBox by fxid()
-    private val captureCompressionModeComboBox: ComboBox<AndroidRegion.CompressionMode> by fxid()
+    private val captureMethodComboBox: ComboBox<AndroidDevice.CaptureMethod> by fxid()
+    private val captureCompressionModeComboBox: ComboBox<AndroidDevice.CompressionMode> by fxid()
 
     override fun setValues() {
-        captureCompressionModeComboBox.items.setAll(AndroidRegion.CompressionMode.values().toList())
+        captureMethodComboBox.items.setAll(AndroidDevice.CaptureMethod.values().toList())
+        captureCompressionModeComboBox.items.setAll(AndroidDevice.CompressionMode.values().toList())
     }
 
     override fun createBindings() {
         context.wai2KConfig.apply {
             debugModeEnabledCheckBox.bind(debugModeEnabledProperty)
+            captureMethodComboBox.bind(captureMethodProperty)
             captureCompressionModeComboBox.bind(captureCompressionModeProperty)
         }
     }

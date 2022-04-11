@@ -27,7 +27,6 @@ import com.waicool20.waicoolutils.javafx.CoroutineScopeView
 import com.waicool20.waicoolutils.javafx.addListener
 import com.waicool20.waicoolutils.logging.loggerFor
 import javafx.embed.swing.SwingFXUtils
-import javafx.event.ActionEvent
 import javafx.geometry.Pos
 import javafx.scene.control.Button
 import javafx.scene.control.ComboBox
@@ -195,11 +194,6 @@ class DeviceTabView : CoroutineScopeView(), Binder {
                 createNewRenderJob(device)
             }
         }
-        with(context.wai2KConfig) {
-            captureCompressionModeProperty.addListener("DeviceTabViewCCMListener") { newVal ->
-                deviceComboBox.selectedItem?.screens?.forEach { it.compressionMode = newVal }
-            }
-        }
     }
 
     override fun onTabSelected() {
@@ -253,11 +247,8 @@ class DeviceTabView : CoroutineScopeView(), Binder {
         if (device != null) {
             logger.debug("Selected device: ${device.properties.name}")
             with(context.wai2KConfig) {
-                lastDeviceSerial = device.serial
+                setNewDevice(device)
                 save()
-                device.screens.forEach { s ->
-                    s.compressionMode = captureCompressionMode
-                }
             }
             // Cancel the current job before starting a new one
             createNewRenderJob(device)
@@ -279,9 +270,11 @@ class DeviceTabView : CoroutineScopeView(), Binder {
                     withContext(Dispatchers.Main) {
                         deviceView.image = SwingFXUtils.toFXImage(image, null)
                     }
+                } catch (e: AndroidDevice.UnexpectedDisconnectException) {
+                    logger.warn("Device $device disconnected")
+                    break
                 } catch (e: Exception) {
                     logger.warn("Failed to get frame for device $device", e)
-                    break
                 }
             }
         }
