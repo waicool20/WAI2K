@@ -57,7 +57,17 @@
   },
   {
     "id": "home_status",
+    "matchingMode": "OR",
     "landmarks": [
+      {
+        "asset": {
+          "imageName": "home_status",
+          "x": 104,
+          "y": 735,
+          "width": 40,
+          "height": 40
+        }
+      },
       {
         "asset": {
           "imageName": "home_status",
