@@ -63,7 +63,7 @@ class Navigator(
      * @return Current [GameLocation]
      */
     suspend fun identifyCurrentLocation(retries: Int = 5): GameLocation {
-        if (!isGameActive()) restartGame("Game is not active!")
+        if (!isGameActive()) restartGameInternal(0)
         logger.info("Identifying current location")
         val start = System.currentTimeMillis()
         val locations = locations.entries.map { it.value }
@@ -341,7 +341,7 @@ class Navigator(
      * Restarts the game
      * This assumes that automatic login is enabled and no updates are required
      */
-    suspend fun restartGame(reason: String) {
+    suspend fun restartGame(reason: String, isStartup: Boolean = false) {
         if (scriptStats.gameRestarts >= config.gameRestartConfig.maxRestarts) {
             logger.info("Maximum of restarts reached, terminating script instead")
             stopScriptWithReason("Max restarts reached")
@@ -352,11 +352,19 @@ class Navigator(
             YuuBot.postMessage(config.apiKey, "Game Restarted", "Reason: $reason")
         }
         logger.info("Game will now restart")
-        ProcessManager(region.device).restart(GFL.PKG_NAME)
-        logger.info("Game restarted, waiting for login screen")
+        restartGameInternal()
+    }
+
+    private suspend fun restartGameInternal(delay: Long = 5000) {
+        ProcessManager(region.device).restart(GFL.PKG_NAME, delay)
+        logger.info("Game started, waiting for login screen")
         while (!locations.getValue(LocationId.GAME_START).isInRegion(region)) delay(5000)
         logger.info("Logging in")
-        region.subRegion(630, 400, 900, 300).click()
+        delay(1000)
+        while (locations.getValue(LocationId.GAME_START).isInRegion(region)) {
+            region.subRegion(630, 400, 900, 300).click()
+            delay(10000)
+        }
         val login = region.subRegion(200, 19, 96, 87)
         while (coroutineContext.isActive) {
             checkLogistics()

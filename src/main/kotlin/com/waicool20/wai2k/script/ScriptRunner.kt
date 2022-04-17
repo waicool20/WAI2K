@@ -113,13 +113,7 @@ class ScriptRunner(
                     e.message?.lines()?.forEach { logger.error(it) }
                     stop()
                 } catch (e: AndroidDevice.UnexpectedDisconnectException) {
-                    logger.error("Emulator disconnected unexpectedly")
-                    YuuBot.postMessage(
-                        currentConfig.apiKey,
-                        "Script Terminated",
-                        "Reason: Emulator disconnected"
-                    )
-                    stop()
+                    handleDeadDevice()
                 } catch (e: Region.CaptureIOException) {
                     if (currentDevice?.isConnected() == true) {
                         logger.error("Screen capture error, will wait 10s before restarting")
@@ -241,18 +235,22 @@ class ScriptRunner(
     }
 
     private suspend fun exceptionRestart(e: Exception) {
-        if (currentConfig.gameRestartConfig.enabled) {
-            navigator?.restartGame(e.localizedMessage)
-        } else {
-            if (currentConfig.notificationsConfig.onRestart) {
-                YuuBot.postMessage(
-                    currentConfig.apiKey,
-                    "Script Stopped",
-                    "Reason: ${e.localizedMessage}"
-                )
+        try {
+            if (currentConfig.gameRestartConfig.enabled) {
+                navigator?.restartGame(e.localizedMessage)
+            } else {
+                if (currentConfig.notificationsConfig.onRestart) {
+                    YuuBot.postMessage(
+                        currentConfig.apiKey,
+                        "Script Stopped",
+                        "Reason: ${e.localizedMessage}"
+                    )
+                }
+                logger.warn("Restart not enabled, ending script here")
+                stop()
             }
-            logger.warn("Restart not enabled, ending script here")
-            stop()
+        } catch (e: AndroidDevice.UnexpectedDisconnectException) {
+            handleDeadDevice()
         }
     }
 
@@ -265,5 +263,15 @@ class ScriptRunner(
                 YuuBot.postStats(currentConfig.apiKey, startTime, currentProfile, scriptStats)
             }
         }
+    }
+
+    private fun handleDeadDevice() {
+        logger.error("Emulator disconnected unexpectedly")
+        YuuBot.postMessage(
+            currentConfig.apiKey,
+            "Script Terminated",
+            "Reason: Emulator disconnected"
+        )
+        stop()
     }
 }
