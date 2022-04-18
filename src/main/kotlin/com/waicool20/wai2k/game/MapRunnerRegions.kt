@@ -55,7 +55,7 @@ class MapRunnerRegions(region: AndroidRegion) {
     /**
      * Pause button that appears at the top of the screen when engaging enemies
      */
-    val pauseButton = region.subRegion(1020, 0, 110, 50)
+    val pauseButton = region.subRegion(1020, 0, 115, 50)
 
     /**
      * Region to click when battle ends

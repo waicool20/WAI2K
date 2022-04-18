@@ -309,7 +309,9 @@ class Navigator(
     suspend fun checkAutoBattle() {
         if (!profile.autoBattle.enabled) return
         while (true) {
-            if (region.has(FileTemplate("navigator/autobattle_arrived.png"))) {
+            if (region.subRegion(138, 740, 110, 100)
+                    .has(FileTemplate("navigator/autobattle_arrived.png"))
+            ) {
                 logger.info("An echelon has arrived from auto battle")
                 // Dismiss mission accomplished and rewards
                 repeat(2) {
