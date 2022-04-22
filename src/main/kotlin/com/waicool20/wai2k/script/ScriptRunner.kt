@@ -224,7 +224,6 @@ class ScriptRunner(
     private suspend fun runScriptCycle() {
         reload()
         modules.forEach { it.execute() }
-        gameState.justRestarted = false
 
         postStats()
         if (_state.compareAndSet(State.PAUSING, State.PAUSED)) {

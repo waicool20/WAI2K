@@ -385,7 +385,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
         logger.info("Choosing combat map $map")
         navigator.checkLogistics()
         // Only needed when script first starts/just restarted as we are unsure what map mode the game is in
-        if (gameState.justRestarted) {
+        if (gameState.requiresMapInit) {
             when (map.type) {
                 CombatMap.Type.NORMAL -> {
                     // Normal map

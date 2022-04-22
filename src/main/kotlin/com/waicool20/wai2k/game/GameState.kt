@@ -27,16 +27,6 @@ class GameState {
     var requiresRestart: Boolean = false
     var requiresMapInit: Boolean = true
 
-    /**
-     * This value is true for the script cycle after a game restart and set to false at the end
-     * of the cycle. When checking for restarts in map context, use [requiresMapInit] instead
-     */
-    var justRestarted: Boolean = true
-        set(value) {
-            if (value) requiresMapInit = true
-            field = value
-        }
-
     var dollOverflow: Boolean = false
     var equipOverflow: Boolean = false
     var switchDolls: Boolean = false
@@ -51,12 +41,14 @@ class GameState {
     var delayCoefficient = 1.0
     var dailyReset: Instant = nextReset()
 
-    fun reset() {
+    fun signalRestart() {
         requiresUpdate = true
         requiresRestart = false
         requiresMapInit = true
+    }
 
-        justRestarted = true
+    fun reset() {
+        signalRestart()
 
         dollOverflow = false
         equipOverflow = false

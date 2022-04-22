@@ -397,8 +397,7 @@ class Navigator(
             delay(1000)
         }
         logger.info("Finished logging in")
-        gameState.requiresMapInit = true
-        gameState.requiresUpdate = true
+        gameState.signalRestart()
     }
 
     private fun List<GameLocation.GameLocationLink>?.formatted(): String {
