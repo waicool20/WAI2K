@@ -20,8 +20,11 @@
 package com.waicool20.wai2k.views.tabs
 
 import com.waicool20.wai2k.config.Wai2KContext
+import com.waicool20.wai2k.events.EventBus
+import com.waicool20.wai2k.events.ScriptStatsUpdateEvent
 import com.waicool20.wai2k.script.ScriptContext
 import com.waicool20.wai2k.script.ScriptRunner
+import com.waicool20.wai2k.script.ScriptStats
 import com.waicool20.wai2k.util.formatted
 import com.waicool20.waicoolutils.divAssign
 import com.waicool20.waicoolutils.javafx.CoroutineScopeView
@@ -30,11 +33,14 @@ import javafx.scene.control.Label
 import javafx.scene.layout.VBox
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.text.DecimalFormat
 import java.time.Duration
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 class StatusTabView : CoroutineScopeView() {
     override val root: VBox by fxml("/views/tabs/status-tab.fxml")
@@ -75,6 +81,10 @@ class StatusTabView : CoroutineScopeView() {
 
     override fun onDock() {
         super.onDock()
+        EventBus.subscribe<ScriptStatsUpdateEvent>()
+            .onEach { updateScriptStats(it.stats) }
+            .launchIn(this)
+
         launch(CoroutineName("Status Tab View Updater")) {
             while (isActive) {
                 updateView()
@@ -85,39 +95,34 @@ class StatusTabView : CoroutineScopeView() {
 
     private fun updateView() {
         updateTimes()
-        if (scriptRunner.state.value != ScriptRunner.State.STOPPED) updateScriptStats()
         updateEchelonStats()
     }
 
     private fun updateTimes() {
         startTimeLabel.text = scriptRunner.lastStartTime?.formatted() ?: ""
-        if (scriptRunner.state.value != ScriptRunner.State.STOPPED) {
-            elapsedTimeLabel.text = timeDelta(scriptRunner.lastStartTime)
-        }
+        elapsedTimeLabel.text = formatDuration(Duration.of(scriptRunner.elapsedTime, ChronoUnit.MILLIS))
     }
 
-    private fun updateScriptStats() {
-        with(scriptRunner.scriptStats) {
-            logisticsSentLabel.text = "$logisticsSupportSent"
-            logisticsReceivedLabel.text = "$logisticsSupportReceived"
-            sortiesDoneLabel.text = "$sortiesDone"
-            sphLabel.text = formatDecimal(sortiesDone / hoursSince(scriptRunner.lastStartTime))
-            repairsLabel.text = "$repairs"
-            sprLabel.text = formatDecimal(sortiesDone / repairs.toDouble())
+    private fun updateScriptStats(stats: ScriptStats) = with(stats) {
+        logisticsSentLabel.text = "$logisticsSupportSent"
+        logisticsReceivedLabel.text = "$logisticsSupportReceived"
+        sortiesDoneLabel.text = "$sortiesDone"
+        sphLabel.text = formatDecimal(sortiesDone / scriptRunner.elapsedTime.toDouble())
+        repairsLabel.text = "$repairs"
+        sprLabel.text = formatDecimal(sortiesDone / repairs.toDouble())
 
-            enhancementsDoneLabel.text = "$enhancementsDone"
-            dollsUsedForEnhancementLabel.text = "$dollsUsedForEnhancement"
-            disassemblesDoneLabel.text = "$disassemblesDone"
-            dollsUsedForDisassemblyLabel.text = "$dollsUsedForDisassembly"
+        enhancementsDoneLabel.text = "$enhancementsDone"
+        dollsUsedForEnhancementLabel.text = "$dollsUsedForEnhancement"
+        disassemblesDoneLabel.text = "$disassemblesDone"
+        dollsUsedForDisassemblyLabel.text = "$dollsUsedForDisassembly"
 
-            equipDisassemblesDoneLabel.text = "$equipDisassemblesDone"
-            equipsUsedForDisassemblyLabel.text = "$equipsUsedForDisassembly"
+        equipDisassemblesDoneLabel.text = "$equipDisassemblesDone"
+        equipsUsedForDisassemblyLabel.text = "$equipsUsedForDisassembly"
 
-            combatReportsWrittenLabel.text = "$combatReportsWritten"
-            simulationEnergyUsedLabel.text = "$simEnergySpent"
-            coalitionEnergyUsedLabel.text = "$coalitionEnergySpent"
-            gameRestartsLabel.text = "$gameRestarts"
-        }
+        combatReportsWrittenLabel.text = "$combatReportsWritten"
+        simulationEnergyUsedLabel.text = "$simEnergySpent"
+        coalitionEnergyUsedLabel.text = "$coalitionEnergySpent"
+        gameRestartsLabel.text = "$gameRestarts"
     }
 
     private fun updateEchelonStats() {
@@ -172,7 +177,7 @@ class StatusTabView : CoroutineScopeView() {
 
             if (context.currentProfile.combatReport.enabled
                 && context.currentProfile.combat.enabled
-                && scriptRunner.state.value != ScriptRunner.State.STOPPED
+                && scriptRunner.state != ScriptRunner.State.STOPPED
             ) {
                 if (reportsNextCheck > Instant.now()) {
                     builder /= "Combat Report ETA:"

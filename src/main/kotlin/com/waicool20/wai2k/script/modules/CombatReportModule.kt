@@ -21,6 +21,8 @@ package com.waicool20.wai2k.script.modules
 
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.config.Wai2KProfile.CombatReport
+import com.waicool20.wai2k.events.CombatReportWriteEvent
+import com.waicool20.wai2k.events.EventBus
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.util.formatted
@@ -76,9 +78,10 @@ class CombatReportModule(navigator: Navigator) : ScriptModule(navigator) {
             .toIntOrNull()?.coerceAtMost(80)
         if (reports != null) {
             logger.info("Writing $reports reports")
-            scriptStats.combatReportsWritten += reports
+            EventBus.publish(CombatReportWriteEvent(reports))
         } else {
             logger.warn("Could not determine amount of reports to write")
+            EventBus.publish(CombatReportWriteEvent(0))
         }
         logger.info("Confirming selection")
         region.subRegion(1144, 749, 268, 103).click(); delay(1000) // OK button

@@ -23,6 +23,9 @@ import com.waicool20.cvauto.core.AnyRegion
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.config.Wai2KProfile.CombatSimulation.Coalition.Type
 import com.waicool20.wai2k.config.Wai2KProfile.CombatSimulation.Level
+import com.waicool20.wai2k.events.CoalitionEnergySpentEvent
+import com.waicool20.wai2k.events.EventBus
+import com.waicool20.wai2k.events.SimEnergySpentEvent
 import com.waicool20.wai2k.game.Echelon
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.Navigator
@@ -152,7 +155,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
                 }
             }
             logger.info("Completed all neural sim")
-            scriptStats.simEnergySpent += energySpent
+            EventBus.publish(SimEnergySpentEvent(energySpent))
             gameState.simEnergy -= energySpent
             updateSimNextCheck(level)
         }
@@ -193,9 +196,9 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
 
         navigator.navigateTo(LocationId.COMBAT_SIMULATION)
 
+        logger.info("Selecting coalition tab")
         while(coroutineContext.isActive) {
-            delay(3000)
-            logger.info("Selecting coalition tab")
+            delay(5000)
             region.findBest(FileTemplate("combat-simulation/coalition-drill.png"))?.region?.click()
             if (Color(region.capture().getRGB(1780,235)).isSimilar(Color(156, 36, 33))) {
                 break
@@ -311,7 +314,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
 
         runSimCycles(times)
         logger.info("Completed all data sim")
-        scriptStats.simEnergySpent += times * level.cost
+        EventBus.publish(SimEnergySpentEvent(times * level.cost))
         gameState.simEnergy -= times * level.cost
         updateSimNextCheck(level)
     }
@@ -352,7 +355,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
 
         runSimCycles(times)
         logger.info("Completed all coalition drill")
-        scriptStats.coalitionEnergySpent += times * 3
+        EventBus.publish(CoalitionEnergySpentEvent(times * 3))
         gameState.coalitionEnergy -= times * 3
         updateCoalNextCheck()
     }

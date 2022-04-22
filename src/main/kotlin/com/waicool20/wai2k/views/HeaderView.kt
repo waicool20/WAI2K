@@ -21,6 +21,8 @@ package com.waicool20.wai2k.views
 
 import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.config.Wai2KProfile
+import com.waicool20.wai2k.events.EventBus
+import com.waicool20.wai2k.events.ScriptStopEvent
 import com.waicool20.wai2k.script.ScriptContext
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.waicoolutils.javafx.AlertFactory
@@ -156,13 +158,13 @@ class HeaderView : CoroutineScopeView() {
     }
 
     private fun onStartPause() = launch {
-        when (scriptRunner.state.value) {
+        when (scriptRunner.state) {
             ScriptRunner.State.RUNNING -> {
                 scriptRunner.pause()
                 startPauseButton.text = "Cont."
                 logger.info("Script will pause when the current cycle ends")
             }
-            ScriptRunner.State.PAUSED -> {
+            ScriptRunner.State.PAUSING, ScriptRunner.State.PAUSED -> {
                 scriptRunner.unpause()
                 startPauseButton.text = "Pause"
             }
@@ -179,7 +181,7 @@ class HeaderView : CoroutineScopeView() {
     }
 
     private fun startScriptMonitor() = launch(CoroutineName("SCRIPT_MONITOR") + Dispatchers.IO) {
-        scriptRunner.state.first { it == ScriptRunner.State.STOPPED }
+        EventBus.subscribe<ScriptStopEvent>().first()
         withContext(Dispatchers.JavaFx) {
             startPauseButton.text = "Start"
             stopButton.hide()

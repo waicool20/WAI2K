@@ -20,23 +20,104 @@
 package com.waicool20.wai2k.script
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.waicool20.wai2k.events.*
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 
-data class ScriptStats(
-    var logisticsSupportReceived: Int = 0,
-    var logisticsSupportSent: Int = 0,
-    var sortiesDone: Int = 0,
-    var enhancementsDone: Int = 0,
-    var dollsUsedForEnhancement: Int = 0,
-    var disassemblesDone: Int = 0,
-    var dollsUsedForDisassembly: Int = 0,
-    var equipDisassemblesDone: Int = 0,
-    var equipsUsedForDisassembly: Int = 0,
-    var repairs: Int = 0,
-    var gameRestarts: Int = 0,
-    var combatReportsWritten: Int = 0,
-    var simEnergySpent: Int = 0,
+class ScriptStats {
+    private val scope = CoroutineScope(Dispatchers.Default)
+
+    var logisticsSupportReceived: Int = 0
+        private set
+    var logisticsSupportSent: Int = 0
+        private set
+    var sortiesDone: Int = 0
+        private set
+    var enhancementsDone: Int = 0
+        private set
+    var dollsUsedForEnhancement: Int = 0
+        private set
+    var disassemblesDone: Int = 0
+        private set
+    var dollsUsedForDisassembly: Int = 0
+        private set
+    var equipDisassemblesDone: Int = 0
+        private set
+    var equipsUsedForDisassembly: Int = 0
+        private set
+    var repairs: Int = 0
+        private set
+    var gameRestarts: Int = 0
+        private set
+    var combatReportsWritten: Int = 0
+        private set
+    var simEnergySpent: Int = 0
+        private set
     var coalitionEnergySpent: Int = 0
-) {
+        private set
+
+    init {
+        EventBus.subscribe<LogisticsSupportReceivedEvent>()
+            .onEach {
+                logisticsSupportReceived++
+                EventBus.publish(ScriptStatsUpdateEvent(this))
+            }.launchIn(scope)
+        EventBus.subscribe<LogisticsSupportSentEvent>()
+            .onEach {
+                logisticsSupportSent++
+                EventBus.publish(ScriptStatsUpdateEvent(this))
+            }.launchIn(scope)
+        EventBus.subscribe<SortieDoneEvent>()
+            .onEach {
+                sortiesDone++
+                EventBus.publish(ScriptStatsUpdateEvent(this))
+            }.launchIn(scope)
+        EventBus.subscribe<DollEnhancementDoneEvent>()
+            .onEach {
+                enhancementsDone++
+                dollsUsedForEnhancement += it.count
+                EventBus.publish(ScriptStatsUpdateEvent(this))
+            }.launchIn(scope)
+        EventBus.subscribe<DollDisassemblyDoneEvent>()
+            .onEach {
+                disassemblesDone++
+                dollsUsedForDisassembly += it.count
+                EventBus.publish(ScriptStatsUpdateEvent(this))
+            }.launchIn(scope)
+        EventBus.subscribe<EquipDisassemblyDoneEvent>()
+            .onEach {
+                equipDisassemblesDone++
+                equipsUsedForDisassembly += it.count
+                EventBus.publish(ScriptStatsUpdateEvent(this))
+            }.launchIn(scope)
+        EventBus.subscribe<RepairsDoneEvent>()
+            .onEach {
+                repairs += it.count
+                EventBus.publish(ScriptStatsUpdateEvent(this))
+            }.launchIn(scope)
+        EventBus.subscribe<GameRestartEvent>()
+            .onEach {
+                gameRestarts++
+                EventBus.publish(ScriptStatsUpdateEvent(this))
+            }.launchIn(scope)
+        EventBus.subscribe<CombatReportWriteEvent>()
+            .onEach {
+                combatReportsWritten += it.count
+                EventBus.publish(ScriptStatsUpdateEvent(this))
+            }.launchIn(scope)
+        EventBus.subscribe<SimEnergySpentEvent>()
+            .onEach {
+                simEnergySpent += it.count
+                EventBus.publish(ScriptStatsUpdateEvent(this))
+            }.launchIn(scope)
+        EventBus.subscribe<CoalitionEnergySpentEvent>()
+            .onEach {
+                coalitionEnergySpent += it.count
+                EventBus.publish(ScriptStatsUpdateEvent(this))
+            }.launchIn(scope)
+    }
+
     fun reset() {
         logisticsSupportReceived = 0
         logisticsSupportSent = 0
@@ -52,6 +133,7 @@ data class ScriptStats(
         combatReportsWritten = 0
         simEnergySpent = 0
         coalitionEnergySpent = 0
+        EventBus.tryPublish(ScriptStatsUpdateEvent(this))
     }
 
     override fun toString(): String = jacksonObjectMapper().writerWithDefaultPrettyPrinter()

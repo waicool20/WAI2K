@@ -23,6 +23,10 @@ import boofcv.alg.color.ColorHsv
 import com.waicool20.cvauto.core.input.ITouchInterface
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.cvauto.core.template.ImageTemplate
+import com.waicool20.wai2k.events.DollDisassemblyDoneEvent
+import com.waicool20.wai2k.events.DollEnhancementDoneEvent
+import com.waicool20.wai2k.events.EquipDisassemblyDoneEvent
+import com.waicool20.wai2k.events.EventBus
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
@@ -68,24 +72,21 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
         logger.info("Doll limit reached, will try to enhance")
         navigator.navigateTo(LocationId.TDOLL_ENHANCEMENT)
 
-        var oldCount: Int? = null
+        var oldCount = 0
+
+        suspend fun updateCount() {
+            val (currentCount, _) = getCurrentCount(Count.DOLL)
+            val countDelta = oldCount - currentCount
+            if (countDelta > 0) EventBus.publish(DollEnhancementDoneEvent(countDelta))
+            oldCount = currentCount
+        }
 
         while (coroutineContext.isActive) {
             val selectCharacterButton = region.subRegion(468, 206, 246, 605)
             // Click select character
             selectCharacterButton.click(); delay(1000)
 
-            // Find the old doll count
-            try {
-                withTimeout(5000) {
-                    val (currentCount, _) = getCurrentCount(Count.DOLL)
-                    oldCount?.let { scriptStats.dollsUsedForEnhancement += it - currentCount }
-                    oldCount = currentCount
-                }
-            } catch (e: TimeoutCancellationException) {
-                logger.warn("Timed out on doll count, cancelling enhancement")
-                return
-            }
+            updateCount()
 
             logger.info("Selecting highest level T-doll for enhancement")
             // Randomly select a doll on the screen for enhancement
@@ -176,7 +177,6 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
             // Click enhance button
             logger.info("Enhancing T-doll")
             region.subRegion(1763, 892, 250, 96).click()
-            scriptStats.enhancementsDone += 1
             delay(300)
 
             // Click confirm if not enough T-dolls, got to get rid of the trash anyways :D
@@ -201,7 +201,14 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
         logger.info("Doll limit reached, will try to disassemble")
         navigator.navigateTo(LocationId.TDOLL_DISASSEMBLY)
 
-        var oldCount: Int? = null
+        var oldCount = 0
+
+        suspend fun updateCount() {
+            val (currentCount, _) = getCurrentCount(Count.DOLL)
+            val countDelta = oldCount - currentCount
+            if (countDelta > 0) EventBus.publish(DollDisassemblyDoneEvent(countDelta))
+            oldCount = currentCount
+        }
 
         logger.info("Disassembling 2 star T-dolls")
 
@@ -218,18 +225,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
                 return
             }
 
-            // Find the old doll count
-            try {
-                withTimeout(5000) {
-                    val (currentCount, _) = getCurrentCount(Count.DOLL)
-                    oldCount?.let { scriptStats.dollsUsedForDisassembly += it - currentCount }
-                    oldCount = currentCount
-                }
-            } catch (e: TimeoutCancellationException) {
-                logger.warn("Timed out on doll count, cancelling disassemble")
-                return
-            }
-
+            updateCount()
             // Click smart select button
             logger.info("Using smart select")
             region.subRegion(1768, 890, 250, 158).click()
@@ -249,17 +245,14 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
             logger.info("Disassembling selected T-dolls")
             // Click disassemble button
             disassembleButton.click(); delay(750)
-            // Update stats
-            scriptStats.disassemblesDone += 1
         }
+
+        updateCount()
 
         logger.info("Disassembling 3 star T-dolls")
         logger.info("Applying filters")
         applyDollFilters(listOf(3, 4))
         delay(750)
-
-        val (currentCount, _) = getCurrentCount(Count.DOLL)
-        oldCount?.let { scriptStats.dollsUsedForDisassembly += it - currentCount }
 
         while (coroutineContext.isActive) {
             region.matcher.settings.matchDimension = ScriptRunner.HIGH_RES
@@ -287,7 +280,6 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
                 delay(250)
             }
             delay(250)
-            scriptStats.dollsUsedForDisassembly += dolls.size
             logger.info("Confirm doll selections")
             // Click ok
             region.subRegion(1759, 880, 268, 177)
@@ -298,7 +290,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
             region.subRegion(1100, 865, 324, 161)
                 .findBest(FileTemplate("ok.png"))?.region?.click(); delay(200)
             // Update stats
-            scriptStats.disassemblesDone += 1
+            EventBus.publish(DollDisassemblyDoneEvent(dolls.size))
             // Can break if disassembled count is less than 12
             if (dolls.size < 12) {
                 logger.info("No more T-dolls to disassemble!")
@@ -322,7 +314,15 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
         logger.info("Equipment limit reached, will try to disassemble")
         navigator.navigateTo(LocationId.TDOLL_DISASSEMBLY)
 
-        var oldCount: Int? = null
+        var oldCount = 0
+
+        suspend fun updateCount() {
+            val (currentCount, _) = getCurrentCount(Count.EQUIP)
+            val countDelta = oldCount - currentCount
+            if (countDelta > 0) EventBus.publish(EquipDisassemblyDoneEvent(countDelta))
+            oldCount = currentCount
+        }
+
         logger.info("Disassembling 2 star equipment")
         logger.info("Start equipment selection")
 
@@ -336,17 +336,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
             return
         }
 
-        // Find the old equip count
-        try {
-            withTimeout(5000) {
-                val (currentCount, _) = getCurrentCount(Count.EQUIP)
-                oldCount?.let { scriptStats.equipsUsedForDisassembly += it - currentCount }
-                oldCount = currentCount
-            }
-        } catch (e: TimeoutCancellationException) {
-            logger.warn("Timed out on equipment count, cancelling disassemble")
-            return
-        }
+        updateCount()
         // Click smart select button
         logger.info("Using smart select")
         region.subRegion(1772, 894, 237, 163).click()
@@ -361,8 +351,6 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
         disassemblyWindow.waitHas(sTemp, 3000)
         logger.info("Disassembling selected equipment")
         disassembleButton.click(); delay(750)
-        // Update stats
-        scriptStats.equipDisassemblesDone += 1
 
         disassemblyWindow.waitHas(sTemp, 10000)?.click(); delay(750)
 
@@ -387,10 +375,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
         region.subRegion(1320, 979, 413, 83).click(); yield()
         delay(750)
 
-        val (currentCount, total) = getCurrentCount(Count.EQUIP)
-        oldCount?.let { scriptStats.equipsUsedForDisassembly += it - currentCount }
-
-        var disassemblyCount = 0
+        updateCount()
 
         while (coroutineContext.isActive) {
             region.matcher.settings.matchDimension = ScriptRunner.HIGH_RES
@@ -410,18 +395,13 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
             if (equips.isEmpty()) {
                 // Click cancel if no equips could be used for disassembly
                 region.subRegion(120, 0, 205, 144).click()
-                if (currentCount >= total) {
-                    // This doesn't really apply anymore since 4* equip disassembly is implemented, but ehh SPEQ are a thing too
-                    logger.info("Equipment capacity reached but could not disassemble anymore equipment, stopping script")
-                    stopScriptWithReason("Equipment capacity reached")
-                } else break
+                break
             }
             // Select all equips
             equips.sortedBy { it.y * 10 + it.x }.forEach {
                 it.click()
                 delay(250)
             }
-            disassemblyCount += equips.size
             logger.info("Confirm equipment selections")
             // Click ok
             region.subRegion(1768, 889, 250, 170)
@@ -437,7 +417,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
                     .waitHas(FileTemplate("ok.png"), 1500)?.click()
             }
             // Update stats
-            scriptStats.equipDisassemblesDone += 1
+            EventBus.publish(EquipDisassemblyDoneEvent(equips.size))
             // Can break if disassembled count is less than 12
             if (equips.size < 12) {
                 logger.info("No more higher rarity equipment to disassemble!")
@@ -454,9 +434,6 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
                 break
             }
         }
-        scriptStats.equipsUsedForDisassembly += disassemblyCount
-        gameState.equipOverflow = currentCount - disassemblyCount >= total
-        if (!gameState.equipOverflow) logger.info("The base now has space for new equipment")
     }
 
     private enum class Count(val keyword: String) {

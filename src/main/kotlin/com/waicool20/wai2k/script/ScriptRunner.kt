@@ -27,6 +27,7 @@ import com.waicool20.cvauto.core.Region
 import com.waicool20.wai2k.Wai2K
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
+import com.waicool20.wai2k.events.*
 import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.GameState
 import com.waicool20.wai2k.script.modules.InitModule
@@ -35,15 +36,13 @@ import com.waicool20.wai2k.script.modules.StopModule
 import com.waicool20.wai2k.util.YuuBot
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import org.reflections.Reflections
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.imageio.ImageIO
+import kotlin.concurrent.fixedRateTimer
 import kotlin.io.path.createDirectories
 import kotlin.math.roundToLong
 import kotlin.reflect.full.primaryConstructor
@@ -58,7 +57,7 @@ class ScriptRunner(
     }
 
     enum class State {
-        RUNNING, PAUSED, STOPPED
+        RUNNING, PAUSING, PAUSED, STOPPED
     }
 
     init {
@@ -66,7 +65,7 @@ class ScriptRunner(
         (loggerFor<Reflections>() as Logger).level = Level.OFF
     }
 
-    lateinit var scope: CoroutineScope
+    lateinit var sessionScope: CoroutineScope
         private set
 
     private val logger = loggerFor<ScriptRunner>()
@@ -81,25 +80,41 @@ class ScriptRunner(
     val scriptStats = ScriptStats()
     var lastStartTime: Instant? = null
         private set
-    private val _state = MutableStateFlow(State.STOPPED)
-    var state = _state.asStateFlow()
+    var elapsedTime = 0L
+        private set
 
-    private var statsHash: Int = scriptStats.hashCode()
+    private val _state = MutableStateFlow(State.STOPPED)
+    val state get() = _state.value
+
+    private var statsChanged = false
     private val modules = mutableSetOf<ScriptModule>()
     private var navigator: Navigator? = null
 
+    init {
+        fixedRateTimer("ElapsedTimeTimer", true, 0, 1000) {
+            if (state == State.RUNNING || state == State.PAUSING) elapsedTime += 1000
+        }
+    }
+
     fun run() {
         if (!_state.compareAndSet(State.STOPPED, State.RUNNING)) return
-        scope = CoroutineScope(Dispatchers.Default + CoroutineName("ScriptRunner"))
-        scope.coroutineContext.job.invokeOnCompletion { _state.update { State.STOPPED } }
+        EventBus.tryPublish(ScriptStartEvent())
+        sessionScope = CoroutineScope(Dispatchers.Default + CoroutineName("ScriptRunner"))
+        sessionScope.coroutineContext.job.invokeOnCompletion {
+            _state.update { State.STOPPED }
+            EventBus.tryPublish(ScriptStopEvent())
+        }
         logger.info("Starting new WAI2K session")
         gameState.requiresUpdate = true
+        elapsedTime = 0
         lastStartTime = Instant.now()
         scriptStats.reset()
-        statsHash = scriptStats.hashCode()
         gameState.reset()
         reload(true)
-        scope.launch {
+        EventBus.subscribe<ScriptStatsUpdateEvent>()
+            .onEach { statsChanged = true }
+            .launchIn(sessionScope)
+        sessionScope.launch {
             postStats()
             while (isActive) {
                 try {
@@ -188,18 +203,19 @@ class ScriptRunner(
     }
 
     fun pause() {
-        _state.compareAndSet(State.RUNNING, State.PAUSED)
+        _state.compareAndSet(State.RUNNING, State.PAUSING)
     }
 
     fun unpause() {
+        _state.compareAndSet(State.PAUSING, State.RUNNING)
         _state.compareAndSet(State.PAUSED, State.RUNNING)
     }
 
     fun stop() {
         logger.info("Stopping the script")
-        scope.cancel()
+        sessionScope.cancel()
         try {
-            runBlocking(scope.coroutineContext) { yield() }
+            runBlocking(sessionScope.coroutineContext) { yield() }
         } catch (e: CancellationException) {
             // Ignore
         }
@@ -207,14 +223,15 @@ class ScriptRunner(
 
     private suspend fun runScriptCycle() {
         reload()
-        if (modules.isEmpty()) stop()
         modules.forEach { it.execute() }
         gameState.justRestarted = false
 
         postStats()
-        if (state.value == State.PAUSED) {
+        if (_state.compareAndSet(State.PAUSING, State.PAUSED)) {
             logger.info("Script is now paused")
-            state.first { it == State.RUNNING }
+            EventBus.publish(ScriptPauseEvent())
+            _state.first { it == State.RUNNING }
+            EventBus.publish((ScriptUnpauseEvent()))
             logger.info("Script will now resume")
         } else {
             delay((currentConfig.scriptConfig.loopDelay * 1000L).coerceAtLeast(500))
@@ -227,7 +244,7 @@ class ScriptRunner(
         val screenshot = device.screens.first().capture()
         val output = Wai2K.CONFIG_DIR.resolve("debug")
             .resolve("${DateTimeFormatter.ofPattern("yyyy-MM-dd HH-mm-ss").format(now)}.png")
-        scope.launch(Dispatchers.IO) {
+        sessionScope.launch(Dispatchers.IO) {
             output.parent.createDirectories()
             ImageIO.write(screenshot, "PNG", output.toFile())
             logger.info("Saved debug image to: ${output.toAbsolutePath()}")
@@ -255,13 +272,10 @@ class ScriptRunner(
     }
 
     private fun postStats() {
-        // Only post new stats if it has changed
-        val newHash = scriptStats.hashCode()
-        if (statsHash != newHash) {
-            statsHash = newHash
-            lastStartTime?.let { startTime ->
-                YuuBot.postStats(currentConfig.apiKey, startTime, currentProfile, scriptStats)
-            }
+        if (statsChanged) {
+            statsChanged = false
+            val startTime = lastStartTime ?: return
+            YuuBot.postStats(currentConfig.apiKey, startTime, currentProfile, scriptStats)
         }
     }
 

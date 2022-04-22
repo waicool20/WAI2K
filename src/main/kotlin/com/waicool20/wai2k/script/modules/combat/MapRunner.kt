@@ -22,6 +22,9 @@ package com.waicool20.wai2k.script.modules.combat
 import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.cvauto.core.template.ITemplate
+import com.waicool20.wai2k.events.EventBus
+import com.waicool20.wai2k.events.RepairsDoneEvent
+import com.waicool20.wai2k.events.SortieDoneEvent
 import com.waicool20.wai2k.game.*
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.ScriptException
@@ -272,7 +275,7 @@ abstract class MapRunner(
                             region.subRegion(360 + m * 272, 228, 246, 323).click()
                             region.subRegion(1441, 772, 250, 96)
                                 .waitHas(FileTemplate("ok.png"), 3000)?.click()
-                            scriptStats.repairs++
+                            EventBus.publish(RepairsDoneEvent(1))
                             delay(500)
                         }
                     }
@@ -552,7 +555,7 @@ abstract class MapRunner(
         } catch (e: TimeoutCancellationException) {
             throw ScriptTimeOutException("Waiting to exit battle", e)
         } finally {
-            scriptStats.sortiesDone += 1
+            EventBus.publish(SortieDoneEvent())
         }
     }
 
@@ -565,7 +568,7 @@ abstract class MapRunner(
         mapRunnerRegions.terminate.click(); delay(5000)
 
         logger.info("Left battle screen")
-        if (incrementSorties) scriptStats.sortiesDone += 1
+        if (incrementSorties) EventBus.publish(SortieDoneEvent())
         _battles = 1
     }
 
@@ -578,7 +581,7 @@ abstract class MapRunner(
         mapRunnerRegions.restart.click(); delay(5000)
 
         logger.info("Restarted battle")
-        if (incrementSorties) scriptStats.sortiesDone += 1
+        if (incrementSorties) EventBus.publish(SortieDoneEvent())
         _battles = 1
     }
 

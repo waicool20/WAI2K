@@ -22,6 +22,8 @@ package com.waicool20.wai2k.script.modules.combat
 import com.waicool20.cvauto.core.input.ITouchInterface
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.cvauto.core.template.ImageTemplate
+import com.waicool20.wai2k.events.EventBus
+import com.waicool20.wai2k.events.RepairsDoneEvent
 import com.waicool20.wai2k.game.CombatMap
 import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.LocationId
@@ -343,7 +345,8 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
             while (coroutineContext.isActive) {
                 val repairs = ocr.digitsOnly()
                     .readText(region.subRegion(1472, 689, 68, 42), invert = true)
-                scriptStats.repairs += repairs.toIntOrNull() ?: continue
+                    .toIntOrNull() ?: continue
+                EventBus.publish(RepairsDoneEvent(repairs))
 
                 logger.info("Repairing $repairs dolls")
                 break

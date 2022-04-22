@@ -37,7 +37,7 @@ interface ScriptComponent {
 
     val ocr get() = Ocr.forConfig(config)
     val locations get() = GameLocation.mappings(config)
-    val scope get() = scriptRunner.scope
+    val scope get() = scriptRunner.sessionScope
 
     suspend fun stopScriptWithReason(reason: String) {
         val msg = """

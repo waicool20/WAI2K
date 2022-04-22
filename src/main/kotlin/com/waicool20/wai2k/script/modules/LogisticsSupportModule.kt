@@ -21,6 +21,8 @@ package com.waicool20.wai2k.script.modules
 
 
 import com.waicool20.cvauto.core.template.FileTemplate
+import com.waicool20.wai2k.events.EventBus
+import com.waicool20.wai2k.events.LogisticsSupportSentEvent
 import com.waicool20.wai2k.game.Echelon
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.game.LogisticsSupport
@@ -131,7 +133,7 @@ class LogisticsSupportModule(navigator: Navigator) : ScriptModule(navigator) {
             val eta = Instant.now() + nextMission.duration
             echelon.logisticsSupportAssignment = LogisticsSupport.Assignment(nextMission, eta)
             logger.info("Dispatched $echelon to logistic support ${nextMission.formattedString}, ETA: ${eta.formatted()}")
-            scriptStats.logisticsSupportSent++
+            EventBus.publish(LogisticsSupportSentEvent())
             return
         }
         // Mission not running, requirements not met

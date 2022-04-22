@@ -24,6 +24,10 @@ import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.android.ProcessManager
 import com.waicool20.wai2k.config.Wai2KConfig
 import com.waicool20.wai2k.config.Wai2KProfile
+import com.waicool20.wai2k.events.EventBus
+import com.waicool20.wai2k.events.GameRestartEvent
+import com.waicool20.wai2k.events.LogisticsSupportReceivedEvent
+import com.waicool20.wai2k.events.LogisticsSupportSentEvent
 import com.waicool20.wai2k.game.GFL
 import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.LocationId
@@ -283,14 +287,14 @@ class Navigator(
                     true
                 }
             }
+            EventBus.publish(LogisticsSupportReceivedEvent())
             val image = if (cont) {
-                // Increment sent stats if we are continuing
-                scriptStats.logisticsSupportSent++
+                EventBus.publish(LogisticsSupportSentEvent())
                 "ok.png"
             } else "cancel-logi.png"
 
             region.waitHas(FileTemplate(image), 10000)?.click()
-            scriptStats.logisticsSupportReceived++
+
 
             // Mark game state dirty, needs updating
             gameState.requiresUpdate = true
@@ -343,13 +347,13 @@ class Navigator(
      * Restarts the game
      * This assumes that automatic login is enabled and no updates are required
      */
-    suspend fun restartGame(reason: String, isStartup: Boolean = false) {
+    suspend fun restartGame(reason: String) {
         if (scriptStats.gameRestarts >= config.gameRestartConfig.maxRestarts) {
             logger.info("Maximum of restarts reached, terminating script instead")
             stopScriptWithReason("Max restarts reached")
         }
         gameState.requiresRestart = false
-        scriptStats.gameRestarts++
+        EventBus.publish(GameRestartEvent(reason))
         if (config.notificationsConfig.onRestart) {
             YuuBot.postMessage(config.apiKey, "Game Restarted", "Reason: $reason")
         }
