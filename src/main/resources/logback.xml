@@ -20,7 +20,7 @@
 <configuration>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>[WAI2K] [%date{yyyy-MM-dd HH:mm:ss.SSS}] [%logger{10}] %level - %msg%n
+            <pattern>[WAI2K] [%date{yyyy-MM-dd HH:mm:ss.SSS}] [%20.20logger{10}] %-5level - %msg%n
             </pattern>
         </encoder>
     </appender>
@@ -38,7 +38,7 @@
             <maxFileSize>8MB</maxFileSize>
         </triggeringPolicy>
         <encoder>
-            <pattern>[WAI2K] [%date{yyyy-MM-dd HH:mm:ss.SSS}] [%logger{10}] %level - %msg%n
+            <pattern>[WAI2K] [%date{yyyy-MM-dd HH:mm:ss.SSS}] [%20.20logger{10}] %-5level - %msg%n
             </pattern>
         </encoder>
     </appender>
