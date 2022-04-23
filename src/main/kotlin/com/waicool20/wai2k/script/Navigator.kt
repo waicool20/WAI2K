@@ -367,12 +367,12 @@ class Navigator(
         while (!locations.getValue(LocationId.GAME_START).isInRegion(region)) delay(5000)
         logger.info("Logging in")
         delay(1000)
-        while (locations.getValue(LocationId.GAME_START).isInRegion(region)) {
-            region.subRegion(630, 400, 900, 300).click()
-            delay(10000)
-        }
         val login = region.subRegion(200, 19, 96, 87)
         while (coroutineContext.isActive) {
+            if (locations.getValue(LocationId.GAME_START).isInRegion(region)) {
+                region.subRegion(630, 400, 900, 300).click()
+                delay(10000)
+            }
             checkLogistics()
             // Check for sign in or achievement popup
             if (region.subRegion(396, 244, 80, 80).has(FileTemplate("home-popup.png"))) {
