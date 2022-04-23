@@ -21,8 +21,8 @@ package com.waicool20.wai2k.script.modules
 
 import com.waicool20.cvauto.core.AnyRegion
 import com.waicool20.cvauto.core.template.FileTemplate
-import com.waicool20.wai2k.config.Wai2KProfile.CombatSimulation.Coalition.Type
-import com.waicool20.wai2k.config.Wai2KProfile.CombatSimulation.Level
+import com.waicool20.wai2k.config.Wai2kProfile.CombatSimulation.Coalition.Type
+import com.waicool20.wai2k.config.Wai2kProfile.CombatSimulation.Level
 import com.waicool20.wai2k.events.CoalitionEnergySpentEvent
 import com.waicool20.wai2k.events.EventBus
 import com.waicool20.wai2k.events.SimEnergySpentEvent

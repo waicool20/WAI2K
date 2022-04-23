@@ -24,9 +24,9 @@ import ch.qos.logback.classic.Logger
 import com.waicool20.cvauto.android.ADB
 import com.waicool20.cvauto.android.AndroidDevice
 import com.waicool20.cvauto.core.Region
-import com.waicool20.wai2k.Wai2K
-import com.waicool20.wai2k.config.Wai2KConfig
-import com.waicool20.wai2k.config.Wai2KProfile
+import com.waicool20.wai2k.Wai2k
+import com.waicool20.wai2k.config.Wai2kConfig
+import com.waicool20.wai2k.config.Wai2kProfile
 import com.waicool20.wai2k.events.*
 import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.GameState
@@ -48,8 +48,8 @@ import kotlin.math.roundToLong
 import kotlin.reflect.full.primaryConstructor
 
 class ScriptRunner(
-    wai2KConfig: Wai2KConfig = Wai2KConfig(),
-    wai2KProfile: Wai2KProfile = Wai2KProfile()
+    var config: Wai2kConfig = Wai2kConfig(),
+    var profile: Wai2kProfile = Wai2kProfile()
 ) {
     companion object {
         const val NORMAL_RES = 480
@@ -60,21 +60,13 @@ class ScriptRunner(
         RUNNING, PAUSING, PAUSED, STOPPED
     }
 
-    init {
-        // Turn off logging for reflections library
-        (loggerFor<Reflections>() as Logger).level = Level.OFF
-    }
-
     lateinit var sessionScope: CoroutineScope
         private set
 
     private val logger = loggerFor<ScriptRunner>()
-    private var currentDevice: AndroidDevice? = null
-    private var currentConfig = wai2KConfig
-    private var currentProfile = wai2KProfile
-
-    var config: Wai2KConfig = currentConfig
-    var profile: Wai2KProfile = currentProfile
+    private var _device: AndroidDevice? = null
+    private var _config = config
+    private var _profile = profile
 
     val gameState = GameState()
     val scriptStats = ScriptStats()
@@ -88,9 +80,11 @@ class ScriptRunner(
 
     private var statsChanged = false
     private val modules = mutableSetOf<ScriptModule>()
-    private var navigator: Navigator? = null
+    private lateinit var navigator: Navigator
 
     init {
+        // Turn off logging for reflections library
+        (loggerFor<Reflections>() as Logger).level = Level.OFF
         fixedRateTimer("ElapsedTimeTimer", true, 0, 1000) {
             if (state == State.RUNNING || state == State.PAUSING) elapsedTime += 1000
         }
@@ -130,14 +124,14 @@ class ScriptRunner(
                 } catch (e: AndroidDevice.UnexpectedDisconnectException) {
                     handleDeadDevice()
                 } catch (e: Region.CaptureIOException) {
-                    if (currentDevice?.isConnected() == true) {
+                    if (_device?.isConnected() == true) {
                         logger.error("Screen capture error, will wait 10s before restarting")
                         delay(10_000)
                         exceptionRestart(e)
                     } else {
                         logger.error("Device no longer connected on ADB! Exiting...")
                         YuuBot.postMessage(
-                            currentConfig.apiKey,
+                            _config.apiKey,
                             "Script Stopped",
                             "Device is dead!"
                         )
@@ -150,7 +144,7 @@ class ScriptRunner(
                             val msg =
                                 "Uncaught error during script execution, please report this to the devs"
                             logger.error(msg)
-                            YuuBot.postMessage(currentConfig.apiKey, "Script Stopped", msg)
+                            YuuBot.postMessage(_config.apiKey, "Script Stopped", msg)
                             throw e
                         }
                     }
@@ -161,42 +155,43 @@ class ScriptRunner(
 
     fun reload(forceReload: Boolean = false) {
         var reloadModules = forceReload
-        if (currentConfig != config) {
-            currentConfig = config
+        if (_config != config) {
+            logger.info("Detected configuration change")
+            _config = config
             reloadModules = true
         }
-        if (currentProfile != profile) {
-            currentProfile = profile
+        if (_profile != profile) {
+            logger.info("Detected profile change")
+            _profile = profile
             reloadModules = true
         }
-        currentConfig.scriptConfig.apply {
+        _config.scriptConfig.apply {
             Region.DEFAULT_MATCHER.settings.matchDimension = NORMAL_RES
             Region.DEFAULT_MATCHER.settings.defaultThreshold = defaultSimilarityThreshold
-            currentDevice?.input?.touchInterface?.settings?.postTapDelay =
+            _device?.input?.touchInterface?.settings?.postTapDelay =
                 (mouseDelay * 1000).roundToLong()
         }
 
-        if (currentDevice == null || currentDevice?.serial != currentConfig.lastDeviceSerial) {
-            currentDevice = ADB.getDevice(currentConfig.lastDeviceSerial)
+        if (_device == null || _device?.serial != _config.lastDeviceSerial) {
+            _device = ADB.getDevice(_config.lastDeviceSerial)
         }
-        val region = currentDevice?.screens?.firstOrNull() ?: run {
+        val region = _device?.screens?.firstOrNull() ?: run {
             logger.info("Could not start due to invalid device")
             return
         }
         if (reloadModules) {
             logger.info("Reloading modules")
             modules.clear()
-            GameLocation.mappings(currentConfig, refresh = true)
-            val nav = Navigator(this, region, currentConfig, currentProfile)
-            navigator = nav
-            modules.add(InitModule(nav))
+            GameLocation.mappings(_config, refresh = true)
+            navigator = Navigator(this, region, _config, _profile)
+            modules.add(InitModule(navigator))
             Reflections("com.waicool20.wai2k.script.modules")
                 .getSubTypesOf(ScriptModule::class.java)
                 .map { it.kotlin }
                 .filterNot { it.isAbstract || it == InitModule::class || it == StopModule::class }
-                .mapNotNull { it.primaryConstructor?.call(nav) }
+                .mapNotNull { it.primaryConstructor?.call(navigator) }
                 .let { modules.addAll(it) }
-            modules.add(StopModule(nav))
+            modules.add(StopModule(navigator))
             modules.map { it::class.simpleName }
                 .forEach { logger.info("Loaded new instance of $it") }
         }
@@ -233,15 +228,15 @@ class ScriptRunner(
             EventBus.publish((ScriptUnpauseEvent()))
             logger.info("Script will now resume")
         } else {
-            delay((currentConfig.scriptConfig.loopDelay * 1000L).coerceAtLeast(500))
+            delay((_config.scriptConfig.loopDelay * 1000L).coerceAtLeast(500))
         }
     }
 
     private fun saveDebugImage() {
         val now = LocalDateTime.now()
-        val device = requireNotNull(currentDevice)
+        val device = requireNotNull(_device)
         val screenshot = device.screens.first().capture()
-        val output = Wai2K.CONFIG_DIR.resolve("debug")
+        val output = Wai2k.CONFIG_DIR.resolve("debug")
             .resolve("${DateTimeFormatter.ofPattern("yyyy-MM-dd HH-mm-ss").format(now)}.png")
         sessionScope.launch(Dispatchers.IO) {
             output.parent.createDirectories()
@@ -252,12 +247,12 @@ class ScriptRunner(
 
     private suspend fun exceptionRestart(e: Exception) {
         try {
-            if (currentConfig.gameRestartConfig.enabled) {
-                navigator?.restartGame(e.localizedMessage)
+            if (_config.gameRestartConfig.enabled) {
+                navigator.restartGame(e.localizedMessage)
             } else {
-                if (currentConfig.notificationsConfig.onRestart) {
+                if (_config.notificationsConfig.onRestart) {
                     YuuBot.postMessage(
-                        currentConfig.apiKey,
+                        _config.apiKey,
                         "Script Stopped",
                         "Reason: ${e.localizedMessage}"
                     )
@@ -274,14 +269,14 @@ class ScriptRunner(
         if (statsChanged) {
             statsChanged = false
             val startTime = lastStartTime ?: return
-            YuuBot.postStats(currentConfig.apiKey, startTime, currentProfile, scriptStats)
+            YuuBot.postStats(_config.apiKey, startTime, _profile, scriptStats)
         }
     }
 
     private fun handleDeadDevice() {
         logger.error("Emulator disconnected unexpectedly")
         YuuBot.postMessage(
-            currentConfig.apiKey,
+            _config.apiKey,
             "Script Terminated",
             "Reason: Emulator disconnected"
         )

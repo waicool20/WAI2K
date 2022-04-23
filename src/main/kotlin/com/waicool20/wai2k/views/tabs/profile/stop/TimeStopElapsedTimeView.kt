@@ -44,7 +44,7 @@ class TimeStopElapsedTimeView : AbstractProfileView() {
     }
 
     override fun createBindings() {
-        var secondsLeft = context.currentProfile.stop.time.elapsedTime.seconds
+        var secondsLeft = profile.stop.time.elapsedTime.seconds
         daysField.text = floor(secondsLeft / 86400.0).roundToLong().toString()
         secondsLeft %= 86400
         hoursField.text = floor(secondsLeft / 3600.0).roundToLong().toString()
@@ -60,7 +60,7 @@ class TimeStopElapsedTimeView : AbstractProfileView() {
     }
 
     private fun updateElapsedTime() {
-        context.currentProfile.stop.time.elapsedTime = DurationUtils.of(
+        profile.stop.time.elapsedTime = DurationUtils.of(
             days = daysField.text.toLongOrNull() ?: 0,
             hours = hoursField.text.toLongOrNull() ?: 0,
             minutes = minutesField.text.toLongOrNull() ?: 0,

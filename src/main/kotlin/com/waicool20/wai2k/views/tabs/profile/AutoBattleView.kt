@@ -31,7 +31,7 @@ class AutoBattleView : AbstractProfileView() {
     }
 
     override fun createBindings() {
-        context.currentProfile.autoBattle.apply {
+        profile.autoBattle.apply {
             enableCheckBox.bind(enabledProperty)
         }
     }

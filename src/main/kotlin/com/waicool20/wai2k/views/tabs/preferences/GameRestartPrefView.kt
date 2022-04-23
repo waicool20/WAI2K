@@ -19,7 +19,7 @@
 
 package com.waicool20.wai2k.views.tabs.preferences
 
-import com.waicool20.wai2k.config.Wai2KContext
+import com.waicool20.wai2k.Wai2k
 import com.waicool20.waicoolutils.javafx.LongSpinnerValueFactory
 import com.waicool20.waicoolutils.javafx.bind
 import javafx.scene.control.CheckBox
@@ -36,15 +36,13 @@ class GameRestartPrefView : View() {
     private val delayCoefficientThresholdSpinner: Spinner<Double> by fxid()
     private val maxRestartsSpinner: Spinner<Int> by fxid()
 
-    private val context: Wai2KContext by inject()
-
     override fun onDock() {
         super.onDock()
         averageDelaySpinner.valueFactory = LongSpinnerValueFactory(0, 9999)
         delayCoefficientThresholdSpinner.valueFactory =
             DoubleSpinnerValueFactory(1.0, 10.0, 1.0, 0.1)
         maxRestartsSpinner.valueFactory = IntegerSpinnerValueFactory(1, Int.MAX_VALUE)
-        with(context.wai2KConfig.gameRestartConfig) {
+        with(Wai2k.config.gameRestartConfig) {
             enabledCheckBox.bind(enabledProperty)
             averageDelaySpinner.bind(averageDelayProperty)
             delayCoefficientThresholdSpinner.bind(delayCoefficientThresholdProperty)

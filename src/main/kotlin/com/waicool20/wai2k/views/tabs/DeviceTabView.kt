@@ -21,7 +21,7 @@ package com.waicool20.wai2k.views.tabs
 
 import com.waicool20.cvauto.android.ADB
 import com.waicool20.cvauto.android.AndroidDevice
-import com.waicool20.wai2k.config.Wai2KContext
+import com.waicool20.wai2k.Wai2k
 import com.waicool20.wai2k.util.Binder
 import com.waicool20.waicoolutils.javafx.CoroutineScopeView
 import com.waicool20.waicoolutils.javafx.addListener
@@ -66,8 +66,6 @@ class DeviceTabView : CoroutineScopeView(), Binder {
     private var capturingJob: Job? = null
     private var lastDir: File? = null
 
-    private val context: Wai2KContext by inject()
-
     private val logger = loggerFor<DeviceTabView>()
 
     override fun onDock() {
@@ -89,21 +87,20 @@ class DeviceTabView : CoroutineScopeView(), Binder {
             override fun fromString(string: String) = null
         }
 
-        if (context.wai2KConfig.lastDeviceSerial.contains(Regex("(?:[0-9]{1,3}\\.){3}[0-9]{1,3}"))) {
-            ADB.connect(context.wai2KConfig.lastDeviceSerial) { device ->
+        if (Wai2k.config.lastDeviceSerial.contains(Regex("(?:\\d{1,3}\\.){3}\\d{1,3}"))) {
+            ADB.connect(Wai2k.config.lastDeviceSerial) { device ->
                 launch {
                     if (device != null) deviceComboBox.selectionModel.select(device)
                 }
             }
         } else {
             refreshDeviceLists { list ->
-                list.find { it.serial == context.wai2KConfig.lastDeviceSerial }?.let {
+                list.find { it.serial == Wai2k.config.lastDeviceSerial }?.let {
                     launch { deviceComboBox.selectionModel.select(it) }
                 }
             }
         }
         createBindings()
-        context.wai2KConfigProperty.addListener("DeviceTabViewConfigListener") { _ -> createBindings() }
     }
 
     override fun createBindings() {
@@ -246,7 +243,7 @@ class DeviceTabView : CoroutineScopeView(), Binder {
     private fun setNewDevice(device: AndroidDevice?) {
         if (device != null) {
             logger.debug("Selected device: ${device.properties.name}")
-            with(context.wai2KConfig) {
+            with(Wai2k.config) {
                 setNewDevice(device)
                 save()
             }

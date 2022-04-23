@@ -24,7 +24,7 @@ import javafx.application.Application
 import tornadofx.*
 import kotlin.system.exitProcess
 
-class Wai2KWorkspace : Workspace() {
+class Wai2kWorkspace : Workspace() {
 
     companion object {
         fun setDarkMode(en: Boolean) {

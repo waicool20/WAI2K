@@ -19,7 +19,7 @@
 
 package com.waicool20.wai2k.views.tabs.preferences
 
-import com.waicool20.wai2k.config.Wai2KContext
+import com.waicool20.wai2k.Wai2k
 import com.waicool20.wai2k.views.ViewNode
 import com.waicool20.waicoolutils.javafx.AlertFactory
 import com.waicool20.waicoolutils.javafx.addListener
@@ -36,7 +36,6 @@ class PreferencesTabView : View() {
     private val preferencesTreeView: TreeView<String> by fxid()
     private val preferencesPane: MasterDetailPane by fxid()
     private val saveButton: Button by fxid()
-    private val context: Wai2KContext by inject()
 
     private val defaultMasterNode = hbox(alignment = Pos.CENTER) {
         label("Choose something to configure on the left!")
@@ -51,7 +50,7 @@ class PreferencesTabView : View() {
         preferencesPane.masterNode = defaultMasterNode
         preferencesPane.detailNode = defaultDetailsNode
         saveButton.setOnAction {
-            context.wai2KConfig.save()
+            Wai2k.config.save()
             AlertFactory.info(content = "Preferences saved!").showAndWait()
         }
     }

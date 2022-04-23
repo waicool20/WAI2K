@@ -28,7 +28,7 @@ import com.waicool20.cvauto.android.AndroidDevice
 import com.waicool20.cvauto.core.Region
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.cvauto.util.asGrayF32
-import com.waicool20.wai2k.config.Wai2KContext
+import com.waicool20.wai2k.Wai2k
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.ai.GFLObject
@@ -111,8 +111,6 @@ class DebugView : CoroutineScopeView() {
 
     private var lastAndroidDevice: AndroidDevice? = null
     private var lastJob: Job? = null
-
-    private val wai2KContext: Wai2KContext by inject()
 
     private val logger = loggerFor<DebugView>()
 
@@ -221,7 +219,7 @@ class DebugView : CoroutineScopeView() {
                 if (model == null) {
                     model = try {
                         ModelLoader.loadModel(
-                            wai2KContext.wai2KConfig.assetsDirectory.resolve("models/gfl.pt")
+                            Wai2k.config.assetsDirectory.resolve("models/gfl.pt")
                         ).apply { setProperty("InputSize", "640") }
                     } catch (e: Exception) {
                         logger.error("Error loading annotation model", e)
@@ -246,7 +244,7 @@ class DebugView : CoroutineScopeView() {
 
     private fun uiSetup() {
         createNewRenderJob()
-        wai2KContext.wai2KConfig.lastDeviceSerialProperty
+        Wai2k.config.lastDeviceSerialProperty
             .addListener("DebugViewDeviceListener") { _ -> createNewRenderJob() }
     }
 
@@ -264,7 +262,7 @@ class DebugView : CoroutineScopeView() {
         }
     }
 
-    private fun createNewRenderJob(serial: String = wai2KContext.wai2KConfig.lastDeviceSerial) {
+    private fun createNewRenderJob(serial: String = Wai2k.config.lastDeviceSerial) {
         val device = ADB.getDevice(serial).also { lastAndroidDevice = it } ?: return
         lastJob?.cancel()
         lastJob = launch(Dispatchers.IO) {
@@ -325,7 +323,7 @@ class DebugView : CoroutineScopeView() {
             initialDirectory = if (pathField.text.isNotBlank()) {
                 Path(pathField.text).parent.toFile()
             } else {
-                wai2KContext.wai2KConfig.assetsDirectory.toFile()
+                Wai2k.config.assetsDirectory.toFile()
             }
             extensionFilters.add(FileChooser.ExtensionFilter("PNG files (*.png)", "*.png"))
             showOpenDialog(null)?.let {
@@ -337,37 +335,35 @@ class DebugView : CoroutineScopeView() {
     @OptIn(ExperimentalTime::class)
     private fun testPath() {
         launch(Dispatchers.IO) {
-            wai2KContext.apply {
-                val path = Path(pathField.text)
-                if (path.exists()) {
-                    logger.info("Finding $path")
-                    val device = ADB.getDevice(wai2KConfig.lastDeviceSerial)
-                    if (device == null) {
-                        logger.warn("Could not find device!")
-                        return@launch
-                    }
-                    val image = grabScreenshot()?.asGrayF32() ?: return@launch
-                    val matcher = device.screens[0].matcher
-                    matcher.settings.matchDimension = ScriptRunner.HIGH_RES
-                    // Set similarity to 0.6f to make cvauto report the similarity value down to 0.6
-                    val (results, duration) = measureTimedValue {
-                        try {
-                            matcher.findBest(FileTemplate(path, 0.6), image, 20)
-                        } catch (e: ArrayIndexOutOfBoundsException) {
-                            val max = e.localizedMessage.takeLastWhile { it.isDigit() }.toInt() - 1
-                            matcher.findBest(FileTemplate(path, 0.6), image, max)
-                        }
-                    }
-                    matcher.settings.matchDimension = ScriptRunner.NORMAL_RES
-                    results.takeIf { it.isNotEmpty() }
-                        ?.sortedBy { it.score }
-                        ?.forEach {
-                            logger.info("Found ${path.fileName}: $it")
-                        } ?: run { logger.warn("Could not find the asset anywhere") }
-                    logger.info("Took ${duration.inWholeMilliseconds} ms")
-                } else {
-                    logger.warn("That asset doesn't exist!")
+            val path = Path(pathField.text)
+            if (path.exists()) {
+                logger.info("Finding $path")
+                val device = ADB.getDevice(Wai2k.config.lastDeviceSerial)
+                if (device == null) {
+                    logger.warn("Could not find device!")
+                    return@launch
                 }
+                val image = grabScreenshot()?.asGrayF32() ?: return@launch
+                val matcher = device.screens[0].matcher
+                matcher.settings.matchDimension = ScriptRunner.HIGH_RES
+                // Set similarity to 0.6f to make cvauto report the similarity value down to 0.6
+                val (results, duration) = measureTimedValue {
+                    try {
+                        matcher.findBest(FileTemplate(path, 0.6), image, 20)
+                    } catch (e: ArrayIndexOutOfBoundsException) {
+                        val max = e.localizedMessage.takeLastWhile { it.isDigit() }.toInt() - 1
+                        matcher.findBest(FileTemplate(path, 0.6), image, max)
+                    }
+                }
+                matcher.settings.matchDimension = ScriptRunner.NORMAL_RES
+                results.takeIf { it.isNotEmpty() }
+                    ?.sortedBy { it.score }
+                    ?.forEach {
+                        logger.info("Found ${path.fileName}: $it")
+                    } ?: run { logger.warn("Could not find the asset anywhere") }
+                logger.info("Took ${duration.inWholeMilliseconds} ms")
+            } else {
+                logger.warn("That asset doesn't exist!")
             }
         }
     }
@@ -391,7 +387,7 @@ class DebugView : CoroutineScopeView() {
     }
 
     private fun getOCR(): ITesseract {
-        val ocr = Ocr.forConfig(wai2KContext.wai2KConfig)
+        val ocr = Ocr.forConfig(Wai2k.config)
         if (filterCheckBox.isSelected) {
             when (filterOptions.selectedToggle) {
                 digitsOnlyRadioButton -> {

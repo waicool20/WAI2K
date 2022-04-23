@@ -19,20 +19,24 @@
 
 package com.waicool20.wai2k.views.tabs.profile
 
-import com.waicool20.wai2k.config.Wai2KContext
+import com.waicool20.wai2k.Wai2k
+import com.waicool20.wai2k.events.EventBus
+import com.waicool20.wai2k.events.ProfileUpdateEvent
 import com.waicool20.wai2k.views.ViewNode
+import com.waicool20.waicoolutils.javafx.CoroutineScopeView
 import com.waicool20.waicoolutils.javafx.addListener
-import com.waicool20.waicoolutils.javafx.listen
 import javafx.geometry.Pos
 import javafx.scene.control.TreeItem
 import javafx.scene.control.TreeView
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.layout.HBox
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import org.controlsfx.control.MasterDetailPane
 import tornadofx.*
 
-class ProfileTabView : View() {
+class ProfileTabView : CoroutineScopeView() {
     override val root: HBox by fxml("/views/tabs/profile/profile-tab.fxml")
     private val profileTreeView: TreeView<String> by fxid()
     private val profilePane: MasterDetailPane by fxid()
@@ -46,8 +50,6 @@ class ProfileTabView : View() {
         label(graphic = ImageView(Image("images/wa-pudding.png")))
     }
 
-    private val context: Wai2KContext by inject()
-
     init {
         title = "Profile"
         profilePane.masterNode = defaultMasterNode
@@ -56,15 +58,15 @@ class ProfileTabView : View() {
 
     override fun onDock() {
         super.onDock()
+        EventBus.subscribe<ProfileUpdateEvent>()
+            .onEach { profileTreeView.root.valueProperty().bind(Wai2k.profile.nameProperty) }
+            .launchIn(this)
         initializeTree()
     }
 
     fun initializeTree() {
         profileTreeView.root = TreeItem<String>().apply {
-            context.currentProfileProperty.apply {
-                listen { valueProperty().bind(get().nameProperty) }
-                valueProperty().bind(get().nameProperty)
-            }
+            valueProperty().bind(Wai2k.profile.nameProperty)
             isExpanded = true
         }
         ProfileViewMappings.list.forEach { node ->

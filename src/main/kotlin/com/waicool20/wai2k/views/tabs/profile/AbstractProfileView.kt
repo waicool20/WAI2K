@@ -19,22 +19,28 @@
 
 package com.waicool20.wai2k.views.tabs.profile
 
-import com.waicool20.wai2k.config.Wai2KContext
+import com.waicool20.wai2k.Wai2k
+import com.waicool20.wai2k.events.EventBus
+import com.waicool20.wai2k.events.ProfileUpdateEvent
 import com.waicool20.wai2k.util.Binder
-import com.waicool20.waicoolutils.javafx.listen
-import tornadofx.*
+import com.waicool20.waicoolutils.javafx.CoroutineScopeView
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import java.util.concurrent.atomic.AtomicBoolean
 
-abstract class AbstractProfileView : View(), Binder {
-    protected val context: Wai2KContext by inject()
+abstract class AbstractProfileView : CoroutineScopeView(), Binder {
     private val initialized = AtomicBoolean(false)
+    protected val wconfig get() = Wai2k.config
+    protected val profile get() = Wai2k.profile
 
     override fun onDock() {
         super.onDock()
         if (initialized.compareAndSet(false, true)) {
             setValues()
             createBindings()
-            context.currentProfileProperty.listen { createBindings() }
+            EventBus.subscribe<ProfileUpdateEvent>()
+                .onEach { createBindings() }
+                .launchIn(this)
         }
     }
 

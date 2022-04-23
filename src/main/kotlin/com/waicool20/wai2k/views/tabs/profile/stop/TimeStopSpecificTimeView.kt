@@ -38,7 +38,7 @@ class TimeStopSpecificTimeView : AbstractProfileView() {
     }
 
     override fun createBindings() {
-        with(context.currentProfile.stop.time.specificTime) {
+        with(profile.stop.time.specificTime) {
             hourSpinner.valueFactory.value = hour
             minuteSpinner.valueFactory.value = minute
         }
@@ -50,7 +50,7 @@ class TimeStopSpecificTimeView : AbstractProfileView() {
     }
 
     private fun updateSpecificTime() {
-        context.currentProfile.stop.time.specificTime =
+        profile.stop.time.specificTime =
             LocalTime.of(hourSpinner.value, minuteSpinner.value)
     }
 }

@@ -20,6 +20,7 @@
 package com.waicool20.wai2k.views.tabs.preferences
 
 import com.waicool20.cvauto.android.AndroidDevice
+import com.waicool20.wai2k.Wai2k
 import com.waicool20.wai2k.views.tabs.profile.AbstractProfileView
 import javafx.scene.control.CheckBox
 import javafx.scene.control.ComboBox
@@ -36,9 +37,8 @@ class MiscPrefView : AbstractProfileView() {
         captureMethodComboBox.items.setAll(AndroidDevice.CaptureMethod.values().toList())
         captureCompressionModeComboBox.items.setAll(AndroidDevice.CompressionMode.values().toList())
     }
-
     override fun createBindings() {
-        context.wai2KConfig.apply {
+        Wai2k.config.apply {
             debugModeEnabledCheckBox.bind(debugModeEnabledProperty)
             captureMethodComboBox.bind(captureMethodProperty)
             captureCompressionModeComboBox.bind(captureCompressionModeProperty)

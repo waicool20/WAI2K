@@ -22,8 +22,8 @@ package com.waicool20.wai2k.script
 import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.android.ProcessManager
-import com.waicool20.wai2k.config.Wai2KConfig
-import com.waicool20.wai2k.config.Wai2KProfile
+import com.waicool20.wai2k.config.Wai2kConfig
+import com.waicool20.wai2k.config.Wai2kProfile
 import com.waicool20.wai2k.events.EventBus
 import com.waicool20.wai2k.events.GameRestartEvent
 import com.waicool20.wai2k.events.LogisticsSupportReceivedEvent
@@ -49,8 +49,8 @@ import kotlin.math.roundToLong
 class Navigator(
     override val scriptRunner: ScriptRunner,
     override val region: AndroidRegion,
-    override val config: Wai2KConfig,
-    override val profile: Wai2KProfile
+    override val config: Wai2kConfig,
+    override val profile: Wai2kProfile
 ) : ScriptComponent {
     private val logger = loggerFor<Navigator>()
     private val gameState get() = scriptRunner.gameState
@@ -265,11 +265,11 @@ class Navigator(
 
             // Continue based on receival mode
             val cont = when (profile.logistics.receiveMode) {
-                Wai2KProfile.Logistics.ReceivalMode.ALWAYS_CONTINUE -> {
+                Wai2kProfile.Logistics.ReceivalMode.ALWAYS_CONTINUE -> {
                     logger.info("Continuing this logistics support")
                     true
                 }
-                Wai2KProfile.Logistics.ReceivalMode.RANDOM -> {
+                Wai2kProfile.Logistics.ReceivalMode.RANDOM -> {
                     if (Random().nextBoolean()) {
                         logger.info("Randomized receive, continue logistics support this time")
                         true
@@ -278,7 +278,7 @@ class Navigator(
                         false
                     }
                 }
-                Wai2KProfile.Logistics.ReceivalMode.ALWAYS_CANCEL -> {
+                Wai2kProfile.Logistics.ReceivalMode.ALWAYS_CANCEL -> {
                     logger.info("Stopping this logistics support")
                     false
                 }

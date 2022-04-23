@@ -19,10 +19,9 @@
 
 package com.waicool20.wai2k.views.tabs
 
-import com.waicool20.wai2k.config.Wai2KContext
+import com.waicool20.wai2k.Wai2k
 import com.waicool20.wai2k.events.EventBus
 import com.waicool20.wai2k.events.ScriptStatsUpdateEvent
-import com.waicool20.wai2k.script.ScriptContext
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.script.ScriptStats
 import com.waicool20.wai2k.util.formatted
@@ -44,11 +43,6 @@ import java.time.temporal.ChronoUnit
 
 class StatusTabView : CoroutineScopeView() {
     override val root: VBox by fxml("/views/tabs/status-tab.fxml")
-
-    private val context: Wai2KContext by inject()
-    private val scriptRunner by lazy {
-        find<ScriptContext>().scriptRunner
-    }
 
     private val startTimeLabel: Label by fxid()
     private val elapsedTimeLabel: Label by fxid()
@@ -75,6 +69,8 @@ class StatusTabView : CoroutineScopeView() {
 
     private val timersLabel: Label by fxid()
 
+    private val scriptRunner get() = Wai2k.scriptRunner
+
     init {
         title = "Status"
     }
@@ -100,7 +96,8 @@ class StatusTabView : CoroutineScopeView() {
 
     private fun updateTimes() {
         startTimeLabel.text = scriptRunner.lastStartTime?.formatted() ?: ""
-        elapsedTimeLabel.text = formatDuration(Duration.of(scriptRunner.elapsedTime, ChronoUnit.MILLIS))
+        elapsedTimeLabel.text =
+            formatDuration(Duration.of(scriptRunner.elapsedTime, ChronoUnit.MILLIS))
     }
 
     private fun updateScriptStats(stats: ScriptStats) = with(stats) {
@@ -157,7 +154,7 @@ class StatusTabView : CoroutineScopeView() {
                 }
             }
 
-            if (context.currentProfile.combatSimulation.enabled) {
+            if (Wai2k.profile.combatSimulation.enabled) {
                 val combatSims = listOf(simEnergy, timeDelta(simNextCheck))
                     .filter { simNextCheck >= Instant.now() }
                 if (combatSims.isNotEmpty()) {
@@ -166,7 +163,7 @@ class StatusTabView : CoroutineScopeView() {
                 }
             }
 
-            if (context.currentProfile.combatSimulation.coalition.enabled) {
+            if (Wai2k.profile.combatSimulation.coalition.enabled) {
                 val coalSims = listOf(coalitionEnergy, timeDelta(coalitionNextCheck))
                     .filter { coalitionNextCheck >= Instant.now() }
                 if (coalSims.isNotEmpty()) {
@@ -175,8 +172,8 @@ class StatusTabView : CoroutineScopeView() {
                 }
             }
 
-            if (context.currentProfile.combatReport.enabled
-                && context.currentProfile.combat.enabled
+            if (Wai2k.profile.combatReport.enabled
+                && Wai2k.profile.combat.enabled
                 && scriptRunner.state != ScriptRunner.State.STOPPED
             ) {
                 if (reportsNextCheck > Instant.now()) {

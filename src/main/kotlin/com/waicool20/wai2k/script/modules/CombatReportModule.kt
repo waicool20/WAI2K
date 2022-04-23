@@ -20,7 +20,7 @@
 package com.waicool20.wai2k.script.modules
 
 import com.waicool20.cvauto.core.template.FileTemplate
-import com.waicool20.wai2k.config.Wai2KProfile.CombatReport
+import com.waicool20.wai2k.config.Wai2kProfile.CombatReport
 import com.waicool20.wai2k.events.CombatReportWriteEvent
 import com.waicool20.wai2k.events.EventBus
 import com.waicool20.wai2k.game.LocationId

@@ -19,7 +19,7 @@
 
 package com.waicool20.wai2k.views.tabs.preferences
 
-import com.waicool20.wai2k.config.Wai2KContext
+import com.waicool20.wai2k.Wai2k
 import com.waicool20.waicoolutils.javafx.bind
 import javafx.scene.control.CheckBox
 import javafx.scene.control.Spinner
@@ -39,8 +39,6 @@ class ScriptPrefView : View() {
     private val maxPostBattleClickSpinner: Spinner<Int> by fxid()
     private val idleAtHomeCheckBox: CheckBox by fxid()
 
-    private val context: Wai2KContext by inject()
-
     override fun onDock() {
         super.onDock()
         loopDelaySpinner.valueFactory = IntegerSpinnerValueFactory(0, Int.MAX_VALUE)
@@ -50,7 +48,7 @@ class ScriptPrefView : View() {
         mapRunnerSimThresholdSpinner.valueFactory = DoubleSpinnerValueFactory(0.0, 1.0, 0.8, 0.05)
         ocrThresholdSpinner.valueFactory = DoubleSpinnerValueFactory(0.0, 100.0, 0.9, 0.1)
         maxPostBattleClickSpinner.valueFactory = IntegerSpinnerValueFactory(-1, 30)
-        context.wai2KConfig.scriptConfig.apply {
+        Wai2k.config.scriptConfig.apply {
             loopDelaySpinner.bind(loopDelayProperty)
             baseNavigationDelaySpinner.bind(baseNavigationDelayProperty)
             mouseDelaySpinner.bind(mouseDelayProperty)

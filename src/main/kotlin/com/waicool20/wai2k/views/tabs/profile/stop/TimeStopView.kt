@@ -19,7 +19,7 @@
 
 package com.waicool20.wai2k.views.tabs.profile.stop
 
-import com.waicool20.wai2k.config.Wai2KProfile.Stop.Time.Mode
+import com.waicool20.wai2k.config.Wai2kProfile.Stop.Time.Mode
 import com.waicool20.wai2k.views.tabs.profile.AbstractProfileView
 import com.waicool20.waicoolutils.javafx.addListener
 import javafx.scene.Node
@@ -39,7 +39,7 @@ class TimeStopView : AbstractProfileView() {
     override fun setValues() {}
 
     override fun createBindings() {
-        context.currentProfile.stop.time.apply {
+        profile.stop.time.apply {
             enabledCheckBox.bind(enabledProperty)
             when (mode) {
                 Mode.ELAPSED_TIME -> timeStopMode.selectToggle(elapsedTimeToggle)
@@ -53,7 +53,7 @@ class TimeStopView : AbstractProfileView() {
     }
 
     private fun updateMode() {
-        context.currentProfile.stop.time.apply {
+        profile.stop.time.apply {
             when (timeStopMode.selectedToggle) {
                 elapsedTimeToggle -> {
                     content.replaceChildren(find<TimeStopElapsedTimeView>().root)

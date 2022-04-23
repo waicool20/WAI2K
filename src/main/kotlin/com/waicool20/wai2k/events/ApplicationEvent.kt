@@ -17,18 +17,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.waicool20.wai2k.config
+package com.waicool20.wai2k.events
 
-import javafx.beans.property.ObjectProperty
-import javafx.beans.property.StringProperty
-import tornadofx.*
+import com.waicool20.wai2k.config.Wai2kConfig
+import com.waicool20.wai2k.config.Wai2kProfile
+import java.time.Instant
 
-data class Wai2KContext(
-    val wai2KConfigProperty: ObjectProperty<Wai2KConfig> = Wai2KConfig().toProperty(),
-    val currentProfileProperty: ObjectProperty<Wai2KProfile> = Wai2KProfile().toProperty(),
-    val versionProperty: StringProperty = "".toProperty()
-) : Component(), ScopedInstance {
-    var wai2KConfig by wai2KConfigProperty
-    var currentProfile by currentProfileProperty
-    var version by versionProperty
-}
+
+abstract class ApplicationEvent(instant: Instant) : EventBus.Event(instant)
+
+class StartupCompleteEvent(instant: Instant = Instant.now()) : EventBus.Event(instant)
+
+class ConfigUpdateEvent(val config: Wai2kConfig, instant: Instant = Instant.now()) :
+    ApplicationEvent(instant)
+
+class ProfileUpdateEvent(val profile: Wai2kProfile, instant: Instant = Instant.now()) :
+    ApplicationEvent(instant)

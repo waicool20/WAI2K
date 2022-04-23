@@ -19,8 +19,8 @@
 
 package com.waicool20.wai2k.views
 
-import com.waicool20.wai2k.config.Wai2KContext
-import com.waicool20.wai2k.config.Wai2KProfile
+import com.waicool20.wai2k.Wai2k
+import com.waicool20.wai2k.config.Wai2kProfile
 import com.waicool20.wai2k.events.EventBus
 import com.waicool20.wai2k.events.ScriptStopEvent
 import com.waicool20.wai2k.script.ScriptContext
@@ -60,7 +60,6 @@ class HeaderView : CoroutineScopeView() {
     private val startPauseButton: SplitMenuButton by fxid()
     private val stopButton: Button by fxid()
 
-    private val wai2KContext: Wai2KContext by inject()
     private val scriptRunner by lazy {
         find<ScriptContext>().scriptRunner
     }
@@ -78,7 +77,7 @@ class HeaderView : CoroutineScopeView() {
 
     override fun onSave() {
         super.onSave()
-        wai2KContext.currentProfile.apply {
+        Wai2k.profile.apply {
             save()
             AlertFactory.info(content = "Profile $name was saved!").showAndWait()
         }
@@ -86,11 +85,11 @@ class HeaderView : CoroutineScopeView() {
 
     override fun onDelete() {
         super.onDelete()
-        wai2KContext.currentProfile.apply {
+        Wai2k.profile.apply {
             val toDelete = name
             confirm(
                 header = "Delete profile [$toDelete]?",
-                title = "Wai2K - Profile Deletion Confirmation"
+                title = "WAI2K - Profile Deletion Confirmation"
             ) {
                 delete()
                 profileComboBox.value = ""
@@ -102,22 +101,13 @@ class HeaderView : CoroutineScopeView() {
     override fun onRefresh() {
         super.onRefresh()
         launch(Dispatchers.IO) {
-            val profile = Wai2KProfile.load(wai2KContext.currentProfile.path)
+            val profile = Wai2kProfile.load(Wai2k.profile.path)
             withContext(Dispatchers.JavaFx) { setNewProfile(profile) }
         }
     }
 
     private fun createBindings() {
-        profileComboBox.bind(wai2KContext.currentProfile.nameProperty)
-        wai2KContext.currentProfileProperty.addListener("HeaderViewProfile") { newVal ->
-            createBindings()
-            launch {
-                Tooltip("Profile ${newVal.name} has been loaded!").apply {
-                    fadeAfter(700)
-                    showAt(profileComboBox, TooltipSide.TOP_LEFT)
-                }
-            }
-        }
+        profileComboBox.bind(Wai2k.profile.nameProperty)
         startPauseButton.textProperty().addListener("StartStopButtonListener") { newVal ->
             startPauseButton.apply {
                 val color = if (newVal == "Pause") "yellow" else "green"
@@ -130,25 +120,30 @@ class HeaderView : CoroutineScopeView() {
 
     private fun selectProfile() {
         val newProfile = profileComboBox.value
-        if (Wai2KProfile.profileExists(newProfile)) {
+        if (Wai2kProfile.profileExists(newProfile)) {
             launch(Dispatchers.IO) {
-                val profile = Wai2KProfile.load(newProfile)
-                withContext(Dispatchers.JavaFx) { setNewProfile(profile) }
+                val profile = Wai2kProfile.load(newProfile)
+                setNewProfile(profile)
             }
         }
     }
 
-    private fun setNewProfile(profile: Wai2KProfile) {
-        wai2KContext.apply {
-            wai2KConfig.currentProfile = profile.name
-            wai2KConfig.save()
-            currentProfileProperty.set(profile)
+    private fun setNewProfile(profile: Wai2kProfile) {
+        Wai2k.config.currentProfile = profile.name
+        Wai2k.config.save()
+        Wai2k.profile = profile
+        launch(Dispatchers.JavaFx) {
+            createBindings()
+            Tooltip("Profile ${profile.name} has been loaded!").apply {
+                fadeAfter(700)
+                showAt(profileComboBox, TooltipSide.TOP_LEFT)
+            }
         }
     }
 
     private fun updateProfileItems() {
         val currentProfile = profileComboBox.value
-        val profiles = Wai2KProfile.PROFILE_DIR.listDirectoryEntries("*.json")
+        val profiles = Wai2kProfile.PROFILE_DIR.listDirectoryEntries("*.json")
             .map { it.nameWithoutExtension }
             .filter { it != currentProfile }
             .sorted()
@@ -170,8 +165,8 @@ class HeaderView : CoroutineScopeView() {
             }
             ScriptRunner.State.STOPPED -> {
                 scriptRunner.apply {
-                    config = wai2KContext.wai2KConfig
-                    profile = wai2KContext.currentProfile
+                    config = Wai2k.config
+                    profile = Wai2k.profile
                 }.run()
                 startPauseButton.text = "Pause"
                 stopButton.show()

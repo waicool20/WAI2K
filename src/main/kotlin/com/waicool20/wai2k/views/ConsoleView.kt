@@ -71,11 +71,12 @@ class ConsoleView : View() {
 
     override fun onDock() {
         super.onDock()
-        setWindowMinSize(500, 400)
+        setWindowMinSize(1000, 400)
         modalStage?.apply {
             x = primaryStage.x + primaryStage.width + 10
             y = primaryStage.y
             height = primaryStage.height
+            width = 1000.0
         }
     }
 }

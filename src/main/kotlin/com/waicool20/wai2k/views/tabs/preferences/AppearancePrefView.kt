@@ -19,8 +19,8 @@
 
 package com.waicool20.wai2k.views.tabs.preferences
 
-import com.waicool20.wai2k.config.Wai2KContext
-import com.waicool20.wai2k.views.Wai2KWorkspace
+import com.waicool20.wai2k.Wai2k
+import com.waicool20.wai2k.views.Wai2kWorkspace
 import com.waicool20.waicoolutils.javafx.addListener
 import javafx.scene.layout.VBox
 import org.controlsfx.control.ToggleSwitch
@@ -30,15 +30,13 @@ class AppearancePrefView : View() {
     override val root: VBox by fxml("/views/tabs/preferences/appearance.fxml")
     private val darkModeToggleSwitch: ToggleSwitch by fxid()
 
-    private val context: Wai2KContext by inject()
-
     override fun onDock() {
         super.onDock()
-        darkModeToggleSwitch.isSelected = context.wai2KConfig.appearanceConfig.darkMode
+        darkModeToggleSwitch.isSelected = Wai2k.config.appearanceConfig.darkMode
 
         darkModeToggleSwitch.selectedProperty().addListener("DarkModeToggle") { newVal ->
-            Wai2KWorkspace.setDarkMode(newVal)
-            context.wai2KConfig.appearanceConfig.darkMode = newVal
+            Wai2kWorkspace.setDarkMode(newVal)
+            Wai2k.config.appearanceConfig.darkMode = newVal
         }
     }
 }

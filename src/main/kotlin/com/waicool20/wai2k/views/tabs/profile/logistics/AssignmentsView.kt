@@ -60,7 +60,7 @@ class AssignmentsView : AbstractProfileView() {
 
     override fun createBindings() {
         comboBoxes.forEachIndexed { index, box ->
-            context.currentProfile.logistics.assignments.getOrPut(index + 1) {
+            profile.logistics.assignments.getOrPut(index + 1) {
                 SimpleListProperty()
             }.let { box.bind(it) }
         }

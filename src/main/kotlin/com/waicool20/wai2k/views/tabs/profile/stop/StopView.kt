@@ -31,7 +31,7 @@ class StopView : AbstractProfileView() {
     override fun setValues() {}
 
     override fun createBindings() {
-        context.currentProfile.stop.apply {
+        profile.stop.apply {
             enabledCheckBox.bind(enabledProperty)
             exitProgramCheckBox.bind(exitProgramProperty)
         }

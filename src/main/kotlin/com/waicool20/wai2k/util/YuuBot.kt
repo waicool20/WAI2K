@@ -21,7 +21,7 @@ package com.waicool20.wai2k.util
 
 import com.fasterxml.jackson.databind.annotation.JsonAppend
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.waicool20.wai2k.config.Wai2KProfile
+import com.waicool20.wai2k.config.Wai2kProfile
 import com.waicool20.wai2k.script.ScriptStats
 import com.waicool20.waicoolutils.logging.loggerFor
 import okhttp3.*
@@ -54,7 +54,7 @@ object YuuBot {
     fun postStats(
         apiKey: String,
         startTime: Instant,
-        profile: Wai2KProfile,
+        profile: Wai2kProfile,
         stats: ScriptStats,
         onComplete: () -> Unit = {}
     ) {

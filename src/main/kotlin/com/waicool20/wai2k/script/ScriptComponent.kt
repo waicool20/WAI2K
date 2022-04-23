@@ -20,8 +20,8 @@
 package com.waicool20.wai2k.script
 
 import com.waicool20.cvauto.android.AndroidRegion
-import com.waicool20.wai2k.config.Wai2KConfig
-import com.waicool20.wai2k.config.Wai2KProfile
+import com.waicool20.wai2k.config.Wai2kConfig
+import com.waicool20.wai2k.config.Wai2kProfile
 import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.YuuBot
@@ -32,8 +32,8 @@ import kotlin.system.exitProcess
 interface ScriptComponent {
     val scriptRunner: ScriptRunner
     val region: AndroidRegion
-    val config: Wai2KConfig
-    val profile: Wai2KProfile
+    val config: Wai2kConfig
+    val profile: Wai2kProfile
 
     val ocr get() = Ocr.forConfig(config)
     val locations get() = GameLocation.mappings(config)

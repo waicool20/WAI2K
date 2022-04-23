@@ -25,7 +25,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.waicool20.cvauto.core.AnyRegion
 import com.waicool20.cvauto.core.template.FileTemplate
-import com.waicool20.wai2k.config.Wai2KConfig
+import com.waicool20.wai2k.config.Wai2kConfig
 import com.waicool20.wai2k.script.Asset
 import com.waicool20.wai2k.script.InvalidLocationsJsonFileException
 import com.waicool20.wai2k.script.PathFindingException
@@ -96,7 +96,7 @@ data class GameLocation(
          * @param refresh If true, locations will be read from file instead of cached values
          */
         fun mappings(
-            wai2KConfig: Wai2KConfig,
+            wai2KConfig: Wai2kConfig,
             refresh: Boolean = false
         ): Map<LocationId, GameLocation> {
             return if (refresh) {
@@ -108,7 +108,7 @@ data class GameLocation(
             } else locations
         }
 
-        fun find(wai2KConfig: Wai2KConfig, location: LocationId): GameLocation {
+        fun find(wai2KConfig: Wai2kConfig, location: LocationId): GameLocation {
             return mappings(wai2KConfig)[location] ?: throw InvalidLocationsJsonFileException()
         }
     }

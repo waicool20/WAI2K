@@ -38,7 +38,7 @@ class CountStopView : AbstractProfileView() {
     }
 
     override fun createBindings() {
-        with(context.currentProfile.stop.count) {
+        with(profile.stop.count) {
             enabledCheckBox.bind(enabledProperty)
             sortiesSpinner.bind(sortiesProperty)
         }

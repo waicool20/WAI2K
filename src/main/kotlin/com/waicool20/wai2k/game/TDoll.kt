@@ -21,7 +21,7 @@ package com.waicool20.wai2k.game
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.waicool20.wai2k.config.Wai2KConfig
+import com.waicool20.wai2k.config.Wai2kConfig
 import com.waicool20.wai2k.util.Ocr
 import com.waicool20.waicoolutils.distanceTo
 
@@ -46,7 +46,7 @@ data class TDoll(
         /**
          * Returns a list with all tdolls
          */
-        fun listAll(config: Wai2KConfig): List<TDoll> = synchronized(list) {
+        fun listAll(config: Wai2kConfig): List<TDoll> = synchronized(list) {
             if (list.isEmpty()) {
                 list += jacksonObjectMapper().readValue<List<TDoll>>(
                     config.assetsDirectory.resolve(
@@ -63,7 +63,7 @@ data class TDoll(
         /**
          * Look for the closest matching tdoll with the given name
          */
-        fun lookup(config: Wai2KConfig, name: String?): TDoll? {
+        fun lookup(config: Wai2kConfig, name: String?): TDoll? {
             if (name == null) return null
             return listAll(config).find { it.id == name } ?: listAll(config).find {
                 var score =

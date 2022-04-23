@@ -19,25 +19,33 @@
 
 package com.waicool20.wai2k
 
-import javafx.application.Application
+import com.waicool20.wai2k.views.LoaderView
+import com.waicool20.wai2k.views.Wai2kWorkspace
 import javafx.application.Platform
 import javafx.scene.control.Alert
 import javafx.scene.control.Label
 import javafx.scene.control.TextArea
 import javafx.scene.layout.VBox
+import javafx.stage.Stage
+import javafx.stage.StageStyle
 import org.slf4j.LoggerFactory
 import tornadofx.*
 
-fun main(args: Array<String>) {
-    Thread.setDefaultUncaughtExceptionHandler(WAI2KExceptionHandler())
-    Application.launch(Wai2K::class.java, *args)
+class Wai2kUI : App(Wai2kWorkspace::class) {
+    override fun start(stage: Stage) {
+        super.start(stage)
+        find<LoaderView>(params = arrayOf("parameters" to parameters))
+            .openModal(stageStyle = StageStyle.UNDECORATED)
+    }
+
+    override fun shouldShowPrimaryStage() = false
 }
 
 /**
  * Based off: https://github.com/edvin/tornadofx/blob/master/src/main/java/tornadofx/ErrorHandler.kt
  * Fixes missing stack trace in text area
  */
-class WAI2KExceptionHandler : Thread.UncaughtExceptionHandler {
+class Wai2kUIExceptionHandler : Thread.UncaughtExceptionHandler {
     val logger = LoggerFactory.getLogger("ErrorHandler")
     val ignoreStrings = listOf(
         // Infinite window spawning workaround

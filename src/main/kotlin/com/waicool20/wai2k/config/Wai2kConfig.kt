@@ -28,7 +28,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.waicool20.cvauto.android.ADB
 import com.waicool20.cvauto.android.AndroidDevice
-import com.waicool20.wai2k.Wai2K
+import com.waicool20.wai2k.Wai2k
 import com.waicool20.waicoolutils.javafx.addListener
 import com.waicool20.waicoolutils.javafx.json.fxJacksonObjectMapper
 import com.waicool20.waicoolutils.logging.LoggerUtils
@@ -41,9 +41,9 @@ import kotlin.io.path.notExists
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Wai2KConfig(
-    currentProfile: String = Wai2KProfile.DEFAULT_NAME,
-    assetsDirectory: Path = Wai2K.CONFIG_DIR.resolve("assets"),
+class Wai2kConfig(
+    currentProfile: String = Wai2kProfile.DEFAULT_NAME,
+    assetsDirectory: Path = Wai2k.CONFIG_DIR.resolve("assets"),
     clearConsoleOnStart: Boolean = true,
     showConsoleOnStart: Boolean = true,
     debugModeEnabled: Boolean = true,
@@ -56,7 +56,7 @@ class Wai2KConfig(
     notificationsConfig: NotificationsConfig = NotificationsConfig(),
     appearanceConfig: AppearanceConfig = AppearanceConfig()
 ) {
-    private val logger = loggerFor<Wai2K>()
+    private val logger = loggerFor<Wai2kConfig>()
 
     @get:JsonIgnore val logLevel get() = if (debugModeEnabled) "DEBUG" else "INFO"
 
@@ -96,10 +96,10 @@ class Wai2KConfig(
         private val mapper = fxJacksonObjectMapper()
         private val loaderLogger = loggerFor<Loader>()
 
-        val path: Path = Wai2K.CONFIG_DIR.resolve("preferences.json")
+        val path: Path = Wai2k.CONFIG_DIR.resolve("preferences.json")
 
-        fun load(): Wai2KConfig {
-            loaderLogger.info("Attempting to load Wai2K configuration")
+        fun load(): Wai2kConfig {
+            loaderLogger.info("Attempting to load WAI2K configuration")
             loaderLogger.debug("Config path: $path")
             if (path.notExists()) {
                 loaderLogger.info("Configuration not found, creating empty file")
@@ -108,17 +108,17 @@ class Wai2KConfig(
             }
 
             return try {
-                mapper.readValue<Wai2KConfig>(path.toFile()).also {
-                    loaderLogger.info("Wai2K configuration loaded")
+                mapper.readValue<Wai2kConfig>(path.toFile()).also {
+                    loaderLogger.info("WAI2K configuration loaded")
                     it.printDebugInfo()
-                    if (it.currentProfile.isBlank()) it.currentProfile = Wai2KProfile.DEFAULT_NAME
+                    if (it.currentProfile.isBlank()) it.currentProfile = Wai2kProfile.DEFAULT_NAME
                 }
             } catch (e: JsonMappingException) {
                 if (e.message?.startsWith("No content to map due to end-of-input") == false) {
                     throw e
                 }
                 loaderLogger.info("Using default config")
-                Wai2KConfig().apply { save() }
+                Wai2kConfig().apply { save() }
             }
         }
     }
@@ -144,9 +144,9 @@ class Wai2KConfig(
     }
 
     fun save() {
-        logger.info("Saving Wai2K configuration file")
+        logger.info("Saving WAI2K configuration file")
         mapper.writerWithDefaultPrettyPrinter().writeValue(path.toFile(), this)
-        logger.info("Saving Wai2K configuration was successful")
+        logger.info("Saving WAI2K configuration was successful")
         printDebugInfo()
     }
 

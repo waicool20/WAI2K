@@ -35,7 +35,7 @@ class FactoryView : AbstractProfileView() {
     override fun setValues() = Unit
 
     override fun createBindings() {
-        context.currentProfile.factory.apply {
+        profile.factory.apply {
             enableEnhancementCheckBox.bind(enhancement.enabledProperty)
             enableDisassemblyCheckBox.bind(disassembly.enabledProperty)
             enable4StarDisassemblyCheckBox.bind(disassembly.disassemble4StarProperty)

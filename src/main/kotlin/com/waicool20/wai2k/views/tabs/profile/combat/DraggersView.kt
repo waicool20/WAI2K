@@ -45,9 +45,9 @@ class DraggersView : AbstractProfileView() {
     override fun setValues() {
         val converter = object : StringConverter<TDoll>() {
             override fun toString(td: TDoll) = td.id
-            override fun fromString(s: String) = TDoll.lookup(context.wai2KConfig, s)
+            override fun fromString(s: String) = TDoll.lookup(wconfig, s)
         }
-        val dolls = TDoll.listAll(context.wai2KConfig).sortedBy { it.name }
+        val dolls = TDoll.listAll(wconfig).sortedBy { it.name }
         doll1NameComboBox.items.setAll(dolls)
         doll2NameComboBox.items.setAll(dolls)
         doll1NameComboBox.converter = converter
@@ -57,17 +57,17 @@ class DraggersView : AbstractProfileView() {
     }
 
     override fun createBindings() {
-        with(context.currentProfile.combat) {
+        with(profile.combat) {
             val doll1 = draggers[0]!!
             val doll2 = draggers[1]!!
 
-            doll1NameComboBox.selectionModel.select(TDoll.lookup(context.wai2KConfig, doll1.id))
-            doll2NameComboBox.selectionModel.select(TDoll.lookup(context.wai2KConfig, doll2.id))
+            doll1NameComboBox.selectionModel.select(TDoll.lookup(wconfig, doll1.id))
+            doll2NameComboBox.selectionModel.select(TDoll.lookup(wconfig, doll2.id))
             draggerSlotGroup.selectToggle(draggerSlotGroup.toggles.find {
                 it.userData.toString().toInt() == draggerSlot
             })
         }
-        with(context.currentProfile.combat) {
+        with(profile.combat) {
             draggerSlotProperty.bind(
                 draggerSlotGroup.selectedToggleProperty().integerBinding {
                     it?.userData?.toString()?.toInt() ?: 2
@@ -85,7 +85,7 @@ class DraggersView : AbstractProfileView() {
     }
 
     private fun swapDolls() {
-        context.currentProfile.combat.apply {
+        profile.combat.apply {
             draggers[1] = draggers[0].also { draggers[0] = draggers[1] }
         }
         createBindings()

@@ -28,9 +28,8 @@ import boofcv.io.image.ConvertBufferedImage
 import boofcv.struct.border.BorderType
 import boofcv.struct.image.GrayF32
 import com.waicool20.cvauto.core.AnyDevice
-import com.waicool20.cvauto.core.IDevice
 import com.waicool20.cvauto.util.transformPoint
-import com.waicool20.wai2k.config.Wai2KContext
+import com.waicool20.wai2k.Wai2k
 import com.waicool20.wai2k.util.ai.MatchingModel
 import com.waicool20.wai2k.util.ai.MatchingTranslator
 import com.waicool20.waicoolutils.createCompatibleCopy
@@ -63,8 +62,6 @@ class HomographyViewer(
 
     private val logger = loggerFor<HomographyViewer>()
 
-    private val wai2KContext: Wai2KContext by inject()
-
     private val imageView: ImageView by fxid()
     private val region = device.screens[0]
     private val window = region.subRegion(455, 151, 1281, 929)
@@ -80,8 +77,8 @@ class HomographyViewer(
 
         launch(Dispatchers.IO) {
             val model = MatchingModel(
-                wai2KContext.wai2KConfig.assetsDirectory.resolve("models/SuperPoint.pt"),
-                wai2KContext.wai2KConfig.assetsDirectory.resolve("models/SuperGlue.pt")
+                Wai2k.config.assetsDirectory.resolve("models/SuperPoint.pt"),
+                Wai2k.config.assetsDirectory.resolve("models/SuperGlue.pt")
             )
             val translator = MatchingTranslator(480, 360)
             val predictor = model.newPredictor(translator).apply {

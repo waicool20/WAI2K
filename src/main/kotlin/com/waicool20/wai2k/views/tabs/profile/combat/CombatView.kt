@@ -69,7 +69,7 @@ class CombatView : AbstractProfileView() {
     }
 
     override fun createBindings() {
-        context.currentProfile.combat.apply {
+        profile.combat.apply {
             enabledCheckBox.bind(enabledProperty)
             mapComboBox.bind(mapProperty)
             repairThresholdSpinner.bind(repairThresholdProperty)

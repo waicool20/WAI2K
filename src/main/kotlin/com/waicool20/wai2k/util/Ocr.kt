@@ -20,7 +20,7 @@
 package com.waicool20.wai2k.util
 
 import com.waicool20.cvauto.core.AnyRegion
-import com.waicool20.wai2k.config.Wai2KConfig
+import com.waicool20.wai2k.config.Wai2kConfig
 import com.waicool20.waicoolutils.binarizeImage
 import com.waicool20.waicoolutils.invert
 import com.waicool20.waicoolutils.pad
@@ -71,8 +71,8 @@ object Ocr {
      *
      * @param digitsOnly Applies the digit character filter to the engine if true
      */
-    fun forConfig(config: Wai2KConfig) = Tesseract().apply {
-        setTessVariable("user_defined_dpi", "300")
+    fun forConfig(config: Wai2kConfig) = Tesseract().apply {
+        setVariable("user_defined_dpi", "300")
         setDatapath(config.assetsDirectory.resolve("models").toString())
         blockMode()
     }
@@ -110,7 +110,7 @@ fun ITesseract.readText(
 }
 
 fun ITesseract.useCharFilter(chars: String) = apply {
-    setTessVariable("tessedit_char_whitelist", chars)
+    setVariable("tessedit_char_whitelist", chars)
 }
 
 fun ITesseract.digitsOnly() = useCharFilter(Ocr.DIGITS)
@@ -124,8 +124,8 @@ fun ITesseract.useLegacyEngine() = apply {
 }
 
 fun ITesseract.disableDictionaries() = apply {
-    setTessVariable("load_system_dawg", "false")
-    setTessVariable("load_freq_dawg", "false")
+    setVariable("load_system_dawg", "false")
+    setVariable("load_freq_dawg", "false")
 }
 
 fun ITesseract.wordMode() = apply {

@@ -19,8 +19,8 @@
 
 package com.waicool20.wai2k.views.tabs.profile
 
-import com.waicool20.wai2k.config.Wai2KProfile.CombatSimulation.Level
-import com.waicool20.wai2k.config.Wai2KProfile.CombatSimulation.Coalition.Type
+import com.waicool20.wai2k.config.Wai2kProfile.CombatSimulation.Level
+import com.waicool20.wai2k.config.Wai2kProfile.CombatSimulation.Coalition.Type
 import com.waicool20.wai2k.game.GFL
 import com.waicool20.waicoolutils.javafx.bind
 import javafx.scene.control.CheckBox
@@ -45,7 +45,7 @@ class CombatSimulationView : AbstractProfileView() {
     }
 
     override fun createBindings() {
-        context.currentProfile.combatSimulation.apply {
+        profile.combatSimulation.apply {
             enableCombatSimulationCheckBox.bind(enabledProperty)
             dataSimComboBox.bind(dataSimProperty)
             neuralSimComboBox.bind(neuralFragmentProperty)

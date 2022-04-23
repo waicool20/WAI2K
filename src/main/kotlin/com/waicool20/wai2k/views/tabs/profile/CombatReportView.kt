@@ -19,7 +19,7 @@
 
 package com.waicool20.wai2k.views.tabs.profile
 
-import com.waicool20.wai2k.config.Wai2KProfile.CombatReport
+import com.waicool20.wai2k.config.Wai2kProfile.CombatReport
 import javafx.scene.control.CheckBox
 import javafx.scene.control.ComboBox
 import javafx.scene.layout.VBox
@@ -35,7 +35,7 @@ class CombatReportView : AbstractProfileView() {
     }
 
     override fun createBindings() {
-        context.currentProfile.combatReport.apply {
+        profile.combatReport.apply {
             enableCombatReportCheckBox.bind(enabledProperty)
             typeComboBox.bind(typeProperty)
         }

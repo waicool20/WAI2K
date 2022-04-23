@@ -19,7 +19,7 @@
 
 package com.waicool20.wai2k.views.tabs.preferences
 
-import com.waicool20.wai2k.config.Wai2KContext
+import com.waicool20.wai2k.Wai2k
 import com.waicool20.waicoolutils.DesktopUtils
 import javafx.scene.control.Hyperlink
 import javafx.scene.layout.VBox
@@ -27,14 +27,11 @@ import tornadofx.*
 
 class PathPrefView : View() {
     override val root: VBox by fxml("/views/tabs/preferences/path.fxml")
-    private val sikulixJarPathLink: Hyperlink by fxid()
-    private val adbPathLink: Hyperlink by fxid()
     private val assetsDirPathLink: Hyperlink by fxid()
-    private val context: Wai2KContext by inject()
 
     override fun onDock() {
         super.onDock()
-        context.wai2KConfig.apply {
+        Wai2k.config.apply {
             assetsDirPathLink.textProperty().bind(assetsDirectoryProperty.asString())
             assetsDirPathLink.setOnAction { DesktopUtils.open(assetsDirectory) }
         }

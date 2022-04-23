@@ -19,7 +19,7 @@
 
 package com.waicool20.wai2k.views.tabs.preferences
 
-import com.waicool20.wai2k.config.Wai2KContext
+import com.waicool20.wai2k.Wai2k
 import javafx.scene.control.CheckBox
 import javafx.scene.layout.VBox
 import tornadofx.*
@@ -29,11 +29,9 @@ class ConsolePrefView : View() {
     private val clearConsoleOnStartCheckBox: CheckBox by fxid()
     private val showConsoleOnStartCheckBox: CheckBox by fxid()
 
-    private val context: Wai2KContext by inject()
-
     override fun onDock() {
         super.onDock()
-        context.wai2KConfig.apply {
+        Wai2k.config.apply {
             clearConsoleOnStartCheckBox.bind(clearConsoleOnStartProperty)
             showConsoleOnStartCheckBox.bind(showConsoleOnStartProperty)
         }

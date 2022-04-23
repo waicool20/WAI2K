@@ -19,7 +19,7 @@
 
 package com.waicool20.wai2k.views.tabs.profile.logistics
 
-import com.waicool20.wai2k.config.Wai2KProfile.Logistics.ReceivalMode
+import com.waicool20.wai2k.config.Wai2kProfile.Logistics.ReceivalMode
 import com.waicool20.wai2k.views.tabs.profile.AbstractProfileView
 import javafx.scene.control.CheckBox
 import javafx.scene.control.ComboBox
@@ -36,7 +36,7 @@ class LogisticsView : AbstractProfileView() {
     }
 
     override fun createBindings() {
-        context.currentProfile.logistics.apply {
+        profile.logistics.apply {
             enabledCheckBox.bind(enabledProperty)
             receivalModeComboBox.bind(receiveModeProperty)
         }

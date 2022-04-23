@@ -20,9 +20,8 @@
 package com.waicool20.wai2k.views
 
 import com.waicool20.cvauto.android.ADB
-import com.waicool20.wai2k.Wai2K
+import com.waicool20.wai2k.Wai2k
 import com.waicool20.wai2k.android.ProcessManager
-import com.waicool20.wai2k.config.Wai2KContext
 import com.waicool20.wai2k.game.GFL
 import com.waicool20.waicoolutils.DesktopUtils
 import com.waicool20.waicoolutils.javafx.CoroutineScopeView
@@ -50,34 +49,32 @@ class MenuBarView : CoroutineScopeView() {
     private val logcatItem: MenuItem by fxid()
     private val restartGameItem: MenuItem by fxid()
 
-    private val wai2KContext: Wai2KContext by inject()
-
     override fun onDock() {
         super.onDock()
         quitItem.setOnAction { exitProcess(0) }
-        openFolderItem.setOnAction { DesktopUtils.open(Wai2K.CONFIG_DIR) }
+        openFolderItem.setOnAction { DesktopUtils.open(Wai2k.CONFIG_DIR) }
         consoleItem.setOnAction { find<ConsoleView>().openWindow(owner = null)?.toFront() }
         aboutItem.setOnAction { find<AboutView>().openModal(stageStyle = StageStyle.UNDECORATED) }
         toolsItem.setOnAction { find<DebugView>().openWindow(owner = null)?.toFront() }
-        logsItem.setOnAction { DesktopUtils.open(Wai2K.CONFIG_DIR.resolve("debug.log")) }
+        logsItem.setOnAction { DesktopUtils.open(Wai2k.CONFIG_DIR.resolve("debug.log")) }
         discordItem.setOnAction { DesktopUtils.browse("https://discord.gg/2tt5Der") }
         contributeItem.setOnAction { DesktopUtils.browse("https://github.com/waicool20/WAI2K") }
         wikiItem.setOnAction { DesktopUtils.browse("https://github.com/waicool20/WAI2K/wiki") }
         donateItem.setOnAction { DesktopUtils.browse("https://ko-fi.com/waicool20") }
         homographyItem.setOnAction {
             val device =
-                ADB.getDevice(wai2KContext.wai2KConfig.lastDeviceSerial) ?: return@setOnAction
+                ADB.getDevice(Wai2k.config.lastDeviceSerial) ?: return@setOnAction
             chooseFile(
                 "Select base image...",
                 arrayOf(FileChooser.ExtensionFilter("PNG files (*.png)", "*.png")),
-                wai2KContext.wai2KConfig.assetsDirectory.toFile()
+                Wai2k.config.assetsDirectory.toFile()
             ).firstOrNull()?.let { HomographyViewer(device, it).openWindow() }
         }
         logcatItem.setOnAction { find<LogcatView>().openWindow(owner = null)?.toFront() }
         restartGameItem.setOnAction {
             launch {
                 val device =
-                    ADB.getDevice(wai2KContext.wai2KConfig.lastDeviceSerial) ?: return@launch
+                    ADB.getDevice(Wai2k.config.lastDeviceSerial) ?: return@launch
                 ProcessManager(device).restart(GFL.PKG_NAME)
             }
         }

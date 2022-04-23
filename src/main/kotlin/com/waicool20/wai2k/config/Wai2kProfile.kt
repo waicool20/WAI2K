@@ -27,7 +27,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.waicool20.wai2k.Wai2K
+import com.waicool20.wai2k.Wai2k
 import com.waicool20.wai2k.game.GFL
 import com.waicool20.waicoolutils.javafx.json.fxJacksonObjectMapper
 import com.waicool20.waicoolutils.javafx.toProperty
@@ -42,7 +42,7 @@ import kotlin.io.path.*
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class Wai2KProfile(
+data class Wai2kProfile(
     val logistics: Logistics = Logistics(),
     val autoBattle: AutoBattle = AutoBattle(),
     val combat: Combat = Combat(),
@@ -262,18 +262,18 @@ data class Wai2KProfile(
         private val mapper = fxJacksonObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .registerModule(JavaTimeModule())
-        val PROFILE_DIR: Path = Wai2K.CONFIG_DIR.resolve("profiles")
+        val PROFILE_DIR: Path = Wai2k.CONFIG_DIR.resolve("profiles")
         const val DEFAULT_NAME = "Default"
 
         fun profileExists(name: String) = PROFILE_DIR.resolve("$name.json").exists()
 
-        fun load(name: String): Wai2KProfile {
+        fun load(name: String): Wai2kProfile {
             return load(PROFILE_DIR.resolve(
                 "${name.takeIf { it.isNotBlank() } ?: DEFAULT_NAME}.json")
             ).also { it.name = name }
         }
 
-        fun load(path: Path): Wai2KProfile {
+        fun load(path: Path): Wai2kProfile {
             loaderLogger.info("Attempting to load profile")
             loaderLogger.debug("Profile path: $path")
             if (path.notExists()) {
@@ -283,7 +283,7 @@ data class Wai2KProfile(
             }
 
             return try {
-                mapper.readValue<Wai2KProfile>(path.toFile()).apply {
+                mapper.readValue<Wai2kProfile>(path.toFile()).apply {
                     loaderLogger.info("Profile loaded")
                     name = path.nameWithoutExtension
                     printDebugInfo()
@@ -291,12 +291,12 @@ data class Wai2KProfile(
             } catch (e: Exception) {
                 loaderLogger.warn("Error occurred while loading the profile:", e)
                 loaderLogger.info("Using default profile")
-                Wai2KProfile().apply { save() }
+                Wai2kProfile().apply { save() }
             }
         }
     }
 
-    private val logger = loggerFor<Wai2KProfile>()
+    private val logger = loggerFor<Wai2kProfile>()
 
     val nameProperty = DEFAULT_NAME.toProperty()
     @get:JsonIgnore var name by nameProperty
@@ -306,7 +306,7 @@ data class Wai2KProfile(
         get() = PROFILE_DIR.resolve("$name.json")
 
     fun save(path: Path = this.path) {
-        logger.info("Saving Wai2K profile")
+        logger.info("Saving WAI2K profile")
         if (path.notExists()) {
             logger.debug("Profile not found, creating file $path")
             path.parent.createDirectories()

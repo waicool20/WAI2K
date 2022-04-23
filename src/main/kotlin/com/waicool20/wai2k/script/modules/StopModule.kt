@@ -19,7 +19,7 @@
 
 package com.waicool20.wai2k.script.modules
 
-import com.waicool20.wai2k.config.Wai2KProfile
+import com.waicool20.wai2k.config.Wai2kProfile
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.waicoolutils.logging.loggerFor
 import java.time.*
@@ -41,10 +41,10 @@ class StopModule(navigator: Navigator) : ScriptModule(navigator) {
         with(profile.stop.time) {
             if (!enabled) return
             val stop = when (mode) {
-                Wai2KProfile.Stop.Time.Mode.ELAPSED_TIME -> {
+                Wai2kProfile.Stop.Time.Mode.ELAPSED_TIME -> {
                     Duration.between(scriptRunner.lastStartTime!!, Instant.now()) > elapsedTime
                 }
-                Wai2KProfile.Stop.Time.Mode.SPECIFIC_TIME -> {
+                Wai2kProfile.Stop.Time.Mode.SPECIFIC_TIME -> {
                     LocalDateTime.now() > nextStopTime
                 }
                 else -> false
