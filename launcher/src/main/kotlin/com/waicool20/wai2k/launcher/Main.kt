@@ -40,7 +40,7 @@ import javax.swing.JLabel
 import javax.swing.JPanel
 import kotlin.concurrent.thread
 import kotlin.io.path.*
-import kotlin.streams.toList
+import kotlin.streams.asSequence
 import kotlin.system.exitProcess
 
 /*
@@ -139,7 +139,7 @@ object Main {
                 // Just try to launch wai2k anyways if anything unexpected happens ¯\_(ツ)_/¯
             }
         }
-        launchWai2K(args)
+        launchWai2k(args)
     }
 
     private fun checkFile(file: String) {
@@ -323,11 +323,11 @@ object Main {
         zis.close()
     }
 
-    private fun launchWai2K(args: Array<String>) {
+    private fun launchWai2k(args: Array<String>) {
         frame.isVisible = false
         frame.dispose()
 
-        val jars = Files.walk(libPath)
+        val jars = Files.walk(libPath).asSequence()
             .filter { it.isRegularFile() && it.extension == "jar" }
             .toList()
             .sortedDescending()
@@ -344,7 +344,7 @@ object Main {
         val process = ProcessBuilder(
             "java", "-cp",
             classpath,
-            "com.waicool20.wai2k.LauncherKt",
+            "com.waicool20.wai2k.Wai2kKt",
             *args
         ).directory(appPath.toFile()).inheritIO().start()
         process.waitFor()

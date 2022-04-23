@@ -22,6 +22,9 @@ package com.waicool20.wai2k
 import ai.djl.Device
 import ai.djl.engine.Engine
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.context
+import com.github.ajalt.clikt.parameters.arguments.argument
+import com.github.ajalt.clikt.parameters.arguments.multiple
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.path
@@ -43,7 +46,8 @@ import kotlin.io.path.*
 
 fun main(args: Array<String>) = Wai2k.main(args)
 
-object Wai2k : CliktCommand() {
+object Wai2k : CliktCommand(treatUnknownOptionsAsArgs = true) {
+    init { context { allowInterspersedArgs = false } }
     private val logger = loggerFor<Wai2k>()
     private val CONFIG_DIR_NAME = "wai2k"
 
@@ -56,6 +60,7 @@ object Wai2k : CliktCommand() {
         .choice("INFO", "DEBUG")
     val ASSETS_DIR: Path? by option("--assets-dir", help = "Assets directory path")
         .path(canBeFile = false)
+    private val EXTRA_ARGS by argument().multiple()
 
     private var _config: Wai2kConfig? = null
     private var _profile: Wai2kProfile? = null
