@@ -23,7 +23,6 @@ import com.waicool20.wai2k.Wai2k
 import com.waicool20.wai2k.config.Wai2kProfile
 import com.waicool20.wai2k.events.EventBus
 import com.waicool20.wai2k.events.ScriptStopEvent
-import com.waicool20.wai2k.script.ScriptContext
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.waicoolutils.javafx.AlertFactory
 import com.waicool20.waicoolutils.javafx.CoroutineScopeView
@@ -60,9 +59,7 @@ class HeaderView : CoroutineScopeView() {
     private val startPauseButton: SplitMenuButton by fxid()
     private val stopButton: Button by fxid()
 
-    private val scriptRunner by lazy {
-        find<ScriptContext>().scriptRunner
-    }
+    private val scriptRunner get() = Wai2k.scriptRunner
 
     val buttons: HBox by fxid()
 
