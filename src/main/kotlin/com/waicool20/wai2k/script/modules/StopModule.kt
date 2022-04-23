@@ -42,7 +42,7 @@ class StopModule(navigator: Navigator) : ScriptModule(navigator) {
             if (!enabled) return
             val stop = when (mode) {
                 Wai2kProfile.Stop.Time.Mode.ELAPSED_TIME -> {
-                    Duration.between(scriptRunner.lastStartTime!!, Instant.now()) > elapsedTime
+                    scriptRunner.elapsedTime > elapsedTime.toMillis()
                 }
                 Wai2kProfile.Stop.Time.Mode.SPECIFIC_TIME -> {
                     LocalDateTime.now() > nextStopTime
