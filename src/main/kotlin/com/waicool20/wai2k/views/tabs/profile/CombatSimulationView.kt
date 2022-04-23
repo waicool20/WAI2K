@@ -19,8 +19,8 @@
 
 package com.waicool20.wai2k.views.tabs.profile
 
-import com.waicool20.wai2k.config.Wai2kProfile.CombatSimulation.Level
 import com.waicool20.wai2k.config.Wai2kProfile.CombatSimulation.Coalition.Type
+import com.waicool20.wai2k.config.Wai2kProfile.CombatSimulation.Level
 import com.waicool20.wai2k.game.GFL
 import com.waicool20.waicoolutils.javafx.bind
 import javafx.scene.control.CheckBox

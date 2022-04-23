@@ -32,5 +32,5 @@ sealed interface CustomMapEntrance {
     suspend fun enterMap()
 }
 
-interface EventMapRunner: CustomMapEntrance
-interface CampaignMapRunner: CustomMapEntrance
+interface EventMapRunner : CustomMapEntrance
+interface CampaignMapRunner : CustomMapEntrance

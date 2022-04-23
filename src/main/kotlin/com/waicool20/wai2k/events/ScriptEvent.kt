@@ -48,7 +48,7 @@ class SimEnergySpentEvent(val count: Int, instant: Instant = Instant.now()) : Sc
 class CoalitionEnergySpentEvent(val count: Int, instant: Instant = Instant.now()) :
     ScriptEvent(instant)
 
-sealed class ScriptStateEvent(instant: Instant = Instant.now()): ScriptEvent(instant)
+sealed class ScriptStateEvent(instant: Instant = Instant.now()) : ScriptEvent(instant)
 
 class ScriptStartEvent(instant: Instant = Instant.now()) : ScriptStateEvent(instant)
 class ScriptPauseEvent(instant: Instant = Instant.now()) : ScriptStateEvent(instant)

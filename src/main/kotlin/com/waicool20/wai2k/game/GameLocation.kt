@@ -122,10 +122,12 @@ data class GameLocation(
         if (landmarks.isEmpty()) return false
         return when (matchingMode) {
             Mode.AND -> landmarks.all {
-                it.asset.getSubRegionFor(region).has(FileTemplate(it.asset.imagePath, it.asset.threshold))
+                it.asset.getSubRegionFor(region)
+                    .has(FileTemplate(it.asset.imagePath, it.asset.threshold))
             }
             Mode.OR -> landmarks.any {
-                it.asset.getSubRegionFor(region).has(FileTemplate(it.asset.imagePath, it.asset.threshold))
+                it.asset.getSubRegionFor(region)
+                    .has(FileTemplate(it.asset.imagePath, it.asset.threshold))
             }
         }
     }

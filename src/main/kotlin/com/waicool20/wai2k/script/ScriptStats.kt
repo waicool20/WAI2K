@@ -21,7 +21,8 @@ package com.waicool20.wai2k.script
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.waicool20.wai2k.events.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 

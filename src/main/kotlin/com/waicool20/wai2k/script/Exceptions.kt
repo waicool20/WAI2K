@@ -47,8 +47,7 @@ class RepairUpdateException : ScriptException("Failed to update repair status, b
 
 
 open class UnrecoverableScriptException(message: String? = null, cause: Throwable? = null) :
-    Exception(message, cause) {
-}
+    Exception(message, cause)
 
 class UnsupportedMapException(mapName: String) : UnrecoverableScriptException(
     """

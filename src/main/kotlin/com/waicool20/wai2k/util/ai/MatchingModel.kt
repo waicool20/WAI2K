@@ -21,7 +21,6 @@ package com.waicool20.wai2k.util.ai
 
 import ai.djl.Model
 import ai.djl.ndarray.NDList
-import ai.djl.ndarray.NDManager
 import ai.djl.ndarray.types.Shape
 import ai.djl.nn.AbstractBlock
 import ai.djl.training.ParameterStore

@@ -22,13 +22,11 @@ package com.waicool20.wai2k.script.modules.combat.maps
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.modules.combat.EventMapRunner
 import com.waicool20.wai2k.script.modules.combat.HomographyMapRunner
-import com.waicool20.wai2k.util.isSimilar
 import com.waicool20.wai2k.util.readText
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.yield
-import java.awt.Color
 import kotlin.coroutines.coroutineContext
 import kotlin.math.roundToLong
 import kotlin.random.Random

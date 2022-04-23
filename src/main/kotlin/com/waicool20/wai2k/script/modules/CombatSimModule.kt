@@ -197,10 +197,10 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
         navigator.navigateTo(LocationId.COMBAT_SIMULATION)
 
         logger.info("Selecting coalition tab")
-        while(coroutineContext.isActive) {
+        while (coroutineContext.isActive) {
             delay(5000)
             region.findBest(FileTemplate("combat-simulation/coalition-drill.png"))?.region?.click()
-            if (Color(region.capture().getRGB(1780,235)).isSimilar(Color(156, 36, 33))) {
+            if (Color(region.capture().getRGB(1780, 235)).isSimilar(Color(156, 36, 33))) {
                 break
             }
         }

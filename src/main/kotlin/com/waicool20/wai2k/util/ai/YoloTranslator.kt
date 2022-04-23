@@ -48,7 +48,7 @@ class YoloTranslator(
     private val size = model.getProperty("InputSize")?.toInt()
         ?: error("Model property 'InputSize' must be set")
 
-    private class Builder : BaseImageTranslator.BaseBuilder<Builder>() {
+    private class Builder : BaseBuilder<Builder>() {
         override fun self() = this
     }
 

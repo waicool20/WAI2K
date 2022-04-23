@@ -27,7 +27,6 @@ import com.waicool20.waicoolutils.logging.LoggingEventBus
 import javafx.scene.control.Label
 import javafx.scene.layout.AnchorPane
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.take

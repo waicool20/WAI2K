@@ -33,7 +33,9 @@ import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.readText
 import com.waicool20.wai2k.util.useCharFilter
 import com.waicool20.waicoolutils.logging.loggerFor
-import kotlinx.coroutines.*
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.yield
 import java.awt.Color
 import java.awt.Point
 import kotlin.coroutines.coroutineContext

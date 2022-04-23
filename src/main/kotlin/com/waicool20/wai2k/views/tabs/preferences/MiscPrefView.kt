@@ -37,6 +37,7 @@ class MiscPrefView : AbstractProfileView() {
         captureMethodComboBox.items.setAll(AndroidDevice.CaptureMethod.values().toList())
         captureCompressionModeComboBox.items.setAll(AndroidDevice.CompressionMode.values().toList())
     }
+
     override fun createBindings() {
         Wai2k.config.apply {
             debugModeEnabledCheckBox.bind(debugModeEnabledProperty)

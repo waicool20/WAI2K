@@ -72,8 +72,8 @@ class HomographyViewer(
 
     override fun onDock() {
         super.onDock()
-        imageView.fitWidthProperty().bind(root.widthProperty());
-        imageView.fitHeightProperty().bind(root.heightProperty());
+        imageView.fitWidthProperty().bind(root.widthProperty())
+        imageView.fitHeightProperty().bind(root.heightProperty())
 
         launch(Dispatchers.IO) {
             val model = MatchingModel(
