@@ -66,7 +66,7 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.9.3")
     implementation("ai.djl.pytorch:pytorch-engine:0.16.0")
     implementation("ai.djl.pytorch:pytorch-native-auto:1.9.1")
-    implementation("com.github.ajalt.clikt:clikt:3.4.1")
+    implementation("com.github.ajalt.clikt:clikt-jvm:3.4.1")
 
     implementation("net.sourceforge.tess4j", "tess4j", "5.2.0") {
         exclude("org.ghost4j")
