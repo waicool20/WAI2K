@@ -64,11 +64,11 @@ dependencies {
     implementation("org.controlsfx:controlsfx:11.1.1")
     implementation("org.reflections", "reflections", "0.9.12")
     implementation("com.squareup.okhttp3:okhttp:4.9.3")
-    implementation("ai.djl.pytorch:pytorch-engine:0.15.0")
+    implementation("ai.djl.pytorch:pytorch-engine:0.16.0")
     implementation("ai.djl.pytorch:pytorch-native-auto:1.9.1")
     implementation("com.github.ajalt.clikt:clikt:3.4.1")
 
-    implementation("net.sourceforge.tess4j", "tess4j", "4.5.4") {
+    implementation("net.sourceforge.tess4j", "tess4j", "5.2.0") {
         exclude("org.ghost4j")
         exclude("org.apache.pdfbox")
         exclude("org.jboss")
