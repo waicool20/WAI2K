@@ -31,6 +31,8 @@
                                             shortcut="UP"/>
                     </accelerator>
                 </MenuItem>
+                <MenuItem fx:id="openAssetsFolderItem" mnemonicParsing="false" text="Open Assets Folder" />
+                <MenuItem fx:id="openAdbFolderItem" mnemonicParsing="false" text="Open ADB Folder" />
                 <MenuItem fx:id="quitItem" mnemonicParsing="false" text="Quit">
                     <accelerator>
                         <KeyCodeCombination alt="UP" code="Q" control="DOWN" meta="UP" shift="UP"

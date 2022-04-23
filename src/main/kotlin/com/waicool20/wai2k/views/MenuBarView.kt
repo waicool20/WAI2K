@@ -44,6 +44,8 @@ class MenuBarView : CoroutineScopeView() {
     private val donateItem: MenuItem by fxid()
     private val toolsItem: MenuItem by fxid()
     private val openFolderItem: MenuItem by fxid()
+    private val openAssetsFolderItem: MenuItem by fxid()
+    private val openAdbFolderItem: MenuItem by fxid()
     private val logsItem: MenuItem by fxid()
     private val homographyItem: MenuItem by fxid()
     private val logcatItem: MenuItem by fxid()
@@ -53,6 +55,8 @@ class MenuBarView : CoroutineScopeView() {
         super.onDock()
         quitItem.setOnAction { exitProcess(0) }
         openFolderItem.setOnAction { DesktopUtils.open(Wai2k.CONFIG_DIR) }
+        openAssetsFolderItem.setOnAction { DesktopUtils.open(Wai2k.config.assetsDirectory) }
+        openAdbFolderItem.setOnAction { DesktopUtils.open(ADB.binPath.parent) }
         consoleItem.setOnAction { find<ConsoleView>().openWindow(owner = null)?.toFront() }
         aboutItem.setOnAction { find<AboutView>().openModal(stageStyle = StageStyle.UNDECORATED) }
         toolsItem.setOnAction { find<DebugView>().openWindow(owner = null)?.toFront() }

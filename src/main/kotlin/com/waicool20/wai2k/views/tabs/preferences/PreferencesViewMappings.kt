@@ -26,7 +26,6 @@ object PreferencesViewMappings {
         ViewNode("Appearance", AppearancePrefView::class),
         ViewNode("Console", ConsolePrefView::class),
         ViewNode("Misc", MiscPrefView::class),
-        ViewNode("Paths", PathPrefView::class),
         ViewNode("Script", ScriptPrefView::class),
         ViewNode("Game Restart", GameRestartPrefView::class),
         ViewNode("YuuBot", YuuBotView::class)
