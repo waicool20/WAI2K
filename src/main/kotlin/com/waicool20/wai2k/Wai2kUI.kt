@@ -30,6 +30,7 @@ import javafx.stage.Stage
 import javafx.stage.StageStyle
 import org.slf4j.LoggerFactory
 import tornadofx.*
+import java.util.concurrent.atomic.AtomicBoolean
 
 class Wai2kUI : App(Wai2kWorkspace::class) {
     override fun start(stage: Stage) {
@@ -52,11 +53,8 @@ class Wai2kUIExceptionHandler : Thread.UncaughtExceptionHandler {
         "com.sun.scenario.animation.shared.PulseReceiver.timePulse"
     )
 
-    class ErrorEvent(val thread: Thread, val error: Throwable) {
-        internal var consumed = false
-        fun consume() {
-            consumed = true
-        }
+    companion object {
+        private val dialogIsShowing = AtomicBoolean(false)
     }
 
     override fun uncaughtException(t: Thread, error: Throwable) {
@@ -68,9 +66,7 @@ class Wai2kUIExceptionHandler : Thread.UncaughtExceptionHandler {
         if (isCycle(error)) {
             logger.info("Detected cycle handling error, aborting.", error)
         } else {
-            val event = ErrorEvent(t, error)
-            if (!event.consumed) {
-                event.consume()
+            if (dialogIsShowing.compareAndSet(false, true)) {
                 Platform.runLater { showErrorDialog(error) }
             }
         }
@@ -92,7 +88,7 @@ class Wai2kUIExceptionHandler : Thread.UncaughtExceptionHandler {
         }
 
         Alert(Alert.AlertType.ERROR).apply {
-            title = error.message ?: "An error occured"
+            title = error.message ?: "An error occurred"
             isResizable = true
             headerText =
                 if (error.stackTrace.isNullOrEmpty()) "Error" else "Error in ${error.stackTrace[0]}"
@@ -102,5 +98,6 @@ class Wai2kUIExceptionHandler : Thread.UncaughtExceptionHandler {
             }
             showAndWait()
         }
+        dialogIsShowing.set(false)
     }
 }
