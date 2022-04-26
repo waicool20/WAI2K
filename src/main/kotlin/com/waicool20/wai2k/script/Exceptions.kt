@@ -19,6 +19,7 @@
 
 package com.waicool20.wai2k.script
 
+import com.waicool20.cvauto.android.AndroidDevice
 import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.modules.combat.MapNode
@@ -48,6 +49,9 @@ class RepairUpdateException : ScriptException("Failed to update repair status, b
 
 open class UnrecoverableScriptException(message: String? = null, cause: Throwable? = null) :
     Exception(message, cause)
+
+class InvalidDeviceException(device: AndroidDevice?)
+    : UnrecoverableScriptException("Invalid or empty device: ${device?.serial}")
 
 class UnsupportedMapException(mapName: String) : UnrecoverableScriptException(
     """

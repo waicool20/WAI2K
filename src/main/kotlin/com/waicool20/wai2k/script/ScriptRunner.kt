@@ -154,7 +154,8 @@ class ScriptRunner(
     }
 
     fun reload(forceReload: Boolean = false) {
-        var reloadModules = forceReload
+        // Force reload if just started
+        var reloadModules = elapsedTime < 2000 || forceReload
         if (_config != config) {
             logger.info("Detected configuration change")
             _config = config
@@ -165,6 +166,11 @@ class ScriptRunner(
             _profile = profile
             reloadModules = true
         }
+        if (_device == null || _device?.serial != _config.lastDeviceSerial) {
+            val device =
+                ADB.getDevice(_config.lastDeviceSerial) ?: throw InvalidDeviceException(null)
+            _device = device
+        }
         _config.scriptConfig.apply {
             Region.DEFAULT_MATCHER.settings.matchDimension = NORMAL_RES
             Region.DEFAULT_MATCHER.settings.defaultThreshold = defaultSimilarityThreshold
@@ -172,13 +178,7 @@ class ScriptRunner(
                 (mouseDelay * 1000).roundToLong()
         }
 
-        if (_device == null || _device?.serial != _config.lastDeviceSerial) {
-            _device = ADB.getDevice(_config.lastDeviceSerial)
-        }
-        val region = _device?.screens?.firstOrNull() ?: run {
-            logger.info("Could not start due to invalid device")
-            return
-        }
+        val region = _device?.screens?.firstOrNull() ?: throw InvalidDeviceException(_device)
         if (reloadModules) {
             logger.info("Reloading modules")
             modules.clear()

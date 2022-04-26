@@ -39,6 +39,8 @@ import javafx.scene.layout.HBox
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.javafx.JavaFx
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -70,6 +72,10 @@ class HeaderView : CoroutineScopeView() {
         startPauseButton.setOnAction { onStartPause() }
         stopButton.setOnAction { scriptRunner.stop() }
         createBindings()
+        EventBus.subscribe<ScriptStopEvent>().onEach {
+            startPauseButton.text = "Start"
+            stopButton.hide()
+        }.launchIn(this)
     }
 
     override fun onSave() {
@@ -167,16 +173,7 @@ class HeaderView : CoroutineScopeView() {
                 }.run()
                 startPauseButton.text = "Pause"
                 stopButton.show()
-                startScriptMonitor()
             }
-        }
-    }
-
-    private fun startScriptMonitor() = launch(CoroutineName("SCRIPT_MONITOR") + Dispatchers.IO) {
-        EventBus.subscribe<ScriptStopEvent>().first()
-        withContext(Dispatchers.JavaFx) {
-            startPauseButton.text = "Start"
-            stopButton.hide()
         }
     }
 }
