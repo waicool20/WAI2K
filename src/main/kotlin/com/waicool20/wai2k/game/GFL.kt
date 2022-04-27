@@ -19,8 +19,69 @@
 
 package com.waicool20.wai2k.game
 
+import com.waicool20.cvauto.android.ADB
+import com.waicool20.cvauto.android.AndroidDevice
+import com.waicool20.wai2k.Wai2k
+import com.waicool20.waicoolutils.logging.loggerFor
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.concurrent.thread
+
 object GFL {
     const val PKG_NAME = "com.sunborn.girlsfrontline.en"
 
     const val MAX_ECHELON = 14
+
+    class LogcatListener(val device: AndroidDevice) {
+        private val logger = loggerFor<LogcatListener>()
+        private val isRunning = AtomicBoolean(false)
+        private var process: Process? = null
+        fun start() {
+            if (!isRunning.compareAndSet(false, true)) return
+            thread(isDaemon = true, name = "Logcat Listener [${device.serial}]") {
+                while (isRunning.get()) {
+                    if (process == null || process?.isAlive == false) {
+                        if (device.isConnected()) {
+                            ADB.execute("-s", device.serial, "logcat", "-c") // Clear logs
+                            process = ADB.execute("-s", device.serial, "logcat", "Unity:V", "*:S")
+                        } else {
+                            TimeUnit.SECONDS.sleep(5)
+                        }
+                    }
+                    try {
+                        process?.inputStream?.bufferedReader()?.use { reader ->
+                            reader.forEachLine {
+                                if (!isRunning.get()) process?.destroy()
+                                onNewLine(it)
+                            }
+                        }
+                    } catch (e: Exception) {
+                        // Ignore
+                    }
+                }
+                isRunning.set(false)
+            }
+        }
+
+        fun stop() {
+            isRunning.compareAndSet(true, false)
+        }
+
+        private val gunCheckRegex = Regex(".*加载热更资源包名.+character(.+)\\.ab.*")
+        private var gotGun = false
+
+        private fun onNewLine(l: String) {
+            when {
+                !gotGun && l.contains("预制物GetNewGun") -> gotGun = true
+                gotGun -> checkForGun(l)
+            }
+        }
+
+        private fun checkForGun(l: String) {
+            val _name = gunCheckRegex.matchEntire(l)?.groupValues?.get(1) ?: return
+            val name = TDoll.lookup(Wai2k.config, _name)?.name ?: "Unknown $_name"
+            logger.info("Got new gun: $name")
+            gotGun = false
+        }
+    }
 }

@@ -28,6 +28,7 @@ import com.waicool20.wai2k.Wai2k
 import com.waicool20.wai2k.config.Wai2kConfig
 import com.waicool20.wai2k.config.Wai2kProfile
 import com.waicool20.wai2k.events.*
+import com.waicool20.wai2k.game.GFL
 import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.GameState
 import com.waicool20.wai2k.script.modules.InitModule
@@ -65,6 +66,7 @@ class ScriptRunner(
 
     private val logger = loggerFor<ScriptRunner>()
     private var _device: AndroidDevice? = null
+    private var logcatListener: GFL.LogcatListener? = null
     private var _config = config
     private var _profile = profile
 
@@ -95,6 +97,7 @@ class ScriptRunner(
         EventBus.tryPublish(ScriptStartEvent())
         sessionScope = CoroutineScope(Dispatchers.Default + CoroutineName("ScriptRunner"))
         sessionScope.coroutineContext.job.invokeOnCompletion {
+            logcatListener?.stop()
             _state.update { State.STOPPED }
             EventBus.tryPublish(ScriptStopEvent())
         }
@@ -104,7 +107,6 @@ class ScriptRunner(
         lastStartTime = Instant.now()
         scriptStats.reset()
         gameState.reset()
-        reload(true)
         EventBus.subscribe<ScriptStatsUpdateEvent>()
             .onEach { statsChanged = true }
             .launchIn(sessionScope)
@@ -170,6 +172,8 @@ class ScriptRunner(
             val device =
                 ADB.getDevice(_config.lastDeviceSerial) ?: throw InvalidDeviceException(null)
             _device = device
+            logcatListener = GFL.LogcatListener(device)
+            logcatListener?.start()
         }
         _config.scriptConfig.apply {
             Region.DEFAULT_MATCHER.settings.matchDimension = NORMAL_RES
