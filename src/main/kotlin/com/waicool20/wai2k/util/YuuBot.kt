@@ -84,6 +84,7 @@ class YuuBot(var apiKey: String = "") {
             is GameRestartEvent -> {
                 eventName = "game_restart"
                 node.put("reason", event.reason)
+                node.put("map", event.map)
             }
             is LogisticsSupportReceivedEvent -> {
                 eventName = "logistics_received"

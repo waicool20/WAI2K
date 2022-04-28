@@ -101,6 +101,7 @@ class RepairEvent(
 
 class GameRestartEvent(
     val reason: String,
+    val map: String,
     sessionId: Long,
     elapsedTime: Long,
     instant: Instant = Instant.now()

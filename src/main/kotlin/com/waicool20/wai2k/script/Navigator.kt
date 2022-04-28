@@ -352,7 +352,7 @@ class Navigator(
             scriptRunner.stop("Max restarts reached")
         }
         gameState.requiresRestart = false
-        EventBus.publish(GameRestartEvent(reason, sessionId, elapsedTime))
+        EventBus.publish(GameRestartEvent(reason, profile.combat.map, sessionId, elapsedTime))
         logger.info("Game will now restart")
         restartGameInternal()
     }
