@@ -21,7 +21,7 @@ package com.waicool20.wai2k.script.modules.combat.maps
 
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.events.EventBus
-import com.waicool20.wai2k.events.RepairsDoneEvent
+import com.waicool20.wai2k.events.RepairEvent
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.modules.combat.AbsoluteMapRunner
 import com.waicool20.wai2k.script.modules.combat.CorpseDragging
@@ -118,7 +118,7 @@ class Map10_4E_Drag(scriptComponent: ScriptComponent) : AbsoluteMapRunner(script
             region.subRegion(360, 286, 246, 323).click()
             region.subRegion(1360, 702, 290, 117)
                 .waitHas(FileTemplate("ok.png"), 3000)?.click()
-            EventBus.publish(RepairsDoneEvent(1))
+            EventBus.publish(RepairEvent(1, profile.combat.map, sessionId, elapsedTime))
             delay(1500)
         }
         mapRunnerRegions.deploy.click(); delay(500)

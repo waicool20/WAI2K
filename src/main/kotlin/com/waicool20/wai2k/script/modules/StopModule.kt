@@ -22,7 +22,9 @@ package com.waicool20.wai2k.script.modules
 import com.waicool20.wai2k.config.Wai2kProfile
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.waicoolutils.logging.loggerFor
-import java.time.*
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 
 class StopModule(navigator: Navigator) : ScriptModule(navigator) {
     private val logger = loggerFor<StopModule>()
@@ -49,7 +51,7 @@ class StopModule(navigator: Navigator) : ScriptModule(navigator) {
                 }
                 else -> false
             }
-            if (stop) stopScriptWithReason("$mode")
+            if (stop) scriptRunner.stop("Script stop condition reached: $mode")
         }
     }
 
@@ -64,7 +66,9 @@ class StopModule(navigator: Navigator) : ScriptModule(navigator) {
     private suspend fun checkCount() {
         with(profile.stop.count) {
             if (!enabled) return
-            if (scriptStats.sortiesDone >= sorties) stopScriptWithReason("Sorties >= $sorties")
+            if (scriptStats.sortiesDone >= sorties) {
+                scriptRunner.stop("Script stop condition reached: Sorties >= $sorties")
+            }
         }
     }
 }

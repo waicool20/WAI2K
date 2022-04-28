@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ GPLv3 License
+  ~
+  ~  Copyright (c) WAI2K by waicool20
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox spacing="5.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Label maxWidth="400.0" text="Hi there! Welcome to WAI2K, before you begin automating, please take some time to visit the following links:" wrapText="true" />
+      <Hyperlink fx:id="wiki" text="WAI2K Wiki Page">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Hyperlink>
+      <Label maxWidth="400.0" text="Out Wiki is full of information on how to run the tool with various information such as optimal map and echelon setup" wrapText="true" />
+      <Hyperlink fx:id="discord" text="Waifu Auto Discord">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Hyperlink>
+      <Label maxWidth="400.0" text="Join our discord to meet new people and get help!" wrapText="true" />
+      <Label maxWidth="400.0" text="Don't forget to grab an API key and setup discord integration to get notifications and cool statistics while you're at it!" wrapText="true" />
+   </children>
+   <padding>
+      <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+   </padding>
+</VBox>

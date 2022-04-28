@@ -133,7 +133,7 @@ class LogisticsSupportModule(navigator: Navigator) : ScriptModule(navigator) {
             val eta = Instant.now() + nextMission.duration
             echelon.logisticsSupportAssignment = LogisticsSupport.Assignment(nextMission, eta)
             logger.info("Dispatched $echelon to logistic support ${nextMission.formattedString}, ETA: ${eta.formatted()}")
-            EventBus.publish(LogisticsSupportSentEvent())
+            EventBus.publish(LogisticsSupportSentEvent(sessionId, elapsedTime))
             return
         }
         // Mission not running, requirements not met

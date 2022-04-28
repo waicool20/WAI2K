@@ -26,7 +26,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-class ScriptStats {
+class ScriptStats(private val runner: ScriptRunner) {
     private val scope = CoroutineScope(Dispatchers.Default)
 
     var logisticsSupportReceived: Int = 0
@@ -62,60 +62,60 @@ class ScriptStats {
         EventBus.subscribe<LogisticsSupportReceivedEvent>()
             .onEach {
                 logisticsSupportReceived++
-                EventBus.publish(ScriptStatsUpdateEvent(this))
+                EventBus.publish(ScriptStatsUpdateEvent(this, runner.sessionId, runner.elapsedTime))
             }.launchIn(scope)
         EventBus.subscribe<LogisticsSupportSentEvent>()
             .onEach {
                 logisticsSupportSent++
-                EventBus.publish(ScriptStatsUpdateEvent(this))
+                EventBus.publish(ScriptStatsUpdateEvent(this, runner.sessionId, runner.elapsedTime))
             }.launchIn(scope)
         EventBus.subscribe<SortieDoneEvent>()
             .onEach {
                 sortiesDone++
-                EventBus.publish(ScriptStatsUpdateEvent(this))
+                EventBus.publish(ScriptStatsUpdateEvent(this, runner.sessionId, runner.elapsedTime))
             }.launchIn(scope)
-        EventBus.subscribe<DollEnhancementDoneEvent>()
+        EventBus.subscribe<DollEnhancementEvent>()
             .onEach {
                 enhancementsDone++
                 dollsUsedForEnhancement += it.count
-                EventBus.publish(ScriptStatsUpdateEvent(this))
+                EventBus.publish(ScriptStatsUpdateEvent(this, runner.sessionId, runner.elapsedTime))
             }.launchIn(scope)
-        EventBus.subscribe<DollDisassemblyDoneEvent>()
+        EventBus.subscribe<DollDisassemblyEvent>()
             .onEach {
                 disassemblesDone++
                 dollsUsedForDisassembly += it.count
-                EventBus.publish(ScriptStatsUpdateEvent(this))
+                EventBus.publish(ScriptStatsUpdateEvent(this, runner.sessionId, runner.elapsedTime))
             }.launchIn(scope)
-        EventBus.subscribe<EquipDisassemblyDoneEvent>()
+        EventBus.subscribe<EquipDisassemblyEvent>()
             .onEach {
                 equipDisassemblesDone++
                 equipsUsedForDisassembly += it.count
-                EventBus.publish(ScriptStatsUpdateEvent(this))
+                EventBus.publish(ScriptStatsUpdateEvent(this, runner.sessionId, runner.elapsedTime))
             }.launchIn(scope)
-        EventBus.subscribe<RepairsDoneEvent>()
+        EventBus.subscribe<RepairEvent>()
             .onEach {
                 repairs += it.count
-                EventBus.publish(ScriptStatsUpdateEvent(this))
+                EventBus.publish(ScriptStatsUpdateEvent(this, runner.sessionId, runner.elapsedTime))
             }.launchIn(scope)
         EventBus.subscribe<GameRestartEvent>()
             .onEach {
                 gameRestarts++
-                EventBus.publish(ScriptStatsUpdateEvent(this))
+                EventBus.publish(ScriptStatsUpdateEvent(this, runner.sessionId, runner.elapsedTime))
             }.launchIn(scope)
         EventBus.subscribe<CombatReportWriteEvent>()
             .onEach {
                 combatReportsWritten += it.count
-                EventBus.publish(ScriptStatsUpdateEvent(this))
+                EventBus.publish(ScriptStatsUpdateEvent(this, runner.sessionId, runner.elapsedTime))
             }.launchIn(scope)
         EventBus.subscribe<SimEnergySpentEvent>()
             .onEach {
                 simEnergySpent += it.count
-                EventBus.publish(ScriptStatsUpdateEvent(this))
+                EventBus.publish(ScriptStatsUpdateEvent(this, runner.sessionId, runner.elapsedTime))
             }.launchIn(scope)
         EventBus.subscribe<CoalitionEnergySpentEvent>()
             .onEach {
                 coalitionEnergySpent += it.count
-                EventBus.publish(ScriptStatsUpdateEvent(this))
+                EventBus.publish(ScriptStatsUpdateEvent(this, runner.sessionId, runner.elapsedTime))
             }.launchIn(scope)
     }
 
@@ -134,7 +134,7 @@ class ScriptStats {
         combatReportsWritten = 0
         simEnergySpent = 0
         coalitionEnergySpent = 0
-        EventBus.tryPublish(ScriptStatsUpdateEvent(this))
+        EventBus.tryPublish(ScriptStatsUpdateEvent(this, runner.sessionId, runner.elapsedTime))
     }
 
     override fun toString(): String = jacksonObjectMapper().writerWithDefaultPrettyPrinter()

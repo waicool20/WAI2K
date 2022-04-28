@@ -78,10 +78,24 @@ class CombatReportModule(navigator: Navigator) : ScriptModule(navigator) {
             .toIntOrNull()?.coerceAtMost(80)
         if (reports != null) {
             logger.info("Writing $reports reports")
-            EventBus.publish(CombatReportWriteEvent(reports))
+            EventBus.publish(
+                CombatReportWriteEvent(
+                    profile.combatReport.type,
+                    reports,
+                    sessionId,
+                    elapsedTime
+                )
+            )
         } else {
             logger.warn("Could not determine amount of reports to write")
-            EventBus.publish(CombatReportWriteEvent(0))
+            EventBus.publish(
+                CombatReportWriteEvent(
+                    profile.combatReport.type,
+                    0,
+                    sessionId,
+                    elapsedTime
+                )
+            )
         }
         logger.info("Confirming selection")
         region.subRegion(1144, 749, 268, 103).click(); delay(1000) // OK button

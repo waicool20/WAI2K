@@ -59,13 +59,13 @@ class YuuBotView : View() {
         }
 
         sendButton.action {
-            YuuBot.postMessage(apiKeyTextField.text, titleTextField.text, messageTextArea.text)
+            YuuBot(Wai2k.config.apiKey).postMessage(titleTextField.text, messageTextArea.text)
         }
     }
 
     fun testApiKey(apiKey: String) {
         apiKeyTextField.style = "-fx-border-color: yellow; -fx-border-width: 2px"
-        YuuBot.testApiKey(apiKey) { status ->
+        YuuBot(apiKey).testApiKey { status ->
             Wai2k.config.apiKey = when (status) {
                 YuuBot.ApiKeyStatus.VALID -> {
                     apiKeyTextField.style = "-fx-border-color: lightgreen; -fx-border-width: 2px"

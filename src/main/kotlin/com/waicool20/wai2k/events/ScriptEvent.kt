@@ -19,39 +19,140 @@
 
 package com.waicool20.wai2k.events
 
+import com.waicool20.wai2k.config.Wai2kProfile
 import com.waicool20.wai2k.script.ScriptStats
 import java.time.Instant
 
-sealed class ScriptEvent(instant: Instant = Instant.now()) : EventBus.Event(instant)
+sealed class ScriptEvent(
+    val sessionId: Long,
+    val elapsedTime: Long,
+    instant: Instant = Instant.now()
+) : EventBus.Event(instant)
 
-class ScriptStatsUpdateEvent(val stats: ScriptStats, instant: Instant = Instant.now()) :
-    ScriptEvent(instant)
+class ScriptStatsUpdateEvent(
+    val stats: ScriptStats,
+    sessionId: Long,
+    elapsedTime: Long,
+    instant: Instant = Instant.now()
+) : ScriptEvent(sessionId, elapsedTime, instant)
 
-class LogisticsSupportReceivedEvent(instant: Instant = Instant.now()) : ScriptEvent(instant)
-class LogisticsSupportSentEvent(instant: Instant = Instant.now()) : ScriptEvent(instant)
-class SortieDoneEvent(instant: Instant = Instant.now()) : ScriptEvent(instant)
-class DollEnhancementDoneEvent(val count: Int, instant: Instant = Instant.now()) :
-    ScriptEvent(instant)
+class LogisticsSupportReceivedEvent(
+    sessionId: Long,
+    elapsedTime: Long,
+    instant: Instant = Instant.now()
+) : ScriptEvent(sessionId, elapsedTime, instant)
 
-class DollDisassemblyDoneEvent(val count: Int, instant: Instant = Instant.now()) :
-    ScriptEvent(instant)
+class LogisticsSupportSentEvent(
+    sessionId: Long,
+    elapsedTime: Long,
+    instant: Instant = Instant.now()
+) : ScriptEvent(sessionId, elapsedTime, instant)
 
-class EquipDisassemblyDoneEvent(val count: Int, instant: Instant = Instant.now()) :
-    ScriptEvent(instant)
+class SortieDoneEvent(
+    val map: String,
+    val draggers: List<Wai2kProfile.DollCriteria>,
+    sessionId: Long,
+    elapsedTime: Long,
+    instant: Instant = Instant.now()
+) : ScriptEvent(sessionId, elapsedTime, instant)
 
-class RepairsDoneEvent(val count: Int, instant: Instant = Instant.now()) : ScriptEvent(instant)
-class GameRestartEvent(val reason: String, instant: Instant = Instant.now()) : ScriptEvent(instant)
-class CombatReportWriteEvent(val count: Int, instant: Instant = Instant.now()) :
-    ScriptEvent(instant)
+class DollDropEvent(
+    val doll: String,
+    val map: String,
+    sessionId: Long,
+    elapsedTime: Long,
+    instant: Instant = Instant.now()
+) : ScriptEvent(sessionId, elapsedTime, instant)
 
-class SimEnergySpentEvent(val count: Int, instant: Instant = Instant.now()) : ScriptEvent(instant)
-class CoalitionEnergySpentEvent(val count: Int, instant: Instant = Instant.now()) :
-    ScriptEvent(instant)
+class DollEnhancementEvent(
+    val count: Int,
+    sessionId: Long,
+    elapsedTime: Long,
+    instant: Instant = Instant.now()
+) : ScriptEvent(sessionId, elapsedTime, instant)
 
-sealed class ScriptStateEvent(instant: Instant = Instant.now()) : ScriptEvent(instant)
+class DollDisassemblyEvent(
+    val count: Int,
+    sessionId: Long,
+    elapsedTime: Long,
+    instant: Instant = Instant.now()
+) : ScriptEvent(sessionId, elapsedTime, instant)
 
-class ScriptStartEvent(instant: Instant = Instant.now()) : ScriptStateEvent(instant)
-class ScriptPauseEvent(instant: Instant = Instant.now()) : ScriptStateEvent(instant)
-class ScriptUnpauseEvent(instant: Instant = Instant.now()) : ScriptStateEvent(instant)
-class ScriptStopEvent(instant: Instant = Instant.now()) : ScriptStateEvent(instant)
+class EquipDisassemblyEvent(
+    val count: Int,
+    sessionId: Long,
+    elapsedTime: Long,
+    instant: Instant = Instant.now()
+) : ScriptEvent(sessionId, elapsedTime, instant)
+
+class RepairEvent(
+    val count: Int,
+    val map: String,
+    sessionId: Long,
+    elapsedTime: Long,
+    instant: Instant = Instant.now()
+) : ScriptEvent(sessionId, elapsedTime, instant)
+
+class GameRestartEvent(
+    val reason: String,
+    sessionId: Long,
+    elapsedTime: Long,
+    instant: Instant = Instant.now()
+) : ScriptEvent(sessionId, elapsedTime, instant)
+
+class CombatReportWriteEvent(
+    val type: Wai2kProfile.CombatReport.Type,
+    val count: Int,
+    sessionId: Long,
+    elapsedTime: Long,
+    instant: Instant = Instant.now()
+) : ScriptEvent(sessionId, elapsedTime, instant)
+
+class SimEnergySpentEvent(
+    val type: String,
+    val level: Wai2kProfile.CombatSimulation.Level,
+    val count: Int,
+    sessionId: Long,
+    elapsedTime: Long,
+    instant: Instant = Instant.now()
+) : ScriptEvent(sessionId, elapsedTime, instant)
+
+class CoalitionEnergySpentEvent(
+    val type: Wai2kProfile.CombatSimulation.Coalition.Type,
+    val count: Int,
+    sessionId: Long,
+    elapsedTime: Long,
+    instant: Instant = Instant.now()
+) : ScriptEvent(sessionId, elapsedTime, instant)
+
+sealed class ScriptStateEvent(
+    sessionId: Long,
+    elapsedTime: Long,
+    instant: Instant = Instant.now()
+) : ScriptEvent(sessionId, elapsedTime, instant)
+
+class ScriptStartEvent(
+    val profileName: String,
+    sessionId: Long,
+    instant: Instant = Instant.now()
+) : ScriptStateEvent(sessionId, 0, instant)
+
+class ScriptPauseEvent(
+    sessionId: Long,
+    elapsedTime: Long,
+    instant: Instant = Instant.now()
+) : ScriptStateEvent(sessionId, elapsedTime, instant)
+
+class ScriptUnpauseEvent(
+    sessionId: Long,
+    elapsedTime: Long,
+    instant: Instant = Instant.now()
+) : ScriptStateEvent(sessionId, elapsedTime, instant)
+
+class ScriptStopEvent(
+    val reason: String,
+    sessionId: Long,
+    elapsedTime: Long,
+    instant: Instant = Instant.now()
+) : ScriptStateEvent(sessionId, elapsedTime, instant)
 

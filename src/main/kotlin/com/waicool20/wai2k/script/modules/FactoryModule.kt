@@ -23,9 +23,9 @@ import boofcv.alg.color.ColorHsv
 import com.waicool20.cvauto.core.input.ITouchInterface
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.cvauto.core.template.ImageTemplate
-import com.waicool20.wai2k.events.DollDisassemblyDoneEvent
-import com.waicool20.wai2k.events.DollEnhancementDoneEvent
-import com.waicool20.wai2k.events.EquipDisassemblyDoneEvent
+import com.waicool20.wai2k.events.DollDisassemblyEvent
+import com.waicool20.wai2k.events.DollEnhancementEvent
+import com.waicool20.wai2k.events.EquipDisassemblyEvent
 import com.waicool20.wai2k.events.EventBus
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.Navigator
@@ -53,13 +53,13 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
         if (!gameState.dollOverflow) return
         if (profile.factory.enhancement.enabled) enhanceDolls()
 
-        if (gameState.dollOverflow && !profile.factory.disassembly.enabled) stopScriptWithReason("Doll limit reached")
+        if (gameState.dollOverflow && !profile.factory.disassembly.enabled) scriptRunner.stop("Doll limit reached")
 
         // Bypass overflow check if always disassemble
         if (!profile.factory.alwaysDisassembleAfterEnhance && !gameState.dollOverflow) return
         if (profile.factory.disassembly.enabled) disassembleDolls()
 
-        if (gameState.dollOverflow) stopScriptWithReason("Doll limit reached")
+        if (gameState.dollOverflow) scriptRunner.stop("Doll limit reached")
     }
 
     private suspend fun checkEquipOverflow() {
@@ -79,7 +79,13 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
         suspend fun updateCount() {
             val (currentCount, _) = getCurrentCount(Count.DOLL)
             val countDelta = oldCount - currentCount
-            if (countDelta > 0) EventBus.publish(DollEnhancementDoneEvent(countDelta))
+            if (countDelta > 0) EventBus.publish(
+                DollEnhancementEvent(
+                    countDelta,
+                    sessionId,
+                    elapsedTime
+                )
+            )
             oldCount = currentCount
         }
 
@@ -208,7 +214,13 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
         suspend fun updateCount() {
             val (currentCount, _) = getCurrentCount(Count.DOLL)
             val countDelta = oldCount - currentCount
-            if (countDelta > 0) EventBus.publish(DollDisassemblyDoneEvent(countDelta))
+            if (countDelta > 0) EventBus.publish(
+                DollDisassemblyEvent(
+                    countDelta,
+                    sessionId,
+                    elapsedTime
+                )
+            )
             oldCount = currentCount
         }
 
@@ -292,7 +304,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
             region.subRegion(1100, 865, 324, 161)
                 .findBest(FileTemplate("ok.png"))?.region?.click(); delay(200)
             // Update stats
-            EventBus.publish(DollDisassemblyDoneEvent(dolls.size))
+            EventBus.publish(DollDisassemblyEvent(dolls.size, sessionId, elapsedTime))
             // Can break if disassembled count is less than 12
             if (dolls.size < 12) {
                 logger.info("No more T-dolls to disassemble!")
@@ -321,7 +333,13 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
         suspend fun updateCount() {
             val (currentCount, _) = getCurrentCount(Count.EQUIP)
             val countDelta = oldCount - currentCount
-            if (countDelta > 0) EventBus.publish(EquipDisassemblyDoneEvent(countDelta))
+            if (countDelta > 0) EventBus.publish(
+                EquipDisassemblyEvent(
+                    countDelta,
+                    sessionId,
+                    elapsedTime
+                )
+            )
             oldCount = currentCount
         }
 
@@ -419,7 +437,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
                     .waitHas(FileTemplate("ok.png"), 1500)?.click()
             }
             // Update stats
-            EventBus.publish(EquipDisassemblyDoneEvent(equips.size))
+            EventBus.publish(EquipDisassemblyEvent(equips.size, sessionId, elapsedTime))
             // Can break if disassembled count is less than 12
             if (equips.size < 12) {
                 logger.info("No more higher rarity equipment to disassemble!")

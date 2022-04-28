@@ -21,7 +21,9 @@ package com.waicool20.wai2k.game
 
 import com.waicool20.cvauto.android.ADB
 import com.waicool20.cvauto.android.AndroidDevice
-import com.waicool20.wai2k.Wai2k
+import com.waicool20.wai2k.events.DollDropEvent
+import com.waicool20.wai2k.events.EventBus
+import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.waicoolutils.logging.loggerFor
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
@@ -32,7 +34,7 @@ object GFL {
 
     const val MAX_ECHELON = 14
 
-    class LogcatListener(val device: AndroidDevice) {
+    class LogcatListener(val scriptRunner: ScriptRunner, val device: AndroidDevice) {
         private val logger = loggerFor<LogcatListener>()
         private val isRunning = AtomicBoolean(false)
         private var process: Process? = null
@@ -78,8 +80,15 @@ object GFL {
         }
 
         private fun checkForGun(l: String) {
-            val _name = gunCheckRegex.matchEntire(l)?.groupValues?.get(1) ?: return
-            val name = TDoll.lookup(Wai2k.config, _name)?.name ?: "Unknown $_name"
+            val name = gunCheckRegex.matchEntire(l)?.groupValues?.get(1) ?: return
+            EventBus.tryPublish(
+                DollDropEvent(
+                    name,
+                    scriptRunner.profile.combat.map,
+                    scriptRunner.sessionId,
+                    scriptRunner.elapsedTime
+                )
+            )
             logger.info("Got new gun: $name")
             gotGun = false
         }

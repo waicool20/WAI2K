@@ -20,20 +20,23 @@
 package com.waicool20.wai2k.views
 
 import com.waicool20.wai2k.views.tabs.DeviceTabView
+import com.waicool20.wai2k.views.tabs.WelcomeTabView
 import com.waicool20.wai2k.views.tabs.StatusTabView
 import com.waicool20.wai2k.views.tabs.preferences.PreferencesTabView
 import com.waicool20.wai2k.views.tabs.profile.ProfileTabView
+import com.waicool20.waicoolutils.javafx.CoroutineScopeView
 import javafx.scene.control.TabPane
 import javafx.scene.image.Image
 import tornadofx.*
 
-class MainView : View() {
+class MainView : CoroutineScopeView() {
     override val root: TabPane by fxml("/views/main.fxml")
 
     init {
         title = "WAI2K - Girls Frontline Automation Tool"
         addStageIcon(Image("/images/wai2k-icon.png"))
         root.apply {
+            tab(WelcomeTabView::class)
             tab(StatusTabView::class)
             tab(DeviceTabView::class)
             tab(ProfileTabView::class)

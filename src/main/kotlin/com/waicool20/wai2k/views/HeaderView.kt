@@ -36,9 +36,7 @@ import javafx.scene.control.ComboBox
 import javafx.scene.control.SplitMenuButton
 import javafx.scene.control.Tooltip
 import javafx.scene.layout.HBox
-import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.javafx.JavaFx

@@ -42,11 +42,13 @@ import org.reflections.Reflections
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.concurrent.CountDownLatch
 import javax.imageio.ImageIO
 import kotlin.concurrent.fixedRateTimer
 import kotlin.io.path.createDirectories
 import kotlin.math.roundToLong
 import kotlin.reflect.full.primaryConstructor
+import kotlin.system.exitProcess
 
 class ScriptRunner(
     var config: Wai2kConfig = Wai2kConfig(),
@@ -71,11 +73,13 @@ class ScriptRunner(
     private var _profile = profile
 
     val gameState = GameState()
-    val scriptStats = ScriptStats()
+    val scriptStats = ScriptStats(this)
     var lastStartTime: Instant? = null
         private set
+    val sessionId get() = lastStartTime?.toEpochMilli() ?: -1
     var elapsedTime = 0L
         private set
+    val yuubot = YuuBot(config.apiKey)
 
     private val _state = MutableStateFlow(State.STOPPED)
     val state get() = _state.value
@@ -94,24 +98,21 @@ class ScriptRunner(
 
     fun run() {
         if (!_state.compareAndSet(State.STOPPED, State.RUNNING)) return
-        EventBus.tryPublish(ScriptStartEvent())
         sessionScope = CoroutineScope(Dispatchers.Default + CoroutineName("ScriptRunner"))
-        sessionScope.coroutineContext.job.invokeOnCompletion {
-            logcatListener?.stop()
-            _state.update { State.STOPPED }
-            EventBus.tryPublish(ScriptStopEvent())
-        }
+        sessionScope.coroutineContext.job.invokeOnCompletion(::onStop)
+        listenEvents()
         logger.info("Starting new WAI2K session")
         gameState.requiresUpdate = true
         elapsedTime = 0
-        lastStartTime = Instant.now()
         scriptStats.reset()
         gameState.reset()
+        val now = Instant.now()
+        lastStartTime = now
+        EventBus.tryPublish(ScriptStartEvent(profile.name, now.toEpochMilli()))
         EventBus.subscribe<ScriptStatsUpdateEvent>()
             .onEach { statsChanged = true }
             .launchIn(sessionScope)
         sessionScope.launch {
-            postStats()
             while (isActive) {
                 try {
                     runScriptCycle()
@@ -122,7 +123,7 @@ class ScriptRunner(
                     exceptionRestart(e)
                 } catch (e: UnrecoverableScriptException) {
                     e.message?.lines()?.forEach { logger.error(it) }
-                    stop()
+                    stop(e::class.simpleName ?: "")
                 } catch (e: AndroidDevice.UnexpectedDisconnectException) {
                     handleDeadDevice()
                 } catch (e: Region.CaptureIOException) {
@@ -132,12 +133,7 @@ class ScriptRunner(
                         exceptionRestart(e)
                     } else {
                         logger.error("Device no longer connected on ADB! Exiting...")
-                        YuuBot.postMessage(
-                            _config.apiKey,
-                            "Script Stopped",
-                            "Device is dead!"
-                        )
-                        stop()
+                        stop("Device disconnected")
                     }
                 } catch (e: Exception) {
                     when (e) {
@@ -146,7 +142,7 @@ class ScriptRunner(
                             val msg =
                                 "Uncaught error during script execution, please report this to the devs"
                             logger.error(msg)
-                            YuuBot.postMessage(_config.apiKey, "Script Stopped", msg)
+                            stop(msg)
                             throw e
                         }
                     }
@@ -161,6 +157,7 @@ class ScriptRunner(
         if (_config != config) {
             logger.info("Detected configuration change")
             _config = config
+            yuubot.apiKey = _config.apiKey
             reloadModules = true
         }
         if (_profile != profile) {
@@ -172,7 +169,7 @@ class ScriptRunner(
             val device =
                 ADB.getDevice(_config.lastDeviceSerial) ?: throw InvalidDeviceException(null)
             _device = device
-            logcatListener = GFL.LogcatListener(device)
+            logcatListener = GFL.LogcatListener(this, device)
             logcatListener?.start()
         }
         _config.scriptConfig.apply {
@@ -210,9 +207,9 @@ class ScriptRunner(
         _state.compareAndSet(State.PAUSED, State.RUNNING)
     }
 
-    fun stop() {
+    fun stop(reason: String = "Manual stop") {
         logger.info("Stopping the script")
-        sessionScope.cancel()
+        sessionScope.cancel(reason)
         try {
             runBlocking(sessionScope.coroutineContext) { yield() }
         } catch (e: CancellationException) {
@@ -223,13 +220,11 @@ class ScriptRunner(
     private suspend fun runScriptCycle() {
         reload()
         modules.forEach { it.execute() }
-
-        postStats()
         if (_state.compareAndSet(State.PAUSING, State.PAUSED)) {
             logger.info("Script is now paused")
-            EventBus.publish(ScriptPauseEvent())
+            EventBus.publish(ScriptPauseEvent(sessionId, elapsedTime))
             _state.first { it == State.RUNNING }
-            EventBus.publish((ScriptUnpauseEvent()))
+            EventBus.publish((ScriptUnpauseEvent(sessionId, elapsedTime)))
             logger.info("Script will now resume")
         } else {
             delay((_config.scriptConfig.loopDelay * 1000L).coerceAtLeast(500))
@@ -254,36 +249,48 @@ class ScriptRunner(
             if (_config.gameRestartConfig.enabled) {
                 navigator.restartGame(e.localizedMessage)
             } else {
-                if (_config.notificationsConfig.onRestart) {
-                    YuuBot.postMessage(
-                        _config.apiKey,
-                        "Script Stopped",
-                        "Reason: ${e.localizedMessage}"
-                    )
-                }
                 logger.warn("Restart not enabled, ending script here")
-                stop()
+                stop(e.localizedMessage)
             }
         } catch (e: AndroidDevice.UnexpectedDisconnectException) {
             handleDeadDevice()
         }
     }
 
-    private fun postStats() {
-        if (statsChanged) {
-            statsChanged = false
-            val startTime = lastStartTime ?: return
-            YuuBot.postStats(_config.apiKey, startTime, _profile, scriptStats)
-        }
+    private fun handleDeadDevice() {
+        logger.error("Device disconnected unexpectedly")
+        stop("Device disconnected")
     }
 
-    private fun handleDeadDevice() {
-        logger.error("Emulator disconnected unexpectedly")
-        YuuBot.postMessage(
-            _config.apiKey,
-            "Script Terminated",
-            "Reason: Emulator disconnected"
-        )
-        stop()
+    private fun onStop(ce: Throwable?) {
+        logcatListener?.stop()
+        _state.update { State.STOPPED }
+        EventBus.tryPublish(ScriptStopEvent("${ce?.message}", sessionId, elapsedTime))
+        val msg = """
+            |Reason: ${ce?.message}
+            |Terminating further execution, final script statistics: 
+            |```
+            |$scriptStats
+            |```
+            """.trimMargin()
+        logger.info(msg)
+        val latch = CountDownLatch(1)
+        if (config.notificationsConfig.onStopCondition) {
+            yuubot.postMessage("Script Stopped", msg) { latch.countDown() }
+        }
+        latch.await()
+        if (ce?.message != "Manual stop" && profile.stop.exitProgram) exitProcess(0)
+    }
+
+    fun listenEvents() {
+        EventBus.subscribe<ScriptEvent>()
+            .onEach { yuubot.postEvent(it) }
+            .launchIn(sessionScope)
+        EventBus.subscribe<GameRestartEvent>()
+            .onEach {
+                if (config.notificationsConfig.onRestart) {
+                    yuubot.postMessage("Game Restarted", "Reason: ${it.reason}")
+                }
+            }.launchIn(sessionScope)
     }
 }

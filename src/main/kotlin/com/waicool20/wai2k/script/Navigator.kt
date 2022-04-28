@@ -31,7 +31,6 @@ import com.waicool20.wai2k.events.LogisticsSupportSentEvent
 import com.waicool20.wai2k.game.GFL
 import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.LocationId
-import com.waicool20.wai2k.util.YuuBot
 import com.waicool20.wai2k.util.readText
 import com.waicool20.waicoolutils.firstAsync
 import com.waicool20.waicoolutils.logging.loggerFor
@@ -287,9 +286,9 @@ class Navigator(
                     true
                 }
             }
-            EventBus.publish(LogisticsSupportReceivedEvent())
+            EventBus.publish(LogisticsSupportReceivedEvent(sessionId, elapsedTime))
             val image = if (cont) {
-                EventBus.publish(LogisticsSupportSentEvent())
+                EventBus.publish(LogisticsSupportSentEvent(sessionId, elapsedTime))
                 "ok.png"
             } else "cancel-logi.png"
 
@@ -350,13 +349,10 @@ class Navigator(
     suspend fun restartGame(reason: String) {
         if (scriptStats.gameRestarts >= config.gameRestartConfig.maxRestarts) {
             logger.info("Maximum of restarts reached, terminating script instead")
-            stopScriptWithReason("Max restarts reached")
+            scriptRunner.stop("Max restarts reached")
         }
         gameState.requiresRestart = false
-        EventBus.publish(GameRestartEvent(reason))
-        if (config.notificationsConfig.onRestart) {
-            YuuBot.postMessage(config.apiKey, "Game Restarted", "Reason: $reason")
-        }
+        EventBus.publish(GameRestartEvent(reason, sessionId, elapsedTime))
         logger.info("Game will now restart")
         restartGameInternal()
     }

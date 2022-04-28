@@ -155,7 +155,15 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
                 }
             }
             logger.info("Completed all neural sim")
-            EventBus.publish(SimEnergySpentEvent(energySpent))
+            EventBus.publish(
+                SimEnergySpentEvent(
+                    "NEURAL_FRAGMENT",
+                    level,
+                    energySpent,
+                    sessionId,
+                    elapsedTime
+                )
+            )
             gameState.simEnergy -= energySpent
             updateSimNextCheck(level)
         }
@@ -314,7 +322,15 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
 
         runSimCycles(times)
         logger.info("Completed all data sim")
-        EventBus.publish(SimEnergySpentEvent(times * level.cost))
+        EventBus.publish(
+            SimEnergySpentEvent(
+                "DATA_SIMULATION",
+                level,
+                times * level.cost,
+                sessionId,
+                elapsedTime
+            )
+        )
         gameState.simEnergy -= times * level.cost
         updateSimNextCheck(level)
     }
@@ -355,7 +371,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
 
         runSimCycles(times)
         logger.info("Completed all coalition drill")
-        EventBus.publish(CoalitionEnergySpentEvent(times * 3))
+        EventBus.publish(CoalitionEnergySpentEvent(drillType, times * 3, sessionId, elapsedTime))
         gameState.coalitionEnergy -= times * 3
         updateCoalNextCheck()
     }

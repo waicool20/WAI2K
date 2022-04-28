@@ -19,91 +19,136 @@
 
 package com.waicool20.wai2k.util
 
-import com.fasterxml.jackson.databind.annotation.JsonAppend
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.waicool20.wai2k.config.Wai2kProfile
-import com.waicool20.wai2k.script.ScriptStats
+import com.waicool20.wai2k.events.*
 import com.waicool20.waicoolutils.logging.loggerFor
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
-import java.time.Instant
 
-
-object YuuBot {
+class YuuBot(var apiKey: String = "") {
     private val logger = loggerFor<YuuBot>()
     private val endpoint
-        get() = System.getenv("WAI2K_ENDPOINT").takeUnless { it.isNullOrEmpty() }
-            ?: "https://yuu.waicool20.com/api/wai2k/user"
+        get() = System.getenv("WAI2K_ENDPOINT")
+            .takeUnless { it.isNullOrEmpty() }?.plus("/api/wai2k")
+            ?: "https://yuu.waicool20.com/api/wai2k"
 
     private val JSON_MEDIA_TYPE = "application/json".toMediaTypeOrNull()
 
     enum class ApiKeyStatus { VALID, INVALID, UNKNOWN }
 
-    @JsonAppend(
-        attrs = [
-            JsonAppend.Attr(value = "profileName"),
-            JsonAppend.Attr(value = "map"),
-            JsonAppend.Attr(value = "dragger1"),
-            JsonAppend.Attr(value = "dragger2")
-        ]
-    )
-    private class ScriptStatsMixin
-
-    fun postStats(
-        apiKey: String,
-        startTime: Instant,
-        profile: Wai2kProfile,
-        stats: ScriptStats,
-        onComplete: () -> Unit = {}
-    ) {
-        if (apiKey.isEmpty()) {
+    fun postEvent(event: ScriptEvent, onComplete: () -> Unit = {}) {
+        if (apiKey.isEmpty() || apiKey.equals("off", true)) {
             logger.warn("API key is empty, YuuBot reporting is disabled.")
             return
         }
-        logger.info("Posting stats to YuuBot...")
-
-        val attr = mutableMapOf("profileName" to profile.name)
-        if (profile.combat.enabled) {
-            attr["map"] = profile.combat.map
-            attr["dragger1"] = profile.combat.draggers[0].id
-            attr["dragger2"] = profile.combat.draggers[1].id
+        val node = jacksonObjectMapper().createObjectNode().apply {
+            put("session_id", event.sessionId)
+            put("elapsed_time", event.elapsedTime)
+            put("instant", event.instant.toEpochMilli())
         }
 
-        val body = jacksonObjectMapper()
-            .addMixIn(ScriptStats::class.java, ScriptStatsMixin::class.java)
-            .writer()
-            .withAttributes(attr)
-            .writeValueAsString(stats)
-            .toRequestBody(JSON_MEDIA_TYPE)
+        val eventName: String
+
+        when (event) {
+            is CoalitionEnergySpentEvent -> {
+                eventName = "coalition_energy_spent"
+                node.put("type", "${event.type}")
+                node.put("count", event.count)
+            }
+            is CombatReportWriteEvent -> {
+                eventName = "combat_report_write"
+                node.put("type", "${event.type}")
+            }
+            is DollDisassemblyEvent -> {
+                eventName = "doll_disassembly"
+                node.put("count", event.count)
+            }
+            is DollDropEvent -> {
+                eventName = "doll_drop"
+                node.put("doll", event.doll)
+                node.put("map", event.map)
+            }
+            is DollEnhancementEvent -> {
+                eventName = "doll_enhancement"
+                node.put("count", event.count)
+            }
+            is EquipDisassemblyEvent -> {
+                eventName = "equip_disassembly"
+                node.put("count", event.count)
+            }
+            is GameRestartEvent -> {
+                eventName = "game_restart"
+                node.put("reason", event.reason)
+            }
+            is LogisticsSupportReceivedEvent -> {
+                eventName = "logistics_received"
+            }
+            is LogisticsSupportSentEvent -> {
+                eventName = "logistics_sent"
+            }
+            is RepairEvent -> {
+                eventName = "repair"
+                node.put("count", event.count)
+                node.put("map", event.map)
+            }
+            is ScriptPauseEvent -> {
+                eventName = "script_pause"
+            }
+            is ScriptStartEvent -> {
+                eventName = "script_start"
+                node.put("profile_name", event.profileName)
+            }
+            is ScriptStopEvent -> {
+                eventName = "script_stop"
+                node.put("reason", event.reason)
+            }
+            is ScriptUnpauseEvent -> {
+                eventName = "script_unpause"
+            }
+            is SimEnergySpentEvent -> {
+                eventName = "sim_energy_spent"
+                node.put("type", event.type)
+                node.put("level", "${event.level}")
+                node.put("count", event.count)
+            }
+            is SortieDoneEvent -> {
+                eventName = "sortie_done"
+                node.put("map", event.map)
+                node.put("dragger1", event.draggers.getOrNull(0)?.id)
+                node.put("dragger2", event.draggers.getOrNull(1)?.id)
+            }
+            is ScriptStatsUpdateEvent -> return
+        }
 
         val request = Request.Builder()
-            .url("$endpoint/$apiKey/stats/${startTime.toEpochMilli()}")
-            .post(body)
+            .url("$endpoint/event/$eventName")
+            .header("Authorization", "Bearer $apiKey")
+            .post(node.toString().toRequestBody(JSON_MEDIA_TYPE))
             .build()
 
         OkHttpClient().newCall(request).enqueue(object : Callback {
             override fun onResponse(call: Call, response: Response) {
                 when (val code = response.code) {
                     200 -> {
-                        logger.info("Posted stats to YuuBot, response was: $code")
+                        logger.info("Posted ${event::class.simpleName} to YuuBot, response was: $code")
                     }
                     else -> {
-                        logger.warn("Failed to post stats to YuuBot, response was: $code")
+                        logger.warn("Failed to post message to YuuBot, response was: $code")
                     }
                 }
                 onComplete()
             }
 
             override fun onFailure(call: Call, e: IOException) {
-                logger.warn("Failed to post stats to YuuBot, maybe your internet is down?")
+                logger.warn("Failed to post message to YuuBot, maybe your internet is down?")
             }
         })
     }
 
-    fun postMessage(apiKey: String, title: String, body: String, onComplete: () -> Unit = {}) {
-        if (apiKey.isEmpty()) {
+    fun postMessage(title: String, body: String, onComplete: () -> Unit = {}) {
+        if (apiKey.isEmpty() || apiKey.equals("off", true)) {
             logger.warn("API key is empty, YuuBot reporting is disabled.")
             return
         }
@@ -118,7 +163,8 @@ object YuuBot {
             ).toRequestBody(JSON_MEDIA_TYPE)
 
         val request = Request.Builder()
-            .url("$endpoint/$apiKey/message/")
+            .url("$endpoint/message")
+            .header("Authorization", "Bearer $apiKey")
             .post(jsonBody)
             .build()
 
@@ -141,32 +187,36 @@ object YuuBot {
         })
     }
 
-    fun testApiKey(apiKey: String, onComplete: (ApiKeyStatus) -> Unit) {
-        if (apiKey.isEmpty()) {
+    fun testApiKey(onComplete: (ApiKeyStatus) -> Unit = {}) {
+        if (apiKey.isEmpty() || apiKey.equals("off", true)) {
             logger.warn("API key is empty, YuuBot reporting is disabled.")
             onComplete(ApiKeyStatus.INVALID)
             return
         }
+        val request = Request.Builder()
+            .url("$endpoint/")
+            .header("Authorization", "Bearer $apiKey")
+            .build()
+
         logger.info("Testing API key: $apiKey")
-        OkHttpClient().newCall(Request.Builder().url("$endpoint/$apiKey").build())
-            .enqueue(object : Callback {
-                override fun onResponse(call: Call, response: Response) {
-                    when (val code = response.code) {
-                        200 -> {
-                            onComplete(ApiKeyStatus.VALID)
-                            logger.info("API key was found valid, response was: $code")
-                        }
-                        else -> {
-                            onComplete(ApiKeyStatus.INVALID)
-                            logger.warn("API key was found invalid, response was: $code")
-                        }
+        OkHttpClient().newCall(request).enqueue(object : Callback {
+            override fun onResponse(call: Call, response: Response) {
+                when (val code = response.code) {
+                    200 -> {
+                        onComplete(ApiKeyStatus.VALID)
+                        logger.info("API key was found valid, response was: $code")
+                    }
+                    else -> {
+                        onComplete(ApiKeyStatus.INVALID)
+                        logger.warn("API key was found invalid, response was: $code")
                     }
                 }
+            }
 
-                override fun onFailure(call: Call, e: IOException) {
-                    logger.warn("Could not check if API key is valid, maybe your internet is down?")
-                    onComplete(ApiKeyStatus.UNKNOWN)
-                }
-            })
+            override fun onFailure(call: Call, e: IOException) {
+                logger.warn("Could not check if API key is valid, maybe your internet is down?")
+                onComplete(ApiKeyStatus.UNKNOWN)
+            }
+        })
     }
 }

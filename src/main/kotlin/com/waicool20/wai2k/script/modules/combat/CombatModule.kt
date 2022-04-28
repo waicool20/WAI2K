@@ -23,7 +23,7 @@ import com.waicool20.cvauto.core.input.ITouchInterface
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.cvauto.core.template.ImageTemplate
 import com.waicool20.wai2k.events.EventBus
-import com.waicool20.wai2k.events.RepairsDoneEvent
+import com.waicool20.wai2k.events.RepairEvent
 import com.waicool20.wai2k.game.CombatMap
 import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.LocationId
@@ -309,7 +309,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
                         wasCancelled = true
                         throw RepairUpdateException()
                     }
-                    stopScriptWithReason("Could not update repair status")
+                    scriptRunner.stop("Could not update repair status")
                 }
                 delay(2000)
                 continue
@@ -333,7 +333,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
             logger.info("Repairs required")
 
             if (profile.combat.repairThreshold !in 1..100) {
-                stopScriptWithReason("Repairs needed, but repairs are disabled")
+                scriptRunner.stop("Repairs needed, but repairs are disabled")
             }
 
             navigator.navigateTo(LocationId.REPAIR)
@@ -346,7 +346,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
                 val repairs = ocr.digitsOnly()
                     .readText(region.subRegion(1472, 689, 68, 42), invert = true)
                     .toIntOrNull() ?: continue
-                EventBus.publish(RepairsDoneEvent(repairs))
+                EventBus.publish(RepairEvent(repairs, profile.combat.map, sessionId, elapsedTime))
 
                 logger.info("Repairing $repairs dolls")
                 break

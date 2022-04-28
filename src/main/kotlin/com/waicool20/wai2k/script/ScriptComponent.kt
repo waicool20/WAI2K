@@ -38,24 +38,6 @@ interface ScriptComponent {
     val ocr get() = Ocr.forConfig(config)
     val locations get() = GameLocation.mappings(config)
     val scope get() = scriptRunner.sessionScope
-
-    suspend fun stopScriptWithReason(reason: String) {
-        val msg = """
-            |Script stop condition reached: $reason
-            |Terminating further execution, final script statistics: 
-            |```
-            |${scriptRunner.scriptStats}
-            |```
-            """.trimMargin()
-        loggerFor<ScriptComponent>().info(msg)
-        val wait = Job()
-        if (config.notificationsConfig.onStopCondition) {
-            YuuBot.postMessage(config.apiKey, "Script Terminated", msg) { wait.complete() }
-        }
-        if (profile.stop.exitProgram) {
-            wait.join()
-            exitProcess(0)
-        }
-        scriptRunner.stop()
-    }
+    val sessionId get() = scriptRunner.sessionId
+    val elapsedTime get() = scriptRunner.elapsedTime
 }

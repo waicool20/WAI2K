@@ -23,7 +23,7 @@ import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.cvauto.core.template.ITemplate
 import com.waicool20.wai2k.events.EventBus
-import com.waicool20.wai2k.events.RepairsDoneEvent
+import com.waicool20.wai2k.events.RepairEvent
 import com.waicool20.wai2k.events.SortieDoneEvent
 import com.waicool20.wai2k.game.*
 import com.waicool20.wai2k.script.ScriptComponent
@@ -275,7 +275,14 @@ abstract class MapRunner(
                             region.subRegion(360 + m * 272, 228, 246, 323).click()
                             region.subRegion(1441, 772, 250, 96)
                                 .waitHas(FileTemplate("ok.png"), 3000)?.click()
-                            EventBus.publish(RepairsDoneEvent(1))
+                            EventBus.publish(
+                                RepairEvent(
+                                    1,
+                                    profile.combat.map,
+                                    sessionId,
+                                    elapsedTime
+                                )
+                            )
                             delay(500)
                         }
                     }
@@ -555,7 +562,14 @@ abstract class MapRunner(
         } catch (e: TimeoutCancellationException) {
             throw ScriptTimeOutException("Waiting to exit battle", e)
         } finally {
-            EventBus.publish(SortieDoneEvent())
+            EventBus.publish(
+                SortieDoneEvent(
+                    profile.combat.map,
+                    if (this is CorpseDragging) profile.combat.draggers else emptyList(),
+                    sessionId,
+                    elapsedTime
+                )
+            )
         }
     }
 
@@ -568,7 +582,14 @@ abstract class MapRunner(
         mapRunnerRegions.terminate.click(); delay(5000)
 
         logger.info("Left battle screen")
-        if (incrementSorties) EventBus.publish(SortieDoneEvent())
+        if (incrementSorties) EventBus.publish(
+            SortieDoneEvent(
+                profile.combat.map,
+                if (this is CorpseDragging) profile.combat.draggers else emptyList(),
+                sessionId,
+                elapsedTime
+            )
+        )
         _battles = 1
     }
 
@@ -581,7 +602,14 @@ abstract class MapRunner(
         mapRunnerRegions.restart.click(); delay(5000)
 
         logger.info("Restarted battle")
-        if (incrementSorties) EventBus.publish(SortieDoneEvent())
+        if (incrementSorties) EventBus.publish(
+            SortieDoneEvent(
+                profile.combat.map,
+                if (this is CorpseDragging) profile.combat.draggers else emptyList(),
+                sessionId,
+                elapsedTime
+            )
+        )
         _battles = 1
     }
 
