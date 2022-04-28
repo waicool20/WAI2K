@@ -78,6 +78,9 @@ class YuuBot(var apiKey: String = "") {
                 eventName = "equip_disassembly"
                 node.put("count", event.count)
             }
+            is HeartBeatEvent -> {
+                eventName = "heartbeat"
+            }
             is GameRestartEvent -> {
                 eventName = "game_restart"
                 node.put("reason", event.reason)

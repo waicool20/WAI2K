@@ -43,6 +43,7 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import javax.imageio.ImageIO
 import kotlin.concurrent.fixedRateTimer
 import kotlin.io.path.createDirectories
@@ -92,7 +93,12 @@ class ScriptRunner(
         // Turn off logging for reflections library
         (loggerFor<Reflections>() as Logger).level = Level.OFF
         fixedRateTimer("ElapsedTimeTimer", true, 0, 1000) {
-            if (state == State.RUNNING || state == State.PAUSING) elapsedTime += 1000
+            if (state == State.RUNNING || state == State.PAUSING) {
+                elapsedTime += 1000
+            }
+            if (state != State.STOPPED && elapsedTime % TimeUnit.MINUTES.toMillis(10) == 0L) {
+                EventBus.tryPublish(HeartBeatEvent(sessionId, elapsedTime))
+            }
         }
     }
 

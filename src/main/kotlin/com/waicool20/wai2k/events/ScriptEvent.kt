@@ -29,6 +29,12 @@ sealed class ScriptEvent(
     instant: Instant = Instant.now()
 ) : EventBus.Event(instant)
 
+class HeartBeatEvent(
+    sessionId: Long,
+    elapsedTime: Long,
+    instant: Instant = Instant.now()
+) : ScriptEvent(sessionId, elapsedTime, instant)
+
 class ScriptStatsUpdateEvent(
     val stats: ScriptStats,
     sessionId: Long,
