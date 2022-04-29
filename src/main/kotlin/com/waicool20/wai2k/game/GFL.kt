@@ -80,7 +80,9 @@ object GFL {
         }
 
         private fun checkForGun(l: String) {
-            val name = gunCheckRegex.matchEntire(l)?.groupValues?.get(1) ?: return
+            var name = gunCheckRegex.matchEntire(l)?.groupValues?.get(1) ?: return
+            name = name.removeSuffix("he")
+            name = name.removeSuffix("nom")
             EventBus.tryPublish(
                 DollDropEvent(
                     name,
