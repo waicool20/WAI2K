@@ -60,6 +60,7 @@ class YuuBot(var apiKey: String = "") {
             is CombatReportWriteEvent -> {
                 eventName = "combat_report_write"
                 node.put("type", "${event.type}")
+                node.put("count", event.count)
             }
             is DollDisassemblyEvent -> {
                 eventName = "doll_disassembly"
