@@ -271,7 +271,10 @@ class ScriptRunner(
     private fun onStop(ce: Throwable?) {
         logcatListener?.stop()
         _state.update { State.STOPPED }
-        EventBus.tryPublish(ScriptStopEvent("${ce?.message}", sessionId, elapsedTime))
+        ScriptStopEvent("${ce?.message}", sessionId, elapsedTime).let {
+            EventBus.tryPublish(it)
+            yuubot.postEvent(it)
+        }
         val msg = """
             |Reason: ${ce?.message}
             |Terminating further execution, final script statistics: 
