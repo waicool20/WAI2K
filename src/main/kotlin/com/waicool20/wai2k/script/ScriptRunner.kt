@@ -123,7 +123,7 @@ class ScriptRunner(
             .launchIn(sessionScope)
         sessionScope.launch(CoroutineName("DeviceMonitor") + Dispatchers.IO) {
             while (coroutineContext.isActive) {
-                if (_device?.isConnected() == false) stop()
+                if (_device?.isConnected() == false) stop("Device disconnected")
                 delay(TimeUnit.MINUTES.toMillis(1))
             }
         }
