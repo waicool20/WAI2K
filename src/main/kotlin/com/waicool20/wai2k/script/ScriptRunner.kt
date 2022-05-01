@@ -100,9 +100,6 @@ class ScriptRunner(
                 EventBus.tryPublish(HeartBeatEvent(sessionId, elapsedTime))
             }
         }
-        Runtime.getRuntime().addShutdownHook(Thread {
-            if (_state.value != State.STOPPED) onStop(Exception("Process Closed"))
-        })
     }
 
     fun run() {
