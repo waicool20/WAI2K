@@ -100,6 +100,9 @@ class ScriptRunner(
                 EventBus.tryPublish(HeartBeatEvent(sessionId, elapsedTime))
             }
         }
+        Runtime.getRuntime().addShutdownHook(Thread {
+            if (_state.value != State.STOPPED) onStop(Exception("Process Closed"))
+        })
     }
 
     fun run() {
@@ -118,7 +121,13 @@ class ScriptRunner(
         EventBus.subscribe<ScriptStatsUpdateEvent>()
             .onEach { statsChanged = true }
             .launchIn(sessionScope)
-        sessionScope.launch {
+        sessionScope.launch(CoroutineName("DeviceMonitor") + Dispatchers.IO) {
+            while (coroutineContext.isActive) {
+                if (_device?.isConnected() == false) stop()
+                delay(TimeUnit.MINUTES.toMillis(1))
+            }
+        }
+        sessionScope.launch(CoroutineName("ScriptRunnerSessionScope")) {
             while (isActive) {
                 try {
                     runScriptCycle()
