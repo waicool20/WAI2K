@@ -104,7 +104,7 @@ class StatusTabView : CoroutineScopeView() {
         logisticsSentLabel.text = "$logisticsSupportSent"
         logisticsReceivedLabel.text = "$logisticsSupportReceived"
         sortiesDoneLabel.text = "$sortiesDone"
-        sphLabel.text = formatDecimal(sortiesDone / scriptRunner.elapsedTime.toDouble())
+        sphLabel.text = formatDecimal(sortiesDone / (scriptRunner.elapsedTime.toDouble() / 1000.0 / 3600.0))
         repairsLabel.text = "$repairs"
         sprLabel.text = formatDecimal(sortiesDone / repairs.toDouble())
 
