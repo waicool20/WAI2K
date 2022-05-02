@@ -28,9 +28,9 @@ import kotlinx.coroutines.yield
 import kotlin.math.roundToLong
 import kotlin.random.Random
 
-class EventVA11_6(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent),
+class EventVA11_5(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent),
     EventMapRunner {
-    private val logger = loggerFor<EventVA11_6>()
+    private val logger = loggerFor<EventVA11_5>()
 
     override suspend fun enterMap() {
         if (gameState.requiresMapInit) {
