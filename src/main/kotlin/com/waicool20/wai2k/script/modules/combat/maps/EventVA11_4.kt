@@ -80,6 +80,7 @@ class EventVA11_4(scriptComponent: ScriptComponent) : HomographyMapRunner(script
             val r1 = region.subRegion(600, 290, 48, 48)
             val r2 = r1.copy(y = r1.y + 200)
             r1.swipeTo(r2)
+            gameState.requiresMapInit = false
         }
 
         deployEchelons(nodes[0], nodes[1])
