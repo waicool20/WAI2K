@@ -43,6 +43,7 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import javax.imageio.ImageIO
 import kotlin.concurrent.fixedRateTimer
@@ -64,6 +65,7 @@ class ScriptRunner(
         RUNNING, PAUSING, PAUSED, STOPPED
     }
 
+    private val sessionDispatcher = Executors.newFixedThreadPool(4).asCoroutineDispatcher()
     lateinit var sessionScope: CoroutineScope
         private set
 
@@ -104,7 +106,7 @@ class ScriptRunner(
 
     fun run() {
         if (!_state.compareAndSet(State.STOPPED, State.RUNNING)) return
-        sessionScope = CoroutineScope(Dispatchers.Default + CoroutineName("ScriptRunner"))
+        sessionScope = CoroutineScope(sessionDispatcher + CoroutineName("ScriptRunner"))
         sessionScope.coroutineContext.job.invokeOnCompletion(::onStop)
         listenEvents()
         logger.info("Starting new WAI2K session")
@@ -115,17 +117,14 @@ class ScriptRunner(
         val now = Instant.now()
         lastStartTime = now
         EventBus.tryPublish(ScriptStartEvent(profile.name, now.toEpochMilli()))
-        EventBus.subscribe<ScriptStatsUpdateEvent>()
-            .onEach { statsChanged = true }
-            .launchIn(sessionScope)
         sessionScope.launch(CoroutineName("DeviceMonitor") + Dispatchers.IO) {
             while (coroutineContext.isActive) {
                 if (_device?.isConnected() == false) stop("Device disconnected")
                 delay(TimeUnit.MINUTES.toMillis(1))
             }
         }
-        sessionScope.launch(CoroutineName("ScriptRunnerSessionScope")) {
-            while (isActive) {
+        sessionScope.launch(CoroutineName("ScriptRunnerMainLoop")) {
+            while (coroutineContext.isActive) {
                 try {
                     runScriptCycle()
                 } catch (e: ScriptException) {
@@ -181,9 +180,10 @@ class ScriptRunner(
             val device =
                 ADB.getDevice(_config.lastDeviceSerial) ?: throw InvalidDeviceException(null)
             _device = device
+            logcatListener?.stop()
             logcatListener = GFL.LogcatListener(this, device)
-            logcatListener?.start()
         }
+        logcatListener?.start()
         _config.scriptConfig.apply {
             Region.DEFAULT_MATCHER.settings.matchDimension = NORMAL_RES
             Region.DEFAULT_MATCHER.settings.defaultThreshold = defaultSimilarityThreshold
@@ -239,7 +239,7 @@ class ScriptRunner(
             EventBus.publish((ScriptUnpauseEvent(sessionId, elapsedTime)))
             logger.info("Script will now resume")
         } else {
-            delay((_config.scriptConfig.loopDelay * 1000L).coerceAtLeast(500))
+            delay(_config.scriptConfig.loopDelay.coerceAtLeast(1) * 1000L)
         }
     }
 
@@ -298,14 +298,17 @@ class ScriptRunner(
     }
 
     fun listenEvents() {
+        EventBus.subscribe<ScriptStatsUpdateEvent>()
+            .onEach { statsChanged = true }
+            .launchIn(sessionScope + CoroutineName("ScriptStatsUpdateListener"))
         EventBus.subscribe<ScriptEvent>()
             .onEach { yuubot.postEvent(it) }
-            .launchIn(sessionScope)
+            .launchIn(sessionScope + CoroutineName("ScriptEventListener"))
         EventBus.subscribe<GameRestartEvent>()
             .onEach {
                 if (config.notificationsConfig.onRestart) {
                     yuubot.postMessage("Game Restarted", "Reason: ${it.reason}")
                 }
-            }.launchIn(sessionScope)
+            }.launchIn(sessionScope + CoroutineName("GameRestartListener"))
     }
 }

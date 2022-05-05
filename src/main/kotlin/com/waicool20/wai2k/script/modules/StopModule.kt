@@ -39,7 +39,7 @@ class StopModule(navigator: Navigator) : ScriptModule(navigator) {
 
     private var nextStopTime = getNextTime(profile.stop.time.specificTime)
 
-    private suspend fun checkTime() {
+    private fun checkTime() {
         with(profile.stop.time) {
             if (!enabled) return
             val stop = when (mode) {
@@ -63,7 +63,7 @@ class StopModule(navigator: Navigator) : ScriptModule(navigator) {
 
     //</editor-fold>
 
-    private suspend fun checkCount() {
+    private fun checkCount() {
         with(profile.stop.count) {
             if (!enabled) return
             if (scriptStats.sortiesDone >= sorties) {
