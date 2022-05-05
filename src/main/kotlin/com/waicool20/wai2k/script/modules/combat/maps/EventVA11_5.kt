@@ -56,6 +56,7 @@ class EventVA11_5(scriptComponent: ScriptComponent) : HomographyMapRunner(script
         delay(3000)
         // Enter battle
         region.subRegion(1832, 589, 232, 111).click()
+        delay(2000)
     }
 
     override suspend fun begin() {
