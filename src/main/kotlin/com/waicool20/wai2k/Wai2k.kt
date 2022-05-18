@@ -84,7 +84,6 @@ object Wai2k : CliktCommand(treatUnknownOptionsAsArgs = true) {
 
     override fun run() {
         thread(name = "Wai2k application loader", isDaemon = true) { initialize() }
-        Thread.setDefaultUncaughtExceptionHandler(Wai2kUIExceptionHandler())
         Application.launch(Wai2kUI::class.java)
     }
 
