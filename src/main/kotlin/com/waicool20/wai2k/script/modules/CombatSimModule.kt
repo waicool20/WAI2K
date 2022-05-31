@@ -56,6 +56,21 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
     private var simTimer = Duration.ZERO
     private var coalitionTimer = Duration.ZERO
 
+    init {
+        logger.warn(
+            """
+            
+            
+            ####################################
+            NOTICE: 
+            Combat Sim module is disabled until MICA fixes their broken ass fonts
+            ####################################
+            
+            
+            """.trimIndent()
+        )
+    }
+
     private val mapRunner = object : EmptyMapRunner(this@CombatSimModule) {
         override suspend fun begin() {
             if (profile.combatSimulation.neuralFragment == Level.OFF) return
@@ -170,6 +185,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
     }
 
     override suspend fun execute() {
+        return // TODO: Re-enable when fonts are fixed
         if (!profile.combatSimulation.enabled) return
         executeNormal()
         executeCoalition()
