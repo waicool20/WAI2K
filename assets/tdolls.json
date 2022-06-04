@@ -154,7 +154,8 @@
   {
     "name": "M38",
     "stars": 2,
-    "type": "SMG"
+    "type": "SMG",
+    "moddable": true
   },
   {
     "name": "Micro Uzi",
@@ -358,7 +359,8 @@
   {
     "name": "Galil",
     "stars": 2,
-    "type": "AR"
+    "type": "AR",
+    "moddable": true
   },
   {
     "name": "TAR-21",
@@ -613,7 +615,8 @@
   {
     "name": "Gr G11",
     "stars": 5,
-    "type": "AR"
+    "type": "AR",
+    "moddable": true
   },
   {
     "name": "P99",
@@ -623,7 +626,8 @@
   {
     "name": "Super SASS",
     "stars": 3,
-    "type": "RF"
+    "type": "RF",
+    "moddable": true
   },
   {
     "name": "Gr MG4",
@@ -683,7 +687,8 @@
   {
     "name": "PP-19",
     "stars": 4,
-    "type": "SMG"
+    "type": "SMG",
+    "moddable": true
   },
   {
     "name": "PP-19-01",
@@ -718,7 +723,8 @@
   {
     "name": "RO635",
     "stars": 5,
-    "type": "SMG"
+    "type": "SMG",
+    "moddable": true
   },
   {
     "name": "MT-9",
@@ -763,7 +769,8 @@
   {
     "name": "M1897",
     "stars": 3,
-    "type": "SG"
+    "type": "SG",
+    "moddable": true
   },
   {
     "name": "M37",
@@ -773,7 +780,8 @@
   {
     "name": "M500",
     "stars": 3,
-    "type": "SG"
+    "type": "SG",
+    "moddable": true
   },
   {
     "name": "M590",
@@ -808,7 +816,8 @@
   {
     "name": "Type97S",
     "stars": 4,
-    "type": "SG"
+    "type": "SG",
+    "moddable": true
   },
   {
     "name": "SPAS-12",
@@ -1103,12 +1112,14 @@
   {
     "name": "MP-443",
     "stars": 3,
+    "moddable": true,
     "type": "HG"
   },
   {
     "name": "GSh-18",
     "stars": 3,
-    "type": "HG"
+    "type": "HG",
+    "moddable": true
   },
   {
     "name": "TAC-50",
@@ -1492,6 +1503,21 @@
     "type": "SMG"
   },
   {
+    "name": "Defender",
+    "stars": 4,
+    "type": "SG"
+  },
+  {
+    "name": "HP-35",
+    "stars": 5,
+    "type": "HG"
+  },
+  {
+    "name": "SAF",
+    "stars": 4,
+    "type": "SMG"
+  },
+  {
     "name": "Tabuk",
     "stars": 4,
     "type": "RF"
@@ -1507,9 +1533,164 @@
     "type": "MG"
   },
   {
+    "name": "C14",
+    "stars": 3,
+    "type": "RF"
+  },
+  {
     "name": "WKp",
     "stars": 3,
     "type": "HG"
+  },
+  {
+    "name": "Rex Zero 1",
+    "stars": 4,
+    "type": "HG"
+  },
+  {
+    "name": "Lusa",
+    "stars": 5,
+    "type": "SMG"
+  },
+  {
+    "name": "VSK-94",
+    "stars": 5,
+    "type": "RF"
+  },
+  {
+    "name": "S-ACR",
+    "stars": 5,
+    "type": "AR"
+  },
+  {
+    "name": "StG-940",
+    "stars": 3,
+    "type": "AR"
+  },
+  {
+    "name": "Aug Para",
+    "stars": 5,
+    "type": "SMG"
+  },
+  {
+    "name": "General Liu",
+    "stars": 5,
+    "type": "RF"
+  },
+  {
+    "name": "Mondragon M1908",
+    "stars": 4,
+    "type": "RF"
+  },
+  {
+    "name": "VHS",
+    "stars": 5,
+    "type": "AR"
+  },
+  {
+    "name": "PM1910",
+    "stars": 4,
+    "type": "MG"
+  },
+  {
+    "name": "GM6 Lynx",
+    "stars": 3,
+    "type": "RF"
+  },
+  {
+    "name": "TS12",
+    "stars": 3,
+    "type": "SG"
+  },
+  {
+    "name": "QSB-91",
+    "stars": 3,
+    "type": "HG"
+  },
+  {
+    "name": "LTLX7000",
+    "stars": 5,
+    "type": "SG"
+  },
+  {
+    "name": "M6 ASW",
+    "stars": 5,
+    "type": "SG"
+  },
+  {
+    "name": "PM5",
+    "stars": 4,
+    "type": "SG"
+  },
+  {
+    "name": "512",
+    "stars": 4,
+    "type": "SG"
+  },
+  {
+    "name": "SUB-2000",
+    "stars": 3,
+    "type": "SMG"
+  },
+  {
+    "name": "AR-57",
+    "stars": 4,
+    "type": "AR"
+  },
+  {
+    "name": "SVCh",
+    "stars": 5,
+    "type": "RF"
+  },
+  {
+    "name": "FX-05",
+    "stars": 4,
+    "type": "AR"
+  },
+  {
+    "name": "PPD-40",
+    "stars": 4,
+    "type": "SMG"
+  },
+  {
+    "name": "De Lisle",
+    "stars": 5,
+    "type": "RF"
+  },
+  {
+    "name": "SIG MCX",
+    "stars": 5,
+    "type": "AR"
+  },
+  {
+    "name": "RPK-203",
+    "stars": 5,
+    "type": "MG"
+  },
+  {
+    "name": "TKB-408",
+    "stars": 5,
+    "type": "AR"
+  },
+  {
+    "name": "FO-12",
+    "stars": 5,
+    "type": "SG"
+  },
+  {
+    "name": "M26-MASS",
+    "stars": 5,
+    "type": "SG"
+  },
+  {
+    "name": "Nova",
+    "stars": 4,
+    "type": "SG"
+  },
+  {
+    "name": "MAG-7",
+    "stars": 4,
+    "type": "SG"
   },
   {
     "name": "Noel",
@@ -1595,5 +1776,30 @@
     "name": "Agent 416",
     "stars": 1,
     "type": "AR"
+  },
+  {
+    "name": "Jashin-chan",
+    "stars": 1,
+    "type": "SMG"
+  },
+  {
+    "name": "Pekola",
+    "stars": 1,
+    "type": "RF"
+  },
+  {
+    "name": "Medusa",
+    "stars": 1,
+    "type": "AR"
+  },
+  {
+    "name": "Hanazono Yurine",
+    "stars": 1,
+    "type": "MG"
+  },
+  {
+    "name": "Minos",
+    "stars": 1,
+    "type": "SG"
   }
 ]
