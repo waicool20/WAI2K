@@ -32,6 +32,7 @@ import com.waicool20.wai2k.script.*
 import com.waicool20.wai2k.script.modules.ScriptModule
 import com.waicool20.wai2k.util.digitsOnly
 import com.waicool20.wai2k.util.disableDictionaries
+import com.waicool20.wai2k.util.isSimilar
 import com.waicool20.wai2k.util.readText
 import com.waicool20.waicoolutils.binarizeImage
 import com.waicool20.waicoolutils.countColor
@@ -198,6 +199,12 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
                 withTimeout(90_000) {
                     val r = region.subRegion(167, 146, 1542, 934)
                     while (coroutineContext.isActive) {
+                        if (Color(region.capture().getRGB(0, 300)).isSimilar(Color(21, 21, 21))) {
+                            // Exit doll profile screen if entered accidentally when emu lags while swiping
+                            region.subRegion(120, 597, 132, 88).click()
+                            delay(500)
+                            continue
+                        }
                         // Trying this to improve search reliability, maybe put this upstream in cvauto
                         switchDoll =
                             r.findBest(FileTemplate("doll-list/echelon2-captain.png", 0.85), 5)
