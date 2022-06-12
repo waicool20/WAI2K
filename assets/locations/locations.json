@@ -149,6 +149,7 @@
         "dest": "event",
         "dest-": "unknown",
         "asset": {
+          "imageName": "",
           "x": 1536,
           "y": 733,
           "width": 469,
