@@ -63,7 +63,7 @@ class EventFSOTS_2(scriptComponent: ScriptComponent) : HomographyMapRunner(scrip
         region.subRegion(349, 159, 163, 86).click()
         resupplyEchelons(rEchelons)
         planPath()
-        waitForTurnEnd(4)
+        waitForTurnAndPoints(2, 0)
         handleBattleResults()
     }
 

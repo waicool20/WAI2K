@@ -1,15 +1,15 @@
 [
   {
     "type": "CommandPost",
-    "x": 135,
-    "y": 32,
+    "x": 139,
+    "y": 56,
     "width": 50,
     "height": 50
   },
   {
-    "x": 53,
-    "y": 510,
-    "width": 32,
-    "height": 32
+    "x": 59,
+    "y": 532,
+    "width": 34,
+    "height": 34
   }
 ]

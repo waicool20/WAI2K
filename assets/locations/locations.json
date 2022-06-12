@@ -665,8 +665,8 @@
       {
         "asset": {
           "imageName": "event",
-          "x": 30,
-          "y": 234,
+          "x": 380,
+          "y": 600,
           "width": 60,
           "height": 60
         }
