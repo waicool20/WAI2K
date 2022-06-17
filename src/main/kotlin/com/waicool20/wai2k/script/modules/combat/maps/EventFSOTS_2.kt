@@ -76,6 +76,10 @@ class EventFSOTS_2(scriptComponent: ScriptComponent) : HomographyMapRunner(scrip
         logger.info("Selecting ${nodes[1]}")
         nodes[1].findRegion().click(); yield()
 
+        logger.info("Selecting ${nodes[2]}")
+        nodes[2].findRegion().click(); yield()
+
+
         logger.info("Executing plan")
         mapRunnerRegions.executePlan.click()
     }
