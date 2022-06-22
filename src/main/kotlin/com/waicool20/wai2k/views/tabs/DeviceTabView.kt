@@ -41,7 +41,10 @@ import org.controlsfx.glyphfont.FontAwesome
 import org.controlsfx.glyphfont.Glyph
 import tornadofx.*
 import java.io.File
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import javax.imageio.ImageIO
+import kotlin.io.path.createDirectories
 import kotlin.system.measureTimeMillis
 
 class DeviceTabView : CoroutineScopeView(), Binder {
@@ -133,18 +136,20 @@ class DeviceTabView : CoroutineScopeView(), Binder {
             deviceComboBox.selectedItem?.togglePointerInfo()
         }
         takeScreenshotButton.action {
-            deviceComboBox.selectedItem?.let { device ->
-                FileChooser().apply {
-                    title = "Save screenshot to?"
-                    extensionFilters.add(FileChooser.ExtensionFilter("PNG files (*.png)", "*.png"))
-                    showSaveDialog(null)?.let { file ->
-                        launch(Dispatchers.IO) {
-                            ImageIO.write(
-                                device.screens[0].capture(),
-                                "PNG",
-                                file
-                            )
-                        }
+            val device = deviceComboBox.selectedItem ?: return@action
+            val outputDir = Wai2k.CONFIG_DIR.resolve("screenshots").createDirectories()
+            FileChooser().apply {
+                title = "Save screenshot to?"
+                initialDirectory = outputDir.toFile()
+                initialFileName = "${
+                    DateTimeFormatter
+                        .ofPattern("yyyy-MM-dd HH-mm-ss")
+                        .format(LocalDateTime.now())
+                }.png"
+                extensionFilters.add(FileChooser.ExtensionFilter("PNG files (*.png)", "*.png"))
+                showSaveDialog(null)?.let { file ->
+                    launch(Dispatchers.IO) {
+                        ImageIO.write(device.screens[0].capture(), "PNG", file)
                     }
                 }
             }

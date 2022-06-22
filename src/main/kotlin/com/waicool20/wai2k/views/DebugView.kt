@@ -61,6 +61,8 @@ import net.sourceforge.tess4j.ITesseract
 import tornadofx.*
 import java.awt.image.BufferedImage
 import java.nio.file.Files
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import javax.imageio.ImageIO
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.OutputKeys
@@ -201,8 +203,15 @@ class DebugView : CoroutineScopeView() {
             hSpinner.valueFactory.value = 929
         }
         saveButton.setOnAction {
+            val outputDir = Wai2k.CONFIG_DIR.resolve("screenshots").createDirectories()
             FileChooser().apply {
                 title = "Save screenshot to?"
+                initialDirectory = outputDir.toFile()
+                initialFileName = "${
+                    DateTimeFormatter
+                        .ofPattern("yyyy-MM-dd HH-mm-ss")
+                        .format(LocalDateTime.now())
+                }.png"
                 extensionFilters.add(FileChooser.ExtensionFilter("PNG files (*.png)", "*.png"))
                 showSaveDialog(null)?.let { file ->
                     launch(Dispatchers.IO) {
