@@ -32,19 +32,13 @@ import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptException
 import com.waicool20.wai2k.script.ScriptTimeOutException
 import com.waicool20.wai2k.script.modules.combat.EmptyMapRunner
-import com.waicool20.wai2k.util.Ocr
-import com.waicool20.wai2k.util.isSimilar
-import com.waicool20.wai2k.util.readText
-import com.waicool20.wai2k.util.useCharFilter
-import com.waicool20.waicoolutils.DurationUtils
+import com.waicool20.wai2k.util.*
 import com.waicool20.waicoolutils.logging.loggerFor
-import com.waicool20.waicoolutils.prettyString
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import java.awt.Color
 import java.time.*
-import java.time.temporal.ChronoUnit
 import kotlin.coroutines.coroutineContext
 import kotlin.math.roundToLong
 import kotlin.random.Random
@@ -52,22 +46,15 @@ import kotlin.random.Random
 class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
 
     private val logger = loggerFor<CombatReportModule>()
-    private val dataSimDays = arrayOf(DayOfWeek.TUESDAY, DayOfWeek.FRIDAY, DayOfWeek.SUNDAY)
-    private var simTimer = Duration.ZERO
-    private var coalitionTimer = Duration.ZERO
 
     private val mapRunner = object : EmptyMapRunner(this@CombatSimModule) {
         override suspend fun begin() {
             if (profile.combatSimulation.neuralFragment == Level.OFF) return
 
-            if (OffsetDateTime.now(ZoneOffset.ofHours(-8)).dayOfWeek !in dataSimDays) {
-                gameState.simNextCheck = Instant.now().plus(1, ChronoUnit.DAYS)
-            }
-
             val level = profile.combatSimulation.neuralFragment
             var times = gameState.simEnergy / level.cost
             if (times == 0) {
-                updateSimNextCheck(level)
+                updateNextCheck()
                 return
             }
 
@@ -165,42 +152,37 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
                 )
             )
             gameState.simEnergy -= energySpent
-            updateSimNextCheck(level)
+            updateNextCheck()
         }
     }
 
     override suspend fun execute() {
         if (!profile.combatSimulation.enabled) return
+        if (Instant.now() < gameState.simNextCheck) return
         executeNormal()
         executeCoalition()
     }
 
     private suspend fun executeNormal() {
-        if (Instant.now() < gameState.simNextCheck) return
-        if (!combatSimAvailable()) return
-
         navigator.navigateTo(LocationId.COMBAT_SIMULATION)
         delay(1000) // Delay for settle
 
         // Select normal combat sim
-        region.subRegion(396, 155, 199, 105).click()
+        region.subRegion(394, 158, 200, 106).click()
 
         logger.info("Checking sim energy...")
-        val (timer, energy) = checkSimEnergy(
-            region.subRegion(1455, 165, 75, 75),
-            region.subRegion(1552, 182, 100, 45)
-        ) ?: return
 
-        simTimer = timer
-        gameState.simEnergy = energy
-        runDataSimulation()
-        runNeuralFragment()
+        gameState.simEnergy = checkSimEnergy(region.subRegion(1535, 161, 71, 71)) ?: return
+        if (Random.nextBoolean()) {
+            runDataSimulation()
+        } else {
+            runNeuralFragment()
+        }
         logger.info("Sim energy remaining : ${gameState.simEnergy}")
     }
 
     private suspend fun executeCoalition() {
         if (!profile.combatSimulation.coalition.enabled) return
-        if (Instant.now() < gameState.coalitionNextCheck) return
 
         navigator.navigateTo(LocationId.COMBAT_SIMULATION)
 
@@ -208,101 +190,48 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
         while (coroutineContext.isActive) {
             delay(5000)
             region.findBest(FileTemplate("combat-simulation/coalition-drill.png"))?.region?.click()
-            if (Color(region.capture().getRGB(1780, 235)).isSimilar(Color(156, 36, 33))) {
+            if (Color(region.capture().getRGB(1790, 205)).isSimilar(Color(126, 24, 24))) {
                 break
             }
         }
 
         logger.info("Checking coalition energy...")
-        val (cTimer, cEnergy) = checkSimEnergy(
-            region.subRegion(1468, 165, 75, 75),
-            region.subRegion(1542, 182, 115, 45)
-        ) ?: return
 
-        coalitionTimer = cTimer
-        gameState.coalitionEnergy = cEnergy
+        gameState.coalitionEnergy = checkSimEnergy(region.subRegion(1553, 161, 71, 71)) ?: return
         runCoalition()
         logger.info("Coalition energy remaining : ${gameState.coalitionEnergy}")
     }
 
-    /**
-     * Returns true if any enabled combat simulation is available that day
-     */
-    private fun combatSimAvailable(): Boolean {
-        val daysOpen = mutableSetOf<DayOfWeek>()
-        if (profile.combatSimulation.dataSim != Level.OFF) daysOpen += dataSimDays
-        if (profile.combatSimulation.neuralFragment != Level.OFF) daysOpen += DayOfWeek.values()
-        return OffsetDateTime.now(ZoneOffset.ofHours(-8)).dayOfWeek in daysOpen
-    }
-
     private suspend fun checkSimEnergy(
         energyRegion: AnyRegion,
-        timerRegion: AnyRegion,
         retries: Int = 5
-    ): Pair<Duration, Int>? {
+    ): Int? {
         // Check the current sim energy and the duration until the next energy recharges
-        var energy = -1
         var r = retries
 
         while (coroutineContext.isActive) {
-            val energyString = ocr
-                .useCharFilter("0123456/")
-                .readText(energyRegion, scale = 0.8, threshold = 0.7, pad = 50)
-                .replace(" ", "")
+            val energyString = ocr.digitsOnly().readText(energyRegion, threshold = 0.7)
             logger.info("Sim energy OCR: $energyString")
 
-            // Continue if not in X/6 format
-            if (!energyString.matches(Regex("\\d/6"))) {
-                if (--r >= 0) {
-                    delay(500)
-                    continue
-                } else return null
+            if (energyString.isBlank()) return 0
+
+            val energy = energyString.toIntOrNull()
+            if (energy == null || energy !in 0..12) {
+                if (r-- > 0) continue else break
             }
-
-            energy = energyString.take(1).toInt()
-            break
-        }
-        logger.info("Current sim energy is ${energy}/6")
-
-        if (energy == 6) {
-            return Duration.ZERO to energy
-        }
-
-        r = retries
-        while (coroutineContext.isActive) {
-            val timerString = ocr.useCharFilter(Ocr.DIGITS + ":")
-                .readText(timerRegion, scale = 1.2, threshold = 0.7, pad = 50)
-            logger.info("Sim timer OCR: $timerString")
-
-            val m = Regex("(\\d?\\d)\\D(\\d\\d)\\D(\\d\\d?)").find(timerString)
-                ?: if (--r >= 0) {
-                    delay(500)
-                    continue
-                } else return null
-
-            var (hours, minutes, seconds) = m.destructured
-
-            if (seconds.length == 1) seconds += "0"
-
-            val timer = DurationUtils.of(
-                seconds.toLong(),
-                minutes.toLong(),
-                hours.toLong()
-            )
-            logger.info("Time until next sim energy: ${timer.prettyString()}")
-            return timer to energy
+            logger.info("Current sim energy is $energy")
+            return energy
         }
         return null
     }
 
     private suspend fun runDataSimulation() {
         if (profile.combatSimulation.dataSim == Level.OFF) return
-        if (OffsetDateTime.now(ZoneOffset.ofHours(-8)).dayOfWeek !in dataSimDays) return
 
         val level = profile.combatSimulation.dataSim
         val times = gameState.simEnergy / level.cost
         if (times == 0) {
-            updateSimNextCheck(level)
+            updateNextCheck()
             return
         }
 
@@ -332,7 +261,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
             )
         )
         gameState.simEnergy -= times * level.cost
-        updateSimNextCheck(level)
+        updateNextCheck()
     }
 
     private suspend fun runNeuralFragment() {
@@ -350,7 +279,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
 
         val times = gameState.coalitionEnergy / 3
         if (times == 0) {
-            updateCoalNextCheck()
+            updateNextCheck()
             return
         }
 
@@ -360,7 +289,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
 
         val capture = region.capture()
         if (Color(capture.getRGB(292, 706)).isSimilar(Color(156, 154, 156))) {
-            logger.info("T dolls not assigned, using automatic assignment")
+            logger.info("T-Dolls not assigned, using automatic assignment")
             region.subRegion(294, 792, 348, 91).click()
             delay(1000)
         }
@@ -373,7 +302,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
         logger.info("Completed all coalition drill")
         EventBus.publish(CoalitionEnergySpentEvent(drillType, times * 3, sessionId, elapsedTime))
         gameState.coalitionEnergy -= times * 3
-        updateCoalNextCheck()
+        updateNextCheck()
     }
 
     /**
@@ -411,25 +340,15 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
     }
 
     /**
-     * Schedules the next check up time based on the required level passed in
+     * Schedules the next check-up time
      */
-    private fun updateSimNextCheck(level: Level) {
+    private fun updateNextCheck() {
         region.subRegion(400, 315, 185, 130).click()
-        gameState.simNextCheck = Instant.now().plusSeconds(
-            (
-                (level.cost - gameState.simEnergy - 1)
-                    * 7200) + simTimer.seconds
-        )
-        gameState.requiresUpdate
-    }
-
-    private fun updateCoalNextCheck() {
-        region.findBest(FileTemplate("combat-simulation/coalition-drill.png"))?.region?.click()
-        gameState.coalitionNextCheck = Instant.now().plusSeconds(
-            (
-                (2 - gameState.coalitionEnergy)
-                    * 7200) + coalitionTimer.seconds
-        )
+        gameState.simNextCheck = OffsetDateTime.of(
+            LocalDate.now(),
+            LocalTime.of(0, 0),
+            ZoneOffset.ofHours(-8)
+        ).plusDays(1).toInstant()
         gameState.requiresUpdate
     }
 }

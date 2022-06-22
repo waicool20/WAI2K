@@ -36,7 +36,6 @@ class GameState {
     var simEnergy: Int = 0
     var simNextCheck: Instant = Instant.now()
     var coalitionEnergy: Int = 0
-    var coalitionNextCheck: Instant = Instant.now()
     var reportsNextCheck: Instant = Instant.now()
     var delayCoefficient = 1.0
     var dailyReset: Instant = nextReset()
@@ -63,7 +62,6 @@ class GameState {
         simEnergy = 0
         simNextCheck = Instant.now()
         coalitionEnergy = 0
-        coalitionNextCheck = Instant.now()
         reportsNextCheck = Instant.now().plusSeconds(3600)
         delayCoefficient = 1.0
         dailyReset = nextReset()

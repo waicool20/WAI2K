@@ -159,16 +159,16 @@ class StatusTabView : CoroutineScopeView() {
                     .filter { simNextCheck >= Instant.now() }
                 if (combatSims.isNotEmpty()) {
                     builder /= "Combat Energy ETA:"
-                    builder += "\t- ${combatSims[0]}/6 : ${combatSims[1]}\n"
+                    builder += "\t- ${combatSims[0]}/12 : ${combatSims[1]}\n"
                 }
             }
 
             if (Wai2k.profile.combatSimulation.coalition.enabled) {
-                val coalSims = listOf(coalitionEnergy, timeDelta(coalitionNextCheck))
-                    .filter { coalitionNextCheck >= Instant.now() }
+                val coalSims = listOf(coalitionEnergy, timeDelta(simNextCheck))
+                    .filter { simNextCheck >= Instant.now() }
                 if (coalSims.isNotEmpty()) {
                     builder /= "Coalition Energy ETA:"
-                    builder += "\t- ${coalSims[0]}/6 : ${coalSims[1]}\n"
+                    builder += "\t- ${coalSims[0]}/12 : ${coalSims[1]}\n"
                 }
             }
 
