@@ -242,7 +242,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
             updateCount()
             // Click smart select button
             logger.info("Using smart select")
-            region.subRegion(1768, 890, 250, 158).click()
+            region.subRegion(1766, 899, 254, 163).click()
             delay(400)
 
             // Confirm doll selection
@@ -359,7 +359,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
         updateCount()
         // Click smart select button
         logger.info("Using smart select")
-        region.subRegion(1772, 894, 237, 163).click()
+        region.subRegion(1771, 875, 238, 162).click()
         delay(400)
 
         // Confirm doll selection
@@ -441,6 +441,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
             // Can break if disassembled count is less than 12
             if (equips.size < 12) {
                 logger.info("No more higher rarity equipment to disassemble!")
+                gameState.equipOverflow = false
                 break
             } else {
                 logger.info("Still more higher rarity equipment to disassemble")

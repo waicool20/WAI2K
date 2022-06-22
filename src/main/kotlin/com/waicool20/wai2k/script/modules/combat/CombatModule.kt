@@ -470,22 +470,28 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
      * Checks if the enhancement dialog popped up
      */
     private suspend fun checkNeedsEnhancement(): Boolean {
-        val r = region.subRegion(1185, 696, 278, 95)
-        r.findBest(FileTemplate("combat/tdoll-enhance.png"))?.region?.apply {
-            logger.info("T-doll limit reached, cancelling sortie")
-            click()
-            delay(5000)
-            gameState.dollOverflow = true
-            gameState.currentGameLocation = GameLocation.find(config, LocationId.TDOLL_ENHANCEMENT)
-            return true
-        }
-        r.findBest(FileTemplate("combat/equip-enhance.png"))?.region?.apply {
-            logger.info("Equipment limit reached, cancelling sortie")
-            click()
-            delay(5000)
-            gameState.equipOverflow = true
-            gameState.currentGameLocation = GameLocation.find(config, LocationId.RESEARCH_MENU)
-            return true
+        val text = ocr.readText(region.subRegion(942, 463, 276, 63), pad = 0)
+        when {
+            text.contains("retire", true) -> {
+                logger.info("T-doll limit reached, cancelling sortie")
+                if (profile.factory.enhancement.enabled) {
+                    region.subRegion(1327, 463, 276, 350).click()
+                } else {
+                    region.subRegion(942, 463, 276, 350).click()
+                }
+                delay(5000)
+                gameState.dollOverflow = true
+                gameState.currentGameLocation = GameLocation.find(config, LocationId.FACTORY_MENU)
+                return true
+            }
+            text.contains("dismantle", true) -> {
+                logger.info("Equipment limit reached, cancelling sortie")
+                region.subRegion(942, 463, 276, 350).click()
+                delay(5000)
+                gameState.equipOverflow = true
+                gameState.currentGameLocation = GameLocation.find(config, LocationId.FACTORY_MENU)
+                return true
+            }
         }
         return false
     }
