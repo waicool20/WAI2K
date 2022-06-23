@@ -53,7 +53,7 @@ class CombatReportModule(navigator: Navigator) : ScriptModule(navigator) {
             return
         }
         logger.info("Making Kalina work overtime")
-        // Move a bit to the left so it doesn't click the hard disk array
+        // Move a bit to the left, so it doesn't click the hard disk array
         desk.copy(x = desk.x - 20).click()
         delay(1000)
         // Click work button
@@ -62,13 +62,13 @@ class CombatReportModule(navigator: Navigator) : ScriptModule(navigator) {
         val reportRegion = when (profile.combatReport.type) {
             CombatReport.Type.NORMAL -> {
                 logger.info("Selecting normal combat reports")
-                region.subRegion(583, 399, 155, 148).click()
-                region.subRegion(842, 474, 115, 48)
+                region.subRegion(583, 331, 155, 148).click()
+                region.subRegion(842, 406, 115, 48)
             }
             CombatReport.Type.SPECIAL -> {
                 logger.info("Selecting special combat reports")
-                region.subRegion(1160, 399, 155, 148).click()
-                region.subRegion(1420, 474, 115, 48)
+                region.subRegion(1160, 331, 155, 148).click()
+                region.subRegion(1420, 406, 115, 48)
             }
             else -> error("No such combat report type!")
         }
@@ -98,7 +98,7 @@ class CombatReportModule(navigator: Navigator) : ScriptModule(navigator) {
             )
         }
         logger.info("Confirming selection")
-        region.subRegion(1144, 749, 268, 103).click(); delay(1000) // OK button
+        region.subRegion(1389, 699, 268, 103).click(); delay(1000) // OK button
         gameState.reportsNextCheck = Instant.now().plusSeconds(3600)
         logger.info("Next check is in one hour (${gameState.reportsNextCheck.formatted()})")
 
