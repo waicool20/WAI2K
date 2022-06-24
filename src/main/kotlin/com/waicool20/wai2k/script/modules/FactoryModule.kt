@@ -160,16 +160,16 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
             // Click "Select t-doll" button
             logger.info("Selecting T-dolls that will be used for enhancement")
             region.subRegion(798, 212, 1217, 555)
-                .findBest(FileTemplate("factory/enhance-select-tdoll.png"))?.region?.click()
+                .waitHas(FileTemplate("factory/enhance-select-tdoll.png"), 5000)?.click()
             delay(200)
 
             // Click smart select button
             logger.info("Using smart select")
             region.subRegion(1768, 859, 250, 158).click()
-            delay(400)
+            delay(1000)
 
             // Confirm doll selection
-            val okButton = region.subRegion(1759, 850, 268, 177)
+            val okButton = region.subRegion(1760, 885, 268, 177)
                 .findBest(FileTemplate("factory/ok.png"))?.region
             if (okButton == null) {
                 // Click cancel if no t dolls could be used for enhancement
