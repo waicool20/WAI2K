@@ -212,7 +212,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
         var oldCount = 0
 
         suspend fun updateCount() {
-            val (currentCount, _) = getCurrentCount(Count.DOLL)
+            val (currentCount, _) = getCurrentCount(Count.DOLL_D)
             val countDelta = oldCount - currentCount
             if (countDelta > 0) EventBus.publish(
                 DollDisassemblyEvent(
@@ -457,17 +457,19 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
         }
     }
 
-    private enum class Count(val keyword: String) {
-        DOLL("capa"), EQUIP("equip")
+    private enum class Count(val keyword: String, val yLabel: Int, val yCount: Int) {
+        DOLL("capa", 790, 840),
+        DOLL_D("capa", 763, 815),
+        EQUIP("equip", 763, 815)
     }
 
     private tailrec suspend fun getCurrentCount(type: Count): Pair<Int, Int> {
         logger.info("Updating $type count")
         val countRegex = Regex("(\\d+)\\s*?/\\s*?(\\d+)")
-        val countRegion = region.subRegion(1770, 815, 240, 60)
+        val countRegion = region.subRegion(1770, type.yCount, 240, 60)
         var ocrResult: String
         while (coroutineContext.isActive) {
-            ocrResult = ocr.readText(countRegion.copy(y = 763), threshold = 0.72, invert = true)
+            ocrResult = ocr.readText(countRegion.copy(y = type.yLabel), threshold = 0.72, invert = true)
             if (ocrResult.contains(type.keyword, true)) break else yield()
         }
         ocrResult = ocr.useCharFilter("0123456789/")
