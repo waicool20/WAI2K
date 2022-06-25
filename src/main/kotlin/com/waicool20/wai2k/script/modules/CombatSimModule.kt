@@ -32,7 +32,9 @@ import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptException
 import com.waicool20.wai2k.script.ScriptTimeOutException
 import com.waicool20.wai2k.script.modules.combat.EmptyMapRunner
-import com.waicool20.wai2k.util.*
+import com.waicool20.wai2k.util.digitsOnly
+import com.waicool20.wai2k.util.isSimilar
+import com.waicool20.wai2k.util.readText
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
@@ -310,12 +312,13 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
      * we have all bonus event or its sunday
      */
     private fun getBonusCoalitionDrills(): List<Type> {
-        val bonus = Color(247, 53, 66)
+        val bonus = Color(244, 54, 65)
         val capture = region.capture()
         val list = mutableListOf<Type>()
         if (Color(capture.getRGB(1050, 410)).isSimilar(bonus)) list += Type.EXPDISKS
         if (Color(capture.getRGB(1492, 410)).isSimilar(bonus)) list += Type.PETRIDISH
         if (Color(capture.getRGB(1935, 410)).isSimilar(bonus)) list += Type.DATACHIPS
+        assert(list.size > 0) { "Could not detect which coalition drills have bonuses" }
         return list
     }
 
