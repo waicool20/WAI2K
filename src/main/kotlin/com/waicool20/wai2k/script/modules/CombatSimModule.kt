@@ -271,18 +271,21 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
     }
 
     private suspend fun runCoalition() {
-        val drills = getBonusCoalitionDrills()
-
-        val drillType = if (drills.size > 1) {
-            drills.random()
-        } else {
-            drills.first()
-        }
-
         val times = gameState.coalitionEnergy / 3
         if (times == 0) {
             updateNextCheck()
             return
+        }
+
+        val drills = getBonusCoalitionDrills()
+
+        val drillType = when (drills.size) {
+            0 -> {
+                logger.warn("Could not detect which coalition drills have bonuses")
+                drills.random()
+            }
+            1 -> drills.first()
+            else -> drills.random()
         }
 
         logger.info("Running Coalition Drill: $drillType $times times.")
@@ -318,7 +321,6 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
         if (Color(capture.getRGB(1050, 410)).isSimilar(bonus)) list += Type.EXPDISKS
         if (Color(capture.getRGB(1492, 410)).isSimilar(bonus)) list += Type.PETRIDISH
         if (Color(capture.getRGB(1935, 410)).isSimilar(bonus)) list += Type.DATACHIPS
-        assert(list.size > 0) { "Could not detect which coalition drills have bonuses" }
         return list
     }
 
