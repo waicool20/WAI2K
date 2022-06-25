@@ -195,7 +195,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
                 }
 
             region.subRegion(798, 212, 1217, 555)
-                .waitHas(FileTemplate("factory/enhance-select-tdoll.png"), 1000)
+                .waitHas(FileTemplate("factory/enhance-select-tdoll.png"), 3000)
             delay(1000)
         }
 
