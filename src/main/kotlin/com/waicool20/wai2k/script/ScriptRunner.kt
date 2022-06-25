@@ -152,7 +152,7 @@ class ScriptRunner(
                         else -> {
                             val msg =
                                 "Uncaught error during script execution, please report this to the devs"
-                            logger.error(msg)
+                            logger.error(msg, e)
                             stop(msg)
                             throw e
                         }
