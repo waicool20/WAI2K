@@ -281,11 +281,21 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
 
         val drillType = when (drills.size) {
             0 -> {
+                // Bonus detection failed, just use preferred type as fallback
                 logger.warn("Could not detect which coalition drills have bonuses")
-                drills.random()
+                if (profile.combatSimulation.coalition.preferredType == Type.RANDOM) {
+                    listOf(Type.EXPDISKS, Type.PETRIDISH, Type.DATACHIPS).random()
+                } else {
+                    profile.combatSimulation.coalition.preferredType
+                }
             }
             1 -> drills.first()
-            else -> drills.random()
+            else -> {
+                // Use preferred type if its on bonus otherwise do a random one
+                if (profile.combatSimulation.coalition.preferredType in drills) {
+                    profile.combatSimulation.coalition.preferredType
+                } else drills.random()
+            }
         }
 
         logger.info("Running Coalition Drill: $drillType $times times.")

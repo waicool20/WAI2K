@@ -21,13 +21,8 @@
   -->
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.CheckBox?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Separator?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
-
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 <VBox minHeight="-Infinity" minWidth="-Infinity" spacing="10.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1">
     <children>
         <CheckBox fx:id="enableCombatSimulationCheckBox" mnemonicParsing="false" text="Enable combat simulation" />
@@ -57,7 +52,7 @@
               <CheckBox fx:id="enableCoalitionCheckBox" mnemonicParsing="false" text="Enable coalition drill" />
               <HBox alignment="CENTER_LEFT" prefHeight="25.0" prefWidth="292.0" spacing="5.0">
                   <children>
-                      <Label prefWidth="120.0" text="Preferred sunday drill:" />
+                      <Label prefWidth="120.0" text="Preferred type:"/>
                       <ComboBox fx:id="coalitionPreferredTypeComboBox" prefHeight="25.0" prefWidth="190.0" />
                   </children>
               </HBox>
