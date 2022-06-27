@@ -250,7 +250,7 @@ class Navigator(
                     logger.info("An echelon has arrived from logistics")
                     region.click()
                 }
-                ocr.readText(region.subRegion(575, 425, 1000, 100))
+                ocr.readText(region.subRegion(575, 410, 1000, 130))
                     .contains("Repeat") -> {
                     // Even if the logistics arrived didnt show up, its possible
                     // that it was clicked through by some other function
@@ -262,7 +262,7 @@ class Navigator(
 
             logisticsArrived = true
 
-            // Continue based on receival mode
+            // Continue based on receive mode
             val cont = when (profile.logistics.receiveMode) {
                 Wai2kProfile.Logistics.ReceivalMode.ALWAYS_CONTINUE -> {
                     logger.info("Continuing this logistics support")
