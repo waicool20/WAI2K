@@ -48,6 +48,7 @@ import kotlin.random.Random
 class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
 
     private val logger = loggerFor<CombatReportModule>()
+    private val modeRegion = region.subRegion(394, 158, 200, 922)
 
     private val mapRunner = object : EmptyMapRunner(this@CombatSimModule) {
         override suspend fun begin() {
@@ -60,7 +61,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
                 return
             }
 
-            region.findBest(FileTemplate("combat-simulation/neural.png", 0.8))?.region?.click()
+            modeRegion.findBest(FileTemplate("combat-simulation/neural.png", 0.8))?.region?.click()
             delay((1000 * gameState.delayCoefficient).roundToLong())
 
             logger.info("Running neural sim type $level $times times")
@@ -191,7 +192,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
         logger.info("Selecting coalition tab")
         while (coroutineContext.isActive) {
             delay(5000)
-            region.findBest(FileTemplate("combat-simulation/coalition-drill.png"))?.region?.click()
+            modeRegion.findBest(FileTemplate("combat-simulation/coalition-drill.png"))?.region?.click()
             if (Color(region.capture().getRGB(1790, 205)).isSimilar(Color(126, 24, 24))) {
                 break
             }
@@ -237,7 +238,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
             return
         }
 
-        region.findBest(FileTemplate("combat-simulation/data-mode.png", 0.8))?.region?.click()
+        modeRegion.findBest(FileTemplate("combat-simulation/data-mode.png", 0.8))?.region?.click()
         // Generous Delays here since combat sims don't occur often
         delay((1000 * gameState.delayCoefficient).roundToLong())
 
