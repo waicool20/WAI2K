@@ -331,7 +331,8 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
         var oldCount = 0
 
         suspend fun updateCount() {
-            val (currentCount, _) = getCurrentCount(Count.EQUIP)
+            val (currentCount, total) = getCurrentCount(Count.EQUIP)
+            gameState.equipOverflow = currentCount < total
             val countDelta = oldCount - currentCount
             if (countDelta > 0) EventBus.publish(
                 EquipDisassemblyEvent(
