@@ -71,9 +71,9 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
 
             var energySpent = 0
             // Heliport that turns into a node
-            val heliport = region.subRegion(1055, 1000, 24, 24)
+            val heliport = region.subRegion(1021, 1036, 80, 44)
             // blank mode at the end with SF on it
-            val endNode = region.subRegion(1105, 565, 24, 24)
+            val endNode = region.subRegion(1088, 455, 80, 80)
             // echelon to use for the run
             val echelon = Echelon(number = profile.combatSimulation.neuralEchelon)
 
