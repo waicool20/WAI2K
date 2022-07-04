@@ -84,6 +84,7 @@ class LogisticsSupportModule(navigator: Navigator) : ScriptModule(navigator) {
             logger.info("An echelon probably came back, gonna check home")
             navigator.navigateTo(LocationId.HOME)
             navigator.checkLogistics()
+            gameState.requiresUpdate = true
         }
     }
 
