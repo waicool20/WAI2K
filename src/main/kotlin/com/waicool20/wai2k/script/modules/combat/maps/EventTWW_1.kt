@@ -61,7 +61,7 @@ class EventTWW_1(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptC
         waitForGNKSplash()
         // Mission Objectives popup if this is too laggy dependant will need an asset test
         delay(500)
-        region.subRegion(35, 142, 373, 79).click()
+        region.subRegion(235, 142, 173, 79).click()
         resupplyEchelons(rEchelons)
         planPath()
         waitForTurnEnd(3)
