@@ -194,6 +194,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
             delay(5000)
             modeRegion.findBest(FileTemplate("combat-simulation/coalition-drill.png"))?.region?.click()
             if (Color(region.capture().getRGB(1790, 205)).isSimilar(Color(126, 24, 24))) {
+                delay(1000)
                 break
             }
         }
