@@ -138,6 +138,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
         navigator.navigateTo(loc)
 
         (mapRunner as CustomMapEntrance).enterMap()
+        delay(1000)
 
         if (checkNeedsEnhancement()) return
         // Wait for start operation button to appear first before handing off control to
@@ -493,6 +494,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
                 return true
             }
         }
+        logger.info("No limit pop-up, continuing sortie")
         return false
     }
 
