@@ -186,6 +186,6 @@ class LogisticsSupportModule(navigator: Navigator) : ScriptModule(navigator) {
      * Checks if the amount of ongoing logistic support is 4
      */
     private fun logisticSupportLimitReached(): Boolean {
-        return gameState.echelons.count { it.logisticsSupportAssignment?.eta?.isAfter(Instant.now()) == true } > 4
+        return gameState.echelons.count { it.logisticsSupportAssignment?.eta?.isAfter(Instant.now()) == true } >= 4
     }
 }
