@@ -70,7 +70,8 @@ class Map10_4E(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptCom
         waitForTurnAssets(listOf(FileTemplate("combat/battle/plan.png", 0.96)), false)
         delay(500)
         r.click()
-        retreatEchelons(nodes[5])
+        mapH = null
+        retreatEchelons(nodes[0])
         terminateMission()
     }
 
