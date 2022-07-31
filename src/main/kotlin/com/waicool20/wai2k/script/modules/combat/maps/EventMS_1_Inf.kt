@@ -80,12 +80,21 @@ class EventMS_1_Inf(scriptComponent: ScriptComponent) :
                 difficultyRegion.click()
             }
         }
+        // Map selection sometimes zooms in for an unknown reason
+        logger.info("Zoom out")
+        region.pinch(
+            Random.nextInt(900, 1000),
+            Random.nextInt(300, 400),
+            15.0,
+            500
+        )
+        delay(500)
 
         // Click on map pin
         region.subRegion(1000, 455, 99, 30).click()
-        delay((900 * gameState.delayCoefficient).roundToLong())
 
         // Enter
+        delay((900 * gameState.delayCoefficient).roundToLong())
         region.subRegion(1832, 590, 232, 110).click()
     }
 
@@ -118,7 +127,7 @@ class EventMS_1_Inf(scriptComponent: ScriptComponent) :
             nodes[0].findRegion().click()
         }
 
-        logger.info("Selecting echelon at ${nodes[1]}")
+        logger.info("Selecting node at ${nodes[1]}")
         nodes[1].findRegion().click()
 
         logger.info("Executing plan")
