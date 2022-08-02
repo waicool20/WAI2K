@@ -178,9 +178,16 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
         gameState.simEnergy = checkSimEnergy(region.subRegion(1535, 161, 71, 71)) ?: return
         if (Random.nextBoolean()) {
             runDataSimulation()
+            if (gameState.simEnergy > 0) {
+                runNeuralFragment()
+            }
         } else {
             runNeuralFragment()
+            if (gameState.simEnergy > 0) {
+                runDataSimulation()
+            }
         }
+
         logger.info("Sim energy remaining : ${gameState.simEnergy}")
     }
 
