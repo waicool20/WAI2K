@@ -36,49 +36,9 @@ class EventMS_1_Inf(scriptComponent: ScriptComponent) :
 
     override suspend fun enterMap() {
         if (gameState.requiresMapInit) {
-            // Exit chapter arrow for if we start in a different chapter
-            delay(500)
-            region.subRegion(50, 455, 100, 100).click()
-            delay(2500)
-
-            logger.info("Zoom out")
-            region.pinch(
-                Random.nextInt(900, 1000),
-                Random.nextInt(300, 400),
-                15.0,
-                500
-            )
-            delay(500)
-
-            logger.info("Pan down")
-            var r = region.subRegion(600, 950, 100, 100)
-            repeat(2) {
-                r.swipeTo(r.copy(y = r.y - 800), duration = 500)
-                delay(300)
-            }
-
-            logger.info("Entering Chapter 1")
-            region.subRegion(1100, 640, 100, 100).click()
-            delay(2500)
-
-            logger.info("Panning right through map list")
-            r = region.subRegion(2000, 250, 50, 50)
-            repeat(2) {
-                r.swipeTo(r.copy(x = r.x - 1400), duration = 500)
-                delay(300)
-            }
-
-            val difficultyRegion = region.subRegion(230, 925, 79, 24)
-            val difficulty =
-                ocr.readText((difficultyRegion), threshold = 0.4, pad = 0, trim = false)
-            logger.info("Current difficulty: $difficulty")
-            if (!difficulty.lowercase()
-                    .replace(" ", "")
-                    .contains("normal")
-            ) {
-                logger.info("Changing difficulty")
-                difficultyRegion.click()
-            }
+            MSUtils.setDifficulty(this, MSUtils.Difficulty.NORMAL)
+            MSUtils.enterChapter(this)
+            MSUtils.panRight(this)
         }
         // Map selection sometimes zooms in for an unknown reason
         logger.info("Zoom out")
