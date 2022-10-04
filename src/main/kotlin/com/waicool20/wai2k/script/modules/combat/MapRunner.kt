@@ -613,6 +613,22 @@ abstract class MapRunner(
         _battles = 1
     }
 
+    protected suspend fun combatSettlement(incrementSorties: Boolean = true) {
+        logger.info("Combat settlement")
+        mapRunnerRegions.terminateMenu.click(); delay(1000)
+        // Click ok
+        region.subRegion(1115, 696, 250, 96).click()
+        if (incrementSorties) EventBus.publish(
+            SortieDoneEvent(
+                profile.combat.map,
+                if (this is CorpseDragging) profile.combat.draggers else emptyList(),
+                sessionId,
+                elapsedTime
+            )
+        )
+        _battles = 1
+    }
+
     abstract suspend fun MapNode.findRegion(): AndroidRegion
 
     private suspend fun clickThroughBattle() {
