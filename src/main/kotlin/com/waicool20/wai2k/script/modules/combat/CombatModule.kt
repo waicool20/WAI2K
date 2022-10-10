@@ -174,7 +174,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
             if (tdolls[0] == tdolls[1]) {
                 tdolls.first()
             } else {
-                tdolls.first { it.name != gameState.echelons[0].members[1].name }
+                tdolls.first { it.name != gameState.echelons[0].members[slot - 1].name }
             }
         }
 

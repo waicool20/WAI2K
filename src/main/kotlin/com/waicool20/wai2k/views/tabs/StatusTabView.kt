@@ -150,7 +150,7 @@ class StatusTabView : CoroutineScopeView() {
                     "\n",
                     postfix = "\n"
                 ) { (echelonNumber, member) ->
-                    "\t- Echelon $echelonNumber [${member.number}]: ${timeDelta(member.repairEta)}"
+                    "\t- Echelon $echelonNumber [${member.slot}]: ${timeDelta(member.repairEta)}"
                 }
             }
 
