@@ -81,7 +81,7 @@ class EventS_Ranking(scriptComponent: ScriptComponent) : HomographyMapRunner(scr
         delay(500)
         planPath()
         waitForTurnEnd(2, false)
-        combatSettlement()
+        combatSettlement(false)
         handleBattleResults()
     }
 
