@@ -31,7 +31,11 @@ import kotlin.coroutines.coroutineContext
 import kotlin.math.roundToLong
 import kotlin.random.Random
 
-abstract class EventMDFL_Inf(scriptComponent: ScriptComponent) :
+class EventMDFL_Inf_Deagle(scriptComponent: ScriptComponent) : EventMDFL_Inf(scriptComponent)
+class EventMDFL_Inf_Medusa(scriptComponent: ScriptComponent) : EventMDFL_Inf(scriptComponent)
+class EventMDFL_Inf_Minos(scriptComponent: ScriptComponent) : EventMDFL_Inf(scriptComponent)
+
+sealed class EventMDFL_Inf(scriptComponent: ScriptComponent) :
     HomographyMapRunner(scriptComponent),
     EventMapRunner {
     private val logger = loggerFor<EventMapRunner>()
