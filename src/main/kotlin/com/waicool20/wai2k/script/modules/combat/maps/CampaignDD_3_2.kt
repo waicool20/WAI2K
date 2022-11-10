@@ -54,9 +54,12 @@ class CampaignDD_3_2(scriptComponent: ScriptComponent) : HomographyMapRunner(scr
         deployEchelons(nodes[0], nodes[1], nodes[2])
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
+        retreatEchelons(nodes[1]) // This echelon might be attacked
         resupplyEchelons(nodes[0])
         planPath()
         waitForTurnAndPoints(2, 2, false, 180_000)
+        mapH = null
+        retreatEchelons(nodes[0])
         terminateMission()
     }
 
