@@ -29,6 +29,8 @@ import kotlin.math.roundToLong
 import kotlin.random.Random
 
 class EventPR_1_Inf_FARA83(scriptComponent: ScriptComponent) : EventPR_1_Inf(scriptComponent)
+class EventPR_1_Inf_KSVK(scriptComponent: ScriptComponent) : EventPR_1_Inf(scriptComponent)
+class EventPR_1_Inf_SPP1(scriptComponent: ScriptComponent) : EventPR_1_Inf(scriptComponent)
 
 sealed class EventPR_1_Inf(scriptComponent: ScriptComponent) :
     HomographyMapRunner(scriptComponent),
