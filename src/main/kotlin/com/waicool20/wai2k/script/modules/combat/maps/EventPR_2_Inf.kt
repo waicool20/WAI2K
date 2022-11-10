@@ -29,6 +29,10 @@ import kotlin.math.roundToLong
 import kotlin.random.Random
 
 class EventPR_2_Inf_KH2002(scriptComponent: ScriptComponent) : EventPR_2_Inf(scriptComponent)
+class EventPR_2_Inf_Kolibri(scriptComponent: ScriptComponent) : EventPR_2_Inf(scriptComponent)
+class EventPR_2_Inf_PM06(scriptComponent: ScriptComponent) : EventPR_2_Inf(scriptComponent)
+class EventPR_2_Inf_GeneralLiu(scriptComponent: ScriptComponent) : EventPR_2_Inf(scriptComponent)
+class EventPR_2_Inf_ART556(scriptComponent: ScriptComponent) : EventPR_2_Inf(scriptComponent)
 
 sealed class EventPR_2_Inf(scriptComponent: ScriptComponent) :
     HomographyMapRunner(scriptComponent),
