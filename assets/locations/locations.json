@@ -512,19 +512,21 @@
       {
         "asset": {
           "imageName": "campaign",
-          "x": 410,
-          "y": 160,
+          "x": 1659,
+          "y": 165,
           "width": 60,
-          "height": 60
+          "height": 60,
+          "threshold": 0.8
         }
       },
       {
         "asset": {
           "imageName": "campaign0",
-          "x": 410,
-          "y": 320,
+          "x": 1659,
+          "y": 165,
           "width": 60,
-          "height": 60
+          "height": 60,
+          "threshold": 0.8
         }
       }
     ],

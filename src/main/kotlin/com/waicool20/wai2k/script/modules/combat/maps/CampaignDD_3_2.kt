@@ -54,36 +54,9 @@ class CampaignDD_3_2(scriptComponent: ScriptComponent) : HomographyMapRunner(scr
         deployEchelons(nodes[0], nodes[1], nodes[2])
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
-        retreatEchelons(nodes[1])
         resupplyEchelons(nodes[0])
         planPath()
         waitForTurnAndPoints(2, 2, false, 180_000)
-
-        // alright lets do this incredibly ghetto retreat
-        val r = region.subRegion(1058, 700, 100, 3) // required for pan right
-        logger.info("Zoom in")
-        region.pinch(375, 875, 0.0, 100)
-        delay(1000)
-        logger.info("Pan right")
-        r.swipeTo(r.copy(x = r.x - 800))
-        delay(1000)
-        // combat echelon should be on the screen at this point
-        region.subRegion(1321, 509, 100, 100).click() // this should be where our echelon is at
-        delay(1000)
-        mapRunnerRegions.retreat.click()
-        delay(1000)
-        region.subRegion(1115, 696, 250, 95).click()
-        delay(1000)
-        // end
-
-        // zoom out before terminating for the next mission
-        logger.info("Zooming out before terminating")
-        region.pinch(
-            Random.nextInt(900, 1000),
-            Random.nextInt(300, 400),
-            0.0,
-            1000
-        )
         terminateMission()
     }
 
