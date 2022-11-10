@@ -43,7 +43,7 @@ class CombatView : AbstractProfileView() {
         }
         mapComboBox.cellFactory = NoneSelectableCellFactory(Regex("--.+?--"))
         if (mapComboBox.items.isEmpty()) {
-            val comparator = compareBy(String::length).then(naturalOrder())
+            val comparator = naturalOrder<String>()
             val storyMaps = MapRunner.list.keys.filterIsInstance<CombatMap.StoryMap>()
             val eventMaps = MapRunner.list.keys.filterIsInstance<CombatMap.EventMap>()
             val campaignMaps = MapRunner.list.keys.filterIsInstance<CombatMap.CampaignMap>()
