@@ -43,7 +43,7 @@ class CombatView : AbstractProfileView() {
         }
         mapComboBox.cellFactory = NoneSelectableCellFactory(Regex("--.+?--"))
         if (mapComboBox.items.isEmpty()) {
-            val comparator = naturalOrder<String>()
+            val comparator = compareBy(String::length).then(naturalOrder())
             val storyMaps = MapRunner.list.keys.filterIsInstance<CombatMap.StoryMap>()
             val eventMaps = MapRunner.list.keys.filterIsInstance<CombatMap.EventMap>()
             val campaignMaps = MapRunner.list.keys.filterIsInstance<CombatMap.CampaignMap>()
@@ -60,7 +60,7 @@ class CombatView : AbstractProfileView() {
                 add("-- Campaign --")
                 addAll(campaignMaps.map { it.name }.sortedWith(comparator))
                 add("-- Event --")
-                addAll(eventMaps.map { it.name }.sortedWith(comparator))
+                addAll(eventMaps.map { it.name }.sortedWith(naturalOrder()))
             }
         }
         repairThresholdSpinner.valueFactory = SpinnerValueFactory.IntegerSpinnerValueFactory(0, 100)
