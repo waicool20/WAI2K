@@ -90,6 +90,7 @@ object Wai2k : CliktCommand(treatUnknownOptionsAsArgs = true) {
         private set
 
     override fun run() {
+        thread(name = "Wai2k web", isDaemon = false) { io.ktor.server.netty.EngineMain.main(emptyArray()) }
         thread(name = "Wai2k application loader", isDaemon = true) { initialize() }
         Application.launch(Wai2kUI::class.java)
     }
