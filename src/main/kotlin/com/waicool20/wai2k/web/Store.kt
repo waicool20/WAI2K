@@ -23,7 +23,9 @@ import com.waicool20.wai2k.config.Wai2kConfig
 import com.waicool20.wai2k.config.Wai2kProfile
 import com.waicool20.wai2k.config.Wai2kProfile.CombatReport
 import com.waicool20.wai2k.config.Wai2kProfile.Logistics.ReceivalMode
+import com.waicool20.wai2k.game.CombatMap
 import com.waicool20.wai2k.game.LogisticsSupport
+import com.waicool20.wai2k.script.modules.combat.MapRunner
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.nameWithoutExtension
 
@@ -48,6 +50,23 @@ sealed class Store {
             return Wai2kProfile.PROFILE_DIR.listDirectoryEntries("*.json")
                 .map { it.nameWithoutExtension }
                 .sorted()
+        }
+
+        fun maps(): Map<String, List<String>> {
+            val comparator = compareBy(String::length).then(naturalOrder())
+            val storyMaps = MapRunner.list.keys.filterIsInstance<CombatMap.StoryMap>()
+            val eventMaps = MapRunner.list.keys.filterIsInstance<CombatMap.EventMap>()
+            val campaignMaps = MapRunner.list.keys.filterIsInstance<CombatMap.CampaignMap>()
+
+            val maps: Map<String, List<String>> = mutableMapOf(
+                "normal" to storyMaps.filter { it.type == CombatMap.Type.NORMAL }.map { it.name }.sortedWith(comparator),
+                "emergency" to storyMaps.filter { it.type == CombatMap.Type.EMERGENCY }.map { it.name }.sortedWith(comparator),
+                "night" to storyMaps.filter { it.type == CombatMap.Type.NIGHT }.map { it.name }.sortedWith(comparator),
+                "campaign" to campaignMaps.map { it.name }.sortedWith(comparator),
+                "event" to eventMaps.map { it.name }.sortedWith(naturalOrder())
+            )
+
+            return maps
         }
 
         val logisticsReceivalModeList = ReceivalMode.values()
