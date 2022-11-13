@@ -39,7 +39,7 @@ class EventPR_Ranking (scriptComponent: ScriptComponent) : HomographyMapRunner(s
         }
 
         // Click map entry
-        region.subRegion(1613, 688, 287, 61).click()
+        region.subRegion(1673, 693, 221, 61).click()
 
         delay(500)
 
