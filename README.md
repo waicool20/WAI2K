@@ -27,30 +27,13 @@ If you understand this then read on
 
 # How do I get this running?
 
+### For users
+
 [Read the full setup guide here](https://github.com/waicool20/WAI2K/wiki#wai2k---setup-guide)
 
-# Build Instructions
+### For developers
 
-Git clone instructions:
-
-```bash
-git clone https://github.com/waicool20/WAI2K.git      // Clone repository, replace with ssh url if you prefer that  
-cd WAI2K/                                             // Make sure you are in the WAI2K directory
-git submodule update --init --recursive               // Pull all submodules, this includes the utility library and cvauto
-```
-
-To build the jar file after cloning/pulling the latest commits, go into the repo directory and run
-the right command
-
-Windows:
-
-> gradlew.bat
-
-Linux/MacOS:
-
-> ./gradlew
-
-A compiled Jar file will be generated in the build/libs directory
+[Project Setup](https://github.com/waicool20/WAI2K/wiki/Project-Setup)
 
 # Screenshots
 
