@@ -740,14 +740,15 @@ abstract class MapRunner(
     /**
      * Enter planning mode if it isn't already
      */
-    protected fun enterPlanningMode() {
+    protected suspend fun enterPlanningMode() {
         val pmColor = Color(region.capture().getRGB(0, 860))
         when {
             pmColor.isSimilar(Color.WHITE) -> {
                 logger.info("Entering planning mode")
                 mapRunnerRegions.planningMode.click()
+                delay((1000 * gameState.delayCoefficient).roundToLong())
             }
-            pmColor.isSimilar(Color(247, 219, 107)) -> {
+            pmColor.isSimilar(Color(249, 249, 163)) -> {
                 logger.info("Already in planning mode")
             }
             else -> throw ScriptException("Game was not on planning mode screen, when expecting it")
