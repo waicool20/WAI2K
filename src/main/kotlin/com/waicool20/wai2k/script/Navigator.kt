@@ -246,9 +246,8 @@ class Navigator(
         var logisticsArrived = false
         loop@ while (true) {
             when {
-                region.has(FileTemplate("navigator/logistics_arrived.png")) -> {
+                region.has(FileTemplate("navigator/logistics_repeat_all.png")) -> {
                     logger.info("An echelon has arrived from logistics")
-                    region.click()
                 }
                 ocr.readText(region.subRegion(575, 410, 1000, 130))
                     .contains("Repeat") -> {
@@ -287,13 +286,16 @@ class Navigator(
                 }
             }
             EventBus.publish(LogisticsSupportReceivedEvent(sessionId, elapsedTime))
-            val image = if (cont) {
+            val r = region.waitHas(FileTemplate("navigator/logistics_repeat_all.png"), 10000)
+
+            if (!cont) {
+                region.subRegion(130, 10, 95, 80).click() // Back arrows
+            } else {
                 EventBus.publish(LogisticsSupportSentEvent(sessionId, elapsedTime))
-                "ok.png"
-            } else "cancel-logi.png"
-
-            region.waitHas(FileTemplate(image), 10000)?.click()
-
+                // Send them all out
+                r?.click()
+                region.waitHas(FileTemplate("ok.png"), 10000)?.click()
+            }
 
             // Mark game state dirty, needs updating
             gameState.requiresUpdate = true
