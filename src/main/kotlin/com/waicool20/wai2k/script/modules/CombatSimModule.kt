@@ -29,16 +29,15 @@ import com.waicool20.wai2k.events.SimEnergySpentEvent
 import com.waicool20.wai2k.game.Echelon
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.Navigator
+import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.ScriptException
 import com.waicool20.wai2k.script.ScriptTimeOutException
-import com.waicool20.wai2k.script.modules.combat.EmptyMapRunner
+import com.waicool20.wai2k.script.modules.combat.HomographyMapRunner
 import com.waicool20.wai2k.util.digitsOnly
 import com.waicool20.wai2k.util.isSimilar
 import com.waicool20.wai2k.util.readText
 import com.waicool20.waicoolutils.logging.loggerFor
-import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
+import kotlinx.coroutines.*
 import java.awt.Color
 import java.time.*
 import kotlin.coroutines.coroutineContext
@@ -50,7 +49,10 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
     private val logger = loggerFor<CombatReportModule>()
     private val modeRegion = region.subRegion(394, 158, 200, 922)
 
-    private val mapRunner = object : EmptyMapRunner(this@CombatSimModule) {
+    private val mapRunner = NeuralCloudCorridor_Advanced(this@CombatSimModule)
+
+    inner class NeuralCloudCorridor_Advanced(scriptComponent: ScriptComponent) :
+        HomographyMapRunner(scriptComponent) {
         override suspend fun begin() {
             if (profile.combatSimulation.neuralFragment == Level.OFF) return
 
@@ -67,13 +69,8 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
             logger.info("Running neural sim type $level $times times")
             logger.info("Entering $level sim")
             region.subRegion(735, 377 + (177 * (level.cost - 1)), 1230, 130).click() // Difficulty
-            delay(1000)
 
             var energySpent = 0
-            // Heliport that turns into a node
-            val heliport = region.subRegion(1021, 1036, 80, 44)
-            // blank mode at the end with SF on it
-            val endNode = region.subRegion(1088, 455, 80, 80)
             // echelon to use for the run
             val echelon = Echelon(number = profile.combatSimulation.neuralEchelon)
 
@@ -85,43 +82,48 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
 
 
             logger.info("Zoom out")
-            repeat(2) {
-                region.pinch(
-                    Random.nextInt(900, 1000),
-                    Random.nextInt(300, 400),
-                    0.0,
-                    500
-                )
-                delay(500)
-            }
+            region.pinch(
+                Random.nextInt(900, 1000),
+                Random.nextInt(300, 400),
+                0.0,
+                500
+            )
+            delay(500)
+
             logger.info("Pan up")
             val r = region.subRegion(700, 140, 400, 100)
             r.swipeTo(r.copy(y = r.y + 400))
             delay(1000) // Wait to settle
 
-            heliport.click()
+            nodes[0].findRegion().click()
             region.waitHas(FileTemplate("ok.png"), 3000)
             val deploy = echelon.clickEchelon(this, 140)
             if (!deploy) {
                 throw ScriptException("Could not deploy echelon $echelon")
             }
             delay(1000)
-
-            // A pretty common script restart is if you get a long loadwheel from poor connection
-            // and the try to .click() start the (unavailable) button it will get stuck until timeout
-            mapRunnerRegions.deploy.click(); delay(1000)
-            mapRunnerRegions.startOperation.click(); delay(1000)
             try {
-                region.subRegion(1100, 680, 275, 130)
-                    .waitHas(FileTemplate("ok.png"), 5000)?.click()
+                withTimeout(12000) {
+                    while (coroutineContext.isActive) {
+                        mapRunnerRegions.startOperation.click(); yield()
+
+                        region.subRegion(1100, 680, 275, 130)
+                            .waitHas(FileTemplate("ok.png"), 2000)?.click()
+                            ?: continue
+                        break
+
+                    }
+                }
             } catch (e: TimeoutCancellationException) {
-                throw ScriptTimeOutException("Could not start neural sim")
+                throw ScriptTimeOutException("Could not start neural sim", e)
             }
+
+
             waitForGNKSplash(7000) // Map background makes it hard to find
             enterPlanningMode(); delay(500)
-            heliport.click(); delay(500)
-            endNode.click(); delay(500)
-            mapRunnerRegions.executePlan.click(); delay(7000)
+            nodes[0].findRegion().click(); delay(500)
+            nodes[1].findRegion().click(); delay(500)
+            mapRunnerRegions.executePlan.click()
             waitForTurnEnd(1, timeout = 60_000)
 
             while (true) {
