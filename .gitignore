@@ -163,3 +163,5 @@ gradle-app.setting
 assets/models/
 
 src/main/resources/version.txt
+
+bin/
