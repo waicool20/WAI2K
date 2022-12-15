@@ -36,6 +36,8 @@ import kotlin.math.roundToLong
 abstract class ScriptModule(
     val navigator: Navigator
 ) : ScriptComponent by navigator {
+    @Target(AnnotationTarget.CLASS)
+    annotation class DisableModule(val reason: String = "")
 
     companion object {
         private const val CHAPTER_MIN = 0

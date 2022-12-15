@@ -49,6 +49,7 @@ import javax.imageio.ImageIO
 import kotlin.concurrent.fixedRateTimer
 import kotlin.io.path.createDirectories
 import kotlin.math.roundToLong
+import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.primaryConstructor
 import kotlin.system.exitProcess
 
@@ -202,11 +203,18 @@ class ScriptRunner(
                 .getSubTypesOf(ScriptModule::class.java)
                 .map { it.kotlin }
                 .filterNot { it.isAbstract || it == InitModule::class || it == StopModule::class }
+                .filterNot {
+                    val a =
+                        it.findAnnotation<ScriptModule.DisableModule>() ?: return@filterNot false
+                    logger.info("${it.simpleName} is disabled, reason: ${a.reason}")
+                    true
+                }
                 .mapNotNull { it.primaryConstructor?.call(navigator) }
                 .let { modules.addAll(it) }
             modules.add(StopModule(navigator))
             modules.map { it::class.simpleName }
                 .forEach { logger.info("Loaded new instance of $it") }
+
         }
     }
 
