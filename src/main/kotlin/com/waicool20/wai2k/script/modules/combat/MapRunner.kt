@@ -27,7 +27,6 @@ import com.waicool20.wai2k.events.RepairEvent
 import com.waicool20.wai2k.events.SortieDoneEvent
 import com.waicool20.wai2k.game.*
 import com.waicool20.wai2k.script.ScriptComponent
-import com.waicool20.wai2k.script.ScriptException
 import com.waicool20.wai2k.script.ScriptTimeOutException
 import com.waicool20.wai2k.util.*
 import com.waicool20.waicoolutils.binarizeImage
@@ -740,17 +739,20 @@ abstract class MapRunner(
     /**
      * Enter planning mode if it isn't already
      */
-    protected fun enterPlanningMode() {
-        val pmColor = Color(region.capture().getRGB(0, 860))
-        when {
-            pmColor.isSimilar(Color.WHITE) -> {
-                logger.info("Entering planning mode")
-                mapRunnerRegions.planningMode.click()
+    protected suspend fun enterPlanningMode() {
+        while (coroutineContext.isActive) {
+            val pmColor = Color(region.capture().getRGB(10, 860))
+            when {
+                pmColor.isSimilar(Color.WHITE) -> {
+                    logger.info("Entering planning mode")
+                    mapRunnerRegions.planningMode.click()
+                    delay((1500 * gameState.delayCoefficient).roundToLong())
+                }
+                pmColor.isSimilar(Color(249, 246, 169)) -> {
+                    logger.info("In planning mode")
+                    break
+                }
             }
-            pmColor.isSimilar(Color(247, 219, 107)) -> {
-                logger.info("Already in planning mode")
-            }
-            else -> throw ScriptException("Game was not on planning mode screen, when expecting it")
         }
     }
 }

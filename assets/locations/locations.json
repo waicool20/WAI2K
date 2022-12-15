@@ -736,8 +736,8 @@
       {
         "asset": {
           "imageName": "game_start",
-          "x": 613,
-          "y": 975,
+          "x": 2000,
+          "y": 55,
           "width": 60,
           "height": 60,
           "threshold": 0.8
