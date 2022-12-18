@@ -83,14 +83,16 @@ object GFL {
             var name = gunCheckRegex.matchEntire(l)?.groupValues?.get(1) ?: return
             name = name.removeSuffix("he")
             name = name.removeSuffix("nom")
-            EventBus.tryPublish(
-                DollDropEvent(
-                    name,
-                    scriptRunner.profile.combat.map,
-                    scriptRunner.sessionId,
-                    scriptRunner.elapsedTime
+            if (scriptRunner.state == ScriptRunner.State.RUNNING && scriptRunner.profile.combat.enabled) {
+                EventBus.tryPublish(
+                    DollDropEvent(
+                        name,
+                        scriptRunner.profile.combat.map,
+                        scriptRunner.sessionId,
+                        scriptRunner.elapsedTime
+                    )
                 )
-            )
+            }
             logger.info("Got new gun: $name")
             gotGun = false
         }
