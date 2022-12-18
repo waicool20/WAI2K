@@ -43,6 +43,7 @@ import kotlin.coroutines.coroutineContext
 import kotlin.math.roundToLong
 import kotlin.random.Random
 import kotlin.reflect.KClass
+import kotlin.reflect.full.findAnnotation
 
 /**
  * Base class containing most of the scripting framework required to script a map, this includes
@@ -64,9 +65,13 @@ abstract class MapRunner(
     class Retreat(val mapNode: MapNode) : Retreatable
     data class TurnInfo(val turn: Int, val points: Int)
 
+    @Target(AnnotationTarget.CLASS)
+    annotation class DisableMap(val reason: String = "")
+
     infix fun Int.at(mapNode: MapNode) = Deployment(this, mapNode)
 
     companion object {
+        private val logger = loggerFor<Companion>()
         val list = mutableMapOf<CombatMap, KClass<out MapRunner>>()
 
         init {
@@ -75,6 +80,11 @@ abstract class MapRunner(
             for (mapClass in mapClasses) {
                 if (Modifier.isAbstract(mapClass.modifiers)) continue
                 if (Modifier.isInterface(mapClass.modifiers)) continue
+                val an = mapClass.kotlin.findAnnotation<DisableMap>()
+                if (an != null) {
+                    logger.warn("Map ${mapClass.simpleName} disabled, reason: ${an.reason}")
+                    continue
+                }
                 when {
                     CampaignMapRunner::class.java.isAssignableFrom(mapClass) -> {
                         val name = mapClass.simpleName.replaceFirst("Campaign", "")

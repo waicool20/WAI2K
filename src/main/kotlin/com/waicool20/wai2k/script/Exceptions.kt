@@ -55,7 +55,8 @@ class InvalidDeviceException(device: AndroidDevice?)
 
 class UnsupportedMapException(mapName: String) : UnrecoverableScriptException(
     """
-    The map `$mapName` is not supported by the current version of WAI2K
+    The map `$mapName` is not supported by the current version of WAI2K,
+    It may not be implemented or temporarily disabled
     Please configure another map then save and restart
     """.trimIndent()
 )
