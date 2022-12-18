@@ -197,7 +197,7 @@ class DebugView : CoroutineScopeView() {
                 }
         }
         windowBoundsButton.setOnAction {
-            xSpinner.valueFactory.value = 455
+            xSpinner.valueFactory.value = 348
             ySpinner.valueFactory.value = 151
             wSpinner.valueFactory.value = 1281
             hSpinner.valueFactory.value = 929

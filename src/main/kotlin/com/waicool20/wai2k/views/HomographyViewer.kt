@@ -64,7 +64,7 @@ class HomographyViewer(
 
     private val imageView: ImageView by fxid()
     private val region = device.screens[0]
-    private val window = region.subRegion(455, 151, 1281, 929)
+    private val window = region.subRegion(348, 151, 1281, 929)
 
     init {
         title = "Homography Viewer"
