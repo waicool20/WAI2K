@@ -42,22 +42,10 @@ class Map13_4(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComp
             0.0,
             800
         )
-        logger.info("Pan Right")
-        var r = region.subRegion(2000, 500, 100, 100)
-        r.swipeTo(r.copy(x = r.x - 1800))
-        logger.info("Pan left")
-        r = region.subRegion(100, 500, 100, 100)
-        r.swipeTo(r.copy(x = r.x + 1400))
-        delay((500 * gameState.delayCoefficient).roundToLong())
-        gameState.requiresMapInit = false
         mapH = null
     }
 
     override suspend fun begin() {
-        if (gameState.requiresMapInit) {
-            resetView()
-        }
-
         val rEchelons = deployEchelons(nodes[0], nodes[1])
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
@@ -77,19 +65,7 @@ class Map13_4(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComp
         delay((300 * gameState.delayCoefficient).roundToLong())
 
         enterPlanningMode()
-
-        logger.info("Selecting echelon at ${nodes[0]}")
-        nodes[0].findRegion().click()
-
-        logger.info("Selecting ${nodes[2]}")
-        nodes[2].findRegion().click()
-
-        logger.info("Selecting ${nodes[3]}")
-        nodes[3].findRegion().click(); yield()
-
-        // Over plan to end turn automatically, save frames
-        logger.info("Selecting ${nodes[2]}")
-        nodes[2].findRegion().click()
+        selectNodes(0, 2, 3, 2)
 
         logger.info("Executing plan")
         mapRunnerRegions.executePlan.click()

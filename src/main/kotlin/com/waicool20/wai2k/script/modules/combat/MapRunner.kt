@@ -746,13 +746,23 @@ abstract class MapRunner(
                 pmColor.isSimilar(Color.WHITE) -> {
                     logger.info("Entering planning mode")
                     mapRunnerRegions.planningMode.click()
-                    delay((1500 * gameState.delayCoefficient).roundToLong())
+                    delay((3000 * gameState.delayCoefficient).roundToLong())
                 }
                 pmColor.isSimilar(Color(249, 246, 169)) -> {
                     logger.info("In planning mode")
                     break
                 }
             }
+        }
+    }
+
+    /**
+     * Select nodes
+     */
+    protected suspend fun selectNodes(vararg indices: Int) {
+        for (i in indices) {
+            logger.info("Selecting node ${nodes[i]}")
+            nodes[i].findRegion().click()
         }
     }
 }
