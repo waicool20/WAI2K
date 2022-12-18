@@ -31,7 +31,6 @@ import com.waicool20.wai2k.events.LogisticsSupportSentEvent
 import com.waicool20.wai2k.game.GFL
 import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.LocationId
-import com.waicool20.wai2k.util.readText
 import com.waicool20.waicoolutils.firstAsync
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
@@ -236,7 +235,7 @@ class Navigator(
      * @return true if any logistics arrived
      */
     suspend fun checkLogistics(forceCheck: Boolean = false): Boolean {
-        // If gamestate is up to date then we can rely on timers or not
+        // If game state is up-to-date then we can rely on timers or not
         // to see if logistics might arrive anytime soon
         // We skip further execution if no logistics is due in 15s
         if (!forceCheck && !gameState.requiresUpdate &&
@@ -244,21 +243,11 @@ class Navigator(
                 .none { Duration.between(Instant.now(), it.eta).seconds <= 15 }
         ) return false
         var logisticsArrived = false
-        loop@ while (true) {
-            when {
-                region.has(FileTemplate("navigator/logistics_repeat_all.png")) -> {
-                    logger.info("An echelon has arrived from logistics")
-                }
-                ocr.readText(region.subRegion(575, 410, 1000, 130))
-                    .contains("Repeat") -> {
-                    // Even if the logistics arrived didnt show up, its possible
-                    // that it was clicked through by some other function
-                    logger.info("An echelon has arrived from logistics, but already at repeat dialog for some reason...")
-                }
-                else -> break@loop
-            }
-            delay(500)
-
+        while (coroutineContext.isActive) {
+            if (region.subRegion(1657, 945, 355, 128)
+                    .doesntHave(FileTemplate("navigator/logistics_repeat_all.png"))
+            ) break
+            logger.info("An echelon has arrived from logistics")
             logisticsArrived = true
 
             // Continue based on receive mode
@@ -286,15 +275,16 @@ class Navigator(
                 }
             }
             EventBus.publish(LogisticsSupportReceivedEvent(sessionId, elapsedTime))
-            val r = region.waitHas(FileTemplate("navigator/logistics_repeat_all.png"), 10000)
 
-            if (!cont) {
-                region.subRegion(130, 10, 95, 80).click() // Back arrows
-            } else {
-                EventBus.publish(LogisticsSupportSentEvent(sessionId, elapsedTime))
+            if (cont) {
                 // Send them all out
-                r?.click()
+                region.subRegion(1725, 984, 226, 58).click()
                 region.waitHas(FileTemplate("ok.png"), 10000)?.click()
+                    ?: logger.warn("Was expecting to click ok, it did not appear!")
+                delay(2000)
+                EventBus.publish(LogisticsSupportSentEvent(sessionId, elapsedTime))
+            } else {
+                region.subRegion(130, 10, 95, 80).click() // Top left back arrow
             }
 
             // Mark game state dirty, needs updating
