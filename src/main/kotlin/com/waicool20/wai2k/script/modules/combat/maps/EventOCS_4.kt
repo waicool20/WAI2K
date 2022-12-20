@@ -28,13 +28,18 @@ import kotlinx.coroutines.yield
 import kotlin.math.roundToLong
 import kotlin.random.Random
 
-class EventOCS_5(scriptComponent: ScriptComponent) :
+class EventOCS_4(scriptComponent: ScriptComponent) :
     HomographyMapRunner(scriptComponent),
     EventMapRunner {
-    private val logger = loggerFor<EventOCS_5>()
+    private val logger = loggerFor<EventOCS_4>()
 
     override suspend fun enterMap() {
 
+        if (gameState.requiresMapInit) {
+            logger.info("Waiting for animation...")
+            delay(1000)
+
+        }
         logger.info("Zoom out")
         region.pinch(
             Random.nextInt(900, 1000),
@@ -66,17 +71,18 @@ class EventOCS_5(scriptComponent: ScriptComponent) :
                 500
             )
             delay((900 * gameState.delayCoefficient).roundToLong()) //Wait to settle
-
-            logger.info("Pan up")
-            val r = region.subRegion(1058, 224, 100, 22)
-            r.swipeTo(r.copy(y = r.y - 250))
-            delay((500 * gameState.delayCoefficient).roundToLong())
             mapH = null
-            gameState.requiresMapInit = false
         }
         deployEchelons(nodes[0])
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
+        if (gameState.requiresMapInit) {
+            delay((1500 * gameState.delayCoefficient).roundToLong())
+            logger.info("Exiting objectives popup")
+            region.subRegion(50, 147, 240, 70).click()
+            delay(1000)
+            gameState.requiresMapInit = false
+        }
         resupplyEchelons(nodes[0])
         delay(500)
         enterPlanningMode()
