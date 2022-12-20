@@ -160,7 +160,7 @@ object Wai2k : CliktCommand(treatUnknownOptionsAsArgs = true) {
             logger.info("Detected GPUs: $gpus")
             Device.gpu()
         } else {
-            logger.warn("No GPU detected, make sure you have CUDA 10.2 or 11.1 installed, using CPU")
+            logger.warn("No GPU detected, make sure you have CUDA 11.7 installed, using CPU")
             logger.warn("Some operations may run slower")
             Device.cpu()
         }
