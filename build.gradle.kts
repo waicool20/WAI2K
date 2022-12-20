@@ -45,28 +45,27 @@ repositories {
 
 dependencies {
     val versions = object {
-        val KotlinCoroutines = "1.6.0"
-        val Jackson = "2.12.3"
+        val KotlinCoroutines = "1.6.4"
+        val Jackson = "2.14.0"
         val OpenJfx = "16"
     }
 
     implementation(kotlin("stdlib-jdk8"))
     implementation(kotlin("reflect"))
-    implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-core", versions.KotlinCoroutines)
-    implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-javafx", versions.KotlinCoroutines)
-    implementation("com.fasterxml.jackson.core", "jackson-core", versions.Jackson)
-    implementation("com.fasterxml.jackson.core", "jackson-databind", versions.Jackson)
-    implementation("com.fasterxml.jackson.core", "jackson-annotations", versions.Jackson)
-    implementation("com.fasterxml.jackson.module", "jackson-module-kotlin", versions.Jackson)
-    implementation("com.fasterxml.jackson.datatype", "jackson-datatype-jsr310", versions.Jackson)
-    implementation("ch.qos.logback", "logback-classic", "1.2.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${versions.KotlinCoroutines}")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-javafx:${versions.KotlinCoroutines}")
+    implementation("com.fasterxml.jackson.core:jackson-core:${versions.Jackson}")
+    implementation("com.fasterxml.jackson.core:jackson-databind:${versions.Jackson}")
+    implementation("com.fasterxml.jackson.core:jackson-annotations:${versions.Jackson}")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:${versions.Jackson}")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${versions.Jackson}")
+    implementation("ch.qos.logback:logback-classic:1.4.5")
     implementation("no.tornado:tornadofx:2.0.0-SNAPSHOT")
-    implementation("org.controlsfx:controlsfx:11.1.1")
-    implementation("org.reflections", "reflections", "0.9.12")
-    implementation("com.squareup.okhttp3:okhttp:4.9.3")
-    implementation("ai.djl.pytorch:pytorch-engine:0.16.0")
-    implementation("ai.djl.pytorch:pytorch-native-auto:1.9.1")
-    implementation("com.github.ajalt.clikt:clikt-jvm:3.4.1")
+    implementation("org.controlsfx:controlsfx:11.1.2")
+    implementation("org.reflections:reflections:0.10.2")
+    implementation("com.squareup.okhttp3:okhttp:4.10.0")
+    implementation("ai.djl.pytorch:pytorch-engine:0.20.0")
+    implementation("com.github.ajalt.clikt:clikt-jvm:3.5.0")
 
     implementation("net.sourceforge.tess4j", "tess4j", "5.2.0") {
         exclude("org.ghost4j")
