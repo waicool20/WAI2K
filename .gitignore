@@ -164,4 +164,4 @@ assets/models/
 
 src/main/resources/version.txt
 
-bin/
+**/bin/
