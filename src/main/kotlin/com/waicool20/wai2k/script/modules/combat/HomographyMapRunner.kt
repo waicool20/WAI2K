@@ -176,10 +176,10 @@ abstract class HomographyMapRunner(scriptComponent: ScriptComponent) : MapRunner
                     fullMap to ImageFactory.getInstance().fromImage(window.capture())
                 )
                 logger.debug("Homography prediction metrics:")
-                logger.debug("Preprocess: ${metrics.latestMetric("Preprocess").value.toLong() / 1000000} ms")
-                logger.debug("Inference: ${metrics.latestMetric("Inference").value.toLong() / 1000000} ms")
-                logger.debug("Postprocess: ${metrics.latestMetric("Postprocess").value.toLong() / 1000000} ms")
-                logger.debug("Total: ${metrics.latestMetric("Total").value.toLong() / 1000000} ms")
+                logger.debug("Preprocess: ${metrics.latestMetric("Preprocess").value.toLong() / 1000} ms")
+                logger.debug("Inference: ${metrics.latestMetric("Inference").value.toLong() / 1000} ms")
+                logger.debug("Postprocess: ${metrics.latestMetric("Postprocess").value.toLong() / 1000} ms")
+                logger.debug("Total: ${metrics.latestMetric("Total").value.toLong() / 1000} ms")
                 mapH = prediction
                 prediction
             } catch (e: TranslateException) {
