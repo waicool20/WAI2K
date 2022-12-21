@@ -20,9 +20,11 @@
 package com.waicool20.wai2k.web
 
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.waicool20.cvauto.android.ADB
 import io.ktor.serialization.jackson.jackson
 import io.ktor.server.application.*
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
@@ -31,6 +33,9 @@ fun Application.module() {
         jackson {
             registerModule(JavaTimeModule())
         }
+    }
+    install(CORS) {
+        anyHost()
     }
     routing {
         get("/") {
@@ -45,23 +50,14 @@ fun Application.module() {
         get("/profile/{name}") {
             call.respond(Store.profile(call.parameters["name"]))
         }
-        get("/classifier/assignment") {
-            call.respond(Store.assignmentList)
-        }
-        get("/classifier/combat-report") {
-            call.respond(Store.combatReportTypeList)
-        }
-        get("/classifier/logisticts-retrieval") {
-            call.respond(Store.logisticsReceiveModeList)
-        }
         get("/classifier/maps") {
             call.respond(Store.maps())
         }
-        get("/classifier/dolls") {
-            call.respond(Store.dolls())
+        get("/classifier") {
+            call.respond(Store.classifier())
         }
-        get("/classifier/combat-sim") {
-            call.respond(Store.combatSim())
+        get("/device/list") {
+            call.respond(ADB.getDevices())
         }
     }
 }

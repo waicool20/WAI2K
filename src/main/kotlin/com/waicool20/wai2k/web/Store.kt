@@ -19,6 +19,7 @@
 
 package com.waicool20.wai2k.web
 
+import com.waicool20.cvauto.android.AndroidDevice
 import com.waicool20.wai2k.config.Wai2kConfig
 import com.waicool20.wai2k.config.Wai2kProfile
 import com.waicool20.wai2k.config.Wai2kProfile.CombatReport
@@ -55,49 +56,35 @@ sealed class Store {
                 .sorted()
         }
 
-        fun maps(): Map<String, List<String>> {
-            val comparator = compareBy(String::length).then(naturalOrder())
+        fun maps(): Map<String, List<*>> {
             val storyMaps = MapRunner.list.keys.filterIsInstance<CombatMap.StoryMap>()
             val eventMaps = MapRunner.list.keys.filterIsInstance<CombatMap.EventMap>()
             val campaignMaps = MapRunner.list.keys.filterIsInstance<CombatMap.CampaignMap>()
 
             return mapOf(
-                "normal" to storyMaps.filter { it.type == CombatMap.Type.NORMAL }
-                    .map { it.name }
-                    .sortedWith(comparator),
-                "emergency" to storyMaps.filter { it.type == CombatMap.Type.EMERGENCY }
-                    .map { it.name }
-                    .sortedWith(comparator),
-                "night" to storyMaps.filter { it.type == CombatMap.Type.NIGHT }
-                    .map { it.name }
-                    .sortedWith(comparator),
-                "campaign" to campaignMaps
-                    .map { it.name }
-                    .sortedWith(comparator),
-                "event" to eventMaps
-                    .map { it.name }
-                    .sortedWith(naturalOrder())
+                "normal" to storyMaps.filter { it.type == CombatMap.Type.NORMAL },
+                "emergency" to storyMaps.filter { it.type == CombatMap.Type.EMERGENCY },
+                "night" to storyMaps.filter { it.type == CombatMap.Type.NIGHT },
+                "campaign" to campaignMaps,
+                "event" to eventMaps,
+                "logistics" to LogisticsSupport.list
             )
         }
 
-        fun dolls(): List<TDoll> {
-            return TDoll.listAll(this.config()).sortedBy { it.name }
-        }
-
-        fun combatSim(): Map<String, List<Enum<*>>> {
+        fun classifier(): Map<String, List<*>> {
             return mapOf(
-                "data" to Level.values().toList(),
-                "neural" to listOf(Level.OFF, Level.ADVANCED),
-                "coalition" to Type.values().toList()
+                "logisticsReceiveModeList" to ReceivalMode.values()
+                    .toList()
+                    .sortedWith(naturalOrder()),
+                "combatReportTypeList" to CombatReport.Type.values().toList(),
+                "captureMethodList" to AndroidDevice.CaptureMethod.values().toList(),
+                "compressionModeList" to AndroidDevice.CompressionMode.values().toList(),
+                "dolls" to TDoll.listAll(this.config()).sortedBy { it.name },
+                "combatSimData" to Level.values().toList(),
+                "combatSimNeural" to listOf(Level.OFF, Level.ADVANCED),
+                "combatSimCoalition" to Type.values().toList(),
+                "timeStopType" to Wai2kProfile.Stop.Time.Mode.values().toList(),
             )
         }
-
-        val logisticsReceiveModeList = ReceivalMode.values()
-            .toList()
-            .sortedWith(naturalOrder())
-
-        val assignmentList = LogisticsSupport.list.map { it.formattedString }
-
-        val combatReportTypeList = CombatReport.Type.values().toList()
     }
 }
