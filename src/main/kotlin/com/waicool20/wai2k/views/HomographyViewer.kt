@@ -174,7 +174,6 @@ class HomographyViewer(
         Imgproc.line(bg, cornersArr[2], cornersArr[3], redScalar, 2)
         Imgproc.line(bg, cornersArr[0], cornersArr[2], redScalar, 2)
 
-        Imgproc.cvtColor(bg, bg, Imgproc.COLOR_RGB2BGR)
         return bg.toBufferedImage()
     }
 }
