@@ -185,7 +185,6 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
             region.subRegion(362 + (slot - 1) * 273, 206, 237, 544).click(); yield()
             region.waitHas(FileTemplate("doll-list/lock.png"), 5000)
 
-            region.matcher.settings.matchDimension = ScriptRunner.HIGH_RES
             applyFilters(tdoll, false)
             var switchDoll = region.findBest(FileTemplate("doll-list/echelon2-captain.png"))?.region
 
@@ -230,8 +229,6 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
             }
 
             switchDoll?.copy(width = 142)?.click()
-
-            region.matcher.settings.matchDimension = ScriptRunner.NORMAL_RES
             logger.info("Switching dolls took ${System.currentTimeMillis() - startTime} ms")
             delay(1250)
         }

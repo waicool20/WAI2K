@@ -27,7 +27,6 @@ import com.waicool20.cvauto.android.ADB
 import com.waicool20.cvauto.android.AndroidDevice
 import com.waicool20.cvauto.core.Region
 import com.waicool20.cvauto.core.template.FileTemplate
-import com.waicool20.cvauto.util.asGrayF32
 import com.waicool20.wai2k.Wai2k
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.Ocr
@@ -354,7 +353,6 @@ class DebugView : CoroutineScopeView() {
                 }
                 val image = grabScreenshot() ?: return@launch
                 val matcher = device.screens[0].matcher
-                matcher.settings.matchDimension = ScriptRunner.HIGH_RES
                 // Set similarity to 0.6f to make cvauto report the similarity value down to 0.6
                 val (results, duration) = measureTimedValue {
                     try {
@@ -364,7 +362,6 @@ class DebugView : CoroutineScopeView() {
                         matcher.findBest(FileTemplate(path, 0.6), image, max)
                     }
                 }
-                matcher.settings.matchDimension = ScriptRunner.NORMAL_RES
                 results.takeIf { it.isNotEmpty() }
                     ?.sortedBy { it.score }
                     ?.forEach {

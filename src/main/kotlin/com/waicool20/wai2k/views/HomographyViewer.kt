@@ -26,9 +26,9 @@ import com.waicool20.cvauto.core.AnyDevice
 import com.waicool20.wai2k.Wai2k
 import com.waicool20.wai2k.util.ai.MatchingModel
 import com.waicool20.wai2k.util.ai.MatchingTranslator
-import com.waicool20.wai2k.util.removeChannels
-import com.waicool20.wai2k.util.toBufferedImage
-import com.waicool20.wai2k.util.toMat
+import com.waicool20.cvauto.util.removeChannels
+import com.waicool20.cvauto.util.toBufferedImage
+import com.waicool20.cvauto.util.toMat
 import com.waicool20.waicoolutils.createCompatibleCopy
 import com.waicool20.waicoolutils.javafx.CoroutineScopeView
 import com.waicool20.waicoolutils.logging.loggerFor
@@ -174,6 +174,7 @@ class HomographyViewer(
         Imgproc.line(bg, cornersArr[2], cornersArr[3], redScalar, 2)
         Imgproc.line(bg, cornersArr[0], cornersArr[2], redScalar, 2)
 
+        Imgproc.cvtColor(bg, bg, Imgproc.COLOR_RGB2BGR)
         return bg.toBufferedImage()
     }
 }

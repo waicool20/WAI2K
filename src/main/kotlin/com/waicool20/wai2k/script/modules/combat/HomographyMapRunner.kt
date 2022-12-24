@@ -37,7 +37,7 @@ import com.waicool20.wai2k.script.NodeNotFoundException
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.util.ai.MatchingModel
 import com.waicool20.wai2k.util.ai.MatchingTranslator
-import com.waicool20.wai2k.util.removeChannels
+import com.waicool20.cvauto.util.removeChannels
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
@@ -78,7 +78,7 @@ abstract class HomographyMapRunner(scriptComponent: ScriptComponent) : MapRunner
          * Minimum scroll in pixels, because sometimes smaller scrolls don't register properly
          */
         private const val minScroll = 75
-        
+
         private var model: MatchingModel? = null
         private val modelIsInitializing = Mutex()
     }

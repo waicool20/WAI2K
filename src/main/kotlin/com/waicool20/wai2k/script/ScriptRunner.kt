@@ -59,11 +59,6 @@ class ScriptRunner(
     var profile: Wai2kProfile = Wai2kProfile(),
     var persist: Wai2kPersist = Wai2kPersist()
 ) {
-    companion object {
-        const val NORMAL_RES = 480
-        const val HIGH_RES = 1080
-    }
-
     enum class State {
         RUNNING, PAUSING, PAUSED, STOPPED
     }
@@ -188,7 +183,6 @@ class ScriptRunner(
         }
         logcatListener?.start()
         _config.scriptConfig.apply {
-            Region.DEFAULT_MATCHER.settings.matchDimension = NORMAL_RES
             Region.DEFAULT_MATCHER.settings.defaultThreshold = defaultSimilarityThreshold
             _device?.input?.touchInterface?.settings?.postTapDelay =
                 (mouseDelay * 1000).roundToLong()
