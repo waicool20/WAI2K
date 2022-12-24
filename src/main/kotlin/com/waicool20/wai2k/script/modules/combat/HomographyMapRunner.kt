@@ -40,6 +40,8 @@ import com.waicool20.wai2k.util.ai.MatchingTranslator
 import com.waicool20.wai2k.util.removeChannels
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.opencv.core.Core
 import org.opencv.core.Mat
 import org.opencv.core.MatOfPoint2f
@@ -76,6 +78,9 @@ abstract class HomographyMapRunner(scriptComponent: ScriptComponent) : MapRunner
          * Minimum scroll in pixels, because sometimes smaller scrolls don't register properly
          */
         private const val minScroll = 75
+        
+        private var model: MatchingModel? = null
+        private val modelIsInitializing = Mutex()
     }
 
     final override val nodes: List<MapNode>
@@ -102,19 +107,35 @@ abstract class HomographyMapRunner(scriptComponent: ScriptComponent) : MapRunner
 
     init {
         val p = scope.async(Dispatchers.IO) {
-            val sppt = config.assetsDirectory.resolve("models/SuperPoint.pt")
-            val sgpt = config.assetsDirectory.resolve("models/SuperGlue.pt")
-            if (sppt.notExists()) throw MissingAssetException(sppt)
-            if (sgpt.notExists()) throw MissingAssetException(sgpt)
-            val model = MatchingModel(sppt, sgpt)
-            model.newPredictor(MatchingTranslator(480, 360)).apply {
-                setMetrics(metrics)
-                try {
-                    batchPredict(emptyList())
-                } catch (e: TranslateException) {
-                    // Expected, this preloads the model to device memory
+            if (model == null && !modelIsInitializing.isLocked) {
+                modelIsInitializing.withLock {
+                    val sppt = config.assetsDirectory.resolve("models/SuperPoint.pt")
+                    val sgpt = config.assetsDirectory.resolve("models/SuperGlue.pt")
+                    if (sppt.notExists()) throw MissingAssetException(sppt)
+                    if (sgpt.notExists()) throw MissingAssetException(sgpt)
+                    model = MatchingModel(sppt, sgpt)
+                    scope.launch(Dispatchers.IO) {
+                        // Run a few predictions on empty images while the rest of the script is still
+                        // doing other stuff, this will warm up the model and speed things up significantly
+                        // when we actually use it for work
+                        val begin = System.currentTimeMillis()
+                        val predictor = model!!.newPredictor(MatchingTranslator(480, 360))
+                        repeat(3) {
+                            val emptyImage = ImageFactory.getInstance().fromNDArray(
+                                NDManager.newBaseManager().ones(Shape(10, 10, 3))
+                            )
+                            try {
+                                predictor.predict(emptyImage to emptyImage)
+                            } catch (e: Exception) {
+                                // Ignore, this is expected
+                            }
+                        }
+                        logger.info("Homography model warm-up complete, took ${System.currentTimeMillis() - begin} ms")
+                    }
                 }
             }
+            model!!.newPredictor(MatchingTranslator(480, 360))
+                .apply { setMetrics(metrics) }
         }
         val n = scope.async(Dispatchers.IO) {
             val path = config.assetsDirectory.resolve("$PREFIX/map.json")
@@ -132,24 +153,6 @@ abstract class HomographyMapRunner(scriptComponent: ScriptComponent) : MapRunner
         predictor = runBlocking { p.await() }
         nodes = runBlocking { n.await() }
         fullMap = runBlocking { fm.await() }
-
-        scope.launch(Dispatchers.IO) {
-            // Run a few predictions on empty images while the rest of the script is still
-            // doing other stuff, this will warm up the model and speed things up significantly
-            // when we actually use it for work
-            val begin = System.currentTimeMillis()
-            repeat(3) {
-                val emptyImage = ImageFactory.getInstance().fromNDArray(
-                    NDManager.newBaseManager().ones(Shape(10, 10, 3))
-                )
-                try {
-                    predictor.predict(emptyImage to emptyImage)
-                } catch (e: Exception) {
-                    // Ignore, this is expected
-                }
-            }
-            logger.info("Homography model warm-up complete, took ${System.currentTimeMillis() - begin} ms")
-        }
     }
 
     /**
