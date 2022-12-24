@@ -21,6 +21,7 @@ package com.waicool20.wai2k.script
 
 import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.wai2k.config.Wai2kConfig
+import com.waicool20.wai2k.config.Wai2kPersist
 import com.waicool20.wai2k.config.Wai2kProfile
 import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.util.Ocr
@@ -34,6 +35,7 @@ interface ScriptComponent {
     val region: AndroidRegion
     val config: Wai2kConfig
     val profile: Wai2kProfile
+    val persist: Wai2kPersist
 
     val ocr get() = Ocr.forConfig(config)
     val locations get() = GameLocation.mappings(config)

@@ -20,6 +20,7 @@
 package com.waicool20.wai2k.events
 
 import com.waicool20.wai2k.config.Wai2kConfig
+import com.waicool20.wai2k.config.Wai2kPersist
 import com.waicool20.wai2k.config.Wai2kProfile
 import java.time.Instant
 
@@ -32,4 +33,7 @@ class ConfigUpdateEvent(val config: Wai2kConfig, instant: Instant = Instant.now(
     ApplicationEvent(instant)
 
 class ProfileUpdateEvent(val profile: Wai2kProfile, instant: Instant = Instant.now()) :
+    ApplicationEvent(instant)
+
+class PersistUpdateEvent(val persist: Wai2kPersist, instant: Instant = Instant.now()) :
     ApplicationEvent(instant)

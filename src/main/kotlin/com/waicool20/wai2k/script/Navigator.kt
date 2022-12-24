@@ -23,6 +23,7 @@ import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.android.ProcessManager
 import com.waicool20.wai2k.config.Wai2kConfig
+import com.waicool20.wai2k.config.Wai2kPersist
 import com.waicool20.wai2k.config.Wai2kProfile
 import com.waicool20.wai2k.events.EventBus
 import com.waicool20.wai2k.events.GameRestartEvent
@@ -48,7 +49,8 @@ class Navigator(
     override val scriptRunner: ScriptRunner,
     override val region: AndroidRegion,
     override val config: Wai2kConfig,
-    override val profile: Wai2kProfile
+    override val profile: Wai2kProfile,
+    override val persist: Wai2kPersist
 ) : ScriptComponent {
     private val logger = loggerFor<Navigator>()
     private val gameState get() = scriptRunner.gameState
@@ -138,7 +140,7 @@ class Navigator(
 
                 logger.info("Waiting for transition to ${destLoc.id}")
                 val ntdStart = System.currentTimeMillis()
-                // Re navigate if destination doesnt come up after timeout, make this a setting?
+                // Re navigate if destination doesn't come up after timeout, make this a setting?
                 val timeout = 20
                 val atDestination = withTimeoutOrNull(timeout * 1000L) {
                     while (isActive) {
@@ -197,7 +199,7 @@ class Navigator(
 
     /**
      * Automatically adjust the current average delay if we got some significant change
-     * We pass it through a smoothing function so it doesn't change too drastically
+     * We pass it through a smoothing function, so it doesn't change too drastically
      * in case the new value is actually just an edge case. This function heavily favors
      * decreasing over increasing the value so that the value doesn't rise quickly enough to
      * stop a restart

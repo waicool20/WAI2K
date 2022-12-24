@@ -31,11 +31,9 @@ import com.github.ajalt.clikt.parameters.types.path
 import com.waicool20.cvauto.android.ADB
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.config.Wai2kConfig
+import com.waicool20.wai2k.config.Wai2kPersist
 import com.waicool20.wai2k.config.Wai2kProfile
-import com.waicool20.wai2k.events.ConfigUpdateEvent
-import com.waicool20.wai2k.events.EventBus
-import com.waicool20.wai2k.events.ProfileUpdateEvent
-import com.waicool20.wai2k.events.StartupCompleteEvent
+import com.waicool20.wai2k.events.*
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.waicoolutils.CLib
 import com.waicool20.waicoolutils.logging.loggerFor
@@ -47,7 +45,10 @@ import kotlin.io.path.*
 fun main(args: Array<String>) = Wai2k.main(args)
 
 object Wai2k : CliktCommand(treatUnknownOptionsAsArgs = true) {
-    init { context { allowInterspersedArgs = false } }
+    init {
+        context { allowInterspersedArgs = false }
+    }
+
     private val logger = loggerFor<Wai2k>()
     private val CONFIG_DIR_NAME = "wai2k"
 
@@ -64,6 +65,7 @@ object Wai2k : CliktCommand(treatUnknownOptionsAsArgs = true) {
 
     private var _config: Wai2kConfig? = null
     private var _profile: Wai2kProfile? = null
+    private var _persist: Wai2kPersist? = null
 
     var config: Wai2kConfig
         get() = _config!!
@@ -77,6 +79,13 @@ object Wai2k : CliktCommand(treatUnknownOptionsAsArgs = true) {
         set(value) {
             EventBus.tryPublish(ProfileUpdateEvent(value))
             _profile = value
+        }
+
+    var persist: Wai2kPersist
+        get() = _persist!!
+        set(value) {
+            EventBus.tryPublish(PersistUpdateEvent(value))
+            _persist = value
         }
 
     lateinit var scriptRunner: ScriptRunner
@@ -121,7 +130,8 @@ object Wai2k : CliktCommand(treatUnknownOptionsAsArgs = true) {
         }
         FileTemplate.checkPaths.add(config.assetsDirectory)
         profile = Wai2kProfile.load(config.currentProfile)
-        scriptRunner = ScriptRunner(config, profile)
+        persist = Wai2kPersist.load()
+        scriptRunner = ScriptRunner(config, profile, persist)
     }
 
     private fun initDirectories() {

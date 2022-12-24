@@ -26,6 +26,7 @@ import com.waicool20.cvauto.android.AndroidDevice
 import com.waicool20.cvauto.core.Region
 import com.waicool20.wai2k.Wai2k
 import com.waicool20.wai2k.config.Wai2kConfig
+import com.waicool20.wai2k.config.Wai2kPersist
 import com.waicool20.wai2k.config.Wai2kProfile
 import com.waicool20.wai2k.events.*
 import com.waicool20.wai2k.game.GFL
@@ -55,7 +56,8 @@ import kotlin.system.exitProcess
 
 class ScriptRunner(
     var config: Wai2kConfig = Wai2kConfig(),
-    var profile: Wai2kProfile = Wai2kProfile()
+    var profile: Wai2kProfile = Wai2kProfile(),
+    var persist: Wai2kPersist = Wai2kPersist()
 ) {
     companion object {
         const val NORMAL_RES = 480
@@ -197,7 +199,7 @@ class ScriptRunner(
             logger.info("Reloading modules")
             modules.clear()
             GameLocation.mappings(_config, refresh = true)
-            navigator = Navigator(this, region, _config, _profile)
+            navigator = Navigator(this, region, _config, _profile, persist)
             modules.add(InitModule(navigator))
             Reflections("com.waicool20.wai2k.script.modules")
                 .getSubTypesOf(ScriptModule::class.java)
@@ -214,7 +216,6 @@ class ScriptRunner(
             modules.add(StopModule(navigator))
             modules.map { it::class.simpleName }
                 .forEach { logger.info("Loaded new instance of $it") }
-
         }
     }
 
