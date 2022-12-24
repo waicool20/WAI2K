@@ -159,6 +159,7 @@ gradle-app.setting
 /wai2k/
 
 .idea/modules.xml
+.idea/compiler.xml
 
 assets/models/
 
