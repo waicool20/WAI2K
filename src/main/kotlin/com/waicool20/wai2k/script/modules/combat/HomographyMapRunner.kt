@@ -25,6 +25,8 @@ import ai.djl.inference.Predictor
 import ai.djl.metric.Metrics
 import ai.djl.modality.cv.Image
 import ai.djl.modality.cv.ImageFactory
+import ai.djl.ndarray.NDManager
+import ai.djl.ndarray.types.Shape
 import ai.djl.translate.TranslateException
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -37,14 +39,12 @@ import com.waicool20.wai2k.util.ai.MatchingModel
 import com.waicool20.wai2k.util.ai.MatchingTranslator
 import com.waicool20.wai2k.util.removeChannels
 import com.waicool20.waicoolutils.logging.loggerFor
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import org.opencv.core.Core
 import org.opencv.core.Mat
 import org.opencv.core.MatOfPoint2f
 import org.opencv.core.Point
+import tornadofx.*
 import java.awt.Rectangle
 import kotlin.io.path.exists
 import kotlin.io.path.notExists
@@ -132,6 +132,24 @@ abstract class HomographyMapRunner(scriptComponent: ScriptComponent) : MapRunner
         predictor = runBlocking { p.await() }
         nodes = runBlocking { n.await() }
         fullMap = runBlocking { fm.await() }
+
+        scope.launch(Dispatchers.IO) {
+            // Run a few predictions on empty images while the rest of the script is still
+            // doing other stuff, this will warm up the model and speed things up significantly
+            // when we actually use it for work
+            val begin = System.currentTimeMillis()
+            repeat(3) {
+                val emptyImage = ImageFactory.getInstance().fromNDArray(
+                    NDManager.newBaseManager().ones(Shape(10, 10, 3))
+                )
+                try {
+                    predictor.predict(emptyImage to emptyImage)
+                } catch (e: Exception) {
+                    // Ignore, this is expected
+                }
+            }
+            logger.info("Homography model warm-up complete, took ${System.currentTimeMillis() - begin} ms")
+        }
     }
 
     /**
