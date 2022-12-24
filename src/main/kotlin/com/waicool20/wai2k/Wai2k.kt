@@ -103,10 +103,10 @@ object Wai2k : CliktCommand(treatUnknownOptionsAsArgs = true) {
         logger.info("Config directory: $CONFIG_DIR")
         initDirectories()
         initConfig()
+        initOpenCV() // Load this first or else it will hang
         initADB()
         initTesseract()
         initML()
-        initOpenCV()
         EventBus.tryPublish(StartupCompleteEvent())
         logger.info("\n${txtResource("/banner.txt")}\n\n\tWai2k application startup complete! Welcome back Commander ~\n")
     }
@@ -182,6 +182,7 @@ object Wai2k : CliktCommand(treatUnknownOptionsAsArgs = true) {
 
     private fun initOpenCV() {
         logger.info("Initializing OpenCV")
+        System.setProperty("org.bytedeco.javacpp.logger.debug", "true")
         Loader.load(opencv_java::class.java)
     }
 
