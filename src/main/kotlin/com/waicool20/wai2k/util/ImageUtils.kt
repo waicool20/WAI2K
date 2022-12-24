@@ -19,61 +19,14 @@
 
 package com.waicool20.wai2k.util
 
-import boofcv.alg.color.ColorLab
-import boofcv.struct.image.GrayF32
-import com.waicool20.cvauto.util.asHsv
-import com.waicool20.cvauto.util.asPlanar
-import com.waicool20.cvauto.util.hsvFilter
-import com.waicool20.cvauto.util.plus
+import org.opencv.core.CvType
+import org.opencv.core.Mat
+import org.opencv.imgproc.Imgproc
 import java.awt.Color
-import java.awt.image.BufferedImage
 import kotlin.math.*
 
 /**
- * Returns a masked image where nodes and path lines are located
- */
-fun BufferedImage.extractNodes(
-    includeBlue: Boolean = true,
-    includeWhite: Boolean = true,
-    includeYellow: Boolean = true
-): GrayF32 {
-    val hsv = asPlanar().asHsv()
-    val redNodes = hsv.clone()
-        .apply { hsvFilter(hueRange = arrayOf(0..10, 250..360), satRange = arrayOf(12..100)) }
-        .getBand(2)
-    var img = redNodes
-    if (includeBlue) {
-        val blueNodes =
-            hsv.clone().apply { hsvFilter(hueRange = 197..210, satRange = 12..100) }.getBand(2)
-        img += blueNodes
-    }
-    if (includeWhite) {
-        val whiteNodes =
-            hsv.clone().apply { hsvFilter(satRange = 0..1, valRange = 210..255) }.getBand(2)
-        img += whiteNodes
-    }
-    if (includeYellow) {
-        val yellowNodes =
-            hsv.clone().apply { hsvFilter(hueRange = 40..50, satRange = 12..100) }.getBand(2)
-        img += yellowNodes
-    }
-
-    return img.binarizeImage(0.75)
-}
-
-fun GrayF32.binarizeImage(threshold: Double = 0.4): GrayF32 {
-    for (y in 0 until height) {
-        var index = startIndex + y * stride
-        for (x in 0 until width) {
-            data[index] = if (data[index] >= 255 * threshold) 255f else 0f
-            index++
-        }
-    }
-    return this
-}
-
-/**
- * Compares colors using deltaE formula
+ * Compares colors using CIE2000 deltaE formula
  *
  * Rule of thumb:
  *   - 0: Same color
@@ -84,13 +37,17 @@ fun GrayF32.binarizeImage(threshold: Double = 0.4): GrayF32 {
  * @return true if difference is within maxDelta
  */
 fun Color.isSimilar(other: Color, maxDelta: Double = 3.0): Boolean {
-    val thisLAB = DoubleArray(3)
-    val otherLAB = DoubleArray(3)
-    ColorLab.rgbToLab(red, green, blue, thisLAB)
-    ColorLab.rgbToLab(other.red, other.green, other.blue, otherLAB)
+    val thisLAB = intArrayOf(red, green, blue)
+    val otherLAB = intArrayOf(other.red, other.green, other.blue)
+
+    ColorSpaceUtils.rgbToLab(thisLAB)
+    ColorSpaceUtils.rgbToLab(otherLAB)
+    ColorSpaceUtils.scaleRange(255, 100, thisLAB)
+    ColorSpaceUtils.scaleRange(255, 100, otherLAB)
+
     val deltaE = calculateDeltaE(
-        thisLAB[0], thisLAB[1], thisLAB[2],
-        otherLAB[0], otherLAB[1], otherLAB[2]
+        thisLAB[0].toDouble(), thisLAB[1].toDouble(), thisLAB[2].toDouble(),
+        otherLAB[0].toDouble(), otherLAB[1].toDouble(), otherLAB[2].toDouble()
     )
     return deltaE <= maxDelta
 }
@@ -147,4 +104,31 @@ private fun calculateDeltaE(
             deltaHprime / (KH * SH) * (deltaHprime / (KH * SH)) +
             RT * (deltaCprime / (KC * SC)) * (deltaHprime / (KH * SH))
     )
+}
+
+object ColorSpaceUtils {
+    fun rgbToHsv(color: IntArray) {
+        convert(color, Imgproc.COLOR_RGB2HSV)
+    }
+
+    fun rgbToLab(color: IntArray) {
+        convert(color, Imgproc.COLOR_RGB2Lab)
+    }
+
+    fun scaleRange(from: Int, to: Int, color: IntArray) {
+        for (i in color.indices) {
+            color[i] = (color[i] * (to / from.toDouble())).roundToInt()
+        }
+    }
+
+    private fun convert(color: IntArray, mode: Int) {
+        val mat = Mat(1, 1, CvType.CV_8UC3).apply {
+            put(0, 0, byteArrayOf(color[0].toByte(), color[1].toByte(), color[2].toByte()))
+        }
+        Imgproc.cvtColor(mat, mat, mode)
+        val out = mat[0, 0]
+        color[0] = out[0].toInt()
+        color[1] = out[1].toInt()
+        color[2] = out[2].toInt()
+    }
 }

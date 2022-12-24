@@ -38,6 +38,8 @@ import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.waicoolutils.CLib
 import com.waicool20.waicoolutils.logging.loggerFor
 import javafx.application.Application
+import org.bytedeco.javacpp.Loader
+import org.bytedeco.opencv.opencv_java
 import java.nio.file.Path
 import kotlin.concurrent.thread
 import kotlin.io.path.*
@@ -101,6 +103,7 @@ object Wai2k : CliktCommand(treatUnknownOptionsAsArgs = true) {
         logger.info("Config directory: $CONFIG_DIR")
         initDirectories()
         initConfig()
+        initOpenCV() // Load this first or else it will hang
         initADB()
         initTesseract()
         initML()
@@ -175,6 +178,12 @@ object Wai2k : CliktCommand(treatUnknownOptionsAsArgs = true) {
             Device.cpu()
         }
         Engine.getInstance().newModel("Loading", device).close()
+    }
+
+    private fun initOpenCV() {
+        logger.info("Initializing OpenCV")
+        System.setProperty("org.bytedeco.javacpp.logger.debug", "true")
+        Loader.load(opencv_java::class.java)
     }
 
     private fun txtResource(path: String): String? {

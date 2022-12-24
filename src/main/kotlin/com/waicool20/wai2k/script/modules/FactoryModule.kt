@@ -19,7 +19,6 @@
 
 package com.waicool20.wai2k.script.modules
 
-import boofcv.alg.color.ColorHsv
 import com.waicool20.cvauto.core.input.ITouchInterface
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.cvauto.core.template.ImageTemplate
@@ -30,6 +29,7 @@ import com.waicool20.wai2k.events.EventBus
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
+import com.waicool20.wai2k.util.ColorSpaceUtils
 import com.waicool20.wai2k.util.readText
 import com.waicool20.wai2k.util.useCharFilter
 import com.waicool20.waicoolutils.logging.loggerFor
@@ -68,7 +68,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
     }
 
     /**
-     * Keeps enhancing dolls until there are no more 2 star dolls
+     * Keeps enhancing dolls until there are no more 2-star dolls
      */
     private suspend fun enhanceDolls() {
         logger.info("Doll limit reached, will try to enhance")
@@ -99,7 +99,6 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
             logger.info("Selecting highest level T-doll for enhancement")
             // Randomly select a doll on the screen for enhancement
             while (coroutineContext.isActive) {
-                region.matcher.settings.matchDimension = ScriptRunner.HIGH_RES
                 val doll = // Map lock region to doll region
                     // Prioritize higher level dolls
                     region.findBest(FileTemplate("doll-list/lock.png"), 20)
@@ -108,20 +107,14 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
                         // Only select dolls that are available by checking the brightness of their lock
                         .filter {
                             val c = Color(it.capture().getRGB(18, 32))
-                            val hsv = FloatArray(3)
-                            ColorHsv.rgbToHsv(
-                                c.red.toFloat(),
-                                c.green.toFloat(),
-                                c.blue.toFloat(),
-                                hsv
-                            )
+                            val hsv = intArrayOf(c.red, c.green, c.blue)
+                            ColorSpaceUtils.rgbToHsv(hsv)
                             hsv[2] > 128
                         }
                         .also { logger.info("With ${it.size} available for enhancement") }
                         // Map lock region to doll region
                         .map { region.subRegion(it.x - 7, it.y, 244, it.height) }
                         .minByOrNull { it.y * 10 + it.x }
-                region.matcher.settings.matchDimension = ScriptRunner.NORMAL_RES
                 if (doll == null) {
                     if (region.findBest(FileTemplate("doll-list/logistics.png"), 20).size >= 12) {
                         logger.info("All dolls are unavailable, checking down the list")
@@ -226,7 +219,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
 
         logger.info("Disassembling 2 star T-dolls")
 
-        val sTemp = FileTemplate("factory/disassemble-select-tdoll.png", 0.98)
+        val sTemp = FileTemplate("factory/disassemble-select-tdoll.png", 0.95)
 
         while (coroutineContext.isActive) {
             logger.info("Start T-doll selection")
@@ -269,7 +262,6 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
         delay(750)
 
         while (coroutineContext.isActive) {
-            region.matcher.settings.matchDimension = ScriptRunner.HIGH_RES
             val dolls = region.findBest(FileTemplate("doll-list/3star.png"), 12)
                 .map { it.region }
                 .also { logger.info("Found ${it.size} that can be disassembled") }
@@ -282,7 +274,6 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
                     .also { logger.info("Found ${it.size} 4*s that can be disassembled") }
                     .map { region.subRegion(it.x - 106, it.y - 3, 247, 436) }
             }
-            region.matcher.settings.matchDimension = ScriptRunner.NORMAL_RES
             if (dolls.isEmpty()) {
                 // Click cancel if no t dolls could be used for disassembly
                 region.subRegion(120, 0, 205, 144).click()
@@ -347,7 +338,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
         logger.info("Disassembling 2 star equipment")
         logger.info("Start equipment selection")
 
-        val sTemp = FileTemplate("factory/disassemble-select-equip.png", 0.98)
+        val sTemp = FileTemplate("factory/disassemble-select-equip.png", 0.95)
 
         disassemblyWindow.waitHas(sTemp, 10000)?.click(); delay(750)
 
@@ -399,7 +390,6 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
         updateCount()
 
         while (coroutineContext.isActive) {
-            region.matcher.settings.matchDimension = ScriptRunner.HIGH_RES
             val equips = region.findBest(FileTemplate("factory/equip-3star.png"), 12)
                 .map { it.region }
                 .also { logger.info("Found ${it.size} 3*s that can be disassembled") }
@@ -412,7 +402,6 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
                     .also { logger.info("Found ${it.size} 4*s that can be disassembled") }
                     .map { region.subRegion(it.x - 106, it.y - 3, 247, 436) }
             }
-            region.matcher.settings.matchDimension = ScriptRunner.NORMAL_RES
             if (equips.isEmpty()) {
                 // Click cancel if no equips could be used for disassembly
                 region.subRegion(120, 0, 205, 144).click()

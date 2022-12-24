@@ -23,7 +23,7 @@ import java.nio.file.Paths
 import java.security.MessageDigest
 
 plugins {
-    kotlin("jvm") version "1.6.0"
+    kotlin("jvm") version "1.7.20"
     id("com.github.johnrengelman.shadow") version "latest.release"
     id("org.openjfx.javafxplugin") version "latest.release"
 }
@@ -114,7 +114,7 @@ tasks {
         doLast { md5sum(archiveFile.get()) }
     }
     withType<KotlinCompile>().configureEach {
-        kotlinOptions.freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
+        kotlinOptions.freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
     }
 }
 

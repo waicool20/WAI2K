@@ -21,6 +21,7 @@ package com.waicool20.wai2k.util.ai
 
 import ai.djl.modality.cv.Image
 import ai.djl.modality.cv.transform.Resize
+import ai.djl.ndarray.NDArray
 import ai.djl.ndarray.NDList
 import ai.djl.ndarray.index.NDIndex
 import ai.djl.ndarray.types.DataType
@@ -28,16 +29,15 @@ import ai.djl.translate.Batchifier
 import ai.djl.translate.Pipeline
 import ai.djl.translate.Translator
 import ai.djl.translate.TranslatorContext
-import boofcv.struct.geo.AssociatedPair
-import com.waicool20.cvauto.util.wrapper.Config
-import com.waicool20.cvauto.util.wrapper.KFactoryMultiViewRobust
-import georegression.struct.homography.Homography2D_F64
-import georegression.struct.point.Point2D_F64
+import org.opencv.calib3d.Calib3d
+import org.opencv.core.CvType
+import org.opencv.core.Mat
+import org.opencv.core.MatOfPoint2f
 
 class MatchingTranslator(
     private val resizeWidth: Int = 640,
     private val resizeHeight: Int = 480
-) : Translator<Pair<Image, Image>, Homography2D_F64> {
+) : Translator<Pair<Image, Image>, Mat> {
     class ModelMatchingFailedException : Exception()
 
     private var img0Width = -1
@@ -50,6 +50,7 @@ class MatchingTranslator(
         TransposeNormalizeTransform()
     )
 
+    val confidenceThreshold = 0.45
     override fun getBatchifier() = Batchifier.STACK
 
     override fun processInput(ctx: TranslatorContext, input: Pair<Image, Image>): NDList {
@@ -67,7 +68,7 @@ class MatchingTranslator(
         }
     }
 
-    override fun processOutput(ctx: TranslatorContext, list: NDList): Homography2D_F64 {
+    override fun processOutput(ctx: TranslatorContext, list: NDList): Mat {
         var kpts0 = list[0]
         val kpts1Temp = list[3]
         var matches = list[6]
@@ -97,38 +98,42 @@ class MatchingTranslator(
             else -> error("Matches is not integer array!")
         }
 
+        // Currently the values are between 0 and 1, in this format: [[x1, y1], [x2, y2] ...]
+        // So we multiply it by [resizeWidth, resizeHeight] to get the final coordinates
+        // eg. [[x1 * resizeWidth, y1 * resizeHeight], [x2 * resizeWidth, y2 * resizeHeight] ...]
         val scales0 = ctx.ndManager.create(
-            floatArrayOf(
-                img0Width.toFloat() / resizeWidth,
-                img0Height.toFloat() / resizeHeight
-            )
+            floatArrayOf(img0Width.toFloat() / resizeWidth, img0Height.toFloat() / resizeHeight)
         )
         val scales1 = ctx.ndManager.create(
-            floatArrayOf(
-                img1Width.toFloat() / resizeWidth,
-                img1Height.toFloat() / resizeHeight
-            )
+            floatArrayOf(img1Width.toFloat() / resizeWidth, img1Height.toFloat() / resizeHeight)
         )
 
         kpts0 = kpts0 * scales0
         kpts1 = kpts1 * scales1
 
-        val points1 = kpts0.toPoint2D().map { Point2D_F64(it.x, it.y) }
-        val points2 = kpts1.toPoint2D().map { Point2D_F64(it.x, it.y) }
-        val confArr = conf.toFloatArray()
+        // Filter out key points that don't meet the confidence threshold
+        val confMask = conf.gte(confidenceThreshold).repeat(2).reshape(kpts0.shape)
+        kpts0 = kpts0.booleanMask(confMask)
+        kpts1 = kpts1.booleanMask(confMask)
 
-        val pairs = mutableListOf<AssociatedPair>()
-        for (i in points1.indices) {
-            if (confArr[i] > 0.45) {
-                pairs.add(AssociatedPair(points1[i], points2[i], false))
-            }
-        }
+        // at least 4 points are required for homography to be calculated
+        if (kpts0.size() < 4 || kpts1.size() < 4) throw ModelMatchingFailedException()
 
-        val modelMatcher = KFactoryMultiViewRobust.homographyRansac(
-            Config.Ransac(60, 3.0)
+        // Do homography
+        val h = Calib3d.findHomography(
+            kpts0.kptsToMat(),
+            kpts1.kptsToMat(),
+            Calib3d.USAC_MAGSAC,
+            2.0 // This value isn't important for MAGSAC
         )
+        if (h.empty()) throw ModelMatchingFailedException()
+        return h
+    }
 
-        if (!modelMatcher.process(pairs)) throw ModelMatchingFailedException()
-        return modelMatcher.modelParameters.copy()
+    private fun NDArray.kptsToMat(): MatOfPoint2f {
+        val array = toFloatArray()
+        val mat = Mat(array.size / 2, 1, CvType.CV_32FC2)
+        mat.put(0, 0, array)
+        return MatOfPoint2f(mat)
     }
 }
