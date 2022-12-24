@@ -62,16 +62,16 @@ class GameState {
         simEnergy = 0
         simNextCheck = Instant.now()
         coalitionEnergy = 0
-        reportsNextCheck = Instant.now().plusSeconds(3600)
+        reportsNextCheck = Instant.now()
         delayCoefficient = 1.0
         dailyReset = nextReset()
     }
 
     fun resetAll() {
         reset()
-        echelons.forEach {
-            it.logisticsSupportAssignment = null
-            it.members.forEach { it.repairEta = null }
+        echelons.forEach { echelon ->
+            echelon.logisticsSupportAssignment = null
+            echelon.members.forEach { it.repairEta = null }
         }
     }
 

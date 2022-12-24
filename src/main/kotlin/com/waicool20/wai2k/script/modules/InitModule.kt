@@ -48,18 +48,18 @@ class InitModule(navigator: Navigator) : ScriptModule(navigator) {
         navigator.checkRequiresRestart()
         navigator.checkLogistics()
         checkReset()
-        if (gameState.requiresUpdate) {
-            updateGameState()
-            if (!config.scriptConfig.idleAtHome && profile.logistics.enabled && !profile.combat.enabled) {
-                // Workaround for GFL game freeze at home screen if there are dolls training,
-                // remove when MICA finally fixes this
-                listOf(LocationId.FORMATION, LocationId.COMBAT_MENU)
-                    .random()
-                    .let {
-                        logger.info("Idling @ $it")
-                        navigator.navigateTo(it)
-                    }
-            }
+
+        if (!gameState.requiresUpdate) return
+        updateGameState()
+        if (!config.scriptConfig.idleAtHome && profile.logistics.enabled && !profile.combat.enabled) {
+            // Workaround for GFL game freeze at home screen if there are dolls training,
+            // remove when MICA finally fixes this
+            listOf(LocationId.FORMATION, LocationId.COMBAT_MENU)
+                .random()
+                .let {
+                    logger.info("Idling @ $it")
+                    navigator.navigateTo(it)
+                }
         }
     }
 
