@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+@file:Suppress("LeakingThis")
+
 package com.waicool20.wai2k.script.modules.combat
 
 import ai.djl.inference.Predictor
@@ -27,28 +29,33 @@ import ai.djl.translate.TranslateException
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.waicool20.cvauto.android.AndroidRegion
-import com.waicool20.cvauto.util.transformRect
 import com.waicool20.wai2k.game.MapRunnerRegions
 import com.waicool20.wai2k.script.MissingAssetException
 import com.waicool20.wai2k.script.NodeNotFoundException
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.util.ai.MatchingModel
 import com.waicool20.wai2k.util.ai.MatchingTranslator
+import com.waicool20.wai2k.util.removeChannels
 import com.waicool20.waicoolutils.logging.loggerFor
-import georegression.struct.homography.Homography2D_F64
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import org.opencv.core.Core
+import org.opencv.core.Mat
+import org.opencv.core.MatOfPoint2f
+import org.opencv.core.Point
+import java.awt.Rectangle
 import kotlin.io.path.exists
 import kotlin.io.path.notExists
 import kotlin.math.pow
+import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 import kotlin.random.Random
 
 /**
  * HomographyMapRunner is a base abstract class that implements [nodes] and [findRegion]
- * by using an feature matching neural network model and homography calculation to locate clickable
+ * by using a feature matching neural network model and homography calculation to locate clickable
  * regions.
  *
  * To implement a HomographyMapRunner, both map.json and map.png must be present in the maps
@@ -66,7 +73,7 @@ abstract class HomographyMapRunner(scriptComponent: ScriptComponent) : MapRunner
 
     companion object {
         /**
-         * Minimum scroll in pixels, because sometimes smaller scrolls dont register properly
+         * Minimum scroll in pixels, because sometimes smaller scrolls don't register properly
          */
         private const val minScroll = 75
     }
@@ -81,12 +88,12 @@ abstract class HomographyMapRunner(scriptComponent: ScriptComponent) : MapRunner
     /**
      * Predictor that can be used to calculate homography between two images
      */
-    protected val predictor: Predictor<Pair<Image, Image>, Homography2D_F64>
+    protected val predictor: Predictor<Pair<Image, Image>, Mat>
 
     /**
      * Map homography cache
      */
-    protected var mapH: Homography2D_F64? = null
+    protected var mapH: Mat? = null
 
     /**
      * Image of the whole map
@@ -267,5 +274,21 @@ abstract class HomographyMapRunner(scriptComponent: ScriptComponent) : MapRunner
             return roi
         }
         throw NodeNotFoundException(this)
+    }
+
+    fun Mat.transformRect(rect: Rectangle): Rectangle {
+        val corners = MatOfPoint2f(
+            Point(rect.x.toDouble(), rect.y.toDouble()),
+            Point((rect.x + rect.width).toDouble(), (rect.y + rect.height).toDouble())
+        )
+        Core.perspectiveTransform(corners, corners, this)
+        removeChannels(2)
+        val pts = corners.toArray()
+        return Rectangle(
+            pts[0].x.roundToInt(),
+            pts[0].y.roundToInt(),
+            (pts[1].x - pts[0].x).roundToInt(),
+            (pts[1].y - pts[0].y).roundToInt()
+        )
     }
 }

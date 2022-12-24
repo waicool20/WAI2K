@@ -352,7 +352,7 @@ class DebugView : CoroutineScopeView() {
                     logger.warn("Could not find device!")
                     return@launch
                 }
-                val image = grabScreenshot()?.asGrayF32() ?: return@launch
+                val image = grabScreenshot() ?: return@launch
                 val matcher = device.screens[0].matcher
                 matcher.settings.matchDimension = ScriptRunner.HIGH_RES
                 // Set similarity to 0.6f to make cvauto report the similarity value down to 0.6

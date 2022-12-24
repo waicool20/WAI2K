@@ -38,6 +38,8 @@ import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.waicoolutils.CLib
 import com.waicool20.waicoolutils.logging.loggerFor
 import javafx.application.Application
+import org.bytedeco.javacpp.Loader
+import org.bytedeco.opencv.opencv_java
 import java.nio.file.Path
 import kotlin.concurrent.thread
 import kotlin.io.path.*
@@ -104,6 +106,7 @@ object Wai2k : CliktCommand(treatUnknownOptionsAsArgs = true) {
         initADB()
         initTesseract()
         initML()
+        initOpenCV()
         EventBus.tryPublish(StartupCompleteEvent())
         logger.info("\n${txtResource("/banner.txt")}\n\n\tWai2k application startup complete! Welcome back Commander ~\n")
     }
@@ -175,6 +178,11 @@ object Wai2k : CliktCommand(treatUnknownOptionsAsArgs = true) {
             Device.cpu()
         }
         Engine.getInstance().newModel("Loading", device).close()
+    }
+
+    private fun initOpenCV() {
+        logger.info("Initializing OpenCV")
+        Loader.load(opencv_java::class.java)
     }
 
     private fun txtResource(path: String): String? {

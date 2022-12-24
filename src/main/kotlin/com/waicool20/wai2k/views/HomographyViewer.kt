@@ -19,23 +19,19 @@
 
 package com.waicool20.wai2k.views
 
+import ai.djl.metric.Metrics
 import ai.djl.modality.cv.ImageFactory
 import ai.djl.translate.TranslateException
-import boofcv.alg.distort.PixelTransformHomography_F32
-import boofcv.alg.distort.impl.DistortSupport
-import boofcv.factory.interpolate.FactoryInterpolation
-import boofcv.io.image.ConvertBufferedImage
-import boofcv.struct.border.BorderType
-import boofcv.struct.image.GrayF32
 import com.waicool20.cvauto.core.AnyDevice
-import com.waicool20.cvauto.util.transformPoint
 import com.waicool20.wai2k.Wai2k
 import com.waicool20.wai2k.util.ai.MatchingModel
 import com.waicool20.wai2k.util.ai.MatchingTranslator
+import com.waicool20.wai2k.util.removeChannels
+import com.waicool20.wai2k.util.toBufferedImage
+import com.waicool20.wai2k.util.toMat
 import com.waicool20.waicoolutils.createCompatibleCopy
 import com.waicool20.waicoolutils.javafx.CoroutineScopeView
 import com.waicool20.waicoolutils.logging.loggerFor
-import georegression.struct.homography.Homography2D_F64
 import javafx.embed.swing.SwingFXUtils
 import javafx.scene.image.ImageView
 import javafx.scene.layout.VBox
@@ -43,9 +39,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import java.awt.BasicStroke
+import org.opencv.core.*
+import org.opencv.imgproc.Imgproc
 import java.awt.Color
-import java.awt.RenderingHints
 import java.awt.image.BufferedImage
 import java.io.File
 import java.nio.file.Path
@@ -81,7 +77,9 @@ class HomographyViewer(
                 Wai2k.config.assetsDirectory.resolve("models/SuperGlue.pt")
             )
             val translator = MatchingTranslator(480, 360)
+            val metrics = Metrics()
             val predictor = model.newPredictor(translator).apply {
+                setMetrics(metrics)
                 try {
                     batchPredict(emptyList())
                 } catch (e: TranslateException) {
@@ -92,7 +90,7 @@ class HomographyViewer(
 
             val baseImage = imf.fromImage(image)
 
-            while (isActive) {
+            while (coroutineContext.isActive) {
                 val screenshot = window.capture().let {
                     val copy = image.createCompatibleCopy(it.width, it.height)
                     copy.createGraphics().apply {
@@ -104,15 +102,20 @@ class HomographyViewer(
                     copy
                 }
                 try {
+                    logger.debug("HomographyViewer predict begin -----------")
                     val h = predictor.predict(baseImage to imf.fromImage(screenshot))
+                    logger.debug("Homography prediction metrics:")
+                    logger.debug("Preprocess: ${metrics.latestMetric("Preprocess").value.toLong() / 1000} ms")
+                    logger.debug("Inference: ${metrics.latestMetric("Inference").value.toLong() / 1000} ms")
+                    logger.debug("Postprocess: ${metrics.latestMetric("Postprocess").value.toLong() / 1000} ms")
+                    logger.debug("Total: ${metrics.latestMetric("Total").value.toLong() / 1000} ms")
                     imageView.image =
                         SwingFXUtils.toFXImage(renderStitching(image, screenshot, h), null)
                 } catch (e: Exception) {
                     delay(1000)
-                    logger.warn("Homography not found")
+                    logger.warn("Homography not found: ${e.message}")
                     continue
                 }
-
             }
         }
     }
@@ -120,54 +123,57 @@ class HomographyViewer(
     private fun renderStitching(
         imageA: BufferedImage,
         imageB: BufferedImage,
-        fromAtoB: Homography2D_F64
+        fromAtoB: Mat
     ): BufferedImage {
-        val scale = 0.5
-        val colorA = ConvertBufferedImage.convertFromPlanar(imageA, null, true, GrayF32::class.java)
-        val colorB = ConvertBufferedImage.convertFromPlanar(imageB, null, true, GrayF32::class.java)
+        val matA = imageA.toMat()
+        val matB = imageB.toMat()
 
-        val work = colorA.createSameShape()
+        val bg = Mat(matA.size(), matA.type())
+        val overlay = Mat(matA.size(), matA.type())
 
-        val fromAToWork = Homography2D_F64(
-            scale, 0.0, colorA.width / 4.0,
-            0.0, scale, colorA.height / 4.0,
-            0.0, 0.0, 1.0
-        )
-        val fromWorkToA = fromAToWork.invert(null)
-
-        val model = PixelTransformHomography_F32()
-        val interp = FactoryInterpolation.bilinearPixelS(GrayF32::class.java, BorderType.ZERO)
-        val distort =
-            DistortSupport.createDistortPL(GrayF32::class.java, model, interp, false).apply {
-                renderAll = false
-            }
-
-        model.set(fromWorkToA)
-        distort.apply(colorA, work)
-        val fromWorkToB = fromWorkToA.concat(fromAtoB, null)
-        model.set(fromWorkToB)
-        distort.apply(colorB, work)
-
-        val output = BufferedImage(work.width, work.height, imageA.type)
-        ConvertBufferedImage.convertTo(work, output, true)
-
-        val fromBtoWork = fromWorkToB.invert(null)
-        val corners = arrayOf(
-            fromBtoWork.transformPoint(0, 0),
-            fromBtoWork.transformPoint(colorB.width, 0),
-            fromBtoWork.transformPoint(colorB.width, colorB.height),
-            fromBtoWork.transformPoint(0, colorB.height)
-        )
-
-        output.createGraphics().apply {
-            color = Color.RED
-            stroke = BasicStroke(4f)
-            setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
-            drawLine(corners[0].x, corners[0].y, corners[1].x, corners[1].y)
-            drawLine(corners[1].x, corners[1].y, corners[2].x, corners[2].y)
-            drawLine(corners[2].x, corners[2].y, corners[3].x, corners[3].y)
-            drawLine(corners[3].x, corners[3].y, corners[0].x, corners[0].y)
+        val fromAtoWork = Mat(3, 3, CvType.CV_64FC1).apply {
+            put(
+                0, 0,
+                0.5, 0.0, matA.width() / 4.0,
+                0.0, 0.5, matA.height() / 4.0,
+                0.0, 0.0, 1.0
+            )
         }
-        return output
+
+        Imgproc.warpPerspective(matA, bg, fromAtoWork, bg.size())
+
+        val fromBtoWork = fromAtoWork.matMul(fromAtoB.inv())
+
+        Imgproc.warpPerspective(
+            matB,
+            overlay,
+            fromBtoWork,
+            overlay.size(),
+            Imgproc.INTER_LINEAR,
+            Core.BORDER_CONSTANT,
+            Scalar(255.0,  255.0, 255.0, 255.0)
+        )
+
+        val corners = MatOfPoint2f(
+            Point(0.0, 0.0),
+            Point(matB.width().toDouble(), 0.0),
+            Point(0.0, matB.height().toDouble()),
+            Point(matB.width().toDouble(), matB.height().toDouble())
+        )
+
+        Core.perspectiveTransform(corners, corners, fromBtoWork)
+        corners.removeChannels(2)
+
+        Core.bitwise_not(overlay, overlay)
+        Core.addWeighted(bg, 0.5, overlay, 0.5, 0.0, bg)
+
+        val cornersArr = corners.toArray()
+        val redScalar = Scalar(0.0, 0.0, 255.0)
+        Imgproc.line(bg, cornersArr[0], cornersArr[1], redScalar, 2)
+        Imgproc.line(bg, cornersArr[1], cornersArr[3], redScalar, 2)
+        Imgproc.line(bg, cornersArr[2], cornersArr[3], redScalar, 2)
+        Imgproc.line(bg, cornersArr[0], cornersArr[2], redScalar, 2)
+
+        return bg.toBufferedImage()
     }
 }

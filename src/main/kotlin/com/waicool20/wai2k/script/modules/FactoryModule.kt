@@ -19,7 +19,6 @@
 
 package com.waicool20.wai2k.script.modules
 
-import boofcv.alg.color.ColorHsv
 import com.waicool20.cvauto.core.input.ITouchInterface
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.cvauto.core.template.ImageTemplate
@@ -30,6 +29,7 @@ import com.waicool20.wai2k.events.EventBus
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptRunner
+import com.waicool20.wai2k.util.ColorSpaceUtils
 import com.waicool20.wai2k.util.readText
 import com.waicool20.wai2k.util.useCharFilter
 import com.waicool20.waicoolutils.logging.loggerFor
@@ -68,7 +68,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
     }
 
     /**
-     * Keeps enhancing dolls until there are no more 2 star dolls
+     * Keeps enhancing dolls until there are no more 2-star dolls
      */
     private suspend fun enhanceDolls() {
         logger.info("Doll limit reached, will try to enhance")
@@ -108,13 +108,8 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
                         // Only select dolls that are available by checking the brightness of their lock
                         .filter {
                             val c = Color(it.capture().getRGB(18, 32))
-                            val hsv = FloatArray(3)
-                            ColorHsv.rgbToHsv(
-                                c.red.toFloat(),
-                                c.green.toFloat(),
-                                c.blue.toFloat(),
-                                hsv
-                            )
+                            val hsv = intArrayOf(c.red, c.green, c.blue)
+                            ColorSpaceUtils.rgbToHsv(hsv)
                             hsv[2] > 128
                         }
                         .also { logger.info("With ${it.size} available for enhancement") }
