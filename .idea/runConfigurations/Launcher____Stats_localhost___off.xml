@@ -4,7 +4,7 @@
       <env name="WAI2K_ENDPOINT" value="http://localhost:8080" />
     </envs>
     <option name="MAIN_CLASS_NAME" value="com.waicool20.wai2k.launcher.Main" />
-    <module name="WAI2K-Launcher.main" />
+    <module name="launcher.main" />
     <shortenClasspath name="NONE" />
     <option name="VM_PARAMETERS" value="-Dsun.awt.disablegrab=true" />
     <method v="2">
