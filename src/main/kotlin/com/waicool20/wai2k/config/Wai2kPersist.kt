@@ -36,7 +36,7 @@ import kotlin.io.path.notExists
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Wai2kPersist(val data: JsonNode = mapper.createObjectNode()) {
+open class Wai2kPersist(val data: JsonNode = mapper.createObjectNode()) {
     companion object Loader {
         private val loaderLogger = loggerFor<Loader>()
         val mapper = jacksonObjectMapper()
@@ -70,22 +70,32 @@ class Wai2kPersist(val data: JsonNode = mapper.createObjectNode()) {
         }
     }
 
-    inner class Writer {
-        fun put(key: String, value: Any) {
-            check(data is ObjectNode)
-            val child = mapper.valueToTree<JsonNode>(value)
-            data.set<JsonNode>(key, child)
-        }
-    }
-
     inline fun <reified T> get(key: String): T? {
         val node = data.get(key) ?: return null
         return mapper.treeToValue(node)
     }
 
-    fun writer(writerAction: Writer.() -> Unit) {
-        val writer = Writer()
+    fun rw(writerAction: ReadWriteWai2kPersist.() -> Unit) {
+        val writer = ReadWriteWai2kPersist(this)
         writer.apply(writerAction)
         mapper.writerWithDefaultPrettyPrinter().writeValue(path.toFile(), data)
+    }
+}
+
+class ReadWriteWai2kPersist(persist: Wai2kPersist) : Wai2kPersist(persist.data) {
+    fun <T> put(key: String, value: T) {
+        check(data is ObjectNode)
+        val child = mapper.valueToTree<JsonNode>(value)
+        data.set<JsonNode>(key, child)
+    }
+
+    inline fun <reified T> getOrPut(key: String, initialValue: T): T {
+        val value = get<T>(key)
+        return if (value == null) {
+            put(key, initialValue)
+            initialValue
+        } else {
+            value
+        }
     }
 }
