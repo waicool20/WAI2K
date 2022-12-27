@@ -60,8 +60,8 @@ class CombatReportModule(navigator: Navigator) : ScriptModule(navigator) {
             return
         }
         logger.info("Making Kalina work overtime")
-        // Move a bit to the left, so it doesn't click the hard disk array
-        desk.copy(x = desk.x - 20).click()
+        // Make click region a bit more narrow, so it doesn't click the hard disk array
+        desk.copy(width = 30).click()
         delay(1000)
         // Click work button
         region.subRegion(1510, 568, 277, 86).click()
