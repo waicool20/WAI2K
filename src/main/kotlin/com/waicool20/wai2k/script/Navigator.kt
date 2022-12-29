@@ -32,6 +32,7 @@ import com.waicool20.wai2k.events.LogisticsSupportSentEvent
 import com.waicool20.wai2k.game.GFL
 import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.LocationId
+import com.waicool20.wai2k.util.readText
 import com.waicool20.waicoolutils.firstAsync
 import com.waicool20.waicoolutils.logging.loggerFor
 import kotlinx.coroutines.delay
@@ -246,10 +247,21 @@ class Navigator(
         ) return false
         var logisticsArrived = false
         while (coroutineContext.isActive) {
-            if (region.subRegion(1657, 945, 355, 128)
-                    .doesntHave(FileTemplate("navigator/logistics_repeat_all.png"))
-            ) break
-            logger.info("An echelon has arrived from logistics")
+            var atRepeat = false
+            when {
+                region.subRegion(1657, 945, 355, 128)
+                    .has(FileTemplate("navigator/logistics_repeat_all.png")) -> {
+                    logger.info("An echelon has arrived from logistics")
+                }
+                ocr.readText(region.subRegion(575, 410, 1000, 130))
+                    .contains("Repeat") -> {
+                    // Even if the logistics arrived didn't show up, it's possible
+                    // that it was clicked through by some other function
+                    logger.info("An echelon has arrived from logistics, but already at repeat dialog for some reason...")
+                    atRepeat = true
+                }
+                else -> break
+            }
             logisticsArrived = true
 
             // Continue based on receive mode
@@ -279,8 +291,11 @@ class Navigator(
             EventBus.publish(LogisticsSupportReceivedEvent(sessionId, elapsedTime))
 
             if (cont) {
-                // Send them all out
-                region.subRegion(1725, 984, 226, 58).click()
+                if (!atRepeat) {
+                    // Send all button
+                    region.subRegion(1725, 984, 226, 58).click()
+                    delay(500)
+                }
                 region.waitHas(FileTemplate("ok.png"), 10000)?.click()
                     ?: logger.warn("Was expecting to click ok, it did not appear!")
                 delay(2000)
