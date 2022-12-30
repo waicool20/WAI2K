@@ -254,7 +254,7 @@ class Navigator(
                     logger.info("An echelon has arrived from logistics")
                 }
                 ocr.readText(region.subRegion(575, 410, 1000, 130))
-                    .contains("Repeat") -> {
+                    .contains("Repeat", ignoreCase = true) -> {
                     // Even if the logistics arrived didn't show up, it's possible
                     // that it was clicked through by some other function
                     logger.info("An echelon has arrived from logistics, but already at repeat dialog for some reason...")
