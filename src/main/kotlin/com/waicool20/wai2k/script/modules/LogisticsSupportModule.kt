@@ -20,7 +20,7 @@
 package com.waicool20.wai2k.script.modules
 
 
-import com.waicool20.cvauto.core.template.FileTemplate
+import com.waicool20.cvauto.core.template.FT
 import com.waicool20.wai2k.events.EventBus
 import com.waicool20.wai2k.events.LogisticsSupportSentEvent
 import com.waicool20.wai2k.game.Echelon
@@ -112,21 +112,24 @@ class LogisticsSupportModule(navigator: Navigator) : ScriptModule(navigator) {
         delay(250)
 
         // Click the ok button of the popup if any of the resources broke the hard cap
-        // Use subregion so it doesnt click dispatch ok instead
-        region.subRegion(500, 90, 1155, 815).findBest(FileTemplate("ok.png"))
+        // Use subregion, so it doesn't click dispatch ok instead
+        region.subRegion(500, 90, 1155, 815).findBest(FT("ok.png"))
             ?.also { logger.info("One of the resources reached its limit!") }
             ?.region?.click()
 
-        region.waitHas(FileTemplate("logistics/formation.png"), 10000)
-        if (!echelon.clickEchelon(this, 162)) return
+        region.waitHas(FT("logistics/formation.png"), 10000)
+        if (!echelon.clickEchelon(this, 50)) {
+            region.findBest(FT("logistics/cancel-deploy.png"))?.region?.click()
+            return
+        }
         // Click ok button
         delay(300)
 
-        region.clickTemplateWhile(FileTemplate("ok.png")) { has(it) }
+        region.clickTemplateWhile(FT("ok.png")) { has(it) }
 
         // Wait for logistics mission icon to appear again
         region.subRegion(131, 306, 257, 118)
-            .waitHas(FileTemplate("logistics/logistics.png"), 7000)
+            .waitHas(FT("logistics/logistics.png"), 7000)
 
         // Check if mission is running
         if (missionRunning(missionIndex)) {
@@ -165,7 +168,7 @@ class LogisticsSupportModule(navigator: Navigator) : ScriptModule(navigator) {
      */
     private fun missionRunning(mission: Int): Boolean {
         val missionRegion = region.subRegion(704 + (333 * mission), 219, 306, 856)
-        return missionRegion.has(FileTemplate("logistics/retreat.png"))
+        return missionRegion.has(FT("logistics/retreat.png"))
     }
 
     /**
@@ -179,7 +182,7 @@ class LogisticsSupportModule(navigator: Navigator) : ScriptModule(navigator) {
         val missionRegion = region.subRegion(704 + (333 * mission), 219, 306, 856)
         // Need a separate check region because the ammo icon might not be covered by the resource limit popup
         val checkRegion = region.subRegion(704 + (333 * 1), 219, 306, 856)
-        missionRegion.clickWhile { checkRegion.has(FileTemplate("logistics/ammo.png")) }
+        missionRegion.clickWhile { checkRegion.has(FT("logistics/ammo.png")) }
     }
 
     /**

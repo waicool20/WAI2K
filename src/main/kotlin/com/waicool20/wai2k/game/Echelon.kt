@@ -52,7 +52,7 @@ data class Echelon(val number: Int) {
      */
     suspend fun clickEchelon(sc: ScriptComponent, xOffset: Int): Boolean = with(sc) {
         logger.debug("Clicking the echelon")
-        val eRegion = region.subRegion(xOffset, 40, 170, region.height - 140)
+        val eRegion = region.subRegion(xOffset, 40, 170, region.height - 40)
         delay(100)
 
         val start = System.currentTimeMillis()
