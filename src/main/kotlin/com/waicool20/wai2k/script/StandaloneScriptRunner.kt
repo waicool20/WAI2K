@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.waicool20.wai2k.scripting
+package com.waicool20.wai2k.script
 
 import com.waicool20.cvauto.android.ADB
 import com.waicool20.cvauto.android.AndroidRegion

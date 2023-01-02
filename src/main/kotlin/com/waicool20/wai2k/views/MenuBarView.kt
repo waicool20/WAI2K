@@ -23,7 +23,7 @@ import com.waicool20.cvauto.android.ADB
 import com.waicool20.wai2k.Wai2k
 import com.waicool20.wai2k.android.ProcessManager
 import com.waicool20.wai2k.game.GFL
-import com.waicool20.wai2k.scripting.StandaloneScriptRunner
+import com.waicool20.wai2k.script.StandaloneScriptRunner
 import com.waicool20.wai2k.util.loggerFor
 import com.waicool20.waicoolutils.DesktopUtils
 import com.waicool20.waicoolutils.javafx.CoroutineScopeView
