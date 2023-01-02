@@ -26,7 +26,6 @@ import com.github.ajalt.clikt.core.context
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.multiple
 import com.github.ajalt.clikt.parameters.options.option
-import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.path
 import com.waicool20.cvauto.android.ADB
 import com.waicool20.wai2k.config.Wai2kConfig
@@ -58,8 +57,6 @@ object Wai2k : CliktCommand(treatUnknownOptionsAsArgs = true) {
     var CONFIG_DIR = Path("").absolute().resolve(CONFIG_DIR_NAME)
         private set
 
-    val LOG_LEVEL: String? by option("--log-level", help = "Logging level")
-        .choice("INFO", "DEBUG")
     val ASSETS_DIR: Path? by option("--assets-dir", help = "Assets directory path")
         .path(canBeFile = false)
     private val EXTRA_ARGS by argument().multiple()

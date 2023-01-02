@@ -19,7 +19,7 @@
 
 <Configuration name="Config" status="ERROR" monitorInterval="5">
     <Appenders>
-        <Console name="Console" target="SYSTEM_OUT">
+        <Console name="Console" follow="true" target="SYSTEM_OUT">
             <PatternLayout
                     pattern="[WAI2K] [%date{yyyy-MM-dd HH:mm:ss.SSS}] [%20.20logger{1.}] %-5level - %msg%n"/>
         </Console>
