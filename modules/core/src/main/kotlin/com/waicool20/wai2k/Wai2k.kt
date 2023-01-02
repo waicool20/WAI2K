@@ -94,11 +94,8 @@ object Wai2k : CliktCommand(treatUnknownOptionsAsArgs = true) {
 
     override fun run() {
         thread(name = "Wai2k application loader", isDaemon = true) { initialize() }
-        logger.debug(WEB.toString())
         if (WEB == true) {
-            thread(name = "Wai2k web", isDaemon = false) {
-                io.ktor.server.netty.EngineMain.main(emptyArray())
-            }
+            io.ktor.server.netty.EngineMain.main(emptyArray())
         } else {
             Application.launch(Wai2kUI::class.java)
         }

@@ -22,9 +22,10 @@ package com.waicool20.wai2k.web
 import com.fasterxml.jackson.databind.*
 import com.fasterxml.jackson.databind.annotation.*
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.waicool20.cvauto.android.ADB
 import com.waicool20.wai2k.util.YuuBot
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.jackson.*
 import io.ktor.server.application.*
@@ -39,22 +40,27 @@ import java.util.concurrent.CountDownLatch
 
 data class CheckApiKeyRequest(val apiKey: String)
 data class CheckApiMessageRequest(val apiKey: String, val title: String, val message: String)
+
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class StatusResponse(val message: String)
+
 fun Application.module() {
+    install(CORS) {
+        allowMethod(HttpMethod.Options)
+        allowMethod(HttpMethod.Get)
+        allowMethod(HttpMethod.Put)
+        allowMethod(HttpMethod.Post)
+        allowMethod(HttpMethod.Delete)
+        allowHeader(HttpHeaders.Authorization)
+        allowHeader(HttpHeaders.ContentType)
+        allowCredentials = true
+        allowNonSimpleContentTypes = true
+        anyHost()
+    }
     install(ContentNegotiation) {
         jackson {
             registerModule(JavaTimeModule())
         }
-    }
-    install(CORS) {
-        anyHost()
-    }
-    install(WebSockets) {
-        val om = jacksonObjectMapper()
-        om.registerModule(JavaTimeModule())
-
-        contentConverter = JacksonWebsocketContentConverter(om)
     }
     routing {
         get("/") {
