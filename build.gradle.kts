@@ -52,6 +52,12 @@ dependencies {
 
     implementation(kotlin("stdlib-jdk8"))
     implementation(kotlin("reflect"))
+
+    // Kotlin scripting
+    implementation(kotlin("scripting-jvm", kotlin.coreLibrariesVersion))
+    implementation(kotlin("scripting-jvm-host", kotlin.coreLibrariesVersion))
+    implementation(kotlin("scripting-common", kotlin.coreLibrariesVersion))
+
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${versions.KotlinCoroutines}")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-javafx:${versions.KotlinCoroutines}")
     implementation("com.fasterxml.jackson.core:jackson-core:${versions.Jackson}")

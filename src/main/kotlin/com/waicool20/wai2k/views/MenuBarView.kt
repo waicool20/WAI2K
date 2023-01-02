@@ -23,14 +23,18 @@ import com.waicool20.cvauto.android.ADB
 import com.waicool20.wai2k.Wai2k
 import com.waicool20.wai2k.android.ProcessManager
 import com.waicool20.wai2k.game.GFL
+import com.waicool20.wai2k.scripting.StandaloneScriptRunner
 import com.waicool20.waicoolutils.DesktopUtils
 import com.waicool20.waicoolutils.javafx.CoroutineScopeView
 import javafx.scene.control.MenuBar
 import javafx.scene.control.MenuItem
 import javafx.stage.FileChooser
 import javafx.stage.StageStyle
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import tornadofx.*
+import kotlin.io.path.exists
 import kotlin.system.exitProcess
 
 class MenuBarView : CoroutineScopeView() {
@@ -46,10 +50,14 @@ class MenuBarView : CoroutineScopeView() {
     private val openFolderItem: MenuItem by fxid()
     private val openAssetsFolderItem: MenuItem by fxid()
     private val openAdbFolderItem: MenuItem by fxid()
+    private val runStandaloneScriptItem: MenuItem by fxid()
+    private val stopStandaloneScriptItem: MenuItem by fxid()
     private val logsItem: MenuItem by fxid()
     private val homographyItem: MenuItem by fxid()
     private val logcatItem: MenuItem by fxid()
     private val restartGameItem: MenuItem by fxid()
+
+    private var standaloneScriptJob: Job? = null
 
     override fun onDock() {
         super.onDock()
@@ -65,6 +73,8 @@ class MenuBarView : CoroutineScopeView() {
         contributeItem.setOnAction { DesktopUtils.browse("https://github.com/waicool20/WAI2K") }
         wikiItem.setOnAction { DesktopUtils.browse("https://github.com/waicool20/WAI2K/wiki") }
         donateItem.setOnAction { DesktopUtils.browse("https://ko-fi.com/waicool20") }
+        runStandaloneScriptItem.setOnAction { runStandaloneScript() }
+        stopStandaloneScriptItem.setOnAction { standaloneScriptJob?.cancel() }
         homographyItem.setOnAction {
             val device =
                 ADB.getDevice(Wai2k.config.lastDeviceSerial) ?: return@setOnAction
@@ -81,6 +91,21 @@ class MenuBarView : CoroutineScopeView() {
                     ADB.getDevice(Wai2k.config.lastDeviceSerial) ?: return@launch
                 ProcessManager(device).restart(GFL.PKG_NAME)
             }
+        }
+    }
+
+    fun runStandaloneScript() {
+        val dir = chooseDirectory(
+            title = "Select standalone script directory",
+            initialDirectory = Wai2k.CONFIG_DIR.toFile()
+        )?.toPath() ?: return
+        val mainKts = dir.resolve("main.wai2k.kts")
+        if (mainKts.exists()) {
+            launch(Dispatchers.IO) {
+                standaloneScriptJob = StandaloneScriptRunner.eval(mainKts)
+            }
+        } else {
+            error("Standalone script directory must contain a main.wai2k.kts file!")
         }
     }
 }

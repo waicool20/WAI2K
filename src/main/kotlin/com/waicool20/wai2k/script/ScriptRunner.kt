@@ -22,6 +22,7 @@ package com.waicool20.wai2k.script
 import com.waicool20.cvauto.android.ADB
 import com.waicool20.cvauto.android.AndroidDevice
 import com.waicool20.cvauto.core.Region
+import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.Wai2k
 import com.waicool20.wai2k.config.Wai2kConfig
 import com.waicool20.wai2k.config.Wai2kPersist
@@ -183,6 +184,8 @@ class ScriptRunner(
             _device?.input?.touchInterface?.settings?.postTapDelay =
                 (mouseDelay * 1000).roundToLong()
         }
+        FileTemplate.checkPaths.clear()
+        FileTemplate.checkPaths.add(_config.assetsDirectory)
 
         val region = _device?.screens?.firstOrNull() ?: throw InvalidDeviceException(_device)
         if (reloadModules) {

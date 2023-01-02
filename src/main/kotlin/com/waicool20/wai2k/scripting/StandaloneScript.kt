@@ -19,6 +19,9 @@
 
 package com.waicool20.wai2k.scripting
 
+import kotlin.script.experimental.annotations.KotlinScript
 
-class StandaloneScript {
-}
+@KotlinScript(
+    fileExtension = "wai2k.kts"
+)
+abstract class StandaloneScript

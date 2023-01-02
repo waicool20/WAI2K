@@ -29,14 +29,13 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.path
 import com.waicool20.cvauto.android.ADB
-import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.config.Wai2kConfig
 import com.waicool20.wai2k.config.Wai2kPersist
 import com.waicool20.wai2k.config.Wai2kProfile
 import com.waicool20.wai2k.events.*
 import com.waicool20.wai2k.script.ScriptRunner
-import com.waicool20.waicoolutils.CLib
 import com.waicool20.wai2k.util.loggerFor
+import com.waicool20.waicoolutils.CLib
 import javafx.application.Application
 import org.bytedeco.javacpp.Loader
 import org.bytedeco.opencv.opencv_java
@@ -117,7 +116,6 @@ object Wai2k : CliktCommand(treatUnknownOptionsAsArgs = true) {
             logger.info("Assets directory passed in through command line: $ASSETS_DIR")
             config.assetsDirectory = ASSETS_DIR
         }
-        FileTemplate.checkPaths.add(config.assetsDirectory)
         profile = Wai2kProfile.load(config.currentProfile)
         persist = Wai2kPersist.load()
         scriptRunner = ScriptRunner(config, profile, persist)
