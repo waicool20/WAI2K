@@ -24,6 +24,7 @@ import com.waicool20.wai2k.Wai2k
 import com.waicool20.wai2k.android.ProcessManager
 import com.waicool20.wai2k.game.GFL
 import com.waicool20.wai2k.scripting.StandaloneScriptRunner
+import com.waicool20.wai2k.util.loggerFor
 import com.waicool20.waicoolutils.DesktopUtils
 import com.waicool20.waicoolutils.javafx.CoroutineScopeView
 import javafx.scene.control.MenuBar
@@ -32,6 +33,7 @@ import javafx.stage.FileChooser
 import javafx.stage.StageStyle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import tornadofx.*
 import kotlin.io.path.exists
@@ -58,6 +60,10 @@ class MenuBarView : CoroutineScopeView() {
     private val restartGameItem: MenuItem by fxid()
 
     private var standaloneScriptJob: Job? = null
+
+    private val logger = loggerFor<MenuBarView>()
+
+    private var shownScriptWarning = false
 
     override fun onDock() {
         super.onDock()
@@ -95,6 +101,17 @@ class MenuBarView : CoroutineScopeView() {
     }
 
     fun runStandaloneScript() {
+        if (!shownScriptWarning) {
+            information(
+                header = "Disclaimer",
+                content = """
+                Running scripts from unknown sources can potentially be harmful to your computer!
+                Make sure the scripts you run are safe by looking at their source code!
+                No one but you is responsible for any mishaps!
+            """.trimIndent()
+            )
+            shownScriptWarning = true
+        }
         val dir = chooseDirectory(
             title = "Select standalone script directory",
             initialDirectory = Wai2k.CONFIG_DIR.toFile()
@@ -102,6 +119,10 @@ class MenuBarView : CoroutineScopeView() {
         val mainKts = dir.resolve("main.wai2k.kts")
         if (mainKts.exists()) {
             launch(Dispatchers.IO) {
+                standaloneScriptJob?.let {
+                    logger.info("Stopping previous script")
+                    it.cancelAndJoin()
+                }
                 standaloneScriptJob = StandaloneScriptRunner.eval(mainKts)
             }
         } else {
