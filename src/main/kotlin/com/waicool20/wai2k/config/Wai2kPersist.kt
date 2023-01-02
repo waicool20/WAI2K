@@ -28,7 +28,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.treeToValue
 import com.waicool20.wai2k.Wai2k
-import com.waicool20.waicoolutils.logging.loggerFor
+import com.waicool20.wai2k.util.loggerFor
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createFile

@@ -38,7 +38,7 @@ import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.util.ai.MatchingModel
 import com.waicool20.wai2k.util.ai.MatchingTranslator
 import com.waicool20.cvauto.util.removeChannels
-import com.waicool20.waicoolutils.logging.loggerFor
+import com.waicool20.wai2k.util.loggerFor
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock

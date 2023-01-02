@@ -28,7 +28,7 @@ import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.modules.combat.EmptyMapRunner
 import com.waicool20.wai2k.util.*
 import com.waicool20.waicoolutils.DurationUtils
-import com.waicool20.waicoolutils.logging.loggerFor
+import com.waicool20.wai2k.util.loggerFor
 import com.waicool20.waicoolutils.mapAsync
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay

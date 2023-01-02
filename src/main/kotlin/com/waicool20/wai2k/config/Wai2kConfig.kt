@@ -19,7 +19,6 @@
 
 package com.waicool20.wai2k.config
 
-import ch.qos.logback.classic.Level
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.JsonMappingException
@@ -31,8 +30,7 @@ import com.waicool20.cvauto.android.AndroidDevice
 import com.waicool20.wai2k.Wai2k
 import com.waicool20.waicoolutils.javafx.addListener
 import com.waicool20.waicoolutils.javafx.json.fxJacksonObjectMapper
-import com.waicool20.waicoolutils.logging.LoggerUtils
-import com.waicool20.waicoolutils.logging.loggerFor
+import com.waicool20.wai2k.util.loggerFor
 import tornadofx.*
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
@@ -46,7 +44,6 @@ class Wai2kConfig(
     assetsDirectory: Path = Wai2k.CONFIG_DIR.resolve("assets"),
     clearConsoleOnStart: Boolean = true,
     showConsoleOnStart: Boolean = true,
-    debugModeEnabled: Boolean = true,
     captureMethod: AndroidDevice.CaptureMethod = AndroidDevice.CaptureMethod.SCRCPY,
     captureCompressionMode: AndroidDevice.CompressionMode = AndroidDevice.CompressionMode.LZ4,
     lastDeviceSerial: String = "",
@@ -58,15 +55,12 @@ class Wai2kConfig(
 ) {
     private val logger = loggerFor<Wai2kConfig>()
 
-    @get:JsonIgnore val logLevel get() = if (debugModeEnabled) "DEBUG" else "INFO"
-
     //<editor-fold desc="Properties">
 
     val currentProfileProperty = currentProfile.toProperty()
     val assetsDirectoryProperty = assetsDirectory.toProperty()
     val clearConsoleOnStartProperty = clearConsoleOnStart.toProperty()
     val showConsoleOnStartProperty = showConsoleOnStart.toProperty()
-    val debugModeEnabledProperty = debugModeEnabled.toProperty()
     val captureMethodProperty = captureMethod.toProperty()
     val captureCompressionModeProperty = captureCompressionMode.toProperty()
     val lastDeviceSerialProperty = lastDeviceSerial.toProperty()
@@ -80,7 +74,6 @@ class Wai2kConfig(
     @get:JsonIgnore var assetsDirectory by assetsDirectoryProperty
     var clearConsoleOnStart by clearConsoleOnStartProperty
     var showConsoleOnStart by showConsoleOnStartProperty
-    var debugModeEnabled by debugModeEnabledProperty
     var captureMethod by captureMethodProperty
     var captureCompressionMode by captureCompressionModeProperty
     var lastDeviceSerial by lastDeviceSerialProperty
@@ -124,10 +117,6 @@ class Wai2kConfig(
     }
 
     init {
-        LoggerUtils.setLogLevel(Level.toLevel(logLevel))
-        debugModeEnabledProperty.addListener("LogLevel") { _ ->
-            LoggerUtils.setLogLevel(Level.toLevel(logLevel))
-        }
         captureMethodProperty.addListener("CMListener") { newVal ->
             ADB.getDevice(lastDeviceSerial)?.captureMethod = newVal
         }

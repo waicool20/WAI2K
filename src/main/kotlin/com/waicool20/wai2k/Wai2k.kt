@@ -36,7 +36,7 @@ import com.waicool20.wai2k.config.Wai2kProfile
 import com.waicool20.wai2k.events.*
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.waicoolutils.CLib
-import com.waicool20.waicoolutils.logging.loggerFor
+import com.waicool20.wai2k.util.loggerFor
 import javafx.application.Application
 import org.bytedeco.javacpp.Loader
 import org.bytedeco.opencv.opencv_java
@@ -113,20 +113,6 @@ object Wai2k : CliktCommand(treatUnknownOptionsAsArgs = true) {
 
     private fun initConfig() {
         config = Wai2kConfig.load()
-        config.debugModeEnabled = when {
-            LOG_LEVEL.equals("INFO", true) -> {
-                logger.info("Debug logging disabled by command line flag")
-                false
-            }
-            LOG_LEVEL.equals("DEBUG", true) -> {
-                logger.info("Debug logging enabled by command line flag")
-                false
-            }
-            else -> {
-                logger.info("No logging level in arguments, using config value: ${config.logLevel}")
-                config.debugModeEnabled
-            }
-        }
         if (ASSETS_DIR?.exists() == true) {
             logger.info("Assets directory passed in through command line: $ASSETS_DIR")
             config.assetsDirectory = ASSETS_DIR

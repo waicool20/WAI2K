@@ -28,7 +28,6 @@ import com.waicool20.cvauto.android.AndroidDevice
 import com.waicool20.cvauto.core.Region
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.Wai2k
-import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.ai.GFLObject
 import com.waicool20.wai2k.util.ai.ModelLoader
@@ -42,7 +41,7 @@ import com.waicool20.waicoolutils.javafx.addListener
 import com.waicool20.waicoolutils.javafx.tooltips.TooltipSide
 import com.waicool20.waicoolutils.javafx.tooltips.fadeAfter
 import com.waicool20.waicoolutils.javafx.tooltips.showAt
-import com.waicool20.waicoolutils.logging.loggerFor
+import com.waicool20.wai2k.util.loggerFor
 import javafx.embed.swing.SwingFXUtils
 import javafx.event.EventHandler
 import javafx.scene.Node

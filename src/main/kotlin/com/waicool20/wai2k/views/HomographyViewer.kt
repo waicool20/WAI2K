@@ -31,7 +31,7 @@ import com.waicool20.cvauto.util.toBufferedImage
 import com.waicool20.cvauto.util.toMat
 import com.waicool20.waicoolutils.createCompatibleCopy
 import com.waicool20.waicoolutils.javafx.CoroutineScopeView
-import com.waicool20.waicoolutils.logging.loggerFor
+import com.waicool20.wai2k.util.loggerFor
 import javafx.embed.swing.SwingFXUtils
 import javafx.scene.image.ImageView
 import javafx.scene.layout.VBox

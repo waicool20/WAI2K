@@ -27,7 +27,7 @@ import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.util.readText
 import com.waicool20.waicoolutils.filterAsync
-import com.waicool20.waicoolutils.logging.loggerFor
+import com.waicool20.wai2k.util.loggerFor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.yield

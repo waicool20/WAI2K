@@ -20,7 +20,6 @@
   -->
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.HBox?>
@@ -28,12 +27,6 @@
 
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1">
     <children>
-        <HBox alignment="CENTER" spacing="10.0">
-            <children>
-                <Label prefWidth="332.0" text="Enable debug mode logging:" />
-                <CheckBox fx:id="debugModeEnabledCheckBox" mnemonicParsing="false" />
-            </children>
-        </HBox>
       <HBox alignment="CENTER" spacing="10.0">
          <children>
             <Label prefWidth="200.0" text="Capture method:" wrapText="true" />

@@ -24,7 +24,7 @@ import com.waicool20.cvauto.android.AndroidDevice
 import com.waicool20.wai2k.events.DollDropEvent
 import com.waicool20.wai2k.events.EventBus
 import com.waicool20.wai2k.script.ScriptRunner
-import com.waicool20.waicoolutils.logging.loggerFor
+import com.waicool20.wai2k.util.loggerFor
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread

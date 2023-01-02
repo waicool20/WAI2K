@@ -40,7 +40,6 @@ class MiscPrefView : AbstractProfileView() {
 
     override fun createBindings() {
         Wai2k.config.apply {
-            debugModeEnabledCheckBox.bind(debugModeEnabledProperty)
             captureMethodComboBox.bind(captureMethodProperty)
             captureCompressionModeComboBox.bind(captureCompressionModeProperty)
         }

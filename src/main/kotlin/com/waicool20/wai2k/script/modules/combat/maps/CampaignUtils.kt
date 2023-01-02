@@ -21,7 +21,7 @@ package com.waicool20.wai2k.script.modules.combat.maps
 
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.script.ScriptComponent
-import com.waicool20.waicoolutils.logging.loggerFor
+import com.waicool20.wai2k.util.loggerFor
 import kotlinx.coroutines.delay
 
 object CampaignUtils {

@@ -25,7 +25,7 @@ import com.waicool20.wai2k.Wai2k
 import com.waicool20.wai2k.util.Binder
 import com.waicool20.waicoolutils.javafx.CoroutineScopeView
 import com.waicool20.waicoolutils.javafx.addListener
-import com.waicool20.waicoolutils.logging.loggerFor
+import com.waicool20.wai2k.util.loggerFor
 import javafx.embed.swing.SwingFXUtils
 import javafx.geometry.Pos
 import javafx.scene.control.Button

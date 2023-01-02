@@ -36,7 +36,7 @@ import com.waicool20.wai2k.util.isSimilar
 import com.waicool20.wai2k.util.readText
 import com.waicool20.waicoolutils.binarizeImage
 import com.waicool20.waicoolutils.countColor
-import com.waicool20.waicoolutils.logging.loggerFor
+import com.waicool20.wai2k.util.loggerFor
 import kotlinx.coroutines.*
 import java.awt.Color
 import java.awt.image.BufferedImage

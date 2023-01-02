@@ -21,10 +21,7 @@ package com.waicool20.wai2k.game
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.MapperFeature
-import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.kotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.waicool20.cvauto.core.AnyRegion
 import com.waicool20.cvauto.core.template.FileTemplate
@@ -32,7 +29,7 @@ import com.waicool20.wai2k.config.Wai2kConfig
 import com.waicool20.wai2k.script.Asset
 import com.waicool20.wai2k.script.InvalidLocationsJsonFileException
 import com.waicool20.wai2k.script.PathFindingException
-import com.waicool20.waicoolutils.logging.loggerFor
+import com.waicool20.wai2k.util.loggerFor
 import java.util.*
 
 /**

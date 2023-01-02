@@ -34,7 +34,7 @@ import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.util.readText
 import com.waicool20.waicoolutils.firstAsync
-import com.waicool20.waicoolutils.logging.loggerFor
+import com.waicool20.wai2k.util.loggerFor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withTimeoutOrNull

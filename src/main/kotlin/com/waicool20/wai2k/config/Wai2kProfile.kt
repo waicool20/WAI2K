@@ -31,7 +31,7 @@ import com.waicool20.wai2k.Wai2k
 import com.waicool20.wai2k.game.GFL
 import com.waicool20.waicoolutils.javafx.json.fxJacksonObjectMapper
 import com.waicool20.waicoolutils.javafx.toProperty
-import com.waicool20.waicoolutils.logging.loggerFor
+import com.waicool20.wai2k.util.loggerFor
 import javafx.beans.property.ListProperty
 import javafx.beans.property.SimpleListProperty
 import tornadofx.*

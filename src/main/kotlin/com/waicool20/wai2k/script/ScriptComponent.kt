@@ -25,10 +25,6 @@ import com.waicool20.wai2k.config.Wai2kPersist
 import com.waicool20.wai2k.config.Wai2kProfile
 import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.util.Ocr
-import com.waicool20.wai2k.util.YuuBot
-import com.waicool20.waicoolutils.logging.loggerFor
-import kotlinx.coroutines.Job
-import kotlin.system.exitProcess
 
 interface ScriptComponent {
     val scriptRunner: ScriptRunner

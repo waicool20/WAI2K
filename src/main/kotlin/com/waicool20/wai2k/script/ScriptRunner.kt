@@ -19,8 +19,6 @@
 
 package com.waicool20.wai2k.script
 
-import ch.qos.logback.classic.Level
-import ch.qos.logback.classic.Logger
 import com.waicool20.cvauto.android.ADB
 import com.waicool20.cvauto.android.AndroidDevice
 import com.waicool20.cvauto.core.Region
@@ -36,7 +34,7 @@ import com.waicool20.wai2k.script.modules.InitModule
 import com.waicool20.wai2k.script.modules.ScriptModule
 import com.waicool20.wai2k.script.modules.StopModule
 import com.waicool20.wai2k.util.YuuBot
-import com.waicool20.waicoolutils.logging.loggerFor
+import com.waicool20.wai2k.util.loggerFor
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import org.reflections.Reflections
@@ -90,8 +88,6 @@ class ScriptRunner(
     private lateinit var navigator: Navigator
 
     init {
-        // Turn off logging for reflections library
-        (loggerFor<Reflections>() as Logger).level = Level.OFF
         fixedRateTimer("ElapsedTimeTimer", true, 0, 1000) {
             if (state == State.RUNNING || state == State.PAUSING) {
                 elapsedTime += 1000

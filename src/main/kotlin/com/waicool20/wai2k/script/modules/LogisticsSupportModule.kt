@@ -28,7 +28,7 @@ import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.game.LogisticsSupport
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.util.formatted
-import com.waicool20.waicoolutils.logging.loggerFor
+import com.waicool20.wai2k.util.loggerFor
 import kotlinx.coroutines.delay
 import java.time.Instant
 

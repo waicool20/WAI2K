@@ -21,7 +21,6 @@ package com.waicool20.wai2k.util
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.waicool20.wai2k.events.*
-import com.waicool20.waicoolutils.logging.loggerFor
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody

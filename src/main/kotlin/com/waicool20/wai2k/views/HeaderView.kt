@@ -30,7 +30,7 @@ import com.waicool20.waicoolutils.javafx.addListener
 import com.waicool20.waicoolutils.javafx.tooltips.TooltipSide
 import com.waicool20.waicoolutils.javafx.tooltips.fadeAfter
 import com.waicool20.waicoolutils.javafx.tooltips.showAt
-import com.waicool20.waicoolutils.logging.loggerFor
+import com.waicool20.wai2k.util.loggerFor
 import javafx.scene.control.Button
 import javafx.scene.control.ComboBox
 import javafx.scene.control.SplitMenuButton
