@@ -22,8 +22,8 @@ package com.waicool20.wai2k.game
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.util.digitsOnly
-import com.waicool20.wai2k.util.readText
 import com.waicool20.wai2k.util.loggerFor
+import com.waicool20.wai2k.util.readText
 import com.waicool20.waicoolutils.mapAsync
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -59,7 +59,10 @@ data class Echelon(val number: Int) {
         while (coroutineContext.isActive) {
             val echelons = eRegion.findBest(FileTemplate("echelons/echelon.png"), 8)
                 .map { it.region }
-                .map { it.copy(it.x + it.width, it.y - 40, 70, 95) }
+                .mapNotNull { r ->
+                    r.copy(r.x + r.width, r.y - 40, 70, 95)
+                        .takeIf { it.y + it.height <= region.height }
+                }
                 .mapAsync {
                     val n = ocr.digitsOnly().readText(it, scale = 0.5)
                         .replace("18", "10").toIntOrNull() ?: return@mapAsync null
