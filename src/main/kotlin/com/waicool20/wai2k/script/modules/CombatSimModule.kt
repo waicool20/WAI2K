@@ -35,8 +35,8 @@ import com.waicool20.wai2k.script.ScriptTimeOutException
 import com.waicool20.wai2k.script.modules.combat.HomographyMapRunner
 import com.waicool20.wai2k.util.digitsOnly
 import com.waicool20.wai2k.util.isSimilar
-import com.waicool20.wai2k.util.readText
 import com.waicool20.wai2k.util.loggerFor
+import com.waicool20.wai2k.util.readText
 import kotlinx.coroutines.*
 import java.awt.Color
 import java.time.*
@@ -49,7 +49,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
     private val logger = loggerFor<CombatReportModule>()
     private val modeRegion = region.subRegion(394, 158, 200, 922)
 
-    private val mapRunner = NeuralCloudCorridor_Advanced(this@CombatSimModule)
+    private val mapRunner by lazy { NeuralCloudCorridor_Advanced(this@CombatSimModule) }
 
     inner class NeuralCloudCorridor_Advanced(scriptComponent: ScriptComponent) :
         HomographyMapRunner(scriptComponent) {
