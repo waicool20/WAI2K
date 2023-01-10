@@ -29,8 +29,8 @@
         "dest": "repair",
         "asset": {
           "x": 1204,
-          "y-": 645,
-          "y": 543,
+          "y": 645,
+          "y-": 543,
           "width": 109,
           "height": 162
         }
@@ -109,8 +109,8 @@
         "dest": "combat_menu",
         "asset": {
           "x": 1328,
-          "y-": 646,
-          "y": 544,
+          "y": 646,
+          "y-": 544,
           "width": 375,
           "height": 161
         }
@@ -119,8 +119,8 @@
         "dest": "formation",
         "asset": {
           "x": 1720,
-          "y-": 645,
-          "y": 543,
+          "y": 645,
+          "y-": 543,
           "width": 286,
           "height": 162
         }
@@ -129,8 +129,8 @@
         "dest": "factory_menu",
         "asset": {
           "x": 1730,
-          "y-": 470,
-          "y": 368,
+          "y": 470,
+          "y-": 368,
           "width": 273,
           "height": 143
         }
@@ -139,8 +139,8 @@
         "dest": "research_menu",
         "asset": {
           "x": 1371,
-          "y-": 470,
-          "y": 368,
+          "y": 470,
+          "y-": 368,
           "width": 354,
           "height": 144
         }
@@ -375,8 +375,8 @@
         "dest": "combat",
         "asset": {
           "x": 131,
-          "y-": 164,
-          "y": 296,
+          "y": 164,
+          "y-": 296,
           "width": 257,
           "height": 118
         }
@@ -385,8 +385,8 @@
         "dest": "logistics_support",
         "asset": {
           "x": 131,
-          "y-": 296,
-          "y": 428,
+          "y": 296,
+          "y-": 428,
           "width": 257,
           "height": 118
         }
@@ -395,8 +395,8 @@
         "dest": "combat_simulation",
         "asset": {
           "x": 131,
-          "y-": 428,
-          "y": 562,
+          "y": 428,
+          "y-": 562,
           "width": 257,
           "height": 118
         }
@@ -405,8 +405,8 @@
         "dest": "campaign",
         "asset": {
           "x": 131,
-          "y-": 562,
-          "y": 694,
+          "y": 562,
+          "y-": 694,
           "width": 257,
           "height": 118
         }
