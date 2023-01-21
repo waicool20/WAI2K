@@ -29,7 +29,7 @@ import java.nio.file.Paths
 import java.security.MessageDigest
 
 plugins {
-    kotlin("jvm") version "1.7.20"
+    kotlin("jvm") version "1.8.0"
     id("com.github.johnrengelman.shadow") version "latest.release"
 }
 
@@ -41,7 +41,7 @@ repositories {
 }
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8"))
+    implementation(kotlin("stdlib"))
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
 }
 
@@ -51,11 +51,11 @@ tasks {
         enabled = false
         manifest { attributes(mapOf("Main-Class" to "com.waicool20.wai2k.launcher.Main")) }
     }
-    compileJava {
-        targetCompatibility = JavaVersion.VERSION_1_8.toString()
+    java {
+        toolchain.languageVersion.set(JavaLanguageVersion.of(8))
     }
     withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = JavaVersion.VERSION_1_8.toString()
+        kotlinOptions.jvmTarget = "1.8"
     }
     withType<AbstractArchiveTask>().configureEach {
         isPreserveFileTimestamps = false

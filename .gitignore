@@ -160,6 +160,8 @@ gradle-app.setting
 
 .idea/modules.xml
 .idea/compiler.xml
+.idea/kotlinc.xml
+.idea/misc.xml
 
 assets/models/
 
