@@ -147,7 +147,6 @@
       },
       {
         "dest": "event",
-        "dest-": "unknown",
         "asset": {
           "imageName": "",
           "x": 1536,
@@ -667,8 +666,8 @@
       {
         "asset": {
           "imageName": "event",
-          "x": 94,
-          "y": 911,
+          "x": 111,
+          "y": 781,
           "width": 60,
           "height": 60
         }
