@@ -32,7 +32,7 @@ object FPUtils {
         logger.info("Navigating to chapter infinity")
         val assetPath = "combat/maps/EventFP-Common"
 
-        val arrowR = sc.region.subRegion(32, 421, 48, 80)
+        val arrowR = sc.region.subRegion(32, 421, 49, 80)
         val infR = sc.region.subRegion(317, 605, 60, 60)
 
         if (infR.doesntHave(FT("$assetPath/inf.png"))) {
