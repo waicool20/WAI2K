@@ -51,12 +51,28 @@ sealed class EventFP_Inf(scriptComponent: ScriptComponent) :
     override suspend fun enterMap() {
         FPUtils.enterInfinity(this)
 
+        logger.info("Zoom out")
+        region.pinch(
+            Random.nextInt(900, 1000),
+            Random.nextInt(300, 400),
+            15.0,
+            500
+        )
+
+        // Swipe up right
+        val r1 = region.subRegion(500, 900, 200, 120)
+        val r2 = r1.copy(x = r1.x + 200, y = r1.y - 200)
+        logger.info("Swipe up right")
+        r1.swipeTo(r2)
+
         // Click map entry
+        logger.info("Click map pin")
         mapEntryRegion.click()
 
         delay(500)
 
         // Confirm start
+        logger.info("Confirm start")
         region.subRegion(1832, 590, 232, 112).click()
     }
 
