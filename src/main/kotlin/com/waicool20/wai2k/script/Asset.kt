@@ -27,7 +27,7 @@ import java.awt.Rectangle
 /**
  * Represents and asset and its expected geometry
  *
- * @param imageName name of the image (without .png extension)
+ * @param path path to asset
  * @param x x coordinate of the asset
  * @param y y coordinate of the asset
  * @param width Width of the asset
@@ -35,23 +35,13 @@ import java.awt.Rectangle
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Asset(
-    val imageName: String = "",
+    val path: String = "",
     val x: Int = 0,
     val y: Int = 0,
     val width: Int = 0,
     val height: Int = 0,
     val threshold: Double = 0.94
 ) {
-    /**
-     * Path prefix
-     */
-    var prefix = ""
-
-    /**
-     * Image path constructed from [prefix] and [imageName] with .png extension
-     */
-    val imagePath get() = "$prefix$imageName.png"
-
     /**
      * Gets the region containing this asset
      *

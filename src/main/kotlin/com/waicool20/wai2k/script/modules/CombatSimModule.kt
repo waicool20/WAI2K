@@ -27,7 +27,7 @@ import com.waicool20.wai2k.events.CoalitionEnergySpentEvent
 import com.waicool20.wai2k.events.EventBus
 import com.waicool20.wai2k.events.SimEnergySpentEvent
 import com.waicool20.wai2k.game.Echelon
-import com.waicool20.wai2k.game.LocationId
+import com.waicool20.wai2k.game.location.LocationId
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.ScriptException

@@ -24,8 +24,8 @@ import com.waicool20.cvauto.core.template.FT
 import com.waicool20.wai2k.events.EventBus
 import com.waicool20.wai2k.events.LogisticsSupportSentEvent
 import com.waicool20.wai2k.game.Echelon
-import com.waicool20.wai2k.game.LocationId
 import com.waicool20.wai2k.game.LogisticsSupport
+import com.waicool20.wai2k.game.location.LocationId
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.util.formatted
 import com.waicool20.wai2k.util.loggerFor

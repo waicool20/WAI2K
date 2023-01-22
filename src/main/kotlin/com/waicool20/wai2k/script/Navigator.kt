@@ -30,11 +30,11 @@ import com.waicool20.wai2k.events.GameRestartEvent
 import com.waicool20.wai2k.events.LogisticsSupportReceivedEvent
 import com.waicool20.wai2k.events.LogisticsSupportSentEvent
 import com.waicool20.wai2k.game.GFL
-import com.waicool20.wai2k.game.GameLocation
-import com.waicool20.wai2k.game.LocationId
+import com.waicool20.wai2k.game.location.GameLocation
+import com.waicool20.wai2k.game.location.LocationId
+import com.waicool20.wai2k.util.loggerFor
 import com.waicool20.wai2k.util.readText
 import com.waicool20.waicoolutils.firstAsync
-import com.waicool20.wai2k.util.loggerFor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withTimeoutOrNull
@@ -405,7 +405,7 @@ class Navigator(
         gameState.signalRestart()
     }
 
-    private fun List<GameLocation.GameLocationLink>?.formatted(): String {
+    private fun List<GameLocation.PathNode>?.formatted(): String {
         return this?.joinToString("->") { "${it.dest.id}" } ?: ""
     }
 

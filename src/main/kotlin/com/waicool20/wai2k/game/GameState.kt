@@ -19,6 +19,8 @@
 
 package com.waicool20.wai2k.game
 
+import com.waicool20.wai2k.game.location.GameLocation
+import com.waicool20.wai2k.game.location.LocationId
 import java.time.*
 import java.time.temporal.ChronoUnit
 

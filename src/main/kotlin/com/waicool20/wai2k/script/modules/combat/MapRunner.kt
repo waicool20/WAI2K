@@ -26,12 +26,12 @@ import com.waicool20.wai2k.events.EventBus
 import com.waicool20.wai2k.events.RepairEvent
 import com.waicool20.wai2k.events.SortieDoneEvent
 import com.waicool20.wai2k.game.*
+import com.waicool20.wai2k.game.location.LocationId
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.ScriptTimeOutException
 import com.waicool20.wai2k.util.*
 import com.waicool20.waicoolutils.binarizeImage
 import com.waicool20.waicoolutils.countColor
-import com.waicool20.wai2k.util.loggerFor
 import com.waicool20.waicoolutils.mapAsync
 import kotlinx.coroutines.*
 import org.reflections.Reflections

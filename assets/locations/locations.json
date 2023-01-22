@@ -3,13 +3,11 @@
     "id": "home",
     "landmarks": [
       {
-        "asset": {
-          "imageName": "home",
-          "x": 104,
-          "y": 515,
-          "width": 57,
-          "height": 49
-        }
+        "path": "locations/landmarks/home.png",
+        "x": 104,
+        "y": 515,
+        "width": 57,
+        "height": 49
       }
     ],
     "links": [
@@ -60,22 +58,18 @@
     "matchingMode": "OR",
     "landmarks": [
       {
-        "asset": {
-          "imageName": "home_status",
-          "x": 104,
-          "y": 735,
-          "width": 40,
-          "height": 40
-        }
+        "path": "locations/landmarks/home_status.png",
+        "x": 104,
+        "y": 735,
+        "width": 40,
+        "height": 40
       },
       {
-        "asset": {
-          "imageName": "home_status",
-          "x": 104,
-          "y": 904,
-          "width": 40,
-          "height": 40
-        }
+        "path": "locations/landmarks/home_status.png",
+        "x": 104,
+        "y": 904,
+        "width": 40,
+        "height": 40
       }
     ],
     "links": [
@@ -148,7 +142,6 @@
       {
         "dest": "event",
         "asset": {
-          "imageName": "",
           "x": 1536,
           "y": 733,
           "width": 469,
@@ -161,13 +154,11 @@
     "id": "formation",
     "landmarks": [
       {
-        "asset": {
-          "imageName": "formation",
-          "x": 1783,
-          "y": 992,
-          "width": 60,
-          "height": 60
-        }
+        "path": "locations/landmarks/formation.png",
+        "x": 1783,
+        "y": 992,
+        "width": 60,
+        "height": 60
       }
     ],
     "links": [
@@ -186,13 +177,11 @@
     "id": "factory_menu",
     "landmarks": [
       {
-        "asset": {
-          "imageName": "factory_menu",
-          "x": 513,
-          "y": 53,
-          "width": 60,
-          "height": 60
-        }
+        "path": "locations/landmarks/factory_menu.png",
+        "x": 513,
+        "y": 53,
+        "width": 60,
+        "height": 60
       }
     ],
     "links": [
@@ -256,13 +245,11 @@
     "id": "tdoll_production",
     "landmarks": [
       {
-        "asset": {
-          "imageName": "tdoll_production",
-          "x": 445,
-          "y": 152,
-          "width": 60,
-          "height": 60
-        }
+        "path": "locations/landmarks/tdoll_production.png",
+        "x": 445,
+        "y": 152,
+        "width": 60,
+        "height": 60
       }
     ],
     "links": [
@@ -275,13 +262,11 @@
     "id": "dummy_link",
     "landmarks": [
       {
-        "asset": {
-          "imageName": "dummy_link",
-          "x": 764,
-          "y": 252,
-          "width": 60,
-          "height": 60
-        }
+        "path": "locations/landmarks/dummy_link.png",
+        "x": 764,
+        "y": 252,
+        "width": 60,
+        "height": 60
       }
     ],
     "links": [
@@ -294,13 +279,11 @@
     "id": "tdoll_enhancement",
     "landmarks": [
       {
-        "asset": {
-          "imageName": "tdoll_enhancement",
-          "x": 705,
-          "y": 964,
-          "width": 60,
-          "height": 60
-        }
+        "path": "locations/landmarks/tdoll_enhancement.png",
+        "x": 705,
+        "y": 964,
+        "width": 60,
+        "height": 60
       }
     ],
     "links": [
@@ -313,13 +296,11 @@
     "id": "tdoll_disassembly",
     "landmarks": [
       {
-        "asset": {
-          "imageName": "tdoll_disassembly",
-          "x": 474,
-          "y": 915,
-          "width": 60,
-          "height": 60
-        }
+        "path": "locations/landmarks/tdoll_disassembly.png",
+        "x": 474,
+        "y": 915,
+        "width": 60,
+        "height": 60
       }
     ],
     "links": [
@@ -332,13 +313,11 @@
     "id": "equipment_production",
     "landmarks": [
       {
-        "asset": {
-          "imageName": "equipment_production",
-          "x": 440,
-          "y": 150,
-          "width": 60,
-          "height": 60
-        }
+        "path": "locations/landmarks/equipment_production.png",
+        "x": 440,
+        "y": 150,
+        "width": 60,
+        "height": 60
       }
     ],
     "links": [
@@ -351,13 +330,11 @@
     "id": "combat_menu",
     "landmarks": [
       {
-        "asset": {
-          "imageName": "combat_menu",
-          "x": 524,
-          "y": 47,
-          "width": 60,
-          "height": 60
-        }
+        "path": "locations/landmarks/combat_menu.png",
+        "x": 524,
+        "y": 47,
+        "width": 60,
+        "height": 60
       }
     ],
     "links": [
@@ -416,13 +393,11 @@
     "id": "combat_settings",
     "landmarks": [
       {
-        "asset": {
-          "imageName": "combat_settings",
-          "x": 655,
-          "y": 132,
-          "width": 60,
-          "height": 60
-        }
+        "path": "locations/landmarks/combat_settings.png",
+        "x": 655,
+        "y": 132,
+        "width": 60,
+        "height": 60
       }
     ],
     "links": [
@@ -441,13 +416,11 @@
     "id": "combat",
     "landmarks": [
       {
-        "asset": {
-          "imageName": "combat",
-          "x": 1870,
-          "y": 165,
-          "width": 45,
-          "height": 45
-        }
+        "path": "locations/landmarks/combat.png",
+        "x": 1870,
+        "y": 165,
+        "width": 45,
+        "height": 45
       }
     ],
     "links": [
@@ -460,13 +433,11 @@
     "id": "logistics_support",
     "landmarks": [
       {
-        "asset": {
-          "imageName": "logistics_support",
-          "x": 1746,
-          "y": 147,
-          "width": 60,
-          "height": 60
-        }
+        "path": "locations/landmarks/logistics_support.png",
+        "x": 1746,
+        "y": 147,
+        "width": 60,
+        "height": 60
       }
     ],
     "links": [
@@ -480,22 +451,18 @@
     "matchingMode": "OR",
     "landmarks": [
       {
-        "asset": {
-          "imageName": "combat_simulation",
-          "x": 1947,
-          "y": 167,
-          "width": 60,
-          "height": 60
-        }
+        "path": "locations/landmarks/combat_simulation.png",
+        "x": 1947,
+        "y": 167,
+        "width": 60,
+        "height": 60
       },
       {
-        "asset": {
-          "imageName": "combat_simulation0",
-          "x": 1947,
-          "y": 167,
-          "width": 60,
-          "height": 60
-        }
+        "path": "locations/landmarks/combat_simulation0.png",
+        "x": 1947,
+        "y": 167,
+        "width": 60,
+        "height": 60
       }
     ],
     "links": [
@@ -509,24 +476,20 @@
     "matchingMode": "OR",
     "landmarks": [
       {
-        "asset": {
-          "imageName": "campaign",
-          "x": 1659,
-          "y": 165,
-          "width": 60,
-          "height": 60,
-          "threshold": 0.8
-        }
+        "path": "locations/landmarks/campaign.png",
+        "x": 1659,
+        "y": 165,
+        "width": 60,
+        "height": 60,
+        "threshold": 0.8
       },
       {
-        "asset": {
-          "imageName": "campaign0",
-          "x": 1659,
-          "y": 165,
-          "width": 60,
-          "height": 60,
-          "threshold": 0.8
-        }
+        "path": "locations/landmarks/campaign0.png",
+        "x": 1659,
+        "y": 165,
+        "width": 60,
+        "height": 60,
+        "threshold": 0.8
       }
     ],
     "links": [
@@ -539,13 +502,11 @@
     "id": "repair",
     "landmarks": [
       {
-        "asset": {
-          "imageName": "repair",
-          "x": 508,
-          "y": 62,
-          "width": 60,
-          "height": 60
-        }
+        "path": "locations/landmarks/repair.png",
+        "x": 508,
+        "y": 62,
+        "width": 60,
+        "height": 60
       }
     ],
     "links": [
@@ -564,13 +525,11 @@
     "id": "research_menu",
     "landmarks": [
       {
-        "asset": {
-          "imageName": "research_menu",
-          "x": 512,
-          "y": 38,
-          "width": 60,
-          "height": 60
-        }
+        "path": "locations/landmarks/research_menu.png",
+        "x": 512,
+        "y": 38,
+        "width": 60,
+        "height": 60
       }
     ],
     "links": [
@@ -589,13 +548,11 @@
     "id": "dormitories",
     "landmarks": [
       {
-        "asset": {
-          "imageName": "dormitories",
-          "x": 423,
-          "y": 30,
-          "width": 60,
-          "height": 60
-        }
+        "path": "locations/landmarks/dormitories.png",
+        "x": 423,
+        "y": 30,
+        "width": 60,
+        "height": 60
       }
     ],
     "links": [
@@ -614,13 +571,11 @@
     "id": "profile",
     "landmarks": [
       {
-        "asset": {
-          "imageName": "profile",
-          "x": 1846,
-          "y": 57,
-          "width": 60,
-          "height": 60
-        }
+        "path": "locations/landmarks/profile.png",
+        "x": 1846,
+        "y": 57,
+        "width": 60,
+        "height": 60
       }
     ],
     "links": [
@@ -639,13 +594,11 @@
     "id": "data_room",
     "landmarks": [
       {
-        "asset": {
-          "imageName": "data_room",
-          "x": 334,
-          "y": 76,
-          "width": 60,
-          "height": 60
-        }
+        "path": "locations/landmarks/data_room.png",
+        "x": 334,
+        "y": 76,
+        "width": 60,
+        "height": 60
       }
     ],
     "links": [
@@ -664,13 +617,11 @@
     "id": "event",
     "landmarks": [
       {
-        "asset": {
-          "imageName": "event",
-          "x": 111,
-          "y": 781,
-          "width": 60,
-          "height": 60
-        }
+        "path": "locations/landmarks/event.png",
+        "x": 111,
+        "y": 781,
+        "width": 60,
+        "height": 60
       }
     ],
     "links": [
@@ -690,31 +641,25 @@
     "matchingMode": "OR",
     "landmarks": [
       {
-        "asset": {
-          "imageName": "daily_login",
-          "x": 399,
-          "y": 9,
-          "width": 60,
-          "height": 60
-        }
+        "path": "locations/landmarks/daily_login.png",
+        "x": 399,
+        "y": 9,
+        "width": 60,
+        "height": 60
       },
       {
-        "asset": {
-          "imageName": "daily_login0",
-          "x": 399,
-          "y": 9,
-          "width": 60,
-          "height": 60
-        }
+        "path": "locations/landmarks/daily_login0.png",
+        "x": 399,
+        "y": 9,
+        "width": 60,
+        "height": 60
       },
       {
-        "asset": {
-          "imageName": "daily_login1",
-          "x": 399,
-          "y": 9,
-          "width": 60,
-          "height": 60
-        }
+        "path": "locations/landmarks/daily_login1.png",
+        "x": 399,
+        "y": 9,
+        "width": 60,
+        "height": 60
       }
     ],
     "links": [
@@ -733,14 +678,12 @@
     "id": "game_start",
     "landmarks": [
       {
-        "asset": {
-          "imageName": "game_start",
-          "x": 2000,
-          "y": 55,
-          "width": 60,
-          "height": 60,
-          "threshold": 0.8
-        }
+        "path": "locations/landmarks/game_start.png",
+        "x": 2000,
+        "y": 55,
+        "width": 60,
+        "height": 60,
+        "threshold": 0.8
       }
     ],
     "links": [

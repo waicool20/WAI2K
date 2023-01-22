@@ -17,14 +17,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.waicool20.wai2k.game
+package com.waicool20.wai2k.game.location
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.waicool20.cvauto.core.AnyRegion
-import com.waicool20.cvauto.core.template.FileTemplate
+import com.waicool20.cvauto.core.template.FT
 import com.waicool20.wai2k.config.Wai2kConfig
 import com.waicool20.wai2k.script.Asset
 import com.waicool20.wai2k.script.InvalidLocationsJsonFileException
@@ -35,52 +34,11 @@ import java.util.*
 /**
  * Represents a location in the game
  *
- * @param id Id of this location
- * can potentially be skipped to get to a destination when traversing a path.
+ * @param id ID of this location
  */
-data class GameLocation(
-    val id: LocationId,
-    val matchingMode: Mode = Mode.AND
-) {
+data class GameLocation(val id: LocationId) {
     enum class Mode {
         AND, OR
-    }
-
-    /**
-     * List of [Landmark] of this [GameLocation], if all landmarks are present on screen
-     * then the game location is on screen
-     */
-    val landmarks: List<Landmark> = emptyList()
-
-    /**
-     * List of available links to other destinations
-     */
-    val links: List<Link> = emptyList()
-
-    /**
-     * Represents a link to another game location
-     *
-     * @param dest Destination of this link
-     * @param asset The corresponding asset that should be clicked to get to [dest]
-     */
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    class Link(val dest: LocationId, asset: Asset = EMPTY_ASSET) {
-        companion object {
-            private val EMPTY_ASSET = Asset()
-        }
-
-        val skippable = asset == EMPTY_ASSET
-        val asset = asset.apply { prefix = "locations/links/" }
-        override fun toString() = "Link(dest=$dest)"
-    }
-
-    /**
-     * Represents a landmark and its corresponding asset
-     *
-     * @param asset Asset of this landmark
-     */
-    class Landmark(asset: Asset) {
-        val asset = asset.apply { prefix = "locations/landmarks/" }
     }
 
     companion object Loader {
@@ -114,6 +72,29 @@ data class GameLocation(
     }
 
     /**
+     * List of landmark [Asset] of this [GameLocation], a landmark asset is an important
+     * identifier on the screen that indicates whether we are at the current game location
+     */
+    val landmarks: List<Asset> = emptyList()
+
+    /**
+     * List of available links to other destinations
+     */
+    val links: List<Link> = emptyList()
+
+    /**
+     * Matching mode determines how landmarks are used to determine whether we are at the current
+     * game location.
+     *
+     * With [Mode.AND] (the default), all landmarks must be on screen before the
+     * game location is determined to be on screen.
+     *
+     * With [Mode.OR], any landmark can be on screen before the game location is determined to be
+     * on screen
+     */
+    val matchingMode: Mode = Mode.AND
+
+    /**
      * Function to check if a location is on screen
      *
      * @return True if location is on screen
@@ -122,12 +103,10 @@ data class GameLocation(
         if (landmarks.isEmpty()) return false
         return when (matchingMode) {
             Mode.AND -> landmarks.all {
-                it.asset.getSubRegionFor(region)
-                    .has(FileTemplate(it.asset.imagePath, it.asset.threshold))
+                it.getSubRegionFor(region).has(FT(it.path, it.threshold))
             }
             Mode.OR -> landmarks.any {
-                it.asset.getSubRegionFor(region)
-                    .has(FileTemplate(it.asset.imagePath, it.asset.threshold))
+                it.getSubRegionFor(region).has(FT(it.path, it.threshold))
             }
         }
     }
@@ -139,19 +118,19 @@ data class GameLocation(
      * @param dest Destination location
      * @param link Link needed to traverse from source to dest
      */
-    data class GameLocationLink(val source: GameLocation, val dest: GameLocation, val link: Link)
+    data class PathNode(val source: GameLocation, val dest: GameLocation, val link: Link)
 
     /**
      * Finds the shortest path to some destination
      *
      * @param dest Destination
-     * @return List of [GameLocationLink], null if no path solution is found
+     * @return List of [PathNode], null if no path solution is found
      */
-    fun shortestPathTo(dest: GameLocation): List<GameLocationLink> {
+    fun shortestPathTo(dest: GameLocation): List<PathNode> {
         if (this == dest) return emptyList()
 
         val visitedNodes = mutableSetOf<GameLocation>()
-        val paths = mutableMapOf<GameLocation, GameLocationLink>()
+        val paths = mutableMapOf<GameLocation, PathNode>()
         val queue = LinkedList<Pair<GameLocation, GameLocation?>>()
 
         queue.add(this to null)
@@ -166,13 +145,13 @@ data class GameLocation(
             // Add current node to path if a link exists
             parent?.links?.find { it.dest == currentNode.id }?.let {
                 if (!paths.containsKey(currentNode)) {
-                    paths[currentNode] = GameLocationLink(parent, currentNode, it)
+                    paths[currentNode] = PathNode(parent, currentNode, it)
                 }
             }
 
             visitedNodes.add(currentNode)
             if (currentNode == dest) {
-                val list = mutableListOf<GameLocationLink>()
+                val list = mutableListOf<PathNode>()
                 var loc = paths[currentNode]
                 while (loc != null) {
                     list.add(loc)

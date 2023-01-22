@@ -19,7 +19,7 @@
 
 package com.waicool20.wai2k.script.modules
 
-import com.waicool20.wai2k.game.LocationId
+import com.waicool20.wai2k.game.location.LocationId
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.util.formatted
 import com.waicool20.wai2k.util.loggerFor

@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.waicool20.wai2k.game
+package com.waicool20.wai2k.game.location
 
 enum class LocationId {
     HOME,

@@ -20,8 +20,8 @@
 package com.waicool20.wai2k.script
 
 import com.waicool20.cvauto.android.AndroidDevice
-import com.waicool20.wai2k.game.GameLocation
-import com.waicool20.wai2k.game.LocationId
+import com.waicool20.wai2k.game.location.GameLocation
+import com.waicool20.wai2k.game.location.LocationId
 import com.waicool20.wai2k.script.modules.combat.MapNode
 import java.nio.file.Path
 

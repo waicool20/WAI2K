@@ -23,12 +23,12 @@ import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.config.Wai2kProfile.CombatReport
 import com.waicool20.wai2k.events.CombatReportWriteEvent
 import com.waicool20.wai2k.events.EventBus
-import com.waicool20.wai2k.game.LocationId
+import com.waicool20.wai2k.game.location.LocationId
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.util.digitsOnly
 import com.waicool20.wai2k.util.formatted
-import com.waicool20.wai2k.util.readText
 import com.waicool20.wai2k.util.loggerFor
+import com.waicool20.wai2k.util.readText
 import kotlinx.coroutines.delay
 import java.time.Instant
 

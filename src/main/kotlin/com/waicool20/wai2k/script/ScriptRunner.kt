@@ -29,8 +29,8 @@ import com.waicool20.wai2k.config.Wai2kPersist
 import com.waicool20.wai2k.config.Wai2kProfile
 import com.waicool20.wai2k.events.*
 import com.waicool20.wai2k.game.GFL
-import com.waicool20.wai2k.game.GameLocation
 import com.waicool20.wai2k.game.GameState
+import com.waicool20.wai2k.game.location.GameLocation
 import com.waicool20.wai2k.script.modules.InitModule
 import com.waicool20.wai2k.script.modules.ScriptModule
 import com.waicool20.wai2k.script.modules.StopModule
