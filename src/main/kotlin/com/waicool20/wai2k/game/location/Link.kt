@@ -20,20 +20,71 @@
 package com.waicool20.wai2k.game.location
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.waicool20.cvauto.core.AnyRegion
+import com.waicool20.cvauto.core.template.FT
 import com.waicool20.wai2k.script.Asset
+import com.waicool20.wai2k.script.BadLinkException
+import com.waicool20.wai2k.util.loggerFor
+import kotlin.math.roundToInt
 
 /**
  * Represents a link to another game location
  *
  * @param dest Destination of this link
- * @param asset The corresponding asset that should be clicked to get to [dest]
+ * @param assets The corresponding asset that should be clicked to get to [dest]
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Link(val dest: LocationId, val asset: Asset = EMPTY_ASSET) {
-    companion object {
-        private val EMPTY_ASSET = Asset()
+class Link(
+    val dest: LocationId, val assets: List<AssetContainer> = emptyList()
+) {
+    private val logger = loggerFor<Link>()
+
+    class AssetContainer(val condition: String = "-", val asset: Asset)
+
+    val skippable = assets.isEmpty()
+
+    fun clickForRegion(region: AnyRegion) {
+        selectAsset(region).getSubRegionFor(region).apply {
+            // Shrink region slightly to 90% of defined size
+            grow((width * -0.1).roundToInt(), (height * -0.1).roundToInt())
+        }.click()
     }
 
-    val skippable = asset == EMPTY_ASSET
+    private fun selectAsset(region: AnyRegion): Asset {
+        if (assets.size == 1) return assets.first().asset
+
+        for ((i, ac) in assets.withIndex()) {
+            if (ac.condition == "-") {
+                logger.debug("Dynamically selected link asset index $i")
+                return ac.asset
+            }
+            val conditionTokens = ac.condition.split("|")
+
+            if (conditionTokens.size != 3) {
+                throw BadLinkException(this, "Conditions must contain 3 tokens")
+            }
+
+            val (mode, roi, content) = conditionTokens
+
+            val (x, y, width, height) = try {
+                roi.split(",").map { it.toInt() }
+            } catch (e: NumberFormatException) {
+                throw BadLinkException(this, "Condition ROI has some bad coordinates")
+            }
+
+            val isSelected = when (mode) {
+                "-" -> region.subRegion(x, y, width, height).has(FT(content))
+                "!" -> region.subRegion(x, y, width, height).doesntHave(FT(content))
+                else -> throw BadLinkException(this, "Condition mode must be - or !")
+            }
+
+            if (isSelected) {
+                logger.debug("Dynamically selected link asset index $i")
+                return ac.asset
+            }
+        }
+        throw BadLinkException(this, "Could not select asset")
+    }
+
     override fun toString() = "Link(dest=$dest)"
 }

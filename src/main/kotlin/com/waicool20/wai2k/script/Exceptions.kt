@@ -21,6 +21,7 @@ package com.waicool20.wai2k.script
 
 import com.waicool20.cvauto.android.AndroidDevice
 import com.waicool20.wai2k.game.location.GameLocation
+import com.waicool20.wai2k.game.location.Link
 import com.waicool20.wai2k.game.location.LocationId
 import com.waicool20.wai2k.script.modules.combat.MapNode
 import java.nio.file.Path
@@ -50,8 +51,8 @@ class RepairUpdateException : ScriptException("Failed to update repair status, b
 open class UnrecoverableScriptException(message: String? = null, cause: Throwable? = null) :
     Exception(message, cause)
 
-class InvalidDeviceException(device: AndroidDevice?)
-    : UnrecoverableScriptException("Invalid or empty device: ${device?.serial}")
+class InvalidDeviceException(device: AndroidDevice?) :
+    UnrecoverableScriptException("Invalid or empty device: ${device?.serial}")
 
 class UnsupportedMapException(mapName: String) : UnrecoverableScriptException(
     """
@@ -67,6 +68,9 @@ class MissingAssetException(path: Path) : UnrecoverableScriptException(
     Please check/re-download your assets and restart
     """.trimIndent()
 )
+
+class BadLinkException(link: Link, message: String) :
+    UnrecoverableScriptException("Malformed game location link $link: $message")
 
 class PathFindingException(from: GameLocation, to: GameLocation) :
     UnrecoverableScriptException("No path found from $from to $to")

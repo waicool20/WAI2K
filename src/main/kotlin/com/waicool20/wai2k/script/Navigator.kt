@@ -43,7 +43,6 @@ import java.time.Duration
 import java.time.Instant
 import java.util.*
 import kotlin.coroutines.coroutineContext
-import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 
 class Navigator(
@@ -126,10 +125,7 @@ class Navigator(
                     ?.average()?.roundToLong() ?: config.gameRestartConfig.averageDelay
                 for (cycle in 0..Integer.MAX_VALUE) {
                     if (cycle % 5 == 0) {
-                        link.asset.getSubRegionFor(region).apply {
-                            // Shrink region slightly to 90% of defined size
-                            grow((width * -0.1).roundToInt(), (height * -0.1).roundToInt())
-                        }.click()
+                        link.clickForRegion(region)
                         delay(avgTransitionDelay + config.scriptConfig.baseNavigationDelay)
                         ticks++
                     }
