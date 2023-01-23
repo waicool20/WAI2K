@@ -34,7 +34,7 @@
             "condition": "-|1462,255,50,50|locations/selectors/home.png",
             "asset": {
               "x": 1204,
-              "y": 645,
+              "y": 543,
               "width": 109,
               "height": 162
             }
@@ -42,7 +42,7 @@
           {
             "asset": {
               "x": 1204,
-              "y": 543,
+              "y": 645,
               "width": 109,
               "height": 162
             }
