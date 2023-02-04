@@ -41,6 +41,7 @@ class EventFP_1_Inf_PPQ(scriptComponent: ScriptComponent) : EventFP_1_Inf(script
 class EventFP_1_Inf_LS26(scriptComponent: ScriptComponent) : EventFP_1_Inf(scriptComponent)
 
 class EventFP_2_Inf_Sterling(scriptComponent: ScriptComponent) : EventFP_2_Inf(scriptComponent)
+class EventFP_2_Inf_SP9(scriptComponent: ScriptComponent) : EventFP_2_Inf(scriptComponent)
 
 sealed class EventFP_Inf(scriptComponent: ScriptComponent) :
     HomographyMapRunner(scriptComponent),
