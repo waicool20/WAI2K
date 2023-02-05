@@ -53,4 +53,30 @@ object FPUtils {
             delay(2000)
         }
     }
+
+    suspend fun enterRanking(sc: ScriptComponent) {
+        logger.info("Navigating to FP ranking")
+        val assetPath = "combat/maps/EventFP-Common"
+
+        val arrowR = sc.region.subRegion(32, 421, 49, 80)
+        val rankR = sc.region.subRegion(288, 605, 60, 60)
+
+        if (rankR.doesntHave(FT("$assetPath/rank.png"))) {
+            if (arrowR.has(FT("$assetPath/arrow.png"))) {
+                logger.info("Not at FP ranking, going back")
+                arrowR.click()
+                delay(1000)
+            }
+
+            // Swipe up
+            val r1 = sc.region.subRegion(900, 900, 500, 100)
+            val r2 = r1.copy(y = r1.y - 500)
+            r1.swipeTo(r2)
+
+            // Enter infinity
+            sc.region.subRegion(1406, 210, 220, 60).click()
+
+            delay(2000)
+        }
+    }
 }
