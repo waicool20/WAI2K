@@ -77,7 +77,7 @@ class EventFP_Ranking(scriptComponent: ScriptComponent) :
         deployEchelons(nodes[0])
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
-        delay(5000)
+        delay(8000)
         terminateMission()
     }
 }

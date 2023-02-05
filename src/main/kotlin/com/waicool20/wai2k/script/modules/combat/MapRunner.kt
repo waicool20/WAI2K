@@ -20,7 +20,7 @@
 package com.waicool20.wai2k.script.modules.combat
 
 import com.waicool20.cvauto.android.AndroidRegion
-import com.waicool20.cvauto.core.template.FileTemplate
+import com.waicool20.cvauto.core.template.FT
 import com.waicool20.cvauto.core.template.ITemplate
 import com.waicool20.wai2k.events.EventBus
 import com.waicool20.wai2k.events.RepairEvent
@@ -283,7 +283,7 @@ abstract class MapRunner(
                             logger.info("Repairing member ${m + 1}")
                             region.subRegion(360 + m * 272, 228, 246, 323).click()
                             region.subRegion(1441, 772, 250, 96)
-                                .waitHas(FileTemplate("ok.png"), 3000)?.click()
+                                .waitHas(FT("ok.png"), 3000)?.click()
                             EventBus.publish(
                                 RepairEvent(
                                     1,
@@ -385,7 +385,7 @@ abstract class MapRunner(
         node1.findRegion().click()
         delay(500)
         node2.findRegion().click()
-        region.waitHas(FileTemplate("combat/battle/switch.png", 0.95), 2000)?.click()
+        region.waitHas(FT("combat/battle/switch.png", 0.95), 2000)?.click()
         delay(3000)
     }
 
@@ -402,7 +402,7 @@ abstract class MapRunner(
         // Wait for the G&K splash to appear within 10 seconds
         while (coroutineContext.isActive) {
             delay(500)
-            if (mapRunnerRegions.endBattle.has(FileTemplate("combat/battle/end.png", 0.8))) {
+            if (mapRunnerRegions.endBattle.has(FT("combat/battle/end.png", 0.8))) {
                 logger.info("G&K splash screen appeared")
                 delay(2000)
                 break
@@ -443,7 +443,7 @@ abstract class MapRunner(
             if (wdt.hasExpired()) throw ScriptTimeOutException("Waiting for battles")
         }
         wdt.stop()
-        region.waitHas(FileTemplate("combat/battle/terminate.png"), 10000)
+        region.waitHas(FT("combat/battle/terminate.png"), 10000)
         logger.info("Turn ended")
         if (endTurn) endTurn()
     }
@@ -498,9 +498,9 @@ abstract class MapRunner(
         delay(1000)
         while (coroutineContext.isActive) {
             if (isInBattle()) clickThroughBattle()
-            if (region.has(FileTemplate("combat/battle/terminate.png"))) {
+            if (region.has(FT("combat/battle/terminate.png"))) {
                 delay(5000)
-                if (region.has(FileTemplate("combat/battle/terminate.png"))) break
+                if (region.has(FT("combat/battle/terminate.png"))) break
             }
             delay(500)
         }
@@ -541,7 +541,7 @@ abstract class MapRunner(
             delay(500)
         }
         logger.info("All assets are now on screen")
-        region.waitHas(FileTemplate("combat/battle/terminate.png"), 10000)
+        region.waitHas(FT("combat/battle/terminate.png"), 10000)
         if (endTurn) endTurn()
     }
 
@@ -583,11 +583,12 @@ abstract class MapRunner(
     }
 
     protected suspend fun terminateMission(incrementSorties: Boolean = true) {
-        region.subRegion(370, 0, 220, 150)
-            .waitHas(FileTemplate("combat/battle/terminate.png"), 10000)
-        mapRunnerRegions.terminateMenu.click(); delay(1000)
+        mapRunnerRegions.terminateMenu.clickWhile(period = 3000) {
+            region.subRegion(1165, 650, 280, 170)
+                .doesntHave(FT("combat/battle/terminate-confirm.png"))
+        }
         region.subRegion(1165, 650, 280, 170)
-            .waitHas(FileTemplate("combat/battle/terminate-confirm.png"), 10000)
+            .waitHas(FT("combat/battle/terminate-confirm.png"), 10000)
         mapRunnerRegions.terminate.click(); delay(5000)
 
         logger.info("Left battle screen")
@@ -603,11 +604,12 @@ abstract class MapRunner(
     }
 
     protected suspend fun restartMission(incrementSorties: Boolean = true) {
-        region.subRegion(370, 0, 220, 150)
-            .waitHas(FileTemplate("combat/battle/terminate.png"), 10000)
-        mapRunnerRegions.terminateMenu.click(); delay(1000)
+        mapRunnerRegions.terminateMenu.clickWhile(period = 3000) {
+            region.subRegion(715, 650, 280, 170)
+                .doesntHave(FT("combat/battle/restart-confirm.png"))
+        }
         region.subRegion(715, 650, 280, 170)
-            .waitHas(FileTemplate("combat/battle/restart-confirm.png"), 10000)
+            .waitHas(FT("combat/battle/restart-confirm.png"), 10000)
         mapRunnerRegions.restart.click(); delay(5000)
 
         logger.info("Restarted battle")
@@ -678,15 +680,15 @@ abstract class MapRunner(
                 break@loop
             }
             region.subRegion(l.x, l.y, 20, 20).click()
-            cancelR.findBest(FileTemplate("combat/battle/cancel.png"))?.region?.click()
+            cancelR.findBest(FT("combat/battle/cancel.png"))?.region?.click()
             ++counter
         }
-        cancelR.findBest(FileTemplate("combat/battle/cancel.png"))?.region?.click()
+        cancelR.findBest(FT("combat/battle/cancel.png"))?.region?.click()
         onFinishBattleListener()
     }
 
     private fun isInBattle() =
-        mapRunnerRegions.pauseButton.has(FileTemplate("combat/battle/pause.png", 0.9))
+        mapRunnerRegions.pauseButton.has(FT("combat/battle/pause.png", 0.9))
 
     protected suspend fun openEchelon(node: MapNode) {
         val r = node.findRegion()
@@ -694,7 +696,7 @@ abstract class MapRunner(
 
         try {
             r.clickWhile(period = 2500, timeout = 30000) {
-                sr.doesntHave(FileTemplate("cancel-deploy.png"))
+                sr.doesntHave(FT("cancel-deploy.png"))
             }
         } catch (e: TimeoutCancellationException) {
             throw ScriptTimeOutException("Opening echelon", e)
@@ -706,8 +708,8 @@ abstract class MapRunner(
     }
 
     private suspend fun endTurn() {
-        mapRunnerRegions.endBattle.clickWhile { has(FileTemplate("combat/battle/end.png", 0.8)) }
-        region.subRegion(1100, 675, 275, 130).waitHas(FileTemplate("ok.png"), 1000)?.click()
+        mapRunnerRegions.endBattle.clickWhile { has(FT("combat/battle/end.png", 0.8)) }
+        region.subRegion(1100, 675, 275, 130).waitHas(FT("ok.png"), 1000)?.click()
     }
 
     /**
