@@ -43,7 +43,7 @@ object FPUtils {
             }
 
             // Swipe up
-            val r1 = sc.region.subRegion(900, 900, 500, 100)
+            val r1 = sc.region.subRegion(1350, 900, 200, 100)
             val r2 = r1.copy(y = r1.y - 500)
             r1.swipeTo(r2)
 
@@ -69,7 +69,7 @@ object FPUtils {
             }
 
             // Swipe up
-            val r1 = sc.region.subRegion(900, 900, 500, 100)
+            val r1 = sc.region.subRegion(1350, 900, 200, 100)
             val r2 = r1.copy(y = r1.y - 500)
             r1.swipeTo(r2)
 

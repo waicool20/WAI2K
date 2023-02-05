@@ -584,10 +584,10 @@ abstract class MapRunner(
 
     protected suspend fun terminateMission(incrementSorties: Boolean = true) {
         region.subRegion(370, 0, 220, 150)
-            .waitHas(FileTemplate("combat/battle/terminate.png"), 5000)
+            .waitHas(FileTemplate("combat/battle/terminate.png"), 10000)
         mapRunnerRegions.terminateMenu.click(); delay(1000)
         region.subRegion(1165, 650, 280, 170)
-            .waitHas(FileTemplate("combat/battle/terminate-confirm.png"), 5000)
+            .waitHas(FileTemplate("combat/battle/terminate-confirm.png"), 10000)
         mapRunnerRegions.terminate.click(); delay(5000)
 
         logger.info("Left battle screen")
@@ -604,10 +604,10 @@ abstract class MapRunner(
 
     protected suspend fun restartMission(incrementSorties: Boolean = true) {
         region.subRegion(370, 0, 220, 150)
-            .waitHas(FileTemplate("combat/battle/terminate.png"), 5000)
+            .waitHas(FileTemplate("combat/battle/terminate.png"), 10000)
         mapRunnerRegions.terminateMenu.click(); delay(1000)
         region.subRegion(715, 650, 280, 170)
-            .waitHas(FileTemplate("combat/battle/restart-confirm.png"), 5000)
+            .waitHas(FileTemplate("combat/battle/restart-confirm.png"), 10000)
         mapRunnerRegions.restart.click(); delay(5000)
 
         logger.info("Restarted battle")

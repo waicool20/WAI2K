@@ -19,7 +19,6 @@
 
 package com.waicool20.wai2k.script.modules.combat.maps
 
-import com.waicool20.cvauto.core.AnyRegion
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.modules.combat.EventMapRunner
 import com.waicool20.wai2k.script.modules.combat.HomographyMapRunner
@@ -78,6 +77,7 @@ class EventFP_Ranking(scriptComponent: ScriptComponent) :
         deployEchelons(nodes[0])
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
+        delay(5000)
         terminateMission()
     }
 }
