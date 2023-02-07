@@ -20,6 +20,7 @@
 package com.waicool20.wai2k.script.modules.combat
 
 import com.waicool20.cvauto.core.input.ITouchInterface
+import com.waicool20.cvauto.core.template.FT
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.cvauto.core.template.ImageTemplate
 import com.waicool20.wai2k.events.EventBus
@@ -439,23 +440,23 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
         // button which will be slightly transparent
         var loops = 0
         logger.info("Entering normal battle at $map")
-        while (coroutineContext.isActive) {
-            if (loops++ == 5) return
-            region.subRegion(1445, 830, 345, 135)
-                .findBest(FileTemplate("combat/battle/normal.png"))?.region?.click() ?: continue
-            delay(1000)
 
-            if (checkNeedsEnhancement()) return
+        region.subRegion(1445, 830, 345, 135)
+            .waitHas(FT("combat/battle/normal.png", 0.85), 5000)?.click()
+            ?: throw ScriptException("Failed to enter normal battle, could not click normal battle button")
 
-            val r = region.subRegion(1712, 882, 448, 198)
-            // Wait for start operation button to appear first before handing off control to
-            // map specific files
-            if (r.waitHas(FileTemplate("combat/battle/start.png", 0.9), 30000) != null) {
-                logger.info("Entered map $map")
-                break
-            }
+        delay(1000)
+
+        if (checkNeedsEnhancement()) return
+
+        val r = region.subRegion(1712, 882, 448, 198)
+        // Wait for start operation button to appear first before handing off control to
+        // map specific files
+        if (r.waitHas(FT("combat/battle/start.png", 0.9), 30000) == null) {
+            throw ScriptException("Failed to enter normal battle, start operation button didn't appear after 30s")
         }
 
+        logger.info("Entered map $map")
         // Set location to battle
         gameState.currentGameLocation = GameLocation(LocationId.BATTLE)
     }
