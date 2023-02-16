@@ -374,7 +374,7 @@ class Navigator(
                 region.subRegion(630, 400, 900, 300).click()
                 delay(10000)
             }
-            checkLogistics()
+            checkLogistics(forceCheck = true)
             // Check for sign in or achievement popup
             if (region.subRegion(396, 244, 80, 80).has(FileTemplate("home-popup.png"))) {
                 logger.info("Detected popup, dismissing...")

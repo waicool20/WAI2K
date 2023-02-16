@@ -29,8 +29,12 @@ import com.waicool20.wai2k.game.location.LocationId
 import com.waicool20.wai2k.script.Navigator
 import com.waicool20.wai2k.util.formatted
 import com.waicool20.wai2k.util.loggerFor
+import com.waicool20.wai2k.util.readText
+import com.waicool20.wai2k.util.useCharFilter
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import java.time.Instant
+import kotlin.coroutines.coroutineContext
 
 class LogisticsSupportModule(navigator: Navigator) : ScriptModule(navigator) {
     private val logger = loggerFor<LogisticsSupportModule>()
@@ -59,6 +63,8 @@ class LogisticsSupportModule(navigator: Navigator) : ScriptModule(navigator) {
         // Return if no echelons to dispatch or logistic support 4/4 was reached
         if (queue.isEmpty()) return
         navigator.navigateTo(LocationId.LOGISTICS_SUPPORT)
+        delay(2000)
+        if (checkDispatched()) return
         queue.entries.shuffled().forEach { (echelon, ls) ->
             if (logisticSupportLimitReached()) {
                 logger.info("4 logistic support have been dispatched, ignoring further assignments")
@@ -75,6 +81,28 @@ class LogisticsSupportModule(navigator: Navigator) : ScriptModule(navigator) {
         }
     }
 
+    private suspend fun checkDispatched(): Boolean {
+        logger.info("Checking dispatched count")
+        while (coroutineContext.isActive) {
+            val n = ocr.useCharFilter("0123456789/")
+                .readText(region.subRegion(1860, 150, 85, 55), threshold = 0.5, invert = true)
+                .also { logger.debug("Dispatch count ocr: $it") }
+                .take(1)
+                .toIntOrNull() ?: continue
+            logger.info("$n echelons dispatched")
+            if (n >= 4) {
+                // If we get to this point, then the timer has expired, but we haven't
+                // re-dispatched the echelon
+                logger.info("Timer expired, but detected 4 dispatched echelons, going back home to check")
+                navigator.navigateTo(LocationId.HOME)
+                delay(2000)
+                gameState.requiresUpdate = true
+                return true
+            }
+            return false
+        }
+        return false
+    }
 
     /**
      * Tries to return to home and receive echelons if any logistic timers have expired
