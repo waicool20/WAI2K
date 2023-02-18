@@ -23,8 +23,9 @@ task<Zip>("packAssets") {
 
     from(projectDir)
     exclude("/build")
+    exclude("build.gradle.kts")
     exclude("/models/**")
-    doLast { Utils.md5sum(archiveFile.get()) }
+    into("assets")
 }
 
 task<Zip>("packModels") {
@@ -33,6 +34,7 @@ task<Zip>("packModels") {
 
     from(projectDir)
     exclude("/build")
+    exclude("build.gradle.kts")
     include("/models/**")
-    doLast { Utils.md5sum(archiveFile.get()) }
+    into("assets")
 }

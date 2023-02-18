@@ -117,7 +117,6 @@ tasks {
         destinationDirectory.set(file("$buildDir/artifacts/"))
         manifest { attributes(mapOf("Main-Class" to "com.waicool20.wai2k.Wai2kKt")) }
         dependencies { include { it.moduleGroup.startsWith("com.waicool20") } }
-        doLast { Utils.md5sum(archiveFile.get()) }
     }
     java {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -141,7 +140,6 @@ task<Zip>("packLibs") {
     destinationDirectory.set(file("$buildDir/artifacts/"))
     from("$buildDir/tmp/")
     include("/libs/**")
-    doLast { Utils.md5sum(archiveFile.get()) }
 }
 
 task("versioning") {

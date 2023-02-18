@@ -66,6 +66,5 @@ tasks {
         archiveVersion.set("")
         destinationDirectory.set(file("$buildDir/artifacts/"))
         exclude("kotlin/reflect/**")
-        doLast { Utils.md5sum(archiveFile.get()) }
     }
 }

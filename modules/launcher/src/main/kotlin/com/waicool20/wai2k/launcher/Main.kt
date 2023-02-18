@@ -93,7 +93,7 @@ object Main {
         } else null
     }
 
-    val mainFiles = listOf("WAI2K.jar", "assets.zip", "models.zip")
+    val mainFiles = listOf("WAI2K-Core.jar", "assets.zip", "models.zip")
 
     val label = JLabel().apply {
         text = "Launching WAI2K"
@@ -333,9 +333,9 @@ object Main {
             .sortedDescending()
 
         val classpath = if (System.getProperty("os.name").contains("win", true)) {
-            jars.joinToString(";", postfix = ";") + "$appPath\\WAI2K.jar"
+            jars.joinToString(";", postfix = ";") + "$appPath\\WAI2K-Core.jar"
         } else {
-            jars.joinToString(":", postfix = ":") + "$appPath/WAI2K.jar"
+            jars.joinToString(":", postfix = ":") + "$appPath/WAI2K-Core.jar"
         }
 
         println("Launching WAI2K")

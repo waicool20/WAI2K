@@ -18,13 +18,18 @@
  */
 
 import org.gradle.api.file.RegularFile
+import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.security.MessageDigest
 
 object Utils {
     fun md5sum(file: RegularFile) {
-        val path = file.asFile.toPath()
+        md5sum(file.asFile)
+    }
+
+    fun md5sum(file: File) {
+        val path = file.toPath()
         val md5File = Paths.get("$path.md5")
         val md5sum = MessageDigest.getInstance("MD5").digest(Files.readAllBytes(path))
             .joinToString("") { String.format("%02x", it) }
