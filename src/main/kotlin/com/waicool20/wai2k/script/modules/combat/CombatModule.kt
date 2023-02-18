@@ -438,7 +438,6 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
     private suspend fun enterBattle(map: CombatMap.StoryMap) {
         // Enter battle, use higher similarity threshold to exclude possibly disabled
         // button which will be slightly transparent
-        var loops = 0
         logger.info("Entering normal battle at $map")
 
         region.subRegion(1445, 830, 345, 135)
