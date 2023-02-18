@@ -93,7 +93,7 @@ dependencies {
     }
 
     implementation("com.waicool20:waicoolUtils")
-    implementation("com.waicool20:cvauto-android")
+    implementation("com.waicool20.cvauto:android")
 }
 
 tasks {
