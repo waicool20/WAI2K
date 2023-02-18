@@ -101,7 +101,7 @@ tasks {
         dependsOn("versioning")
     }
     build {
-        finalizedBy("shadowJar")
+        dependsOn("shadowJar")
     }
     withType<AbstractArchiveTask>().configureEach {
         isPreserveFileTimestamps = false
@@ -145,6 +145,8 @@ task<Zip>("packLibs") {
 }
 
 task("versioning") {
-    val file = Paths.get("$projectDir/src/main/resources/version.txt")
-    Files.write(file, project.version.toString().toByteArray())
+    doLast {
+        val file = Paths.get("$projectDir/src/main/resources/version.txt")
+        Files.write(file, project.version.toString().toByteArray())
+    }
 }

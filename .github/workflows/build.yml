@@ -66,7 +66,7 @@ jobs:
     - name: Upload Artifacts to S3
       run: |
         cd build/artifacts
-        ls | xargs -I{} sh -c 'echo Uploading {}; ../mc cp {} mys3/wai2k.waicool20.com/files/'
+        ls | xargs -I{} sh -c 'echo Uploading {}; ../../mc cp {} mys3/wai2k.waicool20.com/files/'
 
     - name: Purge Cloudflare Cache
       env:
@@ -79,4 +79,9 @@ jobs:
           -H "Content-Type: application/json" \
           --data-binary @- \
           "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE/purge_cache"
+    - name: Notify discord
+      uses: sarisia/actions-status-discord@v1
+      if: always()
+      with:
+        webhook: ${{ secrets.DISCORD_WEBHOOK }}
       

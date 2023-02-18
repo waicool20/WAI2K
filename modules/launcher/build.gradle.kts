@@ -41,7 +41,9 @@ dependencies {
 }
 
 tasks {
-    build { finalizedBy("shadowJar") }
+    build {
+        dependsOn("shadowJar")
+    }
     jar {
         enabled = false
         manifest { attributes(mapOf("Main-Class" to "com.waicool20.wai2k.launcher.Main")) }
