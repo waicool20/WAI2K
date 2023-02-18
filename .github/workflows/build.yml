@@ -1,0 +1,82 @@
+name: Build and Deploy WAI2K
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        submodules: recursive
+
+    - name: Set up JDK 11
+      uses: actions/setup-java@v3
+      with:
+        java-version: '11'
+        distribution: 'temurin'
+        
+    - name: Build with Gradle
+      uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
+      with:
+        arguments: prepareDeploy
+        
+    - name: Move artifacts
+      run: |
+        mkdir ./files
+        mv ./build/deploy/* ./build/libs/* ./launcher/build/libs/* ./files
+    
+    - name: Upload artifacts to GitHub
+      uses: actions/upload-artifact@v2
+      with:
+        name: files
+        path: ./files
+  
+  deploy:
+    runs-on: ubuntu-latest
+    environment: S3
+    needs: build
+    if: success() && github.ref == 'refs/heads/master'
+    steps:
+    - name: Download artifacts from GitHub
+      uses: actions/download-artifact@v2
+      with:
+        name: files
+        path: ./files
+
+    - name: Get MinIO client
+      run: | 
+        wget -O mc https://dl.min.io/client/mc/release/linux-amd64/archive/mc.RELEASE.2022-08-23T05-45-20Z
+        chmod +x mc
+
+    - name: Configure MinIO client
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      run: ./mc config host add mys3 https://s3.nl-ams.scw.cloud $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY
+
+    - name: Upload Artifacts to S3
+      run: |
+        cd ./files
+        ls | xargs -I{} sh -c 'echo Uploading {}; ../mc cp {} mys3/wai2k.waicool20.com/files/'
+
+    - name: Purge Cloudflare Cache
+      env:
+        CLOUDFLARE_ZONE: ${{ secrets.CLOUDFLARE_ZONE }}
+        CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN }}
+        PURGE_CACHE_JSON: ${{ vars.PURGE_CACHE_JSON }}
+      run: |
+        echo $PURGE_CACHE_JSON | curl -X POST \
+          -H "Authorization: Bearer $CLOUDFLARE_TOKEN" \
+          -H "Content-Type: application/json" \
+          --data-binary @- \
+          "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE/purge_cache"
+      
