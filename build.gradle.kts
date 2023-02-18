@@ -32,6 +32,11 @@ group = "com.waicool20"
 version = System.getenv("APPVEYOR_REPO_COMMIT")?.take(8) ?: "dev"
 defaultTasks = mutableListOf("build")
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
 javafx {
     version = "19"
     modules = listOf("javafx.controls", "javafx.fxml", "javafx.swing")
@@ -122,6 +127,7 @@ tasks {
     }
     withType<KotlinCompile>().configureEach {
         kotlinOptions.freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
+        compilerOptions.jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
     }
 }
 
