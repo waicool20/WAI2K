@@ -29,7 +29,8 @@ plugins {
 }
 
 group = "com.waicool20"
-version = System.getenv("APPVEYOR_REPO_COMMIT")?.take(8) ?: "dev"
+version =
+    System.getenv("GITHUB_SHA")?.take(8) ?: System.getenv("APPVEYOR_REPO_COMMIT")?.take(8) ?: "dev"
 defaultTasks = mutableListOf("build")
 
 java {
@@ -177,8 +178,7 @@ task<Zip>("packModels") {
 fun md5sum(file: RegularFile) {
     val path = file.asFile.toPath()
     val md5File = Paths.get("$path.md5")
-    val md5sum = MessageDigest.getInstance("MD5")
-        .digest(Files.readAllBytes(path))
+    val md5sum = MessageDigest.getInstance("MD5").digest(Files.readAllBytes(path))
         .joinToString("") { String.format("%02x", it) }
     Files.write(md5File, md5sum.toByteArray())
 }
