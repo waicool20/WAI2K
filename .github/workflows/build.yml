@@ -28,17 +28,17 @@ jobs:
       uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
       with:
         arguments: prepareDeploy
-        
+
     - name: Move artifacts
       run: |
-        mkdir ./files
-        mv ./build/deploy/* ./build/libs/* ./launcher/build/libs/* ./files
+        mkdir -p build/artifacts
+        mv modules/**/build/artifacts/** build/artifacts
     
     - name: Upload artifacts to GitHub
       uses: actions/upload-artifact@v2
       with:
-        name: files
-        path: ./files
+        name: artifacts
+        path: build/artifacts
   
   deploy:
     runs-on: ubuntu-latest
@@ -49,8 +49,8 @@ jobs:
     - name: Download artifacts from GitHub
       uses: actions/download-artifact@v2
       with:
-        name: files
-        path: ./files
+        name: artifacts
+        path: build/artifacts
 
     - name: Get MinIO client
       run: | 
@@ -65,7 +65,7 @@ jobs:
 
     - name: Upload Artifacts to S3
       run: |
-        cd ./files
+        cd build/artifacts
         ls | xargs -I{} sh -c 'echo Uploading {}; ../mc cp {} mys3/wai2k.waicool20.com/files/'
 
     - name: Purge Cloudflare Cache

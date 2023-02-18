@@ -23,22 +23,17 @@
  */
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.gradle.configurationcache.extensions.capitalized
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.security.MessageDigest
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    kotlin("jvm") version "1.8.0"
     id("com.github.johnrengelman.shadow") version "latest.release"
 }
 
-group = "com.waicool20"
-version = "0.0.1"
+val artifactsDir: File by rootProject.extra
 
-repositories {
-    mavenCentral()
-}
+version = "0.0.1"
 
 dependencies {
     implementation(kotlin("stdlib"))
@@ -52,10 +47,11 @@ tasks {
         manifest { attributes(mapOf("Main-Class" to "com.waicool20.wai2k.launcher.Main")) }
     }
     java {
-        toolchain.languageVersion.set(JavaLanguageVersion.of(8))
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
-    withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = "1.8"
+    withType<KotlinCompile>().configureEach {
+        compilerOptions.jvmTarget.set(JvmTarget.JVM_11)
     }
     withType<AbstractArchiveTask>().configureEach {
         isPreserveFileTimestamps = false
@@ -63,18 +59,11 @@ tasks {
     }
     withType<ShadowJar> {
         minimize()
-        archiveClassifier.value("")
-        archiveVersion.value("")
+        archiveFileName.set("${rootProject.name}-${project.name.capitalized()}.jar")
+        archiveClassifier.set("")
+        archiveVersion.set("")
+        destinationDirectory.set(file("$buildDir/artifacts/"))
         exclude("kotlin/reflect/**")
-        doLast { md5sum(archiveFile.get()) }
+        doLast { Utils.md5sum(archiveFile.get()) }
     }
-}
-
-fun md5sum(file: RegularFile) {
-    val path = file.asFile.toPath()
-    val md5File = Paths.get("$path.md5")
-    val md5sum = MessageDigest.getInstance("MD5")
-        .digest(Files.readAllBytes(path))
-        .joinToString("") { String.format("%02x", it) }
-    Files.write(md5File, md5sum.toByteArray())
 }

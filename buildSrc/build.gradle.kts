@@ -17,11 +17,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-rootProject.name = "WAI2K"
+plugins {
+    `kotlin-dsl`
+}
 
-includeBuild("deps/waicoolUtils")
-includeBuild("deps/CVAuto")
-
-for (module in arrayOf("core", "assets", "launcher")) {
-    include(":modules:$module")
+repositories {
+    mavenCentral()
 }

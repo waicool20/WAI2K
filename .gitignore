@@ -139,7 +139,7 @@ hs_err_pid*
 
 ### Gradle ###
 .gradle
-/build/
+build/
 
 # Ignore Gradle GUI config
 gradle-app.setting
@@ -163,9 +163,9 @@ gradle-app.setting
 .idea/kotlinc.xml
 .idea/misc.xml
 
-assets/models/
+modules/assets/models/
 
-src/main/resources/version.txt
+modules/core/src/main/resources/version.txt
 
 **/bin/
 

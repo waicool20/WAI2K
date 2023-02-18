@@ -1,6 +1,6 @@
 [submodule "waicoolUtils"]
-	path = waicoolUtils
+	path = deps/waicoolUtils
 	url = ../waicoolUtils.git
 [submodule "CVAuto"]
-	path = CVAuto
+	path = deps/CVAuto
 	url = ../CVAuto.git

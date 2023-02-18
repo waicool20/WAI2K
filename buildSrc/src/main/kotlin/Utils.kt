@@ -17,11 +17,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-rootProject.name = "WAI2K"
+import org.gradle.api.file.RegularFile
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.security.MessageDigest
 
-includeBuild("deps/waicoolUtils")
-includeBuild("deps/CVAuto")
-
-for (module in arrayOf("core", "assets", "launcher")) {
-    include(":modules:$module")
+object Utils {
+    fun md5sum(file: RegularFile) {
+        val path = file.asFile.toPath()
+        val md5File = Paths.get("$path.md5")
+        val md5sum = MessageDigest.getInstance("MD5").digest(Files.readAllBytes(path))
+            .joinToString("") { String.format("%02x", it) }
+        Files.write(md5File, md5sum.toByteArray())
+    }
 }

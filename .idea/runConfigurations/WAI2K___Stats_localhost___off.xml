@@ -4,7 +4,7 @@
       <env name="WAI2K_ENDPOINT" value="http://localhost:8080" />
     </envs>
     <option name="MAIN_CLASS_NAME" value="com.waicool20.wai2k.Wai2kKt" />
-    <module name="WAI2K.main" />
+    <module name="WAI2K.modules.core.main" />
     <option name="PROGRAM_PARAMETERS" value="--assets-dir=$ProjectFileDir$/assets" />
     <shortenClasspath name="NONE" />
     <option name="VM_PARAMETERS" value="-Dsun.awt.disablegrab=true" />

@@ -17,11 +17,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-rootProject.name = "WAI2K"
+task<Zip>("packAssets") {
+    archiveFileName.set("assets.zip")
+    destinationDirectory.set(file("$buildDir/artifacts/"))
 
-includeBuild("deps/waicoolUtils")
-includeBuild("deps/CVAuto")
+    from(projectDir)
+    exclude("/build")
+    exclude("/models/**")
+    doLast { Utils.md5sum(archiveFile.get()) }
+}
 
-for (module in arrayOf("core", "assets", "launcher")) {
-    include(":modules:$module")
+task<Zip>("packModels") {
+    archiveFileName.set("models.zip")
+    destinationDirectory.set(file("$buildDir/artifacts/"))
+
+    from(projectDir)
+    exclude("/build")
+    include("/models/**")
+    doLast { Utils.md5sum(archiveFile.get()) }
 }
