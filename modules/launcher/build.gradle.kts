@@ -24,14 +24,12 @@
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.gradle.configurationcache.extensions.capitalized
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("com.github.johnrengelman.shadow") version "latest.release"
 }
-
-val artifactsDir: File by rootProject.extra
 
 version = "0.0.1"
 
@@ -46,7 +44,6 @@ tasks {
     }
     jar {
         enabled = false
-        manifest { attributes(mapOf("Main-Class" to "com.waicool20.wai2k.launcher.Main")) }
     }
     java {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -65,6 +62,7 @@ tasks {
         archiveClassifier.set("")
         archiveVersion.set("")
         destinationDirectory.set(file("$buildDir/artifacts/"))
+        manifest { attributes(mapOf("Main-Class" to "com.waicool20.wai2k.launcher.Main")) }
         exclude("kotlin/reflect/**")
     }
 }

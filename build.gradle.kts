@@ -1,10 +1,8 @@
-val artifactsDir by extra(file("$buildDir/artifacts/"))
-
 plugins {
     kotlin("jvm") version "1.8.0"
 }
 
-allprojects {
+subprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
 
     group = "com.waicool20.wai2k"

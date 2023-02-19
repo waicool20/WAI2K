@@ -128,18 +128,12 @@ tasks {
     }
 }
 
-task<Copy>("copyLibs") {
-    from(project.configurations.filter { it.isCanBeResolved })
-    exclude { f -> gradle.includedBuilds.any { b -> f.name.contains(b.name, true) } }
-    into("$buildDir/tmp/libs/")
-}
-
 task<Zip>("packLibs") {
-    dependsOn("copyLibs")
     archiveFileName.set("libs.zip")
     destinationDirectory.set(file("$buildDir/artifacts/"))
-    from("$buildDir/tmp/")
-    include("/libs/**")
+    from(project.configurations.filter { it.isCanBeResolved })
+    exclude { f -> gradle.includedBuilds.any { b -> f.name.contains(b.name, true) } }
+    into("libs")
 }
 
 task("versioning") {
