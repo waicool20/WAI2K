@@ -17,24 +17,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+tasks {
+    withType<AbstractArchiveTask>().configureEach {
+        isPreserveFileTimestamps = false
+        isReproducibleFileOrder = true
+        destinationDirectory.set(file("$buildDir/artifacts/"))
+        from(projectDir)
+        into("assets")
+
+        exclude("build/", "build.gradle.kts")
+    }
+}
+
 task<Zip>("packAssets") {
     archiveFileName.set("assets.zip")
-    destinationDirectory.set(file("$buildDir/artifacts/"))
 
-    from(projectDir)
-    exclude("/build")
-    exclude("build.gradle.kts")
     exclude("/models/**")
-    into("assets")
 }
 
 task<Zip>("packModels") {
     archiveFileName.set("models.zip")
-    destinationDirectory.set(file("$buildDir/artifacts/"))
 
-    from(projectDir)
-    exclude("/build")
-    exclude("build.gradle.kts")
     include("/models/**")
-    into("assets")
 }
