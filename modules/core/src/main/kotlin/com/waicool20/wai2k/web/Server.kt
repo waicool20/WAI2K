@@ -46,6 +46,12 @@ data class CheckApiMessageRequest(val apiKey: String, val title: String, val mes
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class StatusResponse(val message: String)
 
+class Server {
+    fun run() {
+        io.ktor.server.netty.EngineMain.main(emptyArray())
+    }
+}
+
 fun Application.module() {
     install(CORS) {
         allowMethod(HttpMethod.Options)
