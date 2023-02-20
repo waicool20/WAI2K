@@ -31,13 +31,13 @@ import ai.djl.translate.TranslateException
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.waicool20.cvauto.android.AndroidRegion
+import com.waicool20.cvauto.core.util.removeChannels
 import com.waicool20.wai2k.game.MapRunnerRegions
 import com.waicool20.wai2k.script.MissingAssetException
 import com.waicool20.wai2k.script.NodeNotFoundException
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.util.ai.MatchingModel
 import com.waicool20.wai2k.util.ai.MatchingTranslator
-import com.waicool20.cvauto.util.removeChannels
 import com.waicool20.wai2k.util.loggerFor
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex

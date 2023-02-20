@@ -23,10 +23,10 @@ import ai.djl.metric.Metrics
 import ai.djl.modality.cv.ImageFactory
 import ai.djl.translate.TranslateException
 import com.waicool20.cvauto.core.AnyDevice
-import com.waicool20.cvauto.util.createCompatibleCopy
-import com.waicool20.cvauto.util.removeChannels
-import com.waicool20.cvauto.util.toBufferedImage
-import com.waicool20.cvauto.util.toMat
+import com.waicool20.cvauto.core.util.createCompatibleCopy
+import com.waicool20.cvauto.core.util.removeChannels
+import com.waicool20.cvauto.core.util.toBufferedImage
+import com.waicool20.cvauto.core.util.toMat
 import com.waicool20.wai2k.Wai2k
 import com.waicool20.wai2k.util.ai.MatchingModel
 import com.waicool20.wai2k.util.ai.MatchingTranslator

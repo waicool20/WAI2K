@@ -28,7 +28,7 @@ import ai.djl.ndarray.NDList
 import ai.djl.ndarray.index.NDIndex
 import ai.djl.translate.Pipeline
 import ai.djl.translate.TranslatorContext
-import com.waicool20.cvauto.util.createCompatibleCopy
+import com.waicool20.cvauto.core.util.createCompatibleCopy
 import java.awt.Color
 import java.awt.Graphics2D
 import java.awt.RenderingHints

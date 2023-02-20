@@ -27,7 +27,7 @@ import com.waicool20.cvauto.android.ADB
 import com.waicool20.cvauto.android.AndroidDevice
 import com.waicool20.cvauto.core.Region
 import com.waicool20.cvauto.core.template.FileTemplate
-import com.waicool20.cvauto.util.pipeline
+import com.waicool20.cvauto.core.util.pipeline
 import com.waicool20.wai2k.Wai2k
 import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.ai.GFLObject

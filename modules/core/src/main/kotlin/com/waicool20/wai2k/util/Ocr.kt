@@ -20,7 +20,7 @@
 package com.waicool20.wai2k.util
 
 import com.waicool20.cvauto.core.AnyRegion
-import com.waicool20.cvauto.util.pipeline
+import com.waicool20.cvauto.core.util.pipeline
 import com.waicool20.wai2k.config.Wai2kConfig
 import net.sourceforge.tess4j.ITessAPI
 import net.sourceforge.tess4j.ITesseract

@@ -21,7 +21,7 @@ package com.waicool20.wai2k.script.modules
 
 import com.waicool20.cvauto.core.AnyRegion
 import com.waicool20.cvauto.core.template.FileTemplate
-import com.waicool20.cvauto.util.isSimilar
+import com.waicool20.cvauto.core.util.isSimilar
 import com.waicool20.wai2k.config.Wai2kProfile.CombatSimulation.Coalition.Type
 import com.waicool20.wai2k.config.Wai2kProfile.CombatSimulation.Level
 import com.waicool20.wai2k.events.CoalitionEnergySpentEvent

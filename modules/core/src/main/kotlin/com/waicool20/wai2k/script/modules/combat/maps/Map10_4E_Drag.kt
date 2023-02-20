@@ -20,8 +20,8 @@
 package com.waicool20.wai2k.script.modules.combat.maps
 
 import com.waicool20.cvauto.core.template.FileTemplate
-import com.waicool20.cvauto.util.countColor
-import com.waicool20.cvauto.util.pipeline
+import com.waicool20.cvauto.core.util.countColor
+import com.waicool20.cvauto.core.util.pipeline
 import com.waicool20.wai2k.events.EventBus
 import com.waicool20.wai2k.events.RepairEvent
 import com.waicool20.wai2k.script.ScriptComponent

@@ -22,7 +22,7 @@ package com.waicool20.wai2k.script.modules
 import com.waicool20.cvauto.core.input.ITouchInterface
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.cvauto.core.template.ImageTemplate
-import com.waicool20.cvauto.util.ColorSpaceUtils
+import com.waicool20.cvauto.core.util.ColorSpaceUtils
 import com.waicool20.wai2k.events.DollDisassemblyEvent
 import com.waicool20.wai2k.events.DollEnhancementEvent
 import com.waicool20.wai2k.events.EquipDisassemblyEvent

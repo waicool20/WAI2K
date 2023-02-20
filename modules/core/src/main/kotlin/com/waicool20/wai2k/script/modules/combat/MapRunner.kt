@@ -22,9 +22,9 @@ package com.waicool20.wai2k.script.modules.combat
 import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.core.template.FT
 import com.waicool20.cvauto.core.template.ITemplate
-import com.waicool20.cvauto.util.countColor
-import com.waicool20.cvauto.util.isSimilar
-import com.waicool20.cvauto.util.pipeline
+import com.waicool20.cvauto.core.util.countColor
+import com.waicool20.cvauto.core.util.isSimilar
+import com.waicool20.cvauto.core.util.pipeline
 import com.waicool20.wai2k.events.EventBus
 import com.waicool20.wai2k.events.RepairEvent
 import com.waicool20.wai2k.events.SortieDoneEvent
