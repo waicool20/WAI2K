@@ -1,7 +1,7 @@
 /*
  * GPLv3 License
  *
- *  Copyright (c) WAI2K by waicool20
+ *  Copyright (c) waicool20
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,8 +20,8 @@
 package com.waicool20.wai2k.script.modules.combat.maps
 
 import com.waicool20.wai2k.script.ScriptComponent
-import com.waicool20.wai2k.script.modules.combat.CampaignMapRunner
 import com.waicool20.wai2k.script.modules.combat.AbsoluteMapRunner
+import com.waicool20.wai2k.script.modules.combat.CampaignMapRunner
 import com.waicool20.wai2k.util.loggerFor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield

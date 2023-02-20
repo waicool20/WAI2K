@@ -1,7 +1,7 @@
 /*
  * GPLv3 License
  *
- *  Copyright (c) WAI2K by waicool20
+ *  Copyright (c) waicool20
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

@@ -3,7 +3,7 @@
 <!--
   ~ GPLv3 License
   ~
-  ~  Copyright (c) WAI2K by waicool20
+  ~  Copyright (c) waicool20
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -23,7 +23,6 @@
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.VBox?>
-
 <VBox minHeight="-Infinity" minWidth="-Infinity" spacing="10.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
     <children>
         <CheckBox fx:id="enableCheckBox" mnemonicParsing="false" text="Enable" />

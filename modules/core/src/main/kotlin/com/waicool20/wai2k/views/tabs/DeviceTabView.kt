@@ -1,7 +1,7 @@
 /*
  * GPLv3 License
  *
- *  Copyright (c) WAI2K by waicool20
+ *  Copyright (c) waicool20
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,9 +23,9 @@ import com.waicool20.cvauto.android.ADB
 import com.waicool20.cvauto.android.AndroidDevice
 import com.waicool20.wai2k.Wai2k
 import com.waicool20.wai2k.util.Binder
+import com.waicool20.wai2k.util.loggerFor
 import com.waicool20.waicoolutils.javafx.CoroutineScopeView
 import com.waicool20.waicoolutils.javafx.addListener
-import com.waicool20.wai2k.util.loggerFor
 import javafx.embed.swing.SwingFXUtils
 import javafx.geometry.Pos
 import javafx.scene.control.Button

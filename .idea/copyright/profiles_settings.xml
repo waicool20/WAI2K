@@ -1,3 +1,9 @@
 <component name="CopyrightManager">
-  <settings default="GPLv3" />
+  <settings>
+    <module2copyright>
+      <element module="WAI2K" copyright="GPLv3" />
+      <element module="cvauto" copyright="MIT" />
+      <element module="waicoolUtils" copyright="MIT" />
+    </module2copyright>
+  </settings>
 </component>

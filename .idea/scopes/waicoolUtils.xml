@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="waicoolUtils" pattern="file[waicoolUtils.main]:*/" />
+</component>
