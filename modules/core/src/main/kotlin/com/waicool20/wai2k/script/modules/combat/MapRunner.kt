@@ -22,6 +22,9 @@ package com.waicool20.wai2k.script.modules.combat
 import com.waicool20.cvauto.android.AndroidRegion
 import com.waicool20.cvauto.core.template.FT
 import com.waicool20.cvauto.core.template.ITemplate
+import com.waicool20.cvauto.util.countColor
+import com.waicool20.cvauto.util.isSimilar
+import com.waicool20.cvauto.util.pipeline
 import com.waicool20.wai2k.events.EventBus
 import com.waicool20.wai2k.events.RepairEvent
 import com.waicool20.wai2k.events.SortieDoneEvent
@@ -30,8 +33,6 @@ import com.waicool20.wai2k.game.location.LocationId
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.ScriptTimeOutException
 import com.waicool20.wai2k.util.*
-import com.waicool20.waicoolutils.binarizeImage
-import com.waicool20.waicoolutils.countColor
 import com.waicool20.waicoolutils.mapAsync
 import kotlinx.coroutines.*
 import org.reflections.Reflections
@@ -236,7 +237,7 @@ abstract class MapRunner(
                     members.mapAsync { m ->
                         val image = screenshot.getSubimage(
                             xOffsets[m], 820, wOffsets[m], 1
-                        ).binarizeImage()
+                        ).pipeline().threshold().toBufferedImage()
                         val ammoCount = image.countColor(Color.WHITE) / image.width.toDouble()
                         if (ammoCount < ammoResupplyThreshold) needsResupply += node
                         m to ammoCount
@@ -246,7 +247,7 @@ abstract class MapRunner(
                     members.mapAsync { m ->
                         val image = screenshot.getSubimage(
                             xOffsets[m], 860, wOffsets[m], 1
-                        ).binarizeImage()
+                        ).pipeline().threshold().toBufferedImage()
                         val rationCount = image.countColor(Color.WHITE) / image.width.toDouble()
                         if (rationCount < rationsResupplyThreshold) needsResupply += node
                         m to rationCount
@@ -262,7 +263,7 @@ abstract class MapRunner(
                         }
                         val image = screenshot.getSubimage(
                             xOffsets[m], 778, wOffsets[m], 1
-                        ).binarizeImage()
+                        ).pipeline().threshold().toBufferedImage()
                         m to image.countColor(Color.WHITE) / image.width.toDouble() * 100
                     }.toMap()
                 }

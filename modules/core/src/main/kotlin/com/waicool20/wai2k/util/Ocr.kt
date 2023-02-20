@@ -20,11 +20,8 @@
 package com.waicool20.wai2k.util
 
 import com.waicool20.cvauto.core.AnyRegion
+import com.waicool20.cvauto.util.pipeline
 import com.waicool20.wai2k.config.Wai2kConfig
-import com.waicool20.waicoolutils.binarizeImage
-import com.waicool20.waicoolutils.invert
-import com.waicool20.waicoolutils.pad
-import com.waicool20.waicoolutils.scale
 import net.sourceforge.tess4j.ITessAPI
 import net.sourceforge.tess4j.ITesseract
 import net.sourceforge.tess4j.Tesseract
@@ -95,17 +92,12 @@ fun ITesseract.readText(
     pad: Int = 20,
     trim: Boolean = true
 ): String {
-    var img = BufferedImage(
-        image.colorModel,
-        image.copyData(image.raster.createCompatibleWritableRaster()),
-        image.colorModel.isAlphaPremultiplied,
-        null
-    )
-    if (scale > 0.0 && scale != 1.0) img = img.scale(scale)
-    if (threshold in 0.0..1.0) img.binarizeImage(threshold)
-    if (invert) img.invert()
-    if (pad > 0) img = img.pad(20, 20, Color.WHITE)
-    val txt = doOCR(img)
+    val imgp = image.pipeline()
+    if (scale > 0.0 && scale != 1.0) imgp.scale(scale)
+    if (threshold in 0.0..1.0) imgp.threshold(threshold)
+    if (invert) imgp.invert()
+    if (pad > 0) imgp.pad(20, 20, 20, 20, Color.WHITE)
+    val txt = doOCR(imgp.toBufferedImage())
     return if (trim) txt.trim() else txt
 }
 

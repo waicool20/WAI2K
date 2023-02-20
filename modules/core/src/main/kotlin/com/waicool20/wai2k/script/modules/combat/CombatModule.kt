@@ -23,6 +23,9 @@ import com.waicool20.cvauto.core.input.ITouchInterface
 import com.waicool20.cvauto.core.template.FT
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.cvauto.core.template.ImageTemplate
+import com.waicool20.cvauto.util.countColor
+import com.waicool20.cvauto.util.isSimilar
+import com.waicool20.cvauto.util.pipeline
 import com.waicool20.wai2k.events.EventBus
 import com.waicool20.wai2k.events.RepairEvent
 import com.waicool20.wai2k.game.CombatMap
@@ -31,9 +34,10 @@ import com.waicool20.wai2k.game.location.GameLocation
 import com.waicool20.wai2k.game.location.LocationId
 import com.waicool20.wai2k.script.*
 import com.waicool20.wai2k.script.modules.ScriptModule
-import com.waicool20.wai2k.util.*
-import com.waicool20.waicoolutils.binarizeImage
-import com.waicool20.waicoolutils.countColor
+import com.waicool20.wai2k.util.digitsOnly
+import com.waicool20.wai2k.util.disableDictionaries
+import com.waicool20.wai2k.util.loggerFor
+import com.waicool20.wai2k.util.readText
 import kotlinx.coroutines.*
 import java.awt.Color
 import java.awt.image.BufferedImage
@@ -271,7 +275,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
                 txt to tdoll
             }
             val percent = run {
-                val image = hpImage.binarizeImage()
+                val image = hpImage.pipeline().threshold().toBufferedImage()
                 image.countColor(Color.WHITE) / image.width.toDouble() * 100
             }
         }

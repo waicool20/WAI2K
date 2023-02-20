@@ -21,6 +21,7 @@ package com.waicool20.wai2k.script.modules
 
 import com.waicool20.cvauto.core.AnyRegion
 import com.waicool20.cvauto.core.template.FileTemplate
+import com.waicool20.cvauto.util.isSimilar
 import com.waicool20.wai2k.config.Wai2kProfile.CombatSimulation.Coalition.Type
 import com.waicool20.wai2k.config.Wai2kProfile.CombatSimulation.Level
 import com.waicool20.wai2k.events.CoalitionEnergySpentEvent
@@ -34,7 +35,6 @@ import com.waicool20.wai2k.script.ScriptException
 import com.waicool20.wai2k.script.ScriptTimeOutException
 import com.waicool20.wai2k.script.modules.combat.HomographyMapRunner
 import com.waicool20.wai2k.util.digitsOnly
-import com.waicool20.wai2k.util.isSimilar
 import com.waicool20.wai2k.util.loggerFor
 import com.waicool20.wai2k.util.readText
 import kotlinx.coroutines.*

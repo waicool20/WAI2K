@@ -22,13 +22,13 @@ package com.waicool20.wai2k.script.modules
 import com.waicool20.cvauto.core.input.ITouchInterface
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.cvauto.core.template.ImageTemplate
+import com.waicool20.cvauto.util.ColorSpaceUtils
 import com.waicool20.wai2k.events.DollDisassemblyEvent
 import com.waicool20.wai2k.events.DollEnhancementEvent
 import com.waicool20.wai2k.events.EquipDisassemblyEvent
 import com.waicool20.wai2k.events.EventBus
 import com.waicool20.wai2k.game.location.LocationId
 import com.waicool20.wai2k.script.Navigator
-import com.waicool20.wai2k.util.ColorSpaceUtils
 import com.waicool20.wai2k.util.loggerFor
 import com.waicool20.wai2k.util.readText
 import com.waicool20.wai2k.util.useCharFilter

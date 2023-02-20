@@ -20,13 +20,13 @@
 package com.waicool20.wai2k.script.modules.combat.maps
 
 import com.waicool20.cvauto.core.template.FileTemplate
+import com.waicool20.cvauto.util.countColor
+import com.waicool20.cvauto.util.pipeline
 import com.waicool20.wai2k.events.EventBus
 import com.waicool20.wai2k.events.RepairEvent
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.modules.combat.AbsoluteMapRunner
 import com.waicool20.wai2k.script.modules.combat.CorpseDragging
-import com.waicool20.waicoolutils.binarizeImage
-import com.waicool20.waicoolutils.countColor
 import com.waicool20.wai2k.util.loggerFor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
@@ -111,7 +111,8 @@ class Map10_4E_Drag(scriptComponent: ScriptComponent) : AbsoluteMapRunner(script
 
         // Checks if the other doll has less than 5 links from possible grenade chip damage
         // Taken from MapRunner deployEchelons
-        val hpImage = region.subRegion(373, 778, 217, 1).capture().binarizeImage()
+        val hpImage = region.subRegion(373, 778, 217, 1).capture()
+            .pipeline().threshold().toBufferedImage()
         val hp = hpImage.countColor(Color.WHITE) / hpImage.width.toDouble() * 100
         if (hp <= 80) {
             logger.info("Repairing other combat doll that has lost a dummy link")

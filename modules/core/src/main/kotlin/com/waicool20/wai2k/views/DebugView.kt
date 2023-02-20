@@ -27,21 +27,20 @@ import com.waicool20.cvauto.android.ADB
 import com.waicool20.cvauto.android.AndroidDevice
 import com.waicool20.cvauto.core.Region
 import com.waicool20.cvauto.core.template.FileTemplate
+import com.waicool20.cvauto.util.pipeline
 import com.waicool20.wai2k.Wai2k
 import com.waicool20.wai2k.util.Ocr
 import com.waicool20.wai2k.util.ai.GFLObject
 import com.waicool20.wai2k.util.ai.ModelLoader
 import com.waicool20.wai2k.util.ai.YoloTranslator
 import com.waicool20.wai2k.util.ai.toDetectedObjects
+import com.waicool20.wai2k.util.loggerFor
 import com.waicool20.wai2k.util.useCharFilter
-import com.waicool20.waicoolutils.binarizeImage
-import com.waicool20.waicoolutils.invert
 import com.waicool20.waicoolutils.javafx.CoroutineScopeView
 import com.waicool20.waicoolutils.javafx.addListener
 import com.waicool20.waicoolutils.javafx.tooltips.TooltipSide
 import com.waicool20.waicoolutils.javafx.tooltips.fadeAfter
 import com.waicool20.waicoolutils.javafx.tooltips.showAt
-import com.waicool20.wai2k.util.loggerFor
 import javafx.embed.swing.SwingFXUtils
 import javafx.event.EventHandler
 import javafx.scene.Node
@@ -75,7 +74,6 @@ import kotlin.math.roundToInt
 import kotlin.streams.asSequence
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTimedValue
-
 
 class DebugView : CoroutineScopeView() {
     override val root: VBox by fxml("/views/debug.fxml")
@@ -260,9 +258,11 @@ class DebugView : CoroutineScopeView() {
             val img = lastAndroidDevice?.screens?.firstOrNull()
                 ?.capture()
                 ?.getSubimage(xSpinner.value, ySpinner.value, wSpinner.value, hSpinner.value)
-            if (thresholdSpinner.value >= 0.0) img?.binarizeImage(thresholdSpinner.value)
-            if (invertCheckBox.isSelected) img?.invert()
-            img
+                ?: return null
+            val imgp = img.pipeline()
+            if (thresholdSpinner.value >= 0.0) imgp.threshold(thresholdSpinner.value)
+            if (invertCheckBox.isSelected) imgp.invert()
+            imgp.toBufferedImage()
         } catch (e: Region.CaptureIOException) {
             logger.warn("Capture error!")
             null
