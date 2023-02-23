@@ -27,6 +27,7 @@ import kotlinx.coroutines.delay
 import java.time.Instant
 import kotlin.random.Random
 
+@Suppress("unused")
 class RandomNavModule(navigator: Navigator) : ScriptModule(navigator) {
 
     private var nextTime = randomFutureInstant()

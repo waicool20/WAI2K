@@ -29,6 +29,7 @@ import kotlinx.coroutines.yield
 import kotlin.math.roundToLong
 import kotlin.random.Random
 
+@Suppress("unused", "ClassName")
 class Map1_6(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent) {
     private val logger = loggerFor<Map1_6>()
 

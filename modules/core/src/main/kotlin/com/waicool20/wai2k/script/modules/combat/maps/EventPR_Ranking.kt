@@ -27,6 +27,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
 import kotlin.random.Random
 
+@Suppress("unused", "ClassName")
 class EventPR_Ranking (scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent),
     EventMapRunner {
 

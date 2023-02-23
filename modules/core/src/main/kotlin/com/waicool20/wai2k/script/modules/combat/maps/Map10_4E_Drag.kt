@@ -34,6 +34,7 @@ import java.awt.Color
 import kotlin.math.roundToLong
 import kotlin.random.Random
 
+@Suppress("unused", "ClassName")
 class Map10_4E_Drag(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptComponent),
     CorpseDragging {
     private val logger = loggerFor<Map10_4E_Drag>()

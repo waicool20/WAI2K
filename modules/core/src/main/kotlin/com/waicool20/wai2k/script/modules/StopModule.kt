@@ -21,14 +21,11 @@ package com.waicool20.wai2k.script.modules
 
 import com.waicool20.wai2k.config.Wai2kProfile
 import com.waicool20.wai2k.script.Navigator
-import com.waicool20.wai2k.util.loggerFor
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 
 class StopModule(navigator: Navigator) : ScriptModule(navigator) {
-    private val logger = loggerFor<StopModule>()
-
     override suspend fun execute() {
         if (!profile.stop.enabled) return
         checkTime()

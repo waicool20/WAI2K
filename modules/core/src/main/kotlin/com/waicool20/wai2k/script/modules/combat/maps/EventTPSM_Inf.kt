@@ -31,6 +31,7 @@ import kotlinx.coroutines.yield
 import kotlin.math.roundToLong
 import kotlin.random.Random
 
+@Suppress("unused", "ClassName")
 class EventTPSM_Inf(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent),
     EventMapRunner {
     private val logger = loggerFor<EventTPSM_Inf>()

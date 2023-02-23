@@ -28,6 +28,7 @@ import kotlinx.coroutines.yield
 import kotlin.math.roundToInt
 import kotlin.random.Random
 
+@Suppress("unused", "ClassName")
 class EventS_Ranking(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent),
     EventMapRunner {
 

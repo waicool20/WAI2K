@@ -32,6 +32,7 @@ import com.waicool20.wai2k.util.readText
 import kotlinx.coroutines.delay
 import java.time.Instant
 
+@Suppress("unused")
 class CombatReportModule(navigator: Navigator) : ScriptModule(navigator) {
     private val logger = loggerFor<CombatReportModule>()
 

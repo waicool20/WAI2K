@@ -66,7 +66,6 @@ object Ocr {
     /**
      * Returns an instance of [Tesseract] which can be used to do ocr.
      *
-     * @param digitsOnly Applies the digit character filter to the engine if true
      */
     fun forConfig(config: Wai2kConfig) = Tesseract().apply {
         setVariable("user_defined_dpi", "300")

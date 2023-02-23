@@ -28,6 +28,7 @@ import kotlinx.coroutines.yield
 import kotlin.math.roundToLong
 import kotlin.random.Random
 
+@Suppress("unused", "ClassName")
 class CampaignDD_1_2(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent),
     CampaignMapRunner {
     private val logger = loggerFor<CampaignDD_1_2>()

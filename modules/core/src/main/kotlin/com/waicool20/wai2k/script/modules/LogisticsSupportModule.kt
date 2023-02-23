@@ -36,6 +36,7 @@ import kotlinx.coroutines.isActive
 import java.time.Instant
 import kotlin.coroutines.coroutineContext
 
+@Suppress("unused")
 class LogisticsSupportModule(navigator: Navigator) : ScriptModule(navigator) {
     private val logger = loggerFor<LogisticsSupportModule>()
     override suspend fun execute() {

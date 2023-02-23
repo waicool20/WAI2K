@@ -28,6 +28,7 @@ import kotlinx.coroutines.delay
 import kotlin.math.roundToLong
 import kotlin.random.Random
 
+@Suppress("unused", "ClassName")
 class EventDR_3_Inf(scriptComponent: ScriptComponent) :
     HomographyMapRunner(scriptComponent),
     EventMapRunner {

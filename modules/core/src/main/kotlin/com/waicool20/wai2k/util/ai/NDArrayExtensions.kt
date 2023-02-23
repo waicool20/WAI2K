@@ -74,8 +74,11 @@ fun NDArray.sum(vararg axes: Int) = sum(axes)
 
 fun NDArray.diag() = manager.eye(shape[0].toInt()) * tile(shape[0]).reshape(shape[0], shape[0])
 
-fun NDArray._trace() = (manager.eye(shape.dimension()) * this).sum()
-fun NDArray._stack(repeats: Long) = tile(repeats).reshape(repeats, shape[0])
+@Suppress("FunctionName")
+fun NDArray._trace(): NDArray = (manager.eye(shape.dimension()) * this).sum()
+
+@Suppress("FunctionName")
+fun NDArray._stack(repeats: Long): NDArray = tile(repeats).reshape(repeats, shape[0])
 
 fun NDArray.toPoint2D(): List<Point> {
     return when (dataType) {

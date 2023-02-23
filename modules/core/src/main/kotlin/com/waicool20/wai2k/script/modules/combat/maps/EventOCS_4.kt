@@ -28,6 +28,7 @@ import kotlinx.coroutines.yield
 import kotlin.math.roundToLong
 import kotlin.random.Random
 
+@Suppress("unused", "ClassName")
 class EventOCS_4(scriptComponent: ScriptComponent) :
     HomographyMapRunner(scriptComponent),
     EventMapRunner {

@@ -26,6 +26,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
 import kotlin.random.Random
 
+@Suppress("unused", "ClassName")
 class Map5_6(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent) {
     private val logger = loggerFor<Map5_6>()
     override val ammoResupplyThreshold = 0.4

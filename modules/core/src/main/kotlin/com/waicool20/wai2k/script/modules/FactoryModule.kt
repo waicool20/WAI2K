@@ -40,6 +40,7 @@ import java.awt.Point
 import kotlin.coroutines.coroutineContext
 import kotlin.random.Random
 
+@Suppress("unused")
 class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
     private val logger = loggerFor<FactoryModule>()
 

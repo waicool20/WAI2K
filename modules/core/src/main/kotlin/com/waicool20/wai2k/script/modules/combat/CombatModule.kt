@@ -45,6 +45,7 @@ import java.text.DecimalFormat
 import kotlin.coroutines.coroutineContext
 import kotlin.reflect.full.primaryConstructor
 
+@Suppress("unused")
 class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
     private val logger = loggerFor<CombatModule>()
 

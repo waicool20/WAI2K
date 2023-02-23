@@ -29,6 +29,7 @@ import kotlinx.coroutines.yield
 import kotlin.math.roundToLong
 import kotlin.random.Random
 
+@Suppress("unused", "ClassName")
 class Map0_2_EX(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptComponent),
     CorpseDragging {
     private val logger = loggerFor<Map0_2_EX>()
