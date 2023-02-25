@@ -20,7 +20,7 @@
 package com.waicool20.wai2k.script
 
 import com.waicool20.cvauto.android.AndroidRegion
-import com.waicool20.cvauto.core.template.FileTemplate
+import com.waicool20.cvauto.core.template.FT
 import com.waicool20.wai2k.android.ProcessManager
 import com.waicool20.wai2k.config.Wai2kConfig
 import com.waicool20.wai2k.config.Wai2kPersist
@@ -246,7 +246,7 @@ class Navigator(
             var atRepeat = false
             when {
                 region.subRegion(1657, 945, 355, 128)
-                    .has(FileTemplate("navigator/logistics_repeat_all.png")) -> {
+                    .has(FT("navigator/logistics_repeat_all.png")) -> {
                     logger.info("An echelon has arrived from logistics")
                 }
                 ocr.readText(region.subRegion(575, 410, 1000, 130))
@@ -292,7 +292,7 @@ class Navigator(
                     region.subRegion(1725, 984, 226, 58).click()
                     delay(500)
                 }
-                region.waitHas(FileTemplate("ok.png"), 10000)?.click()
+                region.waitHas(FT("ok.png"), 10000)?.click()
                     ?: logger.warn("Was expecting to click ok, it did not appear!")
                 delay(2000)
                 EventBus.publish(LogisticsSupportSentEvent(sessionId, elapsedTime))
@@ -318,7 +318,7 @@ class Navigator(
         if (!profile.autoBattle.enabled) return
         while (true) {
             if (region.subRegion(138, 740, 110, 100)
-                    .has(FileTemplate("navigator/autobattle_arrived.png"))
+                    .has(FT("navigator/autobattle_arrived.png"))
             ) {
                 logger.info("An echelon has arrived from auto battle")
                 // Dismiss mission accomplished and rewards
@@ -328,7 +328,7 @@ class Navigator(
                 }
                 logger.info("Continuing this auto battle")
                 region.subRegion(1432, 822, 336, 134)
-                    .clickTemplateWhile(FileTemplate("navigator/autobattle_repeat.png")) { has(it) }
+                    .clickTemplateWhile(FT("navigator/autobattle_repeat.png")) { has(it) }
                 logger.info("Waiting a bit to see if anymore echelons arrive")
                 delay(5000)
             } else break
@@ -376,17 +376,17 @@ class Navigator(
             }
             checkLogistics(forceCheck = true)
             // Check for sign in or achievement popup
-            if (region.subRegion(396, 244, 80, 80).has(FileTemplate("home-popup.png"))) {
+            if (region.subRegion(396, 244, 80, 80).has(FT("home-popup.png"))) {
                 logger.info("Detected popup, dismissing...")
                 repeat(2) { region.subRegion(2017, 151, 129, 733).click() }
             }
             // Check for daily login
-            if (login.has(FileTemplate("home-popup1.png"))) {
+            if (login.has(FT("home-popup1.png", 0.77))) {
                 logger.info("Detected daily login/event screen, dismissing...")
                 login.click()
             }
             region.subRegion(900, 720, 350, 185)
-                .findBest(FileTemplate("close.png"))?.region?.click()
+                .findBest(FT("close.png"))?.region?.click()
             if (locations.getValue(LocationId.HOME).isInRegion(region)) {
                 logger.info("Logged in, waiting for 10s to see if anything happens")
                 delay(10_000)
