@@ -20,7 +20,7 @@
 package com.waicool20.wai2k.script.modules
 
 import com.waicool20.cvauto.core.AnyRegion
-import com.waicool20.cvauto.core.template.FileTemplate
+import com.waicool20.cvauto.core.template.FT
 import com.waicool20.cvauto.core.util.isSimilar
 import com.waicool20.wai2k.config.Wai2kProfile.CombatSimulation.Coalition.Type
 import com.waicool20.wai2k.config.Wai2kProfile.CombatSimulation.Level
@@ -44,42 +44,25 @@ import kotlin.coroutines.coroutineContext
 import kotlin.math.roundToLong
 import kotlin.random.Random
 
+@Suppress("unused")
 class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
-
-    private val logger = loggerFor<CombatReportModule>()
+    private val logger = loggerFor<CombatSimModule>()
     private val modeRegion = region.subRegion(394, 158, 200, 922)
 
-    private val mapRunner by lazy { NeuralCloudCorridor_Advanced(this@CombatSimModule) }
+    @Suppress("ClassName")
+    class NeuralCloudCorridor_Advanced(
+        private val level: Level, private val times: Int, scriptComponent: ScriptComponent
+    ) : HomographyMapRunner(scriptComponent) {
 
-    inner class NeuralCloudCorridor_Advanced(scriptComponent: ScriptComponent) :
-        HomographyMapRunner(scriptComponent) {
+        private val logger = loggerFor<NeuralCloudCorridor_Advanced>()
         override suspend fun begin() {
-            if (profile.combatSimulation.neuralFragment == Level.OFF) return
-
-            val level = profile.combatSimulation.neuralFragment
-            var times = gameState.simEnergy / level.cost
-            if (times == 0) {
-                updateNextCheck()
-                return
-            }
-
-            modeRegion.findBest(FileTemplate("combat-simulation/neural.png", 0.8))?.region?.click()
-            delay((1000 * gameState.delayCoefficient).roundToLong())
-
-            logger.info("Running neural sim type $level $times times")
-            logger.info("Entering $level sim")
-            region.subRegion(735, 377 + (177 * (level.cost - 1)), 1230, 130).click() // Difficulty
-
-            var energySpent = 0
             // echelon to use for the run
             val echelon = Echelon(number = profile.combatSimulation.neuralEchelon)
 
-
             // Plan the route on the first run
             region.subRegion(1730, 900, 430, 180)
-                .waitHas(FileTemplate("combat/battle/start.png"), 10000)
+                .waitHas(FT("combat/battle/start.png"), 10000)
             delay(1000)
-
 
             logger.info("Zoom out")
             region.pinch(
@@ -96,9 +79,8 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
             delay(1000) // Wait to settle
 
             nodes[0].findRegion().click()
-            region.waitHas(FileTemplate("ok.png"), 3000)
-            val deploy = echelon.clickEchelon(this, 140)
-            if (!deploy) {
+            region.waitHas(FT("ok.png"), 3000)
+            if (!echelon.clickEchelon(this, 140)) {
                 throw ScriptException("Could not deploy echelon $echelon")
             }
             delay(1000)
@@ -108,16 +90,14 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
                         mapRunnerRegions.startOperation.click(); yield()
 
                         region.subRegion(1100, 680, 275, 130)
-                            .waitHas(FileTemplate("ok.png"), 2000)?.click()
+                            .waitHas(FT("ok.png"), 2000)?.click()
                             ?: continue
                         break
-
                     }
                 }
             } catch (e: TimeoutCancellationException) {
                 throw ScriptTimeOutException("Could not start neural sim", e)
             }
-
 
             waitForGNKSplash(7000) // Map background makes it hard to find
             enterPlanningMode(); delay(500)
@@ -126,21 +106,23 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
             mapRunnerRegions.executePlan.click()
             waitForTurnEnd(1, timeout = 60_000)
 
-            while (true) {
+            var runs = 0
+            var energySpent = 0
+            while (coroutineContext.isActive) {
                 mapRunnerRegions.battleEndClick.click()
                 delay(300)
                 if (locations.getValue(LocationId.COMBAT_SIMULATION).isInRegion(region)) {
                     energySpent += level.cost
                     break
                 }
-                if (region.subRegion(1100, 680, 275, 130).has(FileTemplate("ok.png"))) {
+                if (region.subRegion(1100, 680, 275, 130).has(FT("ok.png"))) {
                     energySpent += level.cost
-                    if (--times == 0) {
+                    if (++runs > times) {
                         region.subRegion(788, 695, 250, 96).click() // Cancel
                         break
                     } else {
                         region.subRegion(1115, 695, 250, 96).click() // ok
-                        logger.info("Done one cycle, remaining: $times")
+                        logger.info("Done one cycle, remaining: ${times - runs}")
                         delay(7000)
                         waitForTurnEnd(1, timeout = 60_000)
                     }
@@ -149,15 +131,10 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
             logger.info("Completed all neural sim")
             EventBus.publish(
                 SimEnergySpentEvent(
-                    "NEURAL_FRAGMENT",
-                    level,
-                    energySpent,
-                    sessionId,
-                    elapsedTime
+                    "NEURAL_FRAGMENT", level, energySpent, sessionId, elapsedTime
                 )
             )
             gameState.simEnergy -= energySpent
-            updateNextCheck()
         }
     }
 
@@ -178,16 +155,10 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
         logger.info("Checking sim energy...")
 
         gameState.simEnergy = checkSimEnergy(region.subRegion(1535, 161, 71, 71)) ?: return
-        if (Random.nextBoolean()) {
-            runDataSimulation()
-            if (gameState.simEnergy > 0) {
-                runNeuralFragment()
-            }
-        } else {
-            runNeuralFragment()
-            if (gameState.simEnergy > 0) {
-                runDataSimulation()
-            }
+
+        for (run in listOf(::runDataSimulation, ::runNeuralFragment).shuffled()) {
+            if (gameState.simEnergy <= 0) break
+            run()
         }
 
         logger.info("Sim energy remaining : ${gameState.simEnergy}")
@@ -201,7 +172,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
         logger.info("Selecting coalition tab")
         while (coroutineContext.isActive) {
             delay(5000)
-            modeRegion.findBest(FileTemplate("combat-simulation/coalition-drill.png"))?.region?.click()
+            modeRegion.findBest(FT("combat-simulation/coalition-drill.png"))?.region?.click()
             if (Color(region.capture().getRGB(1790, 205)).isSimilar(Color(126, 24, 24))) {
                 delay(1000)
                 break
@@ -216,15 +187,14 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
     }
 
     private suspend fun checkSimEnergy(
-        energyRegion: AnyRegion,
-        retries: Int = 5
+        energyRegion: AnyRegion, retries: Int = 5
     ): Int? {
         // Check the current sim energy and the duration until the next energy recharges
         var r = retries
 
         while (coroutineContext.isActive) {
             val energyString = ocr.digitsOnly().readText(energyRegion, threshold = 0.7)
-            logger.info("Sim energy OCR: $energyString")
+            logger.debug("Sim energy OCR: $energyString")
 
             if (energyString.isBlank()) return 0
 
@@ -232,9 +202,9 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
             if (energy == null || energy !in 0..12) {
                 if (r-- > 0) continue else break
             }
-            logger.info("Current sim energy is $energy")
             return energy
         }
+        logger.debug("Sim energy unreadable!")
         return null
     }
 
@@ -248,7 +218,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
             return
         }
 
-        modeRegion.findBest(FileTemplate("combat-simulation/data-mode.png", 0.8))?.region?.click()
+        modeRegion.findBest(FT("combat-simulation/data-mode.png", 0.8))?.region?.click()
         // Generous Delays here since combat sims don't occur often
         delay((1000 * gameState.delayCoefficient).roundToLong())
 
@@ -257,7 +227,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
         delay(1000)
         logger.info("Entering $level sim")
         region.subRegion(1320, 810, 300, 105).click() // Enter Combat
-        region.waitHas(FileTemplate("ok.png"), 5000)?.click()
+        region.waitHas(FT("ok.png"), 5000)?.click()
         delay(3000)
 
         logger.info("Clicking through sim results")
@@ -266,11 +236,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
         logger.info("Completed all data sim")
         EventBus.publish(
             SimEnergySpentEvent(
-                "DATA_SIMULATION",
-                level,
-                times * level.cost,
-                sessionId,
-                elapsedTime
+                "DATA_SIMULATION", level, times * level.cost, sessionId, elapsedTime
             )
         )
         gameState.simEnergy -= times * level.cost
@@ -278,7 +244,24 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
     }
 
     private suspend fun runNeuralFragment() {
-        mapRunner.execute()
+        if (profile.combatSimulation.neuralFragment == Level.OFF) return
+
+        val level = profile.combatSimulation.neuralFragment
+        val times = gameState.simEnergy / level.cost
+        if (times == 0) {
+            updateNextCheck()
+            return
+        }
+
+        modeRegion.findBest(FT("combat-simulation/neural.png", 0.8))?.region?.click()
+        delay((1000 * gameState.delayCoefficient).roundToLong())
+
+        logger.info("Running neural sim type $level $times times")
+        logger.info("Entering $level sim")
+        region.subRegion(735, 377 + (177 * (level.cost - 1)), 1230, 130).click() // Difficulty
+
+        NeuralCloudCorridor_Advanced(level, times, this@CombatSimModule).execute()
+        updateNextCheck()
     }
 
     private suspend fun runCoalition() {
@@ -320,7 +303,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
             delay(1000)
         }
         region.subRegion(1570, 845, 305, 108).click() // Attack
-        region.waitHas(FileTemplate("ok.png"), 2000)?.click()
+        region.waitHas(FT("ok.png"), 2000)?.click()
         logger.info("Starting drill, waiting for results screen")
         // wait for results, select run again if times > 1 else exit
 
@@ -333,7 +316,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
 
     /**
      * Returns the bonus coalition drills, usually only 1 is open but may return all 3 if
-     * we have all bonus event or its sunday
+     * we have all bonus event, or it's sunday
      */
     private fun getBonusCoalitionDrills(): List<Type> {
         val bonus = Color(244, 54, 65)
@@ -353,13 +336,13 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
             if (locations.getValue(LocationId.COMBAT_SIMULATION).isInRegion(region)) {
                 break
             }
-            if (region.subRegion(1100, 680, 275, 130).has(FileTemplate("ok.png"))) {
-                if (--t == 0) {
-                    region.subRegion(788, 695, 250, 96).click() // Cancel
-                    break
-                } else {
+            if (region.subRegion(1100, 680, 275, 130).has(FT("ok.png"))) {
+                if (--t > 0) {
                     region.subRegion(1115, 695, 250, 96).click() // ok
                     logger.info("Done one cycle, remaining: $t")
+                } else {
+                    region.subRegion(788, 695, 250, 96).click() // Cancel
+                    break
                 }
             }
         }
@@ -369,12 +352,8 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
      * Schedules the next check-up time
      */
     private fun updateNextCheck() {
-        region.subRegion(400, 315, 185, 130).click()
         gameState.simNextCheck = OffsetDateTime.of(
-            LocalDate.now(),
-            LocalTime.of(0, 0),
-            ZoneOffset.ofHours(-8)
+            LocalDate.now(), LocalTime.of(0, 0), ZoneOffset.ofHours(-8)
         ).plusDays(1).toInstant()
-        gameState.requiresUpdate
     }
 }
