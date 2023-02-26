@@ -148,7 +148,7 @@ class LogisticsSupportModule(navigator: Navigator) : ScriptModule(navigator) {
 
         region.waitHas(FT("logistics/formation.png"), 10000)
         if (!echelon.clickEchelon(this, 50)) {
-            region.findBest(FT("logistics/cancel-deploy.png"))?.region?.click()
+            region.findBest(FT("cancel-deploy.png"))?.region?.click()
             return
         }
         // Click ok button
