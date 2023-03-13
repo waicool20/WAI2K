@@ -30,6 +30,7 @@ version = "0.0.1"
 
 dependencies {
     implementation(kotlin("stdlib"))
+    implementation(kotlin("reflect"))
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
 }
 
@@ -58,6 +59,5 @@ tasks {
         archiveVersion.set("")
         destinationDirectory.set(file("$buildDir/artifacts/"))
         manifest { attributes(mapOf("Main-Class" to "com.waicool20.wai2k.launcher.Main")) }
-        exclude("kotlin/reflect/**")
     }
 }

@@ -139,7 +139,7 @@ object Main {
                 // Just try to launch wai2k anyways if anything unexpected happens ¯\_(ツ)_/¯
             }
         }
-        launchWai2k(args)
+        launchWai2k()
     }
 
     private fun checkFile(file: String) {
@@ -323,7 +323,7 @@ object Main {
         zis.close()
     }
 
-    private fun launchWai2k(args: Array<String>) {
+    private fun launchWai2k() {
         frame.isVisible = false
         frame.dispose()
 
@@ -338,16 +338,25 @@ object Main {
             jars.joinToString(":", postfix = ":") + "$appPath/WAI2K-Core.jar"
         }
 
+        val args = mutableListOf("java", "-cp", classpath)
+
+        args += parseArgsFromFile(appPath.resolve("jvm.args"))
+        args += "com.waicool20.wai2k.Wai2kKt"
+        args += parseArgsFromFile(appPath.resolve("wai2k.args"))
+
         println("Launching WAI2K")
-        println("Classpath: $classpath")
-        println("Args: ${args.joinToString()}")
-        val process = ProcessBuilder(
-            "java", "-cp",
-            classpath,
-            "com.waicool20.wai2k.Wai2kKt",
-            *args
-        ).directory(appPath.toFile()).inheritIO().start()
+        println("Command: ${args.joinToString(" ")}")
+        val process = ProcessBuilder(args).directory(appPath.toFile()).inheritIO().start()
         process.waitFor()
         exitProcess(process.exitValue())
+    }
+
+    private fun parseArgsFromFile(path: Path): List<String> {
+        val argRegex = Regex("([^\"]\\S*|\".+?\")\\s*")
+        if (path.notExists()) return emptyList()
+        val content = path.readText()
+        return argRegex.findAll(content).mapNotNull {
+            it.groupValues.getOrNull(1)?.removeSurrounding("\"")
+        }.toList()
     }
 }
