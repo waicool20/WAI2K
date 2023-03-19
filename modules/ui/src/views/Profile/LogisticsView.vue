@@ -16,14 +16,16 @@
     <label class="label cursor-pointer">
       <span class="label-text">Receive mode</span>
       <select class="select w-1/4 max-w-xs" v-model="receiveMode">
-        <option v-for="mode in logisticsReceiveModeList" :key="mode">
+        <option v-for="(mode, key) in logisticsReceiveModeList" :key="key">
           {{ mode }}
         </option>
       </select>
     </label>
   </div>
   <h2 class="text-xl my-4 px-1">Assignments</h2>
-  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-7 gap-0.5">
+  <div
+    class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-7 gap-0.5"
+  >
     <label
       for="assignment-modal"
       class="echelon btn btn-primary btn-sm"

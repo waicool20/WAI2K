@@ -155,7 +155,6 @@ router.beforeEach((to) => {
   console.log(to);
   const containStore: RouteRecordNormalized | null =
     to.matched.find((item) => item.meta.store !== undefined) || null;
-  console.log(containStore);
 
   if (containStore) {
     // @ts-ignore

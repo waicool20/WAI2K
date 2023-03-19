@@ -150,6 +150,7 @@ export const useProfileStore = defineStore("profile", {
   }),
   actions: {
     async load() {
+      console.log(this.$api);
       const result = await this.axios.get(this.$api + "/profile/current");
       this.$patch(result.data);
       this.name = result.data.name_property.value;

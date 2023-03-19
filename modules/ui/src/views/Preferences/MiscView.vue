@@ -11,7 +11,7 @@
         <span class="label-text">Capture method</span>
         <select class="select w-1/4 max-w-xs">
           <option disabled selected>Pick screen capture method</option>
-          <option v-for="capture in captureMethodList" :key="capture">
+          <option v-for="(capture, key) in captureMethodList" :key="key">
             {{ capture }}
           </option>
         </select>
@@ -22,7 +22,7 @@
         <span class="label-text">Capture compression mode</span>
         <select class="select w-1/4 max-w-xs">
           <option disabled selected>Pick compression mode</option>
-          <option v-for="compression in compressionModeList" :key="compression">
+          <option v-for="(compression, key) in compressionModeList" :key="key">
             {{ compression }}
           </option>
         </select>

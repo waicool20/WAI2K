@@ -47,6 +47,7 @@ dependencies {
         val KotlinCoroutines = "1.6.4"
         val Jackson = "2.14.2"
         val OpenJfx = "16"
+        val Ktor = "2.2.3"
     }
 
     implementation(kotlin("stdlib"))
@@ -93,8 +94,15 @@ dependencies {
         implementation("org.openjfx", "javafx-web", versions.OpenJfx, classifier = p)
     }
 
-    implementation("com.waicool20:waicoolUtils")
-    implementation("com.waicool20.cvauto:android")
+    api("com.waicool20:waicoolUtils")
+    api("com.waicool20.cvauto:android")
+
+    implementation("io.ktor", "ktor-server-core", versions.Ktor)
+    implementation("io.ktor", "ktor-server-netty", versions.Ktor)
+    implementation("io.ktor", "ktor-server-cors", versions.Ktor)
+    implementation("io.ktor", "ktor-server-content-negotiation", versions.Ktor)
+    implementation("io.ktor", "ktor-server-websockets", versions.Ktor)
+    implementation("io.ktor", "ktor-serialization-jackson", versions.Ktor)
 }
 
 tasks {

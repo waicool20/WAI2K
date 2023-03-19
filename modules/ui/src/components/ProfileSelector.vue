@@ -8,17 +8,20 @@
       class="dropdown-content menu p-2 shadow-xl bg-base-100 rounded-box w-100"
     >
       <li
-        v-for="profile in store.profiles"
-        :key="profile"
+        v-for="(profile, index) in store.profiles"
+        :key="index"
         class="grid grid-cols-5 m-2 gap-2"
       >
         <a
-          @click.prevent="loadProfile(profile)"
+          @click.prevent="loadProfile(profile.toString())"
           class="col-span-4"
           :class="{ active: profile === profileName }"
           >{{ profile }}</a
         >
-        <a class="btn btn-error" @click.prevent="deleteProfile(profile)">
+        <a
+          class="btn btn-error"
+          @click.prevent="deleteProfile(profile.toString())"
+        >
           <font-awesome-icon icon="fa-solid fa-trash" />
         </a>
       </li>
@@ -30,7 +33,9 @@
         </div>
       </li>
       <li class="hover:bg-transparent focus:bg-transparent mx-2">
-        <div class="form-control hover:bg-transparent focus:bg-transparent px-0">
+        <div
+          class="form-control hover:bg-transparent focus:bg-transparent px-0"
+        >
           <div class="input-group">
             <input
               type="text"
