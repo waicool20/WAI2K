@@ -21,7 +21,7 @@
     <Appenders>
         <Console name="Console" follow="true" target="SYSTEM_OUT">
             <PatternLayout
-                    pattern="[WAI2K] [%date{yyyy-MM-dd HH:mm:ss.SSS}] [%20.20logger{1.}] %-5level - %msg%n"/>
+                    pattern="[WAI2K] [%date{yyyy-MM-dd HH:mm:ss.SSS}] [%20.20logger{1.}] %highlight{%-5level} - %msg%n"/>
         </Console>
         <RollingFile name="RollingFile" fileName="wai2k/debug.log" filePattern="debug.%i.log.zip">
             <PatternLayout
