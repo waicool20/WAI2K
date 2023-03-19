@@ -40,7 +40,7 @@ fun Application.rootRoutes() {
             IOHook.hookToStdOut(output)
             IOHook.hookToStdErr(output)
             for (str in channel) {
-                send(str.trimEnd())
+                send(str)
             }
         }
     }

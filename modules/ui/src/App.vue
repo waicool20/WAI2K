@@ -44,6 +44,7 @@ classifierStore.load();
 const appStore = useAppStore();
 
 const term = new Terminal({
+  convertEol: true,
   disableStdin: true,
 });
 
@@ -75,7 +76,7 @@ const connectIO = () => {
     console.log("Connected to WAI2K IO");
   };
   socket.onmessage = async (event) => {
-    term.writeln(event.data);
+    term.write(event.data);
   };
   socket.onclose = () => {
     console.log("Disconnected from WAI2K IO, reconnecting...");
