@@ -25,6 +25,7 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.context
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.multiple
+import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.path
 import com.waicool20.cvauto.android.ADB
@@ -59,6 +60,8 @@ object Wai2k : CliktCommand(treatUnknownOptionsAsArgs = true) {
 
     val ASSETS_DIR: Path? by option("--assets-dir", help = "Assets directory path")
         .path(canBeFile = false)
+    val WEB: Boolean? by option("--web", help = "Disable system ui and expose web host")
+        .flag()
     private val EXTRA_ARGS by argument().multiple()
 
     private var _config: Wai2kConfig? = null
@@ -91,10 +94,15 @@ object Wai2k : CliktCommand(treatUnknownOptionsAsArgs = true) {
 
     override fun run() {
         thread(name = "Wai2k application loader", isDaemon = true) { initialize() }
-        thread(name = "Wai2k web", isDaemon = false) {
-            io.ktor.server.netty.EngineMain.main(emptyArray())
+        logger.debug(WEB.toString())
+        if (WEB == true) {
+            thread(name = "Wai2k web", isDaemon = false) {
+                io.ktor.server.netty.EngineMain.main(emptyArray())
+            }
+        } else {
+            Application.launch(Wai2kUI::class.java)
         }
-        Application.launch(Wai2kUI::class.java)
+
     }
 
     private fun initialize() {
