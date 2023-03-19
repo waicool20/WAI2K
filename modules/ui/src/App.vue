@@ -11,13 +11,13 @@
     </div>
     <button class="bg-neutral-content" @click.prevent="toggleTerm()">
       <font-awesome-icon
-          class="text-3xl transition duration-300"
+          class="text-3xl transition-all duration-300"
           :class="appStore.showTerm ? 'rotate-0' : 'rotate-180'"
           icon="fa-solid fa-angle-right"
       />
     </button>
     <div
-        class="overflow-x-scroll transition duration-300"
+        class="overflow-x-scroll transition-all duration-300"
         :class="appStore.showTerm ? 'basis-1/3' : 'basis-0'"
     >
       <div id="term" class="h-full"/>
@@ -51,21 +51,23 @@ const fitAddon = new FitAddon();
 term.loadAddon(fitAddon);
 
 onresize = () => {
-  debounce(() => {
-    fitAddon.fit();
-  }, 300);
+  fitTerm();
 };
 
 onMounted(() => {
   term.open(document.getElementById("term")!);
-  setTimeout(() => fitAddon.fit(), 100);
+  fitTerm();
   connectIO();
 });
 
 const toggleTerm = () => {
   appStore.showTerm = !appStore.showTerm;
-  setTimeout(() => fitAddon.fit(), 100);
+  fitTerm();
 };
+
+const fitTerm = debounce(() => {
+  fitAddon.fit();
+}, 300);
 
 const connectIO = () => {
   const socket = new WebSocket("ws://127.0.0.1:17555/io");
