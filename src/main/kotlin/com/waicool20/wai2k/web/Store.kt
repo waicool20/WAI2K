@@ -22,9 +22,12 @@ package com.waicool20.wai2k.web
 import com.waicool20.wai2k.config.Wai2kConfig
 import com.waicool20.wai2k.config.Wai2kProfile
 import com.waicool20.wai2k.config.Wai2kProfile.CombatReport
+import com.waicool20.wai2k.config.Wai2kProfile.CombatSimulation.Coalition.Type
+import com.waicool20.wai2k.config.Wai2kProfile.CombatSimulation.Level
 import com.waicool20.wai2k.config.Wai2kProfile.Logistics.ReceivalMode
 import com.waicool20.wai2k.game.CombatMap
 import com.waicool20.wai2k.game.LogisticsSupport
+import com.waicool20.wai2k.game.TDoll
 import com.waicool20.wai2k.script.modules.combat.MapRunner
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.nameWithoutExtension
@@ -58,18 +61,38 @@ sealed class Store {
             val eventMaps = MapRunner.list.keys.filterIsInstance<CombatMap.EventMap>()
             val campaignMaps = MapRunner.list.keys.filterIsInstance<CombatMap.CampaignMap>()
 
-            val maps: Map<String, List<String>> = mutableMapOf(
-                "normal" to storyMaps.filter { it.type == CombatMap.Type.NORMAL }.map { it.name }.sortedWith(comparator),
-                "emergency" to storyMaps.filter { it.type == CombatMap.Type.EMERGENCY }.map { it.name }.sortedWith(comparator),
-                "night" to storyMaps.filter { it.type == CombatMap.Type.NIGHT }.map { it.name }.sortedWith(comparator),
-                "campaign" to campaignMaps.map { it.name }.sortedWith(comparator),
-                "event" to eventMaps.map { it.name }.sortedWith(naturalOrder())
+            return mapOf(
+                "normal" to storyMaps.filter { it.type == CombatMap.Type.NORMAL }
+                    .map { it.name }
+                    .sortedWith(comparator),
+                "emergency" to storyMaps.filter { it.type == CombatMap.Type.EMERGENCY }
+                    .map { it.name }
+                    .sortedWith(comparator),
+                "night" to storyMaps.filter { it.type == CombatMap.Type.NIGHT }
+                    .map { it.name }
+                    .sortedWith(comparator),
+                "campaign" to campaignMaps
+                    .map { it.name }
+                    .sortedWith(comparator),
+                "event" to eventMaps
+                    .map { it.name }
+                    .sortedWith(naturalOrder())
             )
-
-            return maps
         }
 
-        val logisticsReceivalModeList = ReceivalMode.values()
+        fun dolls(): List<TDoll> {
+            return TDoll.listAll(this.config()).sortedBy { it.name }
+        }
+
+        fun combatSim(): Map<String, List<Enum<*>>> {
+            return mapOf(
+                "data" to Level.values().toList(),
+                "neural" to listOf(Level.OFF, Level.ADVANCED),
+                "coalition" to Type.values().toList()
+            )
+        }
+
+        val logisticsReceiveModeList = ReceivalMode.values()
             .toList()
             .sortedWith(naturalOrder())
 

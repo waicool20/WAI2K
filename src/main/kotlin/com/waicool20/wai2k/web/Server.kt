@@ -52,10 +52,16 @@ fun Application.module() {
             call.respond(Store.combatReportTypeList)
         }
         get("/classifier/logisticts-retrieval") {
-            call.respond(Store.logisticsReceivalModeList)
+            call.respond(Store.logisticsReceiveModeList)
         }
         get("/classifier/maps") {
             call.respond(Store.maps())
+        }
+        get("/classifier/dolls") {
+            call.respond(Store.dolls())
+        }
+        get("/classifier/combat-sim") {
+            call.respond(Store.combatSim())
         }
     }
 }
