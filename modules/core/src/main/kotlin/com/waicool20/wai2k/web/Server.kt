@@ -30,6 +30,7 @@ import com.waicool20.wai2k.util.YuuBot
 import com.waicool20.wai2k.util.loggerFor
 import com.waicool20.waicoolutils.javafx.json.ListPropertyDeserializer
 import com.waicool20.waicoolutils.javafx.json.ignoreJavaFXPropertyTypes
+import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
@@ -39,12 +40,19 @@ import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
+import io.ktor.server.response.respondOutputStream
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
+import io.ktor.websocket.CloseReason
+import io.ktor.websocket.Frame
+import io.ktor.websocket.close
 import javafx.beans.property.ListProperty
 import kotlinx.coroutines.*
+import java.awt.image.DataBufferByte
+import javax.imageio.ImageIO
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+import kotlin.system.measureTimeMillis
 
 data class CheckApiKeyRequest(val apiKey: String)
 data class CheckApiMessageRequest(val apiKey: String, val title: String, val message: String)
@@ -84,6 +92,7 @@ fun Application.module() {
             ignoreJavaFXPropertyTypes()
         }
     }
+    install(WebSockets)
     routing {
         get("/") {
             call.respond(Store.config())
@@ -101,6 +110,7 @@ fun Application.module() {
         get("/devices") {
             call.respond(ADB.getDevices().map { it.serial })
         }
+        device()
         yuubot()
     }
 }
@@ -135,6 +145,91 @@ private fun Routing.classifier() = route("/classifier") {
     }
     get("/maps") {
         call.respond(Store.maps())
+    }
+}
+
+private fun Routing.device() = route("/device/{serial}") {
+    get("/connect") {
+        val device = suspendCoroutine { cont ->
+            ADB.connect(call.parameters["serial"] ?: "", cont::resume)
+        }
+
+        if (device == null) {
+            call.respond(HttpStatusCode.NotFound)
+        } else {
+            call.respond(HttpStatusCode.OK)
+        }
+    }
+    webSocket("/test-latency") {
+        val device = ADB.getDevice(call.parameters["serial"] ?: "")
+            ?: run {
+                close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, "Invalid device serial"))
+                return@webSocket
+            }
+        val times = call.request.queryParameters["times"]?.toIntOrNull() ?: 10
+        var totalTime = 0L
+
+        repeat(times) { i ->
+            val time = measureTimeMillis { device.screens[0].capture() }
+            delay(100)
+            send(Frame.Text("$i $time"))
+            totalTime += time
+        }
+        send(Frame.Text("avg ${totalTime / times}"))
+        close(CloseReason(CloseReason.Codes.NORMAL, "End of Test"))
+    }
+    get("/toggle-pointer-info") {
+        val device = ADB.getDevice(call.parameters["serial"] ?: "")
+            ?: run {
+                call.respond(HttpStatusCode.BadRequest, StatusResponse("Invalid device serial"))
+                return@get
+            }
+        device.togglePointerInfo()
+        call.respond(HttpStatusCode.OK)
+    }
+    get("/toggle-touches") {
+        val device = ADB.getDevice(call.parameters["serial"] ?: "")
+            ?: run {
+                call.respond(HttpStatusCode.BadRequest, StatusResponse("Invalid device serial"))
+                return@get
+            }
+        device.toggleTouches()
+        call.respond(HttpStatusCode.OK)
+    }
+    get("/capture") {
+        val device = ADB.getDevice(call.parameters["serial"] ?: "")
+            ?: run {
+                call.respond(HttpStatusCode.BadRequest, StatusResponse("Invalid device serial"))
+                return@get
+            }
+        val img = device.screens[0].capture()
+        when (call.request.queryParameters["format"]?.lowercase()) {
+            "png" -> call.respondOutputStream(ContentType.Image.PNG, HttpStatusCode.OK) {
+                withContext(Dispatchers.IO) {
+                    ImageIO.write(img, "PNG", this@respondOutputStream)
+                }
+            }
+            "jpg", "jpeg" -> call.respondOutputStream(
+                ContentType.Image.JPEG,
+                HttpStatusCode.OK
+            ) {
+                withContext(Dispatchers.IO) {
+                    ImageIO.write(img, "JPEG", this@respondOutputStream)
+                }
+            }
+            "raw", null -> call.respondOutputStream(
+                ContentType.Application.OctetStream,
+                HttpStatusCode.OK
+            ) {
+                withContext(Dispatchers.IO) {
+                    write((img.raster.dataBuffer as DataBufferByte).data)
+                }
+            }
+            else -> call.respond(
+                HttpStatusCode.BadRequest,
+                StatusResponse("Format must be one of [png|jpg|jpeg|raw]")
+            )
+        }
     }
 }
 
