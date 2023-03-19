@@ -36,7 +36,7 @@ fun Application.module() {
         get("/") {
             call.respond(Store.config())
         }
-        get("/profile") {
+        get("/profiles") {
             call.respond(Store.profiles())
         }
         get("/profile/current") {
@@ -53,6 +53,9 @@ fun Application.module() {
         }
         get("/classifier/logisticts-retrieval") {
             call.respond(Store.logisticsReceivalModeList)
+        }
+        get("/classifier/maps") {
+            call.respond(Store.maps())
         }
     }
 }
