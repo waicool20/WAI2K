@@ -35,6 +35,7 @@ import com.waicool20.wai2k.config.Wai2kProfile
 import com.waicool20.wai2k.events.*
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.loggerFor
+import com.waicool20.wai2k.web.Server
 import com.waicool20.waicoolutils.CLib
 import javafx.application.Application
 import org.bytedeco.javacpp.Loader
@@ -95,10 +96,9 @@ object Wai2k : CliktCommand(treatUnknownOptionsAsArgs = true) {
     override fun run() {
         thread(name = "Wai2k application loader", isDaemon = true) { initialize() }
         if (WEB == true) {
-            io.ktor.server.netty.EngineMain.main(emptyArray())
-        } else {
-            Application.launch(Wai2kUI::class.java)
+            thread(name = "Wai2k web server", isDaemon = true) { Server().run() }
         }
+        Application.launch(Wai2kUI::class.java)
 
     }
 
