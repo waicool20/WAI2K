@@ -23,7 +23,9 @@ import com.fasterxml.jackson.databind.*
 import com.fasterxml.jackson.databind.annotation.*
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.waicool20.cvauto.android.ADB
+import com.waicool20.wai2k.config.Wai2kProfile
 import com.waicool20.wai2k.util.YuuBot
+import com.waicool20.wai2k.util.loggerFor
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
@@ -73,7 +75,13 @@ fun Application.module() {
             call.respond(Store.profile())
         }
         get("/profile/{name}") {
+            val logger = loggerFor<Application>();
+            logger.debug(call.parameters.toString())
             call.respond(Store.profile(call.parameters["name"]))
+        }
+        delete("/profile/{name}") {
+            Store.profile(call.parameters["name"]).delete()
+            call.respond(Pair(StatusResponse("Deleted"), HttpStatusCode.Accepted))
         }
         get("/classifier/maps") {
             call.respond(Store.maps())

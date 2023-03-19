@@ -112,6 +112,7 @@ object Wai2k : CliktCommand(treatUnknownOptionsAsArgs = true) {
         initTesseract()
         initML()
         EventBus.tryPublish(StartupCompleteEvent())
+        logger.debug(WEB.toString())
         logger.info("\n${txtResource("/banner.txt")}\n\n\tWai2k application startup complete! Welcome back Commander ~\n")
     }
 

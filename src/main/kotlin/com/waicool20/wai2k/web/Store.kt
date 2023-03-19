@@ -20,6 +20,7 @@
 package com.waicool20.wai2k.web
 
 import com.waicool20.cvauto.android.AndroidDevice
+import com.waicool20.wai2k.Wai2k
 import com.waicool20.wai2k.config.Wai2kConfig
 import com.waicool20.wai2k.config.Wai2kProfile
 import com.waicool20.wai2k.config.Wai2kProfile.CombatReport
@@ -29,6 +30,7 @@ import com.waicool20.wai2k.config.Wai2kProfile.Logistics.ReceivalMode
 import com.waicool20.wai2k.game.CombatMap
 import com.waicool20.wai2k.game.LogisticsSupport
 import com.waicool20.wai2k.game.TDoll
+import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.script.modules.combat.MapRunner
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.nameWithoutExtension
@@ -36,7 +38,7 @@ import kotlin.io.path.nameWithoutExtension
 sealed class Store {
     companion object {
         fun config(): Wai2kConfig {
-            return Wai2kConfig.load()
+            return Wai2k.config
         }
 
         fun profile(): Wai2kProfile {
@@ -47,7 +49,12 @@ sealed class Store {
             if (name.isNullOrEmpty()) {
                 return this.profile()
             }
-            return Wai2kProfile.load(name)
+
+            config().currentProfile = name
+            val profile = Wai2kProfile.load(name)
+            Wai2k.scriptRunner.profile = profile
+
+            return profile
         }
 
         fun profiles(): List<String> {
