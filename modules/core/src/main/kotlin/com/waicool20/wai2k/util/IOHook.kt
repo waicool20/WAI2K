@@ -23,23 +23,26 @@ import com.waicool20.waicoolutils.streams.TeeOutputStream
 import java.io.IOException
 import java.io.OutputStream
 import java.io.PrintStream
-
+import java.util.concurrent.CopyOnWriteArrayList
 
 object IOHook {
     private class OutputStreamGroup : OutputStream() {
-        private val streams = mutableListOf<OutputStream>()
+        data class OSContainer(val os: OutputStream, var open: Boolean = true)
+
+        private val streams = CopyOnWriteArrayList<OSContainer>()
         override fun write(b: Int) {
-            streams.forEach {
+            streams.asSequence().filter { it.open }.forEach { stream ->
                 try {
-                    it.write(b)
+                    stream.os.write(b)
                 } catch (e: IOException) {
-                    streams.remove(it)
+                    stream.open = false
                 }
             }
         }
 
         fun add(os: OutputStream) {
-            streams.add(os)
+            streams.removeAll { !it.open }
+            streams.add(OSContainer(os))
         }
     }
 
