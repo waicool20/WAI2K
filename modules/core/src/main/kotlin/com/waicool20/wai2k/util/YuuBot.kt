@@ -36,6 +36,7 @@ class YuuBot(var apiKey: String = "") {
     private val JSON_MEDIA_TYPE = "application/json".toMediaTypeOrNull()
 
     enum class ApiKeyStatus { VALID, INVALID, UNKNOWN }
+    enum class MessageStatus { OK, FAIL }
 
     fun postEvent(event: ScriptEvent, onComplete: () -> Unit = {}) {
         if (apiKey.isEmpty() || apiKey.equals("off", true)) {
@@ -151,7 +152,7 @@ class YuuBot(var apiKey: String = "") {
         })
     }
 
-    fun postMessage(title: String, body: String, onComplete: () -> Unit = {}) {
+    fun postMessage(title: String, body: String, onComplete: (MessageStatus) -> Unit = {}) {
         if (apiKey.isEmpty() || apiKey.equals("off", true)) {
             logger.warn("API key is empty, YuuBot reporting is disabled.")
             return
@@ -177,16 +178,18 @@ class YuuBot(var apiKey: String = "") {
                 when (val code = response.code) {
                     200 -> {
                         logger.info("Posted message to YuuBot, response was: $code")
+                        onComplete(MessageStatus.OK)
                     }
                     else -> {
                         logger.warn("Failed to post message to YuuBot, response was: $code")
+                        onComplete(MessageStatus.FAIL)
                     }
                 }
-                onComplete()
             }
 
             override fun onFailure(call: Call, e: IOException) {
                 logger.warn("Failed to post message to YuuBot, maybe your internet is down?")
+                onComplete(MessageStatus.FAIL)
             }
         })
     }
