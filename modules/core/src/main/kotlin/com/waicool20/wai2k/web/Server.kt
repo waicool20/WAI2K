@@ -43,7 +43,8 @@ import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import javafx.beans.property.ListProperty
 import kotlinx.coroutines.*
-import java.util.concurrent.CountDownLatch
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 data class CheckApiKeyRequest(val apiKey: String)
 data class CheckApiMessageRequest(val apiKey: String, val title: String, val message: String)
@@ -57,8 +58,9 @@ class Server {
     }
 }
 
+val logger = loggerFor<Server>()
+
 fun Application.module() {
-    val logger = loggerFor<Server>()
     install(CORS) {
         allowMethod(HttpMethod.Options)
         allowMethod(HttpMethod.Get)
@@ -79,9 +81,7 @@ fun Application.module() {
             registerModule(SimpleModule().apply {
                 addDeserializer(ListProperty::class.java, ListPropertyDeserializer<Any>())
             })
-            this.apply {
-                this.ignoreJavaFXPropertyTypes()
-            }
+            ignoreJavaFXPropertyTypes()
         }
     }
     routing {
@@ -96,76 +96,75 @@ fun Application.module() {
         get("/profiles") {
             call.respond(Store.profiles())
         }
-        get("/profile/{name}") {
-            val config = Store.config()
-            config.currentProfile = call.parameters["name"]
-            config.save()
+        profile()
+        classifier()
+        get("/devices") {
+            call.respond(ADB.getDevices().map { it.serial })
+        }
+        yuubot()
+    }
+}
 
-            call.respond(Store.profile(call.parameters["name"]))
-        }
-        post("/profile/{name}") {
-            val config = Store.config()
-            config.currentProfile = call.parameters["name"]
-            config.save()
+private fun Routing.profile() = route("/profile") {
+    get("/{name}") {
+        val config = Store.config()
+        config.currentProfile = call.parameters["name"]
+        config.save()
+        call.respond(Store.profile(call.parameters["name"]))
+    }
+    post("/{name}") {
+        val config = Store.config()
+        config.currentProfile = call.parameters["name"]
+        config.save()
+        val profile = call.receive<Wai2kProfile>()
+        profile.also {
+            it.name = call.parameters["name"]
+            logger.debug(it.toString())
+        }.save()
+        call.respond(Store.profile(call.parameters["name"]))
+    }
+    delete("/{name}") {
+        Store.profile(call.parameters["name"]).delete()
+        call.respond(HttpStatusCode.OK)
+    }
+}
 
-            val profile = call.receive<Wai2kProfile>()
-            profile.also {
-                it.name = call.parameters["name"]
-                logger.debug(it.toString())
-            }.save()
-            call.respond(Store.profile(call.parameters["name"]))
-        }
-        delete("/profile/{name}") {
-            Store.profile(call.parameters["name"]).delete()
-            call.respond(Pair(StatusResponse("Deleted"), HttpStatusCode.Accepted))
-        }
-        get("/classifier/maps") {
-            call.respond(Store.maps())
-        }
-        get("/classifier") {
-            call.respond(Store.classifier())
-        }
-        get("/device/list") {
-            call.respond(ADB.getDevices())
-        }
-        post("/yuubot/apikey") {
-            val request = call.receive<CheckApiKeyRequest>()
-            var response = Pair(StatusResponse("Unknown Yuu error"), HttpStatusCode.NotModified)
-            val countDownLatch = CountDownLatch(1)
+private fun Routing.classifier() = route("/classifier") {
+    get {
+        call.respond(Store.classifier())
+    }
+    get("/maps") {
+        call.respond(Store.maps())
+    }
+}
 
-            YuuBot(request.apiKey).testApiKey { status ->
-                response = when (status) {
-                    YuuBot.ApiKeyStatus.VALID -> {
-                        Pair(StatusResponse("Success"), HttpStatusCode.OK)
-                    }
-                    YuuBot.ApiKeyStatus.INVALID -> {
-                        Pair(StatusResponse("Invalid API key"), HttpStatusCode.NotAcceptable)
-                    }
-                    YuuBot.ApiKeyStatus.UNKNOWN -> {
-                        Pair(StatusResponse("Unknown Yuu error"), HttpStatusCode.NotModified)
-                    }
-                }
-                countDownLatch.countDown()
-            }
-
-            withContext(Dispatchers.IO) {
-                countDownLatch.await()
-                call.respond(response.second, response.first)
-            }
+private fun Routing.yuubot() = route("/yuubot") {
+    post("/apikey") {
+        val request = call.receive<CheckApiKeyRequest>()
+        val status = suspendCoroutine { cont ->
+            YuuBot(request.apiKey).testApiKey(cont::resume)
         }
-        post("/yuubot/message") {
-            val request = call.receive<CheckApiMessageRequest>()
-            val response = Pair(StatusResponse("Sent message"), HttpStatusCode.OK)
-            val countDownLatch = CountDownLatch(1)
-
-            YuuBot(request.apiKey).postMessage(request.title, request.message) {
-                countDownLatch.countDown()
-            }
-
-            withContext(Dispatchers.IO) {
-                countDownLatch.await()
-                call.respond(response.second, response.first)
-            }
+        when (status) {
+            YuuBot.ApiKeyStatus.VALID -> call.respond(HttpStatusCode.OK)
+            YuuBot.ApiKeyStatus.INVALID -> call.respond(
+                HttpStatusCode.NotAcceptable,
+                StatusResponse("Invalid API key")
+            )
+            YuuBot.ApiKeyStatus.UNKNOWN -> call.respond(
+                HttpStatusCode.NotModified,
+                StatusResponse("Unknown Yuu error")
+            )
+        }
+    }
+    post("/message") {
+        val request = call.receive<CheckApiMessageRequest>()
+        val status = suspendCoroutine { cont ->
+            YuuBot(request.apiKey).postMessage(request.title, request.message, cont::resume)
+        }
+        when (status) {
+            YuuBot.MessageStatus.OK -> call.respond(HttpStatusCode.OK)
+            YuuBot.MessageStatus.FAIL -> call.respond(HttpStatusCode.BadRequest)
         }
     }
 }
+
