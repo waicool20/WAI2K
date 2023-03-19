@@ -19,15 +19,28 @@
 
 package com.waicool20.wai2k.web
 
+import com.fasterxml.jackson.databind.*
+import com.fasterxml.jackson.databind.annotation.*
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.waicool20.cvauto.android.ADB
-import io.ktor.serialization.jackson.jackson
+import com.waicool20.wai2k.util.YuuBot
+import io.ktor.http.HttpStatusCode
+import io.ktor.serialization.jackson.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.cors.routing.CORS
-import io.ktor.server.response.*
+import io.ktor.server.request.receive
+import io.ktor.server.response.respond
 import io.ktor.server.routing.*
+import io.ktor.server.websocket.*
+import kotlinx.coroutines.*
+import java.util.concurrent.CountDownLatch
 
+data class CheckApiKeyRequest(val apiKey: String)
+data class CheckApiMessageRequest(val apiKey: String, val title: String, val message: String)
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
+data class StatusResponse(val message: String)
 fun Application.module() {
     install(ContentNegotiation) {
         jackson {
@@ -36,6 +49,12 @@ fun Application.module() {
     }
     install(CORS) {
         anyHost()
+    }
+    install(WebSockets) {
+        val om = jacksonObjectMapper()
+        om.registerModule(JavaTimeModule())
+
+        contentConverter = JacksonWebsocketContentConverter(om)
     }
     routing {
         get("/") {
@@ -58,6 +77,45 @@ fun Application.module() {
         }
         get("/device/list") {
             call.respond(ADB.getDevices())
+        }
+        post("/yuubot/apikey") {
+            val request = call.receive<CheckApiKeyRequest>()
+            var response = Pair(StatusResponse("Unknown Yuu error"), HttpStatusCode.NotModified)
+            val countDownLatch = CountDownLatch(1)
+
+            YuuBot(request.apiKey).testApiKey { status ->
+                response = when (status) {
+                    YuuBot.ApiKeyStatus.VALID -> {
+                        Pair(StatusResponse("Success"), HttpStatusCode.OK)
+                    }
+                    YuuBot.ApiKeyStatus.INVALID -> {
+                        Pair(StatusResponse("Invalid API key"), HttpStatusCode.NotAcceptable)
+                    }
+                    YuuBot.ApiKeyStatus.UNKNOWN -> {
+                        Pair(StatusResponse("Unknown Yuu error"), HttpStatusCode.NotModified)
+                    }
+                }
+                countDownLatch.countDown()
+            }
+
+            withContext(Dispatchers.IO) {
+                countDownLatch.await()
+                call.respond(response.second, response.first)
+            }
+        }
+        post("/yuubot/message") {
+            val request = call.receive<CheckApiMessageRequest>()
+            val response = Pair(StatusResponse("Sent message"), HttpStatusCode.OK)
+            val countDownLatch = CountDownLatch(1)
+
+            YuuBot(request.apiKey).postMessage(request.title, request.message) {
+                countDownLatch.countDown()
+            }
+
+            withContext(Dispatchers.IO) {
+                countDownLatch.await()
+                call.respond(response.second, response.first)
+            }
         }
     }
 }
