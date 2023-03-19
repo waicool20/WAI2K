@@ -19,9 +19,9 @@
 
 package com.waicool20.wai2k.views
 
+import com.waicool20.wai2k.util.IOHook
 import com.waicool20.waicoolutils.javafx.tooltips.fadeAfter
 import com.waicool20.waicoolutils.javafx.tooltips.showAt
-import com.waicool20.waicoolutils.streams.TeeOutputStream
 import com.waicool20.waicoolutils.streams.TextAreaOutputStream
 import javafx.scene.control.Button
 import javafx.scene.control.TextArea
@@ -29,7 +29,6 @@ import javafx.scene.control.Tooltip
 import javafx.scene.input.Clipboard
 import javafx.scene.layout.GridPane
 import tornadofx.*
-import java.io.PrintStream
 
 class ConsoleView : View() {
     override val root: GridPane by fxml("/views/console.fxml")
@@ -38,18 +37,15 @@ class ConsoleView : View() {
     private val toTopButton: Button by fxid()
     private val toBottomButton: Button by fxid()
     private val copyButton: Button by fxid()
-    private var outStream: PrintStream
-    private var errStream: PrintStream
+
 
     val logs get() = consoleTextArea.text
 
     init {
         title = "WAI2K - Console"
         val textArea = TextAreaOutputStream(consoleTextArea)
-        outStream = PrintStream(TeeOutputStream(System.out, textArea))
-        errStream = PrintStream(TeeOutputStream(System.err, textArea))
-        System.setOut(outStream)
-        System.setErr(errStream)
+        IOHook.hookToStdOut(textArea)
+        IOHook.hookToStdErr(textArea)
 
         clearButton.setOnAction {
             consoleTextArea.clear()
