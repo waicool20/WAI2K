@@ -22,6 +22,6 @@ rootProject.name = "WAI2K"
 includeBuild("deps/waicoolUtils")
 includeBuild("deps/CVAuto")
 
-for (module in arrayOf("core", "assets", "launcher")) {
+for (module in arrayOf("core", "assets", "launcher", "ui")) {
     include(":modules:$module")
 }
