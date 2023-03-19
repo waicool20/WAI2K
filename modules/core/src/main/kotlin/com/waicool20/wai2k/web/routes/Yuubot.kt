@@ -20,8 +20,6 @@
 package com.waicool20.wai2k.web.routes
 
 import com.waicool20.wai2k.util.YuuBot
-import com.waicool20.wai2k.web.CheckApiKeyRequest
-import com.waicool20.wai2k.web.CheckApiMessageRequest
 import com.waicool20.wai2k.web.StatusResponse
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
@@ -34,6 +32,9 @@ import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+
+data class CheckApiKeyRequest(val apiKey: String)
+data class CheckApiMessageRequest(val apiKey: String, val title: String, val message: String)
 
 fun Application.yuubotRoutes() {
     routing {

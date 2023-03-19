@@ -20,8 +20,6 @@
 package com.waicool20.wai2k.web.routes
 
 import com.waicool20.wai2k.config.Wai2kProfile
-import com.waicool20.wai2k.util.loggerFor
-import com.waicool20.wai2k.web.Server
 import com.waicool20.wai2k.web.Store
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application

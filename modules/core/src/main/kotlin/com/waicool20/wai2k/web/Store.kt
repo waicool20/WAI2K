@@ -37,6 +37,10 @@ import kotlin.io.path.nameWithoutExtension
 
 sealed class Store {
     companion object {
+        fun runner(): ScriptRunner {
+            return Wai2k.scriptRunner
+        }
+
         fun config(): Wai2kConfig {
             return Wai2k.config
         }

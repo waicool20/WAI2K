@@ -37,9 +37,6 @@ import io.ktor.server.websocket.*
 import javafx.beans.property.ListProperty
 import kotlinx.coroutines.*
 
-data class CheckApiKeyRequest(val apiKey: String)
-data class CheckApiMessageRequest(val apiKey: String, val title: String, val message: String)
-
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class StatusResponse(val message: String)
 
