@@ -4,11 +4,11 @@
     <label class="label cursor-pointer">
       <span class="label-text">Enabled</span>
       <input
-        type="checkbox"
-        class="toggle"
-        v-model="enabled"
-        :true-value="true"
-        :false-value="false"
+          type="checkbox"
+          class="toggle"
+          v-model="enabled"
+          :true-value="true"
+          :false-value="false"
       />
     </label>
   </div>
@@ -24,24 +24,24 @@
   </div>
   <h2 class="text-xl my-4 px-1">Assignments</h2>
   <div
-    class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-7 gap-0.5"
+      class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-0.5"
   >
     <label
-      for="assignment-modal"
-      class="echelon btn btn-primary btn-sm"
-      v-for="(assignment, key, index) in assignments"
-      :key="index"
-      @click="openAssignment(key.toString())"
+        for="assignment-modal"
+        class="echelon btn btn-primary btn-sm h-fit p-4"
+        v-for="(assignment, key, index) in assignments"
+        :key="index"
+        @click="openAssignment(key.toString())"
     >
-      <span class="mr-2">Echelon #{{ key }}</span>
-      <font-awesome-icon icon="fa-solid fa-arrow-up-right-from-square" />
+      <span class="m-2">Echelon #{{ key }}</span>
+      <font-awesome-icon icon="fa-solid fa-arrow-up-right-from-square"/>
     </label>
   </div>
   <Teleport to="body">
     <AssignmentModal
-      :index="selectedAssignmentIndex"
-      @close="cancelAssignment"
-      @save="cancelAssignment"
+        :index="selectedAssignmentIndex"
+        @close="cancelAssignment"
+        @save="cancelAssignment"
     />
   </Teleport>
 </template>
@@ -53,7 +53,7 @@ import { useClassifierStore } from "@/stores/classifiers";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import AssignmentModal from "@/components/AssignmentModal.vue";
 
-const { logisticsReceiveModeList } = useClassifierStore();
+const {logisticsReceiveModeList} = useClassifierStore();
 
 const store = useProfileStore();
 
