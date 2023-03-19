@@ -12,13 +12,12 @@
       </RouterLink>
     </div>
     <div class="navbar-center">
-
       <ul class="menu menu-horizontal p-0">
         <li>
           <RouterLink
-              :to="{ name: 'welcome' }"
-              active-class="active rounded-md"
-              class="hover:rounded-md focus:rounded-md"
+            :to="{ name: 'welcome' }"
+            active-class="active rounded-md"
+            class="hover:rounded-md focus:rounded-md"
           >
             <font-awesome-icon icon="fa-solid fa-home" />
             Welcome
@@ -26,9 +25,9 @@
         </li>
         <li>
           <RouterLink
-              :to="{ name: 'status' }"
-              active-class="active rounded-md"
-              class="hover:rounded-md focus:rounded-md"
+            :to="{ name: 'status' }"
+            active-class="active rounded-md"
+            class="hover:rounded-md focus:rounded-md"
           >
             <font-awesome-icon icon="fa-solid fa-circle-info" />
             Status
@@ -36,9 +35,9 @@
         </li>
         <li>
           <RouterLink
-              :to="{ name: 'logistics' }"
-              active-class="active rounded-md"
-              class="hover:rounded-md focus:rounded-md"
+            :to="{ name: 'logistics' }"
+            active-class="active rounded-md"
+            class="hover:rounded-md focus:rounded-md"
           >
             <font-awesome-icon icon="fa-solid fa-user" />
             Profile
@@ -46,9 +45,9 @@
         </li>
         <li>
           <RouterLink
-              :to="{ name: 'restart' }"
-              active-class="active rounded-md"
-              class="hover:rounded-md focus:rounded-md"
+            :to="{ name: 'restart' }"
+            active-class="active rounded-md"
+            class="hover:rounded-md focus:rounded-md"
           >
             <font-awesome-icon icon="fa-solid fa-wrench" />
             Preferences
@@ -56,10 +55,10 @@
         </li>
         <li>
           <RouterLink
-              :to="{ name: 'about' }"
-              icon="fa-solid fa-circle-question"
-              active-class="active rounded-md"
-              class="hover:rounded-md focus:rounded-md"
+            :to="{ name: 'about' }"
+            icon="fa-solid fa-circle-question"
+            active-class="active rounded-md"
+            class="hover:rounded-md focus:rounded-md"
           >
             <font-awesome-icon icon="fa-solid fa-circle-question" />
             About
@@ -67,9 +66,7 @@
         </li>
       </ul>
     </div>
-    <div class="navbar-end">
-      <ProfileSelector class="dropdown dropdown-left" />
-    </div>
+    <div class="navbar-end"></div>
   </nav>
 </template>
 <script setup lang="ts">

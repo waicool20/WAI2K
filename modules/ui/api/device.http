@@ -1,0 +1,18 @@
+### GET device list
+GET {{uri}}/devices
+
+### GET device connect
+GET {{uri}}/device/{{id}}/connect
+
+### GET device capture
+GET {{uri}}/device/{{id}}/capture?format=png
+Accept: image/png
+
+### GET toggle touches
+GET {{uri}}/device/{{id}}/toggle-touches
+
+### GET toggle pointer info
+GET {{uri}}/device/{{id}}/toggle-pointer-info
+
+### WS test latency
+WEBSOCKET {{wsUri}}/device/{{id}}/test-latency

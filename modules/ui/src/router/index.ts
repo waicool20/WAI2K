@@ -51,7 +51,6 @@ const router = createRouter({
       name: "profile",
       meta: {
         title: "Profile",
-        store: useProfileStore,
       },
       component: SidebarLayout,
       props: { route: "profile" },
@@ -119,7 +118,6 @@ const router = createRouter({
       name: "preferences",
       meta: {
         title: "Preferences",
-        store: useConfigStore,
       },
       component: SidebarLayout,
       props: { route: "preferences" },

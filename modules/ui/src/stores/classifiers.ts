@@ -56,6 +56,7 @@ export const useClassifierStore = defineStore("classifiers", () => {
   });
 
   const load = async () => {
+    console.log("load start");
     const [result, mapsResult] = await Promise.all([
       axios.get($api + "/classifier"),
       axios.get($api + "/classifier/maps"),

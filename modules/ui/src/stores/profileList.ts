@@ -9,6 +9,7 @@ export const useProfileListStore = defineStore("profileList", () => {
   const profiles = ref<String[]>([]);
 
   const load = async () => {
+    console.log("load start");
     const res = await axios.get($api + "/profiles");
 
     profiles.value = res.data;

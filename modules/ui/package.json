@@ -29,7 +29,9 @@
     "vue-axios": "^3.5.2",
     "vue-router": "^4.1.5",
     "xterm": "^5.1.0",
-    "xterm-addon-fit": "^0.7.0"
+    "xterm-addon-attach": "^0.8.0",
+    "xterm-addon-fit": "^0.7.0",
+    "xterm-addon-webgl": "^0.14.0"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.1.4",

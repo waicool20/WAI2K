@@ -70,6 +70,7 @@ export const useConfigStore = defineStore("config", {
   }),
   actions: {
     async load() {
+      console.log("load start");
       const result = await this.axios.get(this.$api);
       this.$patch(result.data);
     },

@@ -1,8 +1,9 @@
 <template>
-  <div>
-    <label tabindex="0" class="btn btn-ghost rounded-btn m-1">{{
-      profileName
-    }}</label>
+  <div class="dropdown dropdown-top">
+    <label tabindex="0" class="btn btn-ghost rounded-btn m-1">
+      {{ profileName
+      }}<font-awesome-icon icon="fa-solid fa-caret-up" class="ml-2" />
+    </label>
     <ul
       tabindex="0"
       class="dropdown-content menu p-2 shadow-xl bg-base-100 rounded-box w-100"
@@ -96,10 +97,4 @@ const createProfile = () => {
     });
   });
 };
-
-onMounted(() => {
-  config.load().then(async () => {
-    await Promise.all([store.load(), profileStore.load(profileName.value)]);
-  });
-});
 </script>

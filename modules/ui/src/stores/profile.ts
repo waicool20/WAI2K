@@ -148,6 +148,7 @@ export const useProfileStore = defineStore("profile", {
   }),
   actions: {
     async load(name: string) {
+      console.log("load start");
       console.log(this.$api);
       const result = await this.axios.get(this.$api + "/profile/" + name);
       this.$patch(result.data);

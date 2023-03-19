@@ -20,13 +20,18 @@
 import { defineStore } from "pinia";
 
 interface State {
-    showTerm: boolean
+  showTerm: boolean;
 }
 
 export const useAppStore = defineStore("app", {
-    state: (): State => {
-        return {
-            showTerm: true
-        }
-    }
-})
+  state: (): State => {
+    return {
+      showTerm: false,
+    };
+  },
+  actions: {
+    toggleTerm() {
+      this.showTerm = !this.showTerm;
+    },
+  },
+});
