@@ -39,12 +39,13 @@ javafx {
 repositories {
     maven("https://oss.sonatype.org/content/repositories/snapshots/")
     maven("https://jitpack.io")
+    mavenCentral()
 }
 
 dependencies {
     val versions = object {
         val KotlinCoroutines = "1.6.4"
-        val Jackson = "2.14.0"
+        val Jackson = "2.14.2"
         val OpenJfx = "16"
     }
 
@@ -63,14 +64,14 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-annotations:${versions.Jackson}")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:${versions.Jackson}")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${versions.Jackson}")
-    implementation("org.apache.logging.log4j:log4j-core:2.19.0")
-    implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.19.0")
+    implementation("org.apache.logging.log4j:log4j-core:2.20.0")
+    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.20.0")
     implementation("no.tornado:tornadofx:2.0.0-SNAPSHOT")
     implementation("org.controlsfx:controlsfx:11.1.2")
     implementation("org.reflections:reflections:0.10.2")
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
-    implementation("ai.djl.pytorch:pytorch-engine:0.20.0")
-    implementation("com.github.ajalt.clikt:clikt-jvm:3.5.0")
+    implementation("ai.djl.pytorch:pytorch-engine:0.21.0")
+    implementation("com.github.ajalt.clikt:clikt-jvm:3.5.2")
 
     implementation("net.sourceforge.tess4j", "tess4j", "5.2.0") {
         exclude("org.ghost4j")
