@@ -38,16 +38,26 @@ sealed class EventLB_Inf(scriptComponent: ScriptComponent) :
     private val logger = loggerFor<EventLB_Inf>()
 
     override suspend fun enterMap() {
+        logger.info("Pinch out")
+        region.pinch(
+            Random.nextInt(900, 1000),
+            Random.nextInt(300, 400),
+            15.0,
+            500
+        )
+
         val r1 = region.subRegion(1564, 282, 90, 90)
         val r2 = r1.copy(r1.x - 500, r1.y + 500)
         r1.swipeTo(r2)
         delay(500)
 
         // Map pin
-        region.subRegion(1453, 766, 153, 40).click()
+        logger.info("Click map pin")
+        region.subRegion(1528, 685, 132, 36).click()
         delay(1000)
 
         // Confirm
+        logger.info("Confirm")
         region.subRegion(1832, 589, 237, 120).click()
     }
 
