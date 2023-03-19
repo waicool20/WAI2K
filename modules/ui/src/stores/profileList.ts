@@ -1,15 +1,6 @@
 import type { AxiosStatic } from "axios";
-import type { Ref } from "vue";
 import { inject, ref } from "vue";
 import { defineStore } from "pinia";
-import { useProfileStore } from "@/stores/profile";
-
-interface ProfilesStore {
-  profiles: Ref<String[]>;
-  currentProfile: Ref<String>;
-  getAll: CallableFunction;
-  loadByName: CallableFunction;
-}
 
 export const useProfileListStore = defineStore("profileList", () => {
   const axios: AxiosStatic = <AxiosStatic>inject("axios");

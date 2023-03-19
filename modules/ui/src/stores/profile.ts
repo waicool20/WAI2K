@@ -83,12 +83,10 @@ interface Profile {
   combat_simulation: CombatSim;
   factory: Factory;
   stop: StopConfig;
-  name: string;
 }
 
 export const useProfileStore = defineStore("profile", {
   state: (): Profile => ({
-    name: "Default",
     logistics: {
       enabled: false,
       receiveMode: "",
@@ -149,11 +147,18 @@ export const useProfileStore = defineStore("profile", {
     },
   }),
   actions: {
-    async load() {
+    async load(name: string) {
       console.log(this.$api);
-      const result = await this.axios.get(this.$api + "/profile/current");
+      const result = await this.axios.get(this.$api + "/profile/" + name);
       this.$patch(result.data);
-      this.name = result.data.name_property.value;
+    },
+    async save(name: string) {
+      console.log(this.$api);
+      const result = await this.axios.post(
+        this.$api + "/profile/" + name,
+        this.$state
+      );
+      this.$patch(result.data);
     },
     setLogisticsEnabled(value: boolean) {
       this.logistics.enabled = value;

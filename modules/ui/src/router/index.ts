@@ -7,6 +7,16 @@ import LogisticsView from "../views/Profile/LogisticsView.vue";
 import SidebarLayout from "../components/SidebarLayout.vue";
 import { useProfileStore } from "@/stores/profile";
 import { useConfigStore } from "@/stores/config";
+import type { StoreDefinition } from "pinia";
+
+declare module "vue-router" {
+  interface RouteMeta {
+    // is optional
+    store?: StoreDefinition;
+    // must be declared by every route
+    title: string;
+  }
+}
 
 const router = createRouter({
   // @ts-ignore
@@ -156,8 +166,13 @@ router.beforeEach((to) => {
   const containStore: RouteRecordNormalized | null =
     to.matched.find((item) => item.meta.store !== undefined) || null;
 
-  if (containStore) {
-    // @ts-ignore
+  if (containStore?.meta.store?.$id == "profile") {
+    const config = useConfigStore();
+    containStore.meta.store().load(config.current_profile);
+    return;
+  }
+
+  if (containStore?.meta.store) {
     containStore.meta.store().load();
   }
 });

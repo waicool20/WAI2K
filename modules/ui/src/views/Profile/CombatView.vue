@@ -105,7 +105,10 @@
   <div class="form-control">
     <label class="label cursor-pointer">
       <span class="label-text" />
-      <button class="btn btn-primary btn-xs rounded-full w-8 h-8" @click="() => store.swapCombatDraggers()">
+      <button
+        class="btn btn-primary btn-xs rounded-full w-8 h-8"
+        @click="() => store.swapCombatDraggers()"
+      >
         <font-awesome-icon icon="fa-solid fa-arrows-up-down" />
       </button>
     </label>
@@ -130,7 +133,7 @@ import { computed, ref } from "vue";
 import natsort from "natsort";
 import { useProfileStore } from "@/stores/profile";
 import { useClassifierStore } from "@/stores/classifiers";
-import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 const store = useProfileStore();
 const { dolls, maps } = useClassifierStore();
 const sorter = natsort();

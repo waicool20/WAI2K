@@ -13,6 +13,7 @@
           <RouterLink
             :to="{ name: link.name }"
             active-class="active rounded-md"
+            exact-active-class="active rounded-md"
             class="hover:rounded-md focus:rounded-md"
           >
             {{ link.meta?.title }}
@@ -27,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineProps, reactive } from "vue";
+import { computed, reactive } from "vue";
 import { useRouter } from "vue-router";
 import type { Router, RouteRecordRaw } from "vue-router";
 
@@ -35,7 +36,6 @@ interface Props {
   route: String;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps<Props>();
 
 const router: Router = useRouter();
@@ -44,7 +44,6 @@ const childrenRoutes = computed(() => {
   let routes: RouteRecordRaw[] = [];
   for (const routeRecord of router.options.routes) {
     if (
-      // @ts-ignore
       routeRecord.name === props.route &&
       typeof routeRecord.children !== "undefined" &&
       routeRecord.children.length > 0

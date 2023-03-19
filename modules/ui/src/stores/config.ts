@@ -73,6 +73,9 @@ export const useConfigStore = defineStore("config", {
       const result = await this.axios.get(this.$api);
       this.$patch(result.data);
     },
+    async save() {
+      await this.axios.post(this.$api, this.$state);
+    },
     async checkApiKey() {
       console.log(this.api_key);
       try {
@@ -113,6 +116,9 @@ export const useConfigStore = defineStore("config", {
     },
     setNotificationOnStopCondition(value: boolean) {
       this.notifications_config.onStopCondition = value;
+    },
+    setCurrentProfile(value: string) {
+      this.current_profile = value;
     },
   },
   getters: {

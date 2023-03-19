@@ -58,38 +58,48 @@ import { computed, onMounted, ref } from "vue";
 import { useProfileStore } from "@/stores/profile";
 import { useProfileListStore } from "@/stores/profileList";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { useConfigStore } from "@/stores/config";
 
 const store = useProfileListStore();
-const currentProfileStore = useProfileStore();
+const profileStore = useProfileStore();
+const config = useConfigStore();
 
 const newProfileInput = ref(null);
 
-const profileName = computed(() => {
-  return currentProfileStore.name;
+const profileName = computed({
+  get: () => {
+    return config.current_profile;
+  },
+  set: (value: string) => {
+    config.setCurrentProfile(value);
+  },
 });
 
-const loadProfile = (name: string) => {
-  store.loadByName(name).then(() => {
-    currentProfileStore.load();
-  });
+const loadProfile = async (name: string) => {
+  config.setCurrentProfile(name);
+  await config.save();
+  await profileStore.load(name);
 };
-const deleteProfile = (name: string) => {
-  store.deleteByName(name).then(() => {
-    store.load();
-  });
+const deleteProfile = async (name: string) => {
+  await store.deleteByName(name);
+  await store.load();
+  config.setCurrentProfile(store.profiles[0].toString());
 };
 
 const createProfile = () => {
   // @ts-ignore
   let profileNameInput = newProfileInput.value.value;
-  store.loadByName(profileNameInput).then(() => {
-    profileNameInput = "";
-    store.load();
-    currentProfileStore.load();
+  profileStore.save(profileNameInput).then(() => {
+    config.load().then(() => {
+      store.load();
+      profileNameInput = "";
+    });
   });
 };
 
-onMounted(async () => {
-  await Promise.all([store.load(), currentProfileStore.load()]);
+onMounted(() => {
+  config.load().then(async () => {
+    await Promise.all([store.load(), profileStore.load(profileName.value)]);
+  });
 });
 </script>

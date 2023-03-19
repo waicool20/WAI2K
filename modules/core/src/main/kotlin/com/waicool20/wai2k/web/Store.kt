@@ -58,9 +58,15 @@ sealed class Store {
         }
 
         fun profiles(): List<String> {
-            return Wai2kProfile.PROFILE_DIR.listDirectoryEntries("*.json")
+            val profiles = Wai2kProfile.PROFILE_DIR.listDirectoryEntries("*.json")
                 .map { it.nameWithoutExtension }
                 .sorted()
+
+            if (profiles.isEmpty()) {
+                return listOf("Default")
+            }
+
+            return profiles
         }
 
         fun maps(): Map<String, List<*>> {

@@ -33,6 +33,8 @@
 
 <script setup lang="ts">
 import { useClassifierStore } from "@/stores/classifiers";
+import { useConfigStore } from "@/stores/config";
+import { mapActions } from "pinia";
 
 const { captureMethodList, compressionModeList } = useClassifierStore();
 </script>

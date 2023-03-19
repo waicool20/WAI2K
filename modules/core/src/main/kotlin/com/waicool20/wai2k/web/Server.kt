@@ -21,10 +21,15 @@ package com.waicool20.wai2k.web
 
 import com.fasterxml.jackson.databind.*
 import com.fasterxml.jackson.databind.annotation.*
+import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.waicool20.cvauto.android.ADB
+import com.waicool20.wai2k.config.Wai2kConfig
+import com.waicool20.wai2k.config.Wai2kProfile
 import com.waicool20.wai2k.util.YuuBot
 import com.waicool20.wai2k.util.loggerFor
+import com.waicool20.waicoolutils.javafx.json.ListPropertyDeserializer
+import com.waicool20.waicoolutils.javafx.json.ignoreJavaFXPropertyTypes
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
@@ -36,6 +41,7 @@ import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
+import javafx.beans.property.ListProperty
 import kotlinx.coroutines.*
 import java.util.concurrent.CountDownLatch
 
@@ -52,6 +58,7 @@ class Server {
 }
 
 fun Application.module() {
+    val logger = loggerFor<Server>()
     install(CORS) {
         allowMethod(HttpMethod.Options)
         allowMethod(HttpMethod.Get)
@@ -67,21 +74,45 @@ fun Application.module() {
     install(ContentNegotiation) {
         jackson {
             registerModule(JavaTimeModule())
+
+            // @TODO: gito: get rid of it when we remove JavaFX deps
+            registerModule(SimpleModule().apply {
+                addDeserializer(ListProperty::class.java, ListPropertyDeserializer<Any>())
+            })
+            this.apply {
+                this.ignoreJavaFXPropertyTypes()
+            }
         }
     }
     routing {
         get("/") {
             call.respond(Store.config())
         }
+        post("/") {
+            val config = call.receive<Wai2kConfig>()
+            logger.debug(config.currentProfile)
+            call.respond(config)
+        }
         get("/profiles") {
             call.respond(Store.profiles())
         }
-        get("/profile/current") {
-            call.respond(Store.profile())
-        }
         get("/profile/{name}") {
-            val logger = loggerFor<Application>();
-            logger.debug(call.parameters.toString())
+            val config = Store.config()
+            config.currentProfile = call.parameters["name"]
+            config.save()
+
+            call.respond(Store.profile(call.parameters["name"]))
+        }
+        post("/profile/{name}") {
+            val config = Store.config()
+            config.currentProfile = call.parameters["name"]
+            config.save()
+
+            val profile = call.receive<Wai2kProfile>()
+            profile.also {
+                it.name = call.parameters["name"]
+                logger.debug(it.toString())
+            }.save()
             call.respond(Store.profile(call.parameters["name"]))
         }
         delete("/profile/{name}") {

@@ -1,6 +1,6 @@
-import {defineStore} from "pinia";
-import {inject, ref} from "vue";
-import type {AxiosStatic} from "axios";
+import { defineStore } from "pinia";
+import { inject, ref } from "vue";
+import type { AxiosStatic } from "axios";
 
 interface Doll {
   name: string;
@@ -35,6 +35,7 @@ interface MapClassifier {
 export const useClassifierStore = defineStore("classifiers", () => {
   const axios: AxiosStatic = <AxiosStatic>inject("axios");
   const $api = inject("$api");
+  console.log(this);
 
   const logisticsReceiveModeList = ref<String[]>([]);
   const combatReportTypeList = ref<String[]>([]);

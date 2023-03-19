@@ -1,0 +1,42 @@
+### Get current config
+GET {{uri}}/
+Content-Type: application/json
+Accept: application/json
+
+### Post config object
+POST {{uri}}/
+Content-Type: application/json
+Accept: application/json
+
+{
+  "current_profile": "Default",
+  "clear_console_on_start": true,
+  "show_console_on_start": true,
+  "capture_method": "SCRCPY",
+  "capture_compression_mode": "LZ4",
+  "last_device_serial": "",
+  "script_config": {
+    "loopDelay": 15,
+    "baseNavigationDelay": 1000,
+    "mouseDelay": 0.3,
+    "defaultSimilarityThreshold": 0.9,
+    "mapRunnerSimilarityThreshold": 0.85,
+    "ocrThreshold": 0.9,
+    "maxPostBattleClick": -1,
+    "idleAtHome": true
+  },
+  "game_restart_config": {
+    "enabled": false,
+    "averageDelay": 1600,
+    "delayCoefficientThreshold": 1.5,
+    "maxRestarts": 15
+  },
+  "api_key": "",
+  "notifications_config": {
+    "onRestart": true,
+    "onStopCondition": true
+  },
+  "appearance_config": {
+    "darkMode": false
+  }
+}
