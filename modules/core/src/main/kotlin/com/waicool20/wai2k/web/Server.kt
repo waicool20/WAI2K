@@ -23,7 +23,6 @@ import com.fasterxml.jackson.databind.*
 import com.fasterxml.jackson.databind.annotation.*
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.waicool20.cvauto.android.ADB
-import com.waicool20.wai2k.config.Wai2kProfile
 import com.waicool20.wai2k.util.YuuBot
 import com.waicool20.wai2k.util.loggerFor
 import io.ktor.http.HttpHeaders

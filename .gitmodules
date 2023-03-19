@@ -4,3 +4,6 @@
 [submodule "CVAuto"]
 	path = deps/CVAuto
 	url = ../CVAuto.git
+[submodule "modules/webui"]
+	path = modules/webui
+	url = ../../warezgibzzz/WAI2K-WEBUI.git
