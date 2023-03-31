@@ -20,7 +20,7 @@
 package com.waicool20.wai2k.script.modules
 
 import com.waicool20.cvauto.core.AnyRegion
-import com.waicool20.cvauto.core.template.FileTemplate
+import com.waicool20.cvauto.core.template.FT
 import com.waicool20.cvauto.core.util.isSimilar
 import com.waicool20.wai2k.game.LogisticsSupport
 import com.waicool20.wai2k.game.LogisticsSupport.Assignment
@@ -77,7 +77,7 @@ class InitModule(navigator: Navigator) : ScriptModule(navigator) {
     private suspend fun updateGameState() {
         navigator.navigateTo(LocationId.HOME_STATUS)
         if (region.subRegion(428, 0, 240, region.height / 2)
-                .has(FileTemplate("init/in-combat.png"))
+                .has(FT("init/in-combat.png"))
         ) {
             terminateExistingBattle()
             updateGameState()
@@ -100,7 +100,7 @@ class InitModule(navigator: Navigator) : ScriptModule(navigator) {
     private suspend fun updateLogistics(cache: AnyRegion) {
         logger.info("Reading logistics support status")
         val entry = cache.subRegion(427, 0, 234, cache.height)
-            .findBest(FileTemplate("init/logistics.png"), 4)
+            .findBest(FT("init/logistics.png"), 4)
             .map { it.region }
             // Map each region to whole logistic support entry
             .map { cache.subRegion(it.x - 133, it.y - 87, 852, 115) }
@@ -149,13 +149,13 @@ class InitModule(navigator: Navigator) : ScriptModule(navigator) {
 
         val firstEntryRegion = cache.subRegion(388, 0, 159, region.height)
         val repairRegions = scope.async {
-            firstEntryRegion.findBest(FileTemplate("init/repairing.png"), 6)
+            firstEntryRegion.findBest(FT("init/repairing.png"), 6)
         }
         val standbyRegions = scope.async {
-            firstEntryRegion.findBest(FileTemplate("init/standby.png"), 6)
+            firstEntryRegion.findBest(FT("init/standby.png"), 6)
         }
         val trainingRegions = scope.async {
-            firstEntryRegion.findBest(FileTemplate("init/in-training.png"), 6)
+            firstEntryRegion.findBest(FT("init/in-training.png"), 6)
         }
         // Find all the echelons that have a girl in repair
         val entries = repairRegions.await() + standbyRegions.await() + trainingRegions.await()
@@ -219,16 +219,17 @@ class InitModule(navigator: Navigator) : ScriptModule(navigator) {
             navigator.checkLogistics()
         }
         logger.info("Transitioning to map")
-        while (coroutineContext.isActive) {
-            if (region.has(FileTemplate("combat/battle/terminate.png"))) break
-            delay(500)
-        }
-        logger.info("Entered map")
 
         val terminateMapRunner = object : EmptyMapRunner(this@InitModule) {
             override suspend fun begin() {
+                while (coroutineContext.isActive) {
+                    if (region.has(FT("combat/battle/terminate.png"))) break
+                    if (mapRunnerRegions.pauseButton.has(FT("combat/battle/pause.png", 0.9))) break
+                    delay(500)
+                }
+                logger.info("Entered map")
                 delay(5000)
-                waitForTurnAssets(listOf(FileTemplate("combat/battle/terminate.png")), false)
+                waitForTurnAssets(listOf(FT("combat/battle/terminate.png")), false)
                 terminateMission(false)
             }
         }
