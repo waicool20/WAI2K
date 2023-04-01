@@ -222,9 +222,17 @@ class InitModule(navigator: Navigator) : ScriptModule(navigator) {
 
         val terminateMapRunner = object : EmptyMapRunner(this@InitModule) {
             override suspend fun begin() {
+                val ocrRegion = region.subRegion(140, 45, 270, 80)
                 while (coroutineContext.isActive) {
                     if (region.has(FT("combat/battle/terminate.png"))) break
                     if (mapRunnerRegions.pauseButton.has(FT("combat/battle/pause.png", 0.9))) break
+                    if (ocr.readText(ocrRegion, invert = true, threshold = 0.8)
+                            .contains("result", true)
+                    ) {
+                        region.subRegion(1231, 0, 925, 198).click()
+                        delay(500)
+                        region.subRegion(1231, 0, 925, 198).click()
+                    }
                     delay(500)
                 }
                 logger.info("Entered map")
