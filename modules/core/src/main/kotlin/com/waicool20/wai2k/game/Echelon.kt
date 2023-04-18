@@ -60,7 +60,7 @@ data class Echelon(val number: Int) {
             val echelons = eRegion.findBest(FileTemplate("echelons/echelon.png"), 8)
                 .map { it.region }
                 .mapNotNull { r ->
-                    r.copy(r.x + r.width, r.y - 40, 70, 95)
+                    r.copy(r.x + r.width, r.y - 60, 70, 95)
                         .takeIf { it.y + it.height <= region.height }
                 }
                 .mapAsync {
