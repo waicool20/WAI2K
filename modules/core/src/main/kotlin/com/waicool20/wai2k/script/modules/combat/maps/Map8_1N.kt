@@ -20,16 +20,15 @@
 package com.waicool20.wai2k.script.modules.combat.maps
 
 import com.waicool20.wai2k.script.ScriptComponent
-import com.waicool20.wai2k.script.modules.combat.AbsoluteMapRunner
 import com.waicool20.wai2k.script.modules.combat.CorpseDragging
+import com.waicool20.wai2k.script.modules.combat.HomographyMapRunner
 import com.waicool20.wai2k.util.loggerFor
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.yield
 import kotlin.math.roundToLong
 import kotlin.random.Random
 
 @Suppress("unused", "ClassName")
-class Map8_1N(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptComponent),
+class Map8_1N(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComponent),
     CorpseDragging {
     private val logger = loggerFor<Map8_1N>()
 
@@ -46,17 +45,12 @@ class Map8_1N(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptCompon
                 )
                 delay(500)
             }
-            logger.info("Pan up")
-            val r = region.subRegion(1058, 224, 100, 22)
-            r.swipeTo(r.copy(y = r.y + 600))
-            delay(500)
             gameState.requiresMapInit = false
         }
         delay((500 * gameState.delayCoefficient).roundToLong())
 
-        nodes[1].findRegion()
         val rEchelons = deployEchelons(nodes[3], nodes[0])
-        mapRunnerRegions.startOperation.click(); yield()
+        mapRunnerRegions.startOperation.click()
         waitForGNKSplash()
 
         resupplyEchelons(nodes[0])
@@ -71,25 +65,12 @@ class Map8_1N(scriptComponent: ScriptComponent) : AbsoluteMapRunner(scriptCompon
             terminateMission(incrementSorties = false)
         } else {
             // No suicide if Zas has correct stats
-            planPath()
+            enterPlanningMode()
+            selectNodes(3, 2, 1)
+            logger.info("Executing plan")
+            mapRunnerRegions.executePlan.click()
             waitForTurnEnd(5, false)
             terminateMission()
         }
-    }
-
-    private suspend fun planPath() {
-        enterPlanningMode()
-
-        logger.info("Selecting echelon at ${nodes[3]}")
-        nodes[3].findRegion().click()
-
-        logger.info("Selecting ${nodes[2]}")
-        nodes[2].findRegion().click()
-
-        logger.info("Selecting ${nodes[1]}")
-        nodes[1].findRegion().click(); yield()
-
-        logger.info("Executing plan")
-        mapRunnerRegions.executePlan.click()
     }
 }
