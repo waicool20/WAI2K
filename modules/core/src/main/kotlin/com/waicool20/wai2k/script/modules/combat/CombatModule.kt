@@ -470,8 +470,9 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
      */
     private suspend fun checkNeedsEnhancement(): Boolean {
         val text = ocr.readText(region.subRegion(942, 463, 276, 63), pad = 0)
+        val sRegion = region.subRegion(1020, 530, 120, 170)
         when {
-            text.contains("retire", true) -> {
+            sRegion.has(FileTemplate("combat/doll-overflow.png")) -> {
                 logger.info("T-doll limit reached, cancelling sortie")
                 if (profile.factory.enhancement.enabled) {
                     region.subRegion(1327, 463, 276, 350).click()

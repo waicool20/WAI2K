@@ -111,6 +111,7 @@ abstract class ScriptModule(
                     gameState.sixStarFilter = false
                 }
             }
+            gameState.sixStarFilter = true
 
             if (gameState.sixStarFilter == true) {
                 stars.forEach {

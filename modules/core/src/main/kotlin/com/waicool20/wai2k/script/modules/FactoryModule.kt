@@ -458,10 +458,10 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
         val countRegex = Regex("(\\d+)\\s*?/\\s*?(\\d+)")
         val countRegion = region.subRegion(1770, type.yCount, 240, 60)
         var ocrResult: String
-        while (coroutineContext.isActive) {
-            ocrResult = ocr.readText(countRegion.copy(y = type.yLabel), threshold = 0.72, invert = true)
-            if (ocrResult.contains(type.keyword, true)) break else yield()
-        }
+        // while (coroutineContext.isActive) {
+        //     ocrResult = ocr.readText(countRegion.copy(y = type.yLabel), threshold = 0.72, invert = true)
+        //     if (ocrResult.contains(type.keyword, true)) break else yield()
+        // }
         ocrResult = ocr.useCharFilter("0123456789/")
             .readText(countRegion, threshold = 0.72, invert = true)
         logger.info("$type count ocr: $ocrResult")

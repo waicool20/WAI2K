@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
 object GFL {
-    const val PKG_NAME = "com.sunborn.girlsfrontline.en"
+    const val PKG_NAME = "kr.txwy.and.snqx"
 
     const val MAX_ECHELON = 14
 

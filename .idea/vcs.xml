@@ -7,7 +7,9 @@
   </component>
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/CVAuto" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/deps/CVAuto" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/deps/waicoolUtils" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/waicoolUtils" vcs="Git" />
   </component>
 </project>
