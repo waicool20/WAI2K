@@ -19,8 +19,6 @@
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.gradle.configurationcache.extensions.capitalized
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("com.github.johnrengelman.shadow") version "latest.release"
@@ -34,19 +32,16 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
 }
 
+kotlin {
+    jvmToolchain(11)
+}
+
 tasks {
     build {
         dependsOn("shadowJar")
     }
     jar {
         enabled = false
-    }
-    java {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-    withType<KotlinCompile>().configureEach {
-        compilerOptions.jvmTarget.set(JvmTarget.JVM_11)
     }
     withType<AbstractArchiveTask>().configureEach {
         isPreserveFileTimestamps = false
@@ -57,7 +52,7 @@ tasks {
         archiveFileName.set("${rootProject.name}-${project.name.capitalized()}.jar")
         archiveClassifier.set("")
         archiveVersion.set("")
-        destinationDirectory.set(file("$buildDir/artifacts/"))
+        destinationDirectory.set(file("$${layout.buildDirectory}/artifacts/"))
         manifest { attributes(mapOf("Main-Class" to "com.waicool20.wai2k.launcher.Main")) }
     }
 }

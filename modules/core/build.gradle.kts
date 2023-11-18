@@ -32,7 +32,7 @@ version =
     System.getenv("GITHUB_SHA")?.take(8) ?: System.getenv("APPVEYOR_REPO_COMMIT")?.take(8) ?: "dev"
 
 javafx {
-    version = "19"
+    version = "21"
     modules = listOf("javafx.controls", "javafx.fxml", "javafx.swing")
 }
 
@@ -44,9 +44,9 @@ repositories {
 
 dependencies {
     val versions = object {
-        val KotlinCoroutines = "1.6.4"
-        val Jackson = "2.14.2"
-        val OpenJfx = "16"
+        val KotlinCoroutines = "1.7.3"
+        val Jackson = "2.16.0"
+        val OpenJfx = "21"
     }
 
     implementation(kotlin("stdlib"))
@@ -64,16 +64,16 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-annotations:${versions.Jackson}")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:${versions.Jackson}")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${versions.Jackson}")
-    implementation("org.apache.logging.log4j:log4j-core:2.20.0")
-    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.20.0")
+    implementation("org.apache.logging.log4j:log4j-core:2.21.1")
+    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.21.1")
     implementation("no.tornado:tornadofx:2.0.0-SNAPSHOT")
-    implementation("org.controlsfx:controlsfx:11.1.2")
+    implementation("org.controlsfx:controlsfx:11.2.0")
     implementation("org.reflections:reflections:0.10.2")
-    implementation("com.squareup.okhttp3:okhttp:4.10.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("ai.djl.pytorch:pytorch-engine:0.21.0")
-    implementation("com.github.ajalt.clikt:clikt-jvm:3.5.2")
+    implementation("com.github.ajalt.clikt:clikt-jvm:4.2.1")
 
-    implementation("net.sourceforge.tess4j", "tess4j", "5.2.0") {
+    implementation("net.sourceforge.tess4j", "tess4j", "5.8.0") {
         exclude("org.ghost4j")
         exclude("org.apache.pdfbox")
         exclude("org.jboss")
@@ -115,7 +115,7 @@ tasks {
         archiveFileName.set("${rootProject.name}-${project.name.capitalized()}.jar")
         archiveClassifier.set("")
         archiveVersion.set("")
-        destinationDirectory.set(file("$buildDir/artifacts/"))
+        destinationDirectory.set(file("${layout.buildDirectory}/artifacts/"))
         manifest { attributes(mapOf("Main-Class" to "com.waicool20.wai2k.Wai2kKt")) }
         dependencies { include { it.moduleGroup.startsWith("com.waicool20") } }
     }
@@ -131,7 +131,7 @@ tasks {
 
 task<Zip>("packLibs") {
     archiveFileName.set("libs.zip")
-    destinationDirectory.set(file("$buildDir/artifacts/"))
+    destinationDirectory.set(file("${layout.buildDirectory}/artifacts/"))
     from(project.configurations.filter { it.isCanBeResolved })
     exclude { f -> gradle.includedBuilds.any { b -> f.name.contains(b.name, true) } }
     into("libs")
