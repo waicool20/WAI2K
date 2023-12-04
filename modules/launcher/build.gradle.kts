@@ -52,7 +52,7 @@ tasks {
         archiveFileName.set("${rootProject.name}-${project.name.capitalized()}.jar")
         archiveClassifier.set("")
         archiveVersion.set("")
-        destinationDirectory.set(file("$${layout.buildDirectory}/artifacts/"))
+        destinationDirectory.set(file("$${layout.buildDirectory.asFile.get()}/artifacts/"))
         manifest { attributes(mapOf("Main-Class" to "com.waicool20.wai2k.launcher.Main")) }
     }
 }

@@ -115,7 +115,7 @@ tasks {
         archiveFileName.set("${rootProject.name}-${project.name.capitalized()}.jar")
         archiveClassifier.set("")
         archiveVersion.set("")
-        destinationDirectory.set(file("${layout.buildDirectory}/artifacts/"))
+        destinationDirectory.set(file("${layout.buildDirectory.asFile.get()}/artifacts/"))
         manifest { attributes(mapOf("Main-Class" to "com.waicool20.wai2k.Wai2kKt")) }
         dependencies { include { it.moduleGroup.startsWith("com.waicool20") } }
     }
@@ -131,7 +131,7 @@ tasks {
 
 task<Zip>("packLibs") {
     archiveFileName.set("libs.zip")
-    destinationDirectory.set(file("${layout.buildDirectory}/artifacts/"))
+    destinationDirectory.set(file("${layout.buildDirectory.asFile.get()}/artifacts/"))
     from(project.configurations.filter { it.isCanBeResolved })
     exclude { f -> gradle.includedBuilds.any { b -> f.name.contains(b.name, true) } }
     into("libs")

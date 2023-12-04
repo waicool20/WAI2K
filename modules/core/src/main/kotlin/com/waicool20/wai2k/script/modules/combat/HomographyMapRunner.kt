@@ -46,7 +46,6 @@ import org.opencv.core.Core
 import org.opencv.core.Mat
 import org.opencv.core.MatOfPoint2f
 import org.opencv.core.Point
-import tornadofx.*
 import java.awt.Rectangle
 import kotlin.io.path.exists
 import kotlin.io.path.notExists

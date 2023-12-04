@@ -35,7 +35,6 @@ import com.waicool20.wai2k.util.useCharFilter
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.yield
-import java.awt.Color
 import java.awt.Point
 import kotlin.coroutines.coroutineContext
 import kotlin.random.Random
