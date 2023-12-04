@@ -826,24 +826,24 @@
     "landmarks": [
       {
         "path": "locations/landmarks/daily_login.png",
-        "x": 399,
+        "x": 250,
         "y": 9,
-        "width": 60,
-        "height": 60
+        "width": 100,
+        "height": 100
       },
       {
         "path": "locations/landmarks/daily_login0.png",
-        "x": 399,
+        "x": 250,
         "y": 9,
-        "width": 60,
-        "height": 60
+        "width": 100,
+        "height": 100
       },
       {
         "path": "locations/landmarks/daily_login1.png",
-        "x": 399,
+        "x": 250,
         "y": 9,
-        "width": 60,
-        "height": 60
+        "width": 100,
+        "height": 100
       }
     ],
     "links": [
@@ -855,7 +855,7 @@
               "x": 0,
               "y": 0,
               "width": 138,
-              "height": 125
+              "height": 100
             }
           }
         ]
