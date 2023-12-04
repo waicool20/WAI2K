@@ -59,7 +59,7 @@ class HomographyViewer(
     private val logger = loggerFor<HomographyViewer>()
 
     private val imageView: ImageView by fxid()
-    private val region = device.screens[0]
+    private val region = device.displays.first().region
     private val window = region.subRegion(348, 151, 1281, 929)
 
     init {
@@ -91,7 +91,7 @@ class HomographyViewer(
             val baseImage = imf.fromImage(image)
 
             while (coroutineContext.isActive) {
-                val screenshot = window.capture().let {
+                val screenshot = window.capture().img.let {
                     val copy = image.createCompatibleCopy(it.width, it.height)
                     copy.createGraphics().apply {
                         color = Color.BLACK

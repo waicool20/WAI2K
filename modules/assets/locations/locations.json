@@ -4,10 +4,10 @@
     "landmarks": [
       {
         "path": "locations/landmarks/home.png",
-        "x": 104,
-        "y": 515,
-        "width": 57,
-        "height": 49
+        "x": 0,
+        "y": 508,
+        "width": 38,
+        "height": 60
       }
     ],
     "links": [
@@ -19,9 +19,9 @@
         "assets": [
           {
             "asset": {
-              "x": 104,
+              "x": 0,
               "y": 484,
-              "width": 80,
+              "width": 70,
               "height": 111
             }
           }
@@ -31,19 +31,19 @@
         "dest": "repair",
         "assets": [
           {
-            "condition": "-|1462,255,50,50|locations/selectors/home.png",
+            "condition": "-|1339,255,50,50|locations/selectors/home.png",
             "asset": {
-              "x": 1204,
-              "y": 543,
-              "width": 109,
+              "x": 1083,
+              "y": 553,
+              "width": 108,
               "height": 162
             }
           },
           {
             "asset": {
-              "x": 1204,
-              "y": 645,
-              "width": 109,
+              "x": 1083,
+              "y": 655,
+              "width": 108,
               "height": 162
             }
           }
@@ -54,7 +54,7 @@
         "assets": [
           {
             "asset": {
-              "x": 140,
+              "x": 0,
               "y": 10,
               "width": 1823,
               "height": 78
@@ -67,8 +67,8 @@
         "assets": [
           {
             "asset": {
-              "x": 685,
-              "y": 991,
+              "x": 564,
+              "y": 990,
               "width": 189,
               "height": 57
             }
@@ -83,14 +83,14 @@
     "landmarks": [
       {
         "path": "locations/landmarks/home_status.png",
-        "x": 104,
+        "x": 45,
         "y": 735,
         "width": 40,
         "height": 40
       },
       {
         "path": "locations/landmarks/home_status.png",
-        "x": 104,
+        "x": 45,
         "y": 904,
         "width": 40,
         "height": 40
@@ -105,7 +105,7 @@
         "assets": [
           {
             "asset": {
-              "x": 1176,
+              "x": 1117,
               "y": 513,
               "width": 53,
               "height": 53
@@ -118,7 +118,7 @@
         "assets": [
           {
             "asset": {
-              "x": 105,
+              "x": 45,
               "y": 225,
               "width": 121,
               "height": 121
@@ -135,18 +135,18 @@
         "dest": "combat_menu",
         "assets": [
           {
-            "condition": "-|1462,255,50,50|locations/selectors/home.png",
+            "condition": "-|1339,255,50,50|locations/selectors/home.png",
             "asset": {
-              "x": 1328,
-              "y": 544,
+              "x": 1207,
+              "y": 554,
               "width": 375,
               "height": 161
             }
           },
           {
             "asset": {
-              "x": 1328,
-              "y": 646,
+              "x": 1207,
+              "y": 656,
               "width": 375,
               "height": 161
             }
@@ -157,18 +157,18 @@
         "dest": "formation",
         "assets": [
           {
-            "condition": "-|1462,255,50,50|locations/selectors/home.png",
+            "condition": "-|1339,255,50,50|locations/selectors/home.png",
             "asset": {
               "x": 1720,
-              "y": 543,
+              "y": 554,
               "width": 286,
               "height": 162
             }
           },
           {
             "asset": {
-              "x": 1720,
-              "y": 645,
+              "x": 1600,
+              "y": 656,
               "width": 286,
               "height": 162
             }
@@ -179,18 +179,18 @@
         "dest": "factory_menu",
         "assets": [
           {
-            "condition": "-|1462,255,50,50|locations/selectors/home.png",
+            "condition": "-|1339,255,50,50|locations/selectors/home.png",
             "asset": {
-              "x": 1730,
-              "y": 368,
+              "x": 1610,
+              "y": 378,
               "width": 273,
               "height": 143
             }
           },
           {
             "asset": {
-              "x": 1730,
-              "y": 470,
+              "x": 1610,
+              "y": 480,
               "width": 273,
               "height": 143
             }
@@ -201,18 +201,18 @@
         "dest": "research_menu",
         "assets": [
           {
-            "condition": "-|1462,255,50,50|locations/selectors/home.png",
+            "condition": "-|1339,255,50,50|locations/selectors/home.png",
             "asset": {
-              "x": 1371,
-              "y": 368,
+              "x": 1247,
+              "y": 378,
               "width": 354,
               "height": 144
             }
           },
           {
             "asset": {
-              "x": 1371,
-              "y": 470,
+              "x": 1247,
+              "y": 378,
               "width": 354,
               "height": 144
             }
@@ -224,7 +224,7 @@
         "assets": [
           {
             "asset": {
-              "x": 1536,
+              "x": 1418,
               "y": 751,
               "width": 266,
               "height": 151
@@ -239,8 +239,8 @@
     "landmarks": [
       {
         "path": "locations/landmarks/formation.png",
-        "x": 1783,
-        "y": 992,
+        "x": 1670,
+        "y": 880,
         "width": 60,
         "height": 60
       }
@@ -251,7 +251,7 @@
         "assets": [
           {
             "asset": {
-              "x": 120,
+              "x": 0,
               "y": 0,
               "width": 205,
               "height": 130
@@ -266,7 +266,7 @@
     "landmarks": [
       {
         "path": "locations/landmarks/factory_menu.png",
-        "x": 513,
+        "x": 393,
         "y": 53,
         "width": 60,
         "height": 60
@@ -278,7 +278,7 @@
         "assets": [
           {
             "asset": {
-              "x": 120,
+              "x": 0,
               "y": 0,
               "width": 205,
               "height": 130
@@ -291,7 +291,7 @@
         "assets": [
           {
             "asset": {
-              "x": 131,
+              "x": 11,
               "y": 164,
               "width": 257,
               "height": 117
@@ -304,7 +304,7 @@
         "assets": [
           {
             "asset": {
-              "x": 131,
+              "x": 11,
               "y": 296,
               "width": 257,
               "height": 117
@@ -317,7 +317,7 @@
         "assets": [
           {
             "asset": {
-              "x": 131,
+              "x": 11,
               "y": 429,
               "width": 257,
               "height": 117
@@ -330,7 +330,7 @@
         "assets": [
           {
             "asset": {
-              "x": 131,
+              "x": 11,
               "y": 561,
               "width": 257,
               "height": 117
@@ -343,7 +343,7 @@
         "assets": [
           {
             "asset": {
-              "x": 131,
+              "x": 11,
               "y": 693,
               "width": 257,
               "height": 117
@@ -358,8 +358,8 @@
     "landmarks": [
       {
         "path": "locations/landmarks/tdoll_production.png",
-        "x": 445,
-        "y": 152,
+        "x": 1093,
+        "y": 148,
         "width": 60,
         "height": 60
       }
@@ -375,7 +375,7 @@
     "landmarks": [
       {
         "path": "locations/landmarks/dummy_link.png",
-        "x": 764,
+        "x": 644,
         "y": 252,
         "width": 60,
         "height": 60
@@ -392,7 +392,7 @@
     "landmarks": [
       {
         "path": "locations/landmarks/tdoll_enhancement.png",
-        "x": 705,
+        "x": 585,
         "y": 964,
         "width": 60,
         "height": 60
@@ -409,7 +409,7 @@
     "landmarks": [
       {
         "path": "locations/landmarks/tdoll_disassembly.png",
-        "x": 474,
+        "x": 354,
         "y": 915,
         "width": 60,
         "height": 60
@@ -426,8 +426,8 @@
     "landmarks": [
       {
         "path": "locations/landmarks/equipment_production.png",
-        "x": 440,
-        "y": 150,
+        "x": 969,
+        "y": 148,
         "width": 60,
         "height": 60
       }
@@ -443,7 +443,7 @@
     "landmarks": [
       {
         "path": "locations/landmarks/combat_menu.png",
-        "x": 524,
+        "x": 404,
         "y": 47,
         "width": 60,
         "height": 60
@@ -455,7 +455,7 @@
         "assets": [
           {
             "asset": {
-              "x": 120,
+              "x": 0,
               "y": 0,
               "width": 205,
               "height": 130
@@ -467,9 +467,9 @@
         "dest": "combat",
         "assets": [
           {
-            "condition": "-|153,326,60,60|locations/selectors/combat.png",
+            "condition": "-|33,326,60,60|locations/selectors/combat.png",
             "asset": {
-              "x": 131,
+              "x": 12,
               "y": 296,
               "width": 257,
               "height": 118
@@ -477,7 +477,7 @@
           },
           {
             "asset": {
-              "x": 131,
+              "x": 12,
               "y": 164,
               "width": 257,
               "height": 118
@@ -489,9 +489,9 @@
         "dest": "logistics_support",
         "assets": [
           {
-            "condition": "-|153,326,60,60|locations/selectors/combat.png",
+            "condition": "-|33,326,60,60|locations/selectors/combat.png",
             "asset": {
-              "x": 131,
+              "x": 12,
               "y": 428,
               "width": 257,
               "height": 118
@@ -499,7 +499,7 @@
           },
           {
             "asset": {
-              "x": 131,
+              "x": 12,
               "y": 296,
               "width": 257,
               "height": 118
@@ -511,9 +511,9 @@
         "dest": "combat_simulation",
         "assets": [
           {
-            "condition": "-|153,326,60,60|locations/selectors/combat.png",
+            "condition": "-|33,326,60,60|locations/selectors/combat.png",
             "asset": {
-              "x": 131,
+              "x": 12,
               "y": 562,
               "width": 257,
               "height": 118
@@ -521,7 +521,7 @@
           },
           {
             "asset": {
-              "x": 131,
+              "x": 12,
               "y": 428,
               "width": 257,
               "height": 118
@@ -533,9 +533,9 @@
         "dest": "campaign",
         "assets": [
           {
-            "condition": "-|153,326,60,60|locations/selectors/combat.png",
+            "condition": "-|33,326,60,60|locations/selectors/combat.png",
             "asset": {
-              "x": 131,
+              "x": 12,
               "y": 694,
               "width": 257,
               "height": 118
@@ -543,7 +543,7 @@
           },
           {
             "asset": {
-              "x": 131,
+              "x": 12,
               "y": 562,
               "width": 257,
               "height": 118
@@ -558,7 +558,7 @@
     "landmarks": [
       {
         "path": "locations/landmarks/combat_settings.png",
-        "x": 655,
+        "x": 535,
         "y": 132,
         "width": 60,
         "height": 60
@@ -570,7 +570,7 @@
         "assets": [
           {
             "asset": {
-              "x": 444,
+              "x": 326,
               "y": 96,
               "width": 169,
               "height": 93
@@ -585,7 +585,7 @@
     "landmarks": [
       {
         "path": "locations/landmarks/combat.png",
-        "x": 1870,
+        "x": 1750,
         "y": 165,
         "width": 45,
         "height": 45
@@ -602,7 +602,7 @@
     "landmarks": [
       {
         "path": "locations/landmarks/logistics_support.png",
-        "x": 1746,
+        "x": 1626,
         "y": 147,
         "width": 60,
         "height": 60
@@ -620,14 +620,14 @@
     "landmarks": [
       {
         "path": "locations/landmarks/combat_simulation.png",
-        "x": 1947,
+        "x": 1827,
         "y": 167,
         "width": 60,
         "height": 60
       },
       {
         "path": "locations/landmarks/combat_simulation0.png",
-        "x": 1947,
+        "x": 1827,
         "y": 167,
         "width": 60,
         "height": 60
@@ -645,15 +645,7 @@
     "landmarks": [
       {
         "path": "locations/landmarks/campaign.png",
-        "x": 1659,
-        "y": 165,
-        "width": 60,
-        "height": 60,
-        "threshold": 0.8
-      },
-      {
-        "path": "locations/landmarks/campaign0.png",
-        "x": 1659,
+        "x": 1540,
         "y": 165,
         "width": 60,
         "height": 60,
@@ -671,8 +663,8 @@
     "landmarks": [
       {
         "path": "locations/landmarks/repair.png",
-        "x": 508,
-        "y": 62,
+        "x": 390,
+        "y": 60,
         "width": 60,
         "height": 60
       }
@@ -683,7 +675,7 @@
         "assets": [
           {
             "asset": {
-              "x": 120,
+              "x": 0,
               "y": 0,
               "width": 205,
               "height": 130
@@ -698,7 +690,7 @@
     "landmarks": [
       {
         "path": "locations/landmarks/research_menu.png",
-        "x": 512,
+        "x": 392,
         "y": 38,
         "width": 60,
         "height": 60
@@ -710,7 +702,7 @@
         "assets": [
           {
             "asset": {
-              "x": 120,
+              "x": 0,
               "y": 0,
               "width": 205,
               "height": 130
@@ -737,7 +729,7 @@
         "assets": [
           {
             "asset": {
-              "x": 135,
+              "x": 0,
               "y": 15,
               "width": 259,
               "height": 122
@@ -752,8 +744,8 @@
     "landmarks": [
       {
         "path": "locations/landmarks/profile.png",
-        "x": 1846,
-        "y": 57,
+        "x": 1805,
+        "y": 22,
         "width": 60,
         "height": 60
       }
@@ -764,10 +756,10 @@
         "assets": [
           {
             "asset": {
-              "x": 133,
-              "y": 120,
-              "width": 715,
-              "height": 927
+              "x": 0,
+              "y": 0,
+              "width": 165,
+              "height": 102
             }
           }
         ]
@@ -791,8 +783,8 @@
         "assets": [
           {
             "asset": {
-              "x": 120,
-              "y": 5,
+              "x": 100,
+              "y": 15,
               "width": 140,
               "height": 122
             }
@@ -860,7 +852,7 @@
         "assets": [
           {
             "asset": {
-              "x": 120,
+              "x": 0,
               "y": 0,
               "width": 138,
               "height": 125
@@ -875,7 +867,7 @@
     "landmarks": [
       {
         "path": "locations/landmarks/game_start.png",
-        "x": 2000,
+        "x": 1760,
         "y": 55,
         "width": 60,
         "height": 60,
@@ -888,7 +880,7 @@
         "assets": [
           {
             "asset": {
-              "x": 838,
+              "x": 719,
               "y": 895,
               "width": 482,
               "height": 103

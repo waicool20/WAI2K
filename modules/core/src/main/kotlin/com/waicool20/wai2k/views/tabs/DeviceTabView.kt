@@ -149,7 +149,7 @@ class DeviceTabView : CoroutineScopeView(), Binder {
                 extensionFilters.add(FileChooser.ExtensionFilter("PNG files (*.png)", "*.png"))
                 showSaveDialog(null)?.let { file ->
                     launch(Dispatchers.IO) {
-                        ImageIO.write(device.screens[0].capture(), "PNG", file)
+                        ImageIO.write(device.displays.first().capture().img, "PNG", file)
                     }
                 }
             }
@@ -166,7 +166,7 @@ class DeviceTabView : CoroutineScopeView(), Binder {
                 capturingJob = launch(Dispatchers.IO) {
                     while (isActive) {
                         val out = dir.resolve("${System.currentTimeMillis()}.png")
-                        ImageIO.write(device.screens[0].capture(), "PNG", out)
+                        ImageIO.write(device.displays.first().capture().img, "PNG", out)
                         logger.info("Saved $out")
                     }
                 }
@@ -187,7 +187,7 @@ class DeviceTabView : CoroutineScopeView(), Binder {
                 val times = 10
                 var total = 0L
                 repeat(times) {
-                    val time = measureTimeMillis { device.screens[0].capture() }
+                    val time = measureTimeMillis { device.displays.first().capture() }
                     delay(100)
                     logger.info("Capture $it: $time ms")
                     total += time
@@ -263,11 +263,11 @@ class DeviceTabView : CoroutineScopeView(), Binder {
             var lastCaptureTime = System.currentTimeMillis()
             while (isActive && owningTab?.isSelected == true) {
                 try {
-                    val image = device.screens[0].getLastScreenCapture()?.takeIf {
+                    val image = device.displays.first().lastCapture.img.takeIf {
                         System.currentTimeMillis() - lastCaptureTime < 3000
                     } ?: run {
                         lastCaptureTime = System.currentTimeMillis()
-                        device.screens[0].capture()
+                        device.displays.first().capture().img
                     }
                     withContext(Dispatchers.Main) {
                         deviceView.image = SwingFXUtils.toFXImage(image, null)

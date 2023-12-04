@@ -19,12 +19,14 @@
 
 package com.waicool20.wai2k.script.modules
 
+import com.waicool20.cvauto.core.template.FT
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.config.Wai2kProfile.CombatReport
 import com.waicool20.wai2k.events.CombatReportWriteEvent
 import com.waicool20.wai2k.events.EventBus
 import com.waicool20.wai2k.game.location.LocationId
 import com.waicool20.wai2k.script.Navigator
+import com.waicool20.wai2k.script.ScriptException
 import com.waicool20.wai2k.util.digitsOnly
 import com.waicool20.wai2k.util.formatted
 import com.waicool20.wai2k.util.loggerFor
@@ -46,7 +48,7 @@ class CombatReportModule(navigator: Navigator) : ScriptModule(navigator) {
     private suspend fun overworkKalina() {
         navigator.navigateTo(LocationId.DATA_ROOM)
         // Wait a bit since loading the data room takes some time
-        val desk = region.waitHas(FileTemplate("combat-report/desk.png"), 10000) ?: run {
+        val desk = region.waitHas(FT("combat-report/desk.png"), 10000) ?: run {
             logger.warn("Could not find Kalina's desk after 10s, make sure its LVL 10!")
             return
         }
@@ -55,7 +57,7 @@ class CombatReportModule(navigator: Navigator) : ScriptModule(navigator) {
             scheduleNextCheck()
             return
         }
-        if (region.has(FileTemplate("combat-report/working.png"))) {
+        if (region.has(FT("combat-report/working.png"))) {
             logger.info("Kalina is already on overtime!")
             scheduleNextCheck()
             return
@@ -65,19 +67,19 @@ class CombatReportModule(navigator: Navigator) : ScriptModule(navigator) {
         desk.copy(width = 30).click()
         delay(1000)
         // Click work button
-        region.subRegion(1510, 568, 277, 86).click()
+        region.subRegion(1389, 567, 277, 86).click()
         delay(500)
         // Select type
         val reportRegion = when (profile.combatReport.type) {
             CombatReport.Type.NORMAL -> {
                 logger.info("Selecting normal combat reports")
-                region.subRegion(583, 331, 155, 148).click()
-                region.subRegion(842, 406, 115, 48)
+                region.subRegion(456, 331, 155, 148).click()
+                region.subRegion(717, 406, 115, 48)
             }
             CombatReport.Type.SPECIAL -> {
                 logger.info("Selecting special combat reports")
-                region.subRegion(1160, 331, 155, 148).click()
-                region.subRegion(1420, 406, 115, 48)
+                region.subRegion(1034, 331, 155, 148).click()
+                region.subRegion(1295, 406, 115, 48)
             }
             else -> error("No such combat report type!")
         }
@@ -102,19 +104,20 @@ class CombatReportModule(navigator: Navigator) : ScriptModule(navigator) {
         )
 
         logger.info("Confirming selection")
-        region.subRegion(1389, 699, 268, 103).click(); delay(1000) // OK button
+        region.subRegion(1269, 699, 268, 103).click(); delay(1000) // OK button
         scheduleNextCheck()
 
         if (region.has(FileTemplate("ok.png"))) {
             logger.info("Warning: Battery at <1%, exiting")
-            region.subRegion(795, 749, 268, 103).click(); delay(500) // Cancel
-            region.subRegion(314, 114, 158, 81).click(); delay(500) // Back
+            throw ScriptException("TODO: Unhandled case")
+            //region.subRegion(795, 749, 268, 103).click(); delay(500) // Cancel
+            //region.subRegion(314, 114, 158, 81).click(); delay(500) // Back
         }
     }
 
     private fun hasSufficientBatteries(): Boolean {
         val battsText = ocr.digitsOnly()
-            .readText(region.subRegion(1888, 36, 83, 45), invert = true)
+            .readText(region.subRegion(1648, 36, 83, 45), invert = true)
         logger.info("Battery OCR: $battsText")
         val batts = battsText.toIntOrNull() ?: run {
             logger.warn("Could not read battery count, assuming not enough batteries")

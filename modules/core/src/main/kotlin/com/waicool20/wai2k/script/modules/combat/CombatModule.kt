@@ -184,7 +184,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
             val startTime = System.currentTimeMillis()
             logger.info("Switching doll $slot of echelon 1")
             // Dragger region ( excludes stuff below name/type )
-            region.subRegion(362 + (slot - 1) * 273, 206, 237, 544).click(); yield()
+            region.subRegion(242 + (slot - 1) * 273, 206, 237, 544).click(); yield()
             region.waitHas(FileTemplate("doll-list/lock.png"), 5000)
 
             applyFilters(tdoll, false)
@@ -199,9 +199,9 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
 
             try {
                 withTimeout(90_000) {
-                    val r = region.subRegion(167, 146, 1542, 934)
+                    val r = region.subRegion(46, 146, 1542, 934)
                     while (coroutineContext.isActive) {
-                        if (Color(region.capture().getRGB(0, 300)).isSimilar(Color(21, 21, 21))) {
+                        if (region.pickColor(0, 300).isSimilar(Color(21, 21, 21))) {
                             // Exit doll profile screen if entered accidentally when emu lags while swiping
                             region.subRegion(120, 597, 132, 88).click()
                             delay(500)
@@ -212,7 +212,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
                             r.findBest(FileTemplate("doll-list/echelon2-captain.png", 0.85), 5)
                                 .maxByOrNull { it.score }?.region
                         if (switchDoll == null) {
-                            checkImg = checkRegion.capture()
+                            checkImg = checkRegion.capture().img
                             if (scrollDown) {
                                 r1.swipeTo(r2, 500)
                             } else {
@@ -256,7 +256,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
         logger.info("Applying doll filters for dragging doll ${tdoll.name}")
         tdoll.apply { applyDollFilters(stars, type, reset) }
         delay(500)
-        region.subRegion(1188, 214, 258, 252)
+        region.subRegion(1260, 180, 371, 317)
             .waitDoesntHave(FileTemplate("doll-list/filtermenu.png"), 5000)
     }
 
@@ -282,15 +282,15 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
         }
 
         for (i in 1..retries) {
-            val cache = region.asCachedRegion()
+            val cache = region.freeze()
             val members = cache.findBest(FileTemplate("formation/stats.png"), 5)
                 .also { logger.info("Found ${it.size} dolls on screen") }
                 .map { it.region }
                 .sortedBy { it.x }
                 .map {
                     DollRegions(
-                        cache.capture().getSubimage(it.x - 153, it.y - 183, 247, 84),
-                        cache.capture().getSubimage(it.x - 133, it.y - 61, 209, 1)
+                        cache.capture().img.getSubimage(it.x - 153, it.y - 183, 247, 84),
+                        cache.capture().img.getSubimage(it.x - 133, it.y - 61, 209, 1)
                     )
                 }
 
@@ -378,7 +378,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
         if (region.doesntHave(FileTemplate("locations/landmarks/combat_menu.png"))) {
             logger.info("Chapter menu not on screen!")
             // Click back button in case one of the maps was opened accidentally
-            region.subRegion(383, 92, 169, 94).click()
+            region.subRegion(324, 92, 169, 94).click()
         }
         clickChapter(chapter)
         logger.info("At combat chapter $chapter")
@@ -396,15 +396,15 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
             when (map.type) {
                 CombatMap.Type.NORMAL -> {
                     // Normal map
-                    region.subRegion(1550, 260, 100, 60).click()
+                    region.subRegion(1428, 260, 100, 60).click()
                 }
                 CombatMap.Type.EMERGENCY -> {
                     logger.info("Selecting emergency map")
-                    region.subRegion(1720, 260, 100, 60).click()
+                    region.subRegion(1599, 260, 100, 60).click()
                 }
                 CombatMap.Type.NIGHT -> {
                     logger.info("Selecting night map")
-                    region.subRegion(1895, 260, 100, 60).click()
+                    region.subRegion(1765, 260, 100, 60).click()
                 }
             }
             // Wait for it to settle
@@ -417,7 +417,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
                 region.subRegion(925, 377 + 177 * (map.number - 1), 440, 130).click()
             }
             else -> {
-                val mapNameR = region.subRegion(1100, 350, 250, 680)
+                val mapNameR = region.subRegion(970, 350, 250, 680)
                 val mapName = "${map.chapter}-${map.number}" // map.name might have suffix
                 withTimeout(10000) {
                     while (coroutineContext.isActive) {
@@ -445,15 +445,14 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
         // button which will be slightly transparent
         logger.info("Entering normal battle at $map")
 
-        region.subRegion(1445, 830, 345, 135)
-            .waitHas(FT("combat/battle/normal.png", 0.85), 5000)?.click()
+        region.waitHas(FT("combat/battle/normal.png", 0.85), 5000)?.click()
             ?: throw ScriptException("Failed to enter normal battle, could not click normal battle button")
 
         delay(1000)
 
         if (checkNeedsEnhancement()) return
 
-        val r = region.subRegion(1712, 882, 448, 198)
+        val r = region.subRegion(1472, 871, 436, 205)
         // Wait for start operation button to appear first before handing off control to
         // map specific files
         if (r.waitHas(FT("combat/battle/start.png", 0.9), 30000) == null) {
@@ -474,9 +473,9 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
             text.contains("retire", true) -> {
                 logger.info("T-doll limit reached, cancelling sortie")
                 if (profile.factory.enhancement.enabled) {
-                    region.subRegion(1327, 463, 276, 350).click()
+                    region.subRegion(1206, 463, 276, 350).click()
                 } else {
-                    region.subRegion(942, 463, 276, 350).click()
+                    region.subRegion(822, 463, 276, 350).click()
                 }
                 delay(5000)
                 gameState.dollOverflow = true
@@ -485,7 +484,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
             }
             text.contains("dismantle", true) -> {
                 logger.info("Equipment limit reached, cancelling sortie")
-                region.subRegion(942, 463, 276, 350).click()
+                region.subRegion(822, 463, 276, 350).click()
                 delay(5000)
                 gameState.equipOverflow = true
                 gameState.currentGameLocation = GameLocation.find(config, LocationId.FACTORY_MENU)

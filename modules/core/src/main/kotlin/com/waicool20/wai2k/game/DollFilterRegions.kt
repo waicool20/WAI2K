@@ -26,39 +26,39 @@ class DollFilterRegions(region: AndroidRegion) {
     /**
      * 'Filter By' button
      */
-    val filter = region.subRegion(1797, 368, 193, 121)
+    val filter = region.subRegion(1660, 368, 193, 121)
 
     /**
      * Map of 1-5 star rating and their regions
      */
     val starRegions = mapOf(
-        6 to region.subRegion(917, 215, 256, 117),
-        5 to region.subRegion(1188, 215, 256, 117),
-        4 to region.subRegion(1459, 215, 256, 117),
-        3 to region.subRegion(917, 349, 256, 117),
-        2 to region.subRegion(1188, 349, 256, 117),
-        1 to region.subRegion(1459, 349, 256, 117)
+        6 to region.subRegion(797, 215, 256, 117),
+        5 to region.subRegion(1068, 215, 256, 117),
+        4 to region.subRegion(1339, 215, 256, 117),
+        3 to region.subRegion(797, 349, 256, 117),
+        2 to region.subRegion(1068, 349, 256, 117),
+        1 to region.subRegion(1339, 349, 256, 117)
     )
 
     /**
      * Map of individual gun types and their regions
      */
     val typeRegions = mapOf(
-        Type.HG to region.subRegion(917, 537, 256, 117),
-        Type.SMG to region.subRegion(1188, 537, 256, 117),
-        Type.RF to region.subRegion(1459, 537, 256, 117),
-        Type.AR to region.subRegion(917, 672, 256, 117),
-        Type.MG to region.subRegion(1188, 672, 256, 117),
-        Type.SG to region.subRegion(1459, 672, 256, 117)
+        Type.HG to region.subRegion(797, 537, 256, 117),
+        Type.SMG to region.subRegion(1068, 537, 256, 117),
+        Type.RF to region.subRegion(1339, 537, 256, 117),
+        Type.AR to region.subRegion(797, 672, 256, 117),
+        Type.MG to region.subRegion(1068, 672, 256, 117),
+        Type.SG to region.subRegion(1339, 672, 256, 117)
     )
 
     /**
      * Reset button
      */
-    val reset = region.subRegion(902, 980, 413, 83)
+    val reset = region.subRegion(782, 980, 413, 83)
 
     /**
      * Confirm button
      */
-    val confirm = region.subRegion(1318, 980, 413, 83)
+    val confirm = region.subRegion(1198, 980, 413, 83)
 }

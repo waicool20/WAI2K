@@ -19,6 +19,7 @@
 
 package com.waicool20.wai2k.game
 
+import com.waicool20.cvauto.core.template.FT
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.util.digitsOnly
@@ -57,7 +58,7 @@ data class Echelon(val number: Int) {
 
         val start = System.currentTimeMillis()
         while (coroutineContext.isActive) {
-            val echelons = eRegion.findBest(FileTemplate("echelons/echelon.png"), 8)
+            val echelons = eRegion.findBest(FT("echelons/echelon.png"), 8)
                 .map { it.region }
                 .mapNotNull { r ->
                     r.copy(r.x + r.width, r.y - 40, 70, 95)

@@ -201,7 +201,7 @@ abstract class HomographyMapRunner(scriptComponent: ScriptComponent) : MapRunner
             val h = mapH ?: try {
                 logger.info("Finding map transformation")
                 val prediction = predictor.predict(
-                    fullMap to ImageFactory.getInstance().fromImage(window.capture())
+                    fullMap to ImageFactory.getInstance().fromImage(window.capture().img)
                 )
                 logger.debug("Homography prediction metrics:")
                 logger.debug("Preprocess: ${metrics.latestMetric("Preprocess").value.toLong() / 1000} ms")

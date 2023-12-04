@@ -47,7 +47,7 @@ import kotlin.random.Random
 @Suppress("unused")
 class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
     private val logger = loggerFor<CombatSimModule>()
-    private val modeRegion = region.subRegion(394, 158, 200, 922)
+    private val modeRegion = region.subRegion(276, 158, 200, 922)
 
     @Suppress("ClassName")
     class NeuralCloudCorridor_Advanced(
@@ -60,8 +60,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
             val echelon = Echelon(number = profile.combatSimulation.neuralEchelon)
 
             // Plan the route on the first run
-            region.subRegion(1730, 900, 430, 180)
-                .waitHas(FT("combat/battle/start.png"), 10000)
+            region.waitHas(FT("combat/battle/start.png"), 10000)
             delay(1000)
 
             logger.info("Zoom out")
@@ -89,8 +88,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
                     while (coroutineContext.isActive) {
                         mapRunnerRegions.startOperation.click(); yield()
 
-                        region.subRegion(1100, 680, 275, 130)
-                            .waitHas(FT("ok.png"), 2000)?.click()
+                        region.waitHas(FT("ok.png"), 2000)?.click()
                             ?: continue
                         break
                     }
@@ -115,13 +113,13 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
                     energySpent += level.cost
                     break
                 }
-                if (region.subRegion(1100, 680, 275, 130).has(FT("ok.png"))) {
+                if (region.subRegion(982, 680, 275, 130).has(FT("ok.png"))) {
                     energySpent += level.cost
                     if (++runs > times) {
-                        region.subRegion(788, 695, 250, 96).click() // Cancel
+                        region.subRegion(668, 695, 250, 96).click() // Cancel
                         break
                     } else {
-                        region.subRegion(1115, 695, 250, 96).click() // ok
+                        region.subRegion(996, 695, 250, 96).click() // ok
                         logger.info("Done one cycle, remaining: ${times - runs}")
                         delay(7000)
                         waitForTurnEnd(1, timeout = 60_000)
@@ -150,11 +148,11 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
         delay(1000) // Delay for settle
 
         // Select normal combat sim
-        region.subRegion(394, 158, 200, 106).click()
+        region.subRegion(274, 158, 200, 106).click()
 
         logger.info("Checking sim energy...")
 
-        gameState.simEnergy = checkSimEnergy(region.subRegion(1535, 161, 71, 71)) ?: return
+        gameState.simEnergy = checkSimEnergy(region.subRegion(1414, 161, 71, 71)) ?: return
 
         for (run in listOf(::runDataSimulation, ::runNeuralFragment).shuffled()) {
             if (gameState.simEnergy <= 0) break
@@ -173,7 +171,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
         while (coroutineContext.isActive) {
             delay(5000)
             modeRegion.findBest(FT("combat-simulation/coalition-drill.png"))?.region?.click()
-            if (Color(region.capture().getRGB(1790, 205)).isSimilar(Color(126, 24, 24))) {
+            if (region.pickColor(1790, 205).isSimilar(Color(126, 24, 24))) {
                 delay(1000)
                 break
             }
@@ -181,7 +179,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
 
         logger.info("Checking coalition energy...")
 
-        gameState.coalitionEnergy = checkSimEnergy(region.subRegion(1553, 161, 71, 71)) ?: return
+        gameState.coalitionEnergy = checkSimEnergy(region.subRegion(1432, 161, 71, 71)) ?: return
         runCoalition()
         logger.info("Coalition energy remaining : ${gameState.coalitionEnergy}")
     }
@@ -223,10 +221,10 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
         delay((1000 * gameState.delayCoefficient).roundToLong())
 
         logger.info("Running data sim type $level $times times")
-        region.subRegion(735, 377 + (177 * (level.cost - 1)), 1230, 130).click() // Difficulty
+        region.subRegion(617, 377 + (177 * (level.cost - 1)), 1230, 130).click() // Difficulty
         delay(1000)
         logger.info("Entering $level sim")
-        region.subRegion(1320, 810, 300, 105).click() // Enter Combat
+        region.subRegion(1194, 810, 300, 105).click() // Enter Combat
         region.waitHas(FT("ok.png"), 5000)?.click()
         delay(3000)
 
@@ -258,7 +256,7 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
 
         logger.info("Running neural sim type $level $times times")
         logger.info("Entering $level sim")
-        region.subRegion(735, 377 + (177 * (level.cost - 1)), 1230, 130).click() // Difficulty
+        region.subRegion(617, 377 + (177 * (level.cost - 1)), 1230, 130).click() // Difficulty
 
         NeuralCloudCorridor_Advanced(level, times, this@CombatSimModule).execute()
         updateNextCheck()
@@ -293,16 +291,15 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
         }
 
         logger.info("Running Coalition Drill: $drillType $times times.")
-        region.subRegion(781 + (440 * (drillType.ordinal - 1)), 855, 307, 110).click()
+        region.subRegion(617 + (440 * (drillType.ordinal - 1)), 855, 307, 110).click()
         delay((2500 * gameState.delayCoefficient).roundToLong())
 
-        val capture = region.capture()
-        if (Color(capture.getRGB(292, 706)).isSimilar(Color(156, 154, 156))) {
+        if (region.pickColor(254, 688).isSimilar(Color(156, 154, 156))) {
             logger.info("T-Dolls not assigned, using automatic assignment")
-            region.subRegion(294, 792, 348, 91).click()
+            region.subRegion(176, 792, 348, 91).click()
             delay(1000)
         }
-        region.subRegion(1570, 845, 305, 108).click() // Attack
+        region.subRegion(1451, 845, 305, 108).click() // Attack
         region.waitHas(FT("ok.png"), 2000)?.click()
         logger.info("Starting drill, waiting for results screen")
         // wait for results, select run again if times > 1 else exit
@@ -320,25 +317,25 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
      */
     private fun getBonusCoalitionDrills(): List<Type> {
         val bonus = Color(244, 54, 65)
-        val capture = region.capture()
+        val capture = region.freeze()
         val list = mutableListOf<Type>()
-        if (Color(capture.getRGB(1050, 410)).isSimilar(bonus)) list += Type.EXPDISKS
-        if (Color(capture.getRGB(1492, 410)).isSimilar(bonus)) list += Type.PETRIDISH
-        if (Color(capture.getRGB(1935, 410)).isSimilar(bonus)) list += Type.DATACHIPS
+        if (capture.pickColor(936, 410).isSimilar(bonus)) list += Type.EXPDISKS
+        if (capture.pickColor(1373, 410).isSimilar(bonus)) list += Type.PETRIDISH
+        if (capture.pickColor(1814, 410).isSimilar(bonus)) list += Type.DATACHIPS
         return list
     }
 
     private suspend fun runSimCycles(times: Int) {
         var t = times
         while (coroutineContext.isActive) {
-            region.subRegion(1250, 25, 710, 121).click() // endBattleClick
+            region.subRegion(1250, 25, 600, 121).click() // endBattleClick
             delay(300)
             if (locations.getValue(LocationId.COMBAT_SIMULATION).isInRegion(region)) {
                 break
             }
-            if (region.subRegion(1100, 680, 275, 130).has(FT("ok.png"))) {
+            if (region.subRegion(983, 680, 275, 130).has(FT("ok.png"))) {
                 if (--t > 0) {
-                    region.subRegion(1115, 695, 250, 96).click() // ok
+                    region.subRegion(996, 695, 250, 96).click() // ok
                     logger.info("Done one cycle, remaining: $t")
                 } else {
                     region.subRegion(788, 695, 250, 96).click() // Cancel

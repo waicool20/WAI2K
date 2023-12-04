@@ -174,6 +174,9 @@ class ScriptRunner(
         if (_device == null || _device?.serial != _config.lastDeviceSerial) {
             val device =
                 ADB.getDevice(_config.lastDeviceSerial) ?: throw InvalidDeviceException(null)
+            if (device.properties.displayWidth != 1920 || device.properties.displayHeight != 1080) {
+                stop("Resolution mismatch! Set the device resolution to 1920x1080")
+            }
             _device = device
             logcatListener?.stop()
             logcatListener = GFL.LogcatListener(this, device)
@@ -187,7 +190,7 @@ class ScriptRunner(
         FileTemplate.checkPaths.clear()
         FileTemplate.checkPaths.add(_config.assetsDirectory)
 
-        val region = _device?.screens?.firstOrNull() ?: throw InvalidDeviceException(_device)
+        val region = _device?.displays?.firstOrNull()?.region ?: throw InvalidDeviceException(_device)
         if (reloadModules) {
             logger.info("Reloading modules")
             modules.clear()
@@ -248,7 +251,7 @@ class ScriptRunner(
     private fun saveDebugImage() {
         val now = LocalDateTime.now()
         val device = requireNotNull(_device)
-        val screenshot = device.screens.first().capture()
+        val screenshot = device.displays.first().capture().img
         val output = Wai2k.CONFIG_DIR.resolve("debug")
             .resolve("${DateTimeFormatter.ofPattern("yyyy-MM-dd HH-mm-ss").format(now)}.png")
         sessionScope.launch(Dispatchers.IO) {

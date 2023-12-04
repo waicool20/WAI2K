@@ -76,15 +76,13 @@ class InitModule(navigator: Navigator) : ScriptModule(navigator) {
 
     private suspend fun updateGameState() {
         navigator.navigateTo(LocationId.HOME_STATUS)
-        if (region.subRegion(428, 0, 240, region.height / 2)
-                .has(FT("init/in-combat.png"))
-        ) {
+        if (region.has(FT("init/in-combat.png"))) {
             terminateExistingBattle()
             updateGameState()
             return
         }
         logger.info("Updating gamestate")
-        val region = region.asCachedRegion()
+        val region = region.freeze()
         measureTimeMillis {
             val repairJob = scope.launch { updateRepairs(region) }
             updateLogistics(region)
@@ -99,13 +97,13 @@ class InitModule(navigator: Navigator) : ScriptModule(navigator) {
      */
     private suspend fun updateLogistics(cache: AnyRegion) {
         logger.info("Reading logistics support status")
-        val entry = cache.subRegion(427, 0, 234, cache.height)
+        val entry = cache
             .findBest(FT("init/logistics.png"), 4)
             .map { it.region }
             // Map each region to whole logistic support entry
             .map { cache.subRegion(it.x - 133, it.y - 87, 852, 115) }
             .mapAsync {
-                val capture = it.capture()
+                val capture = it.capture().img
                 listOf(
                     // Echelon number
                     ocr.digitsOnly().readText(
@@ -147,7 +145,7 @@ class InitModule(navigator: Navigator) : ScriptModule(navigator) {
     private suspend fun updateRepairs(cache: AnyRegion) {
         logger.info("Reading repair status")
 
-        val firstEntryRegion = cache.subRegion(388, 0, 159, region.height)
+        val firstEntryRegion = cache.subRegion(333, 0, 159, region.height)
         val repairRegions = scope.async {
             firstEntryRegion.findBest(FT("init/repairing.png"), 6)
         }
@@ -164,7 +162,7 @@ class InitModule(navigator: Navigator) : ScriptModule(navigator) {
         val mappedEntries = entries.map { it.region }
             .mapNotNull {
                 try {
-                    cache.capture().getSubimage(it.x - 109, it.y - 31, 852, 184)
+                    cache.capture().img.getSubimage(it.x - 109, it.y - 31, 852, 184)
                 } catch (e: RasterFormatException) {
                     logger.warn("One status entry is out of bounds, ignoring!")
                     null
@@ -210,12 +208,13 @@ class InitModule(navigator: Navigator) : ScriptModule(navigator) {
     private suspend fun terminateExistingBattle() {
         logger.info("Detected ongoing battle, terminating it first")
         while (coroutineContext.isActive) {
-            val capture = region.capture()
-            if (Color(capture.getRGB(50, 1050)).isSimilar(Color(16, 16, 16)) &&
-                Color(capture.getRGB(680, 580)).isSimilar(Color(222, 223, 74))
+            val capture = region.freeze()
+            // Check if in transition to map
+            if (capture.pickColor(50, 1050).isSimilar(Color(16, 16, 16)) &&
+                capture.pickColor(680, 580).isSimilar(Color(222, 223, 74))
             ) break
             // Region that contains the word `RESUME` if there's an ongoing battle
-            region.subRegion(1800, 780, 170, 75).click()
+            region.subRegion(1700, 780, 170, 75).click()
             navigator.checkLogistics()
         }
         logger.info("Transitioning to map")

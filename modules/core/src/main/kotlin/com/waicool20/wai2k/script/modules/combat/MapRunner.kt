@@ -216,11 +216,11 @@ abstract class MapRunner(
                 if (echelon in 1..GFL.MAX_ECHELON) {
                     while (!Echelon(echelon).clickEchelon(this@MapRunner, 140)) delay(200)
                 }
-                val screenshot = region.capture()
+                val screenshot = region.capture().img
                 val formatter = DecimalFormat("##.#")
 
                 fun hasMember(mIndex: Int): Boolean {
-                    return screenshot.getRGB(385 + mIndex * 272, 765) == Color.WHITE.rgb
+                    return screenshot.getRGB(266 + mIndex * 272, 765) == Color.WHITE.rgb
                 }
 
                 val members = if (this@MapRunner is CorpseDragging) {
@@ -231,7 +231,7 @@ abstract class MapRunner(
                 }.filter { hasMember(it) }
 
                 // MICA why are your things 1 pixel off :(
-                val xOffsets = arrayOf(373, 645, 918, 1191, 1464)
+                val xOffsets = arrayOf(253, 525, 798, 1071, 1344)
                 val wOffsets = arrayOf(217, 218, 218, 218, 217)
                 val ammoNeedsSupply = async {
                     members.mapAsync { m ->
@@ -282,7 +282,7 @@ abstract class MapRunner(
                     members.forEach { m ->
                         if (hpMap.await()[m]!! in 0.0..profile.combat.repairThreshold.toDouble()) {
                             logger.info("Repairing member ${m + 1}")
-                            region.subRegion(360 + m * 272, 228, 246, 323).click()
+                            region.subRegion(239 + m * 272, 228, 246, 323).click()
                             region.subRegion(1441, 772, 250, 96)
                                 .waitHas(FT("ok.png"), 3000)?.click()
                             EventBus.publish(
@@ -368,7 +368,7 @@ abstract class MapRunner(
         logger.info("Retreating")
         mapRunnerRegions.retreat.click()
         delay(1000)
-        region.subRegion(1115, 696, 250, 95).click()
+        region.subRegion(995, 696, 250, 95).click()
         logger.info("Retreat complete")
         delay(1000)
     }
@@ -536,7 +536,7 @@ abstract class MapRunner(
                 clickThroughBattle()
                 wdt.reset()
             }
-            val r = region.asCachedRegion()
+            val r = region.freeze()
             if (assets.all { r.has(it) }) break
             if (wdt.hasExpired()) throw ScriptTimeOutException("Waiting for turn assets")
             delay(500)
@@ -585,10 +585,10 @@ abstract class MapRunner(
 
     protected suspend fun terminateMission(incrementSorties: Boolean = true) {
         mapRunnerRegions.terminateMenu.clickWhile(period = 3000) {
-            region.subRegion(1165, 650, 280, 170)
+            region.subRegion(1044, 650, 280, 170)
                 .doesntHave(FT("combat/battle/terminate-confirm.png"))
         }
-        region.subRegion(1165, 650, 280, 170)
+        region.subRegion(1044, 650, 280, 170)
             .waitHas(FT("combat/battle/terminate-confirm.png"), 10000)
         mapRunnerRegions.terminate.click(); delay(5000)
 
@@ -606,10 +606,10 @@ abstract class MapRunner(
 
     protected suspend fun restartMission(incrementSorties: Boolean = true) {
         mapRunnerRegions.terminateMenu.clickWhile(period = 3000) {
-            region.subRegion(715, 650, 280, 170)
+            region.subRegion(598, 650, 280, 170)
                 .doesntHave(FT("combat/battle/restart-confirm.png"))
         }
-        region.subRegion(715, 650, 280, 170)
+        region.subRegion(598, 650, 280, 170)
             .waitHas(FT("combat/battle/restart-confirm.png"), 10000)
         mapRunnerRegions.restart.click(); delay(5000)
 
@@ -654,14 +654,13 @@ abstract class MapRunner(
         // Animation and load wheel until you can click through results/drops
         delay(Random.nextLong(1100, 1300))
         val l = mapRunnerRegions.battleEndClick.randomPoint()
-        val cancelR = region.subRegion(761, 674, 283, 144)
         var counter = 0
         val now = System.currentTimeMillis()
         loop@ while (true) {
-            val capture = region.capture()
-            val sample = Color(capture.getRGB(50, 1050))
+            val cache = region.freeze()
+            val sample = cache.pickColor(50, 1050)
             if (sample.isSimilar(Color(16, 16, 16)) &&
-                Color(capture.getRGB(680, 580)).isSimilar(Color(222, 223, 74))
+                cache.pickColor(680, 580).isSimilar(Color(222, 223, 74))
             ) {
                 logger.info("Clicked until transition ($counter times)")
                 break@loop
@@ -681,10 +680,10 @@ abstract class MapRunner(
                 break@loop
             }
             region.subRegion(l.x, l.y, 20, 20).click()
-            cancelR.findBest(FT("combat/battle/cancel.png"))?.region?.click()
+            region.findBest(FT("combat/battle/cancel.png"))?.region?.click()
             ++counter
         }
-        cancelR.findBest(FT("combat/battle/cancel.png"))?.region?.click()
+        region.findBest(FT("combat/battle/cancel.png"))?.region?.click()
         onFinishBattleListener()
     }
 
@@ -693,7 +692,7 @@ abstract class MapRunner(
 
     protected suspend fun openEchelon(node: MapNode) {
         val r = node.findRegion()
-        val sr = region.subRegion(1430, 900, 640, 130)
+        val sr = region.subRegion(1234, 900, 640, 130)
 
         try {
             r.clickWhile(period = 2500, timeout = 30000) {
@@ -709,8 +708,10 @@ abstract class MapRunner(
     }
 
     private suspend fun endTurn() {
-        mapRunnerRegions.endBattle.clickWhile { has(FT("combat/battle/end.png", 0.8)) }
-        region.subRegion(1100, 675, 275, 130).waitHas(FT("ok.png"), 1000)?.click()
+        mapRunnerRegions.endBattle.clickWhile {
+            ocr.readText(this, threshold = 0.73).contains("end", true)
+        }
+        region.waitHas(FT("ok.png"), 1000)?.click()
     }
 
     /**
@@ -718,7 +719,7 @@ abstract class MapRunner(
      */
     protected fun getTurnInfo(): TurnInfo? {
         val ocr = ocr.useCharFilter(Ocr.DIGITS + "-")
-        val screenshot = region.capture()
+        val screenshot = region.capture().img
 
         val turn = ocr.readText(screenshot.getSubimage(748, 53, 86, 72), invert = true)
             .let { if (it.firstOrNull() == '8') it.replaceFirst("8", "0") else it }
@@ -754,18 +755,20 @@ abstract class MapRunner(
      */
     protected suspend fun enterPlanningMode() {
         while (coroutineContext.isActive) {
-            val pmColor = Color(region.capture().getRGB(10, 860))
+            val pmColor = region.pickColor(125, 890)
             when {
                 pmColor.isSimilar(Color.WHITE) -> {
                     logger.info("Entering planning mode")
                     mapRunnerRegions.planningMode.click()
                     delay((3000 * gameState.delayCoefficient).roundToLong())
                 }
-                pmColor.isSimilar(Color(249, 246, 169)) -> {
+                // Dunno why but the delta varies a lot, compression artifacts maybe?
+                pmColor.isSimilar(Color(254, 195, 26), maxDelta = 6.0) -> {
                     logger.info("In planning mode")
                     break
                 }
             }
+            delay(500)
         }
     }
 

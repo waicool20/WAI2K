@@ -22,7 +22,9 @@ package com.waicool20.wai2k.script
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.waicool20.cvauto.core.AnyRegion
 import com.waicool20.cvauto.core.util.cropIntoRect
+import com.waicool20.wai2k.util.loggerFor
 import java.awt.Rectangle
+import java.lang.IllegalArgumentException
 
 /**
  * Represents and asset and its expected geometry
@@ -40,8 +42,9 @@ data class Asset(
     val y: Int = 0,
     val width: Int = 0,
     val height: Int = 0,
-    val threshold: Double = 0.94
+    val threshold: Double = 0.89
 ) {
+    private val logger = loggerFor<Asset>()
     /**
      * Gets the region containing this asset
      *
@@ -51,6 +54,11 @@ data class Asset(
         val rect = Rectangle(x, y, width, height)
             .apply { grow(3, 3) }
             .cropIntoRect(region)
-        return region.subRegion(rect.x, rect.y, rect.width, rect.height)
+        return try {
+            region.subRegion(rect.x, rect.y, rect.width, rect.height)
+        } catch (e: IllegalArgumentException) {
+            logger.error("Could not get sub-region for asset: $path")
+            throw e
+        }
     }
 }

@@ -255,8 +255,8 @@ class DebugView : CoroutineScopeView() {
 
     private fun grabScreenshot(): BufferedImage? {
         return try {
-            val img = lastAndroidDevice?.screens?.firstOrNull()
-                ?.capture()
+            val img = lastAndroidDevice?.displays?.firstOrNull()?.region
+                ?.capture()?.img
                 ?.getSubimage(xSpinner.value, ySpinner.value, wSpinner.value, hSpinner.value)
                 ?: return null
             val imgp = img.pipeline()
@@ -351,7 +351,7 @@ class DebugView : CoroutineScopeView() {
                     return@launch
                 }
                 val image = grabScreenshot() ?: return@launch
-                val matcher = device.screens[0].matcher
+                val matcher = device.displays.first().region.matcher
                 // Set similarity to 0.6f to make cvauto report the similarity value down to 0.6
                 val (results, duration) = measureTimedValue {
                     try {
