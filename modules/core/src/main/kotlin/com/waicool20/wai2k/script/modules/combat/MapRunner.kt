@@ -28,7 +28,10 @@ import com.waicool20.cvauto.core.util.pipeline
 import com.waicool20.wai2k.events.EventBus
 import com.waicool20.wai2k.events.RepairEvent
 import com.waicool20.wai2k.events.SortieDoneEvent
-import com.waicool20.wai2k.game.*
+import com.waicool20.wai2k.game.CombatMap
+import com.waicool20.wai2k.game.Echelon
+import com.waicool20.wai2k.game.GFL
+import com.waicool20.wai2k.game.MapRunnerRegions
 import com.waicool20.wai2k.game.location.LocationId
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.ScriptTimeOutException
@@ -755,18 +758,13 @@ abstract class MapRunner(
      */
     protected suspend fun enterPlanningMode() {
         while (coroutineContext.isActive) {
-            val pmColor = region.pickColor(125, 890)
-            when {
-                pmColor.isSimilar(Color.WHITE) -> {
-                    logger.info("Entering planning mode")
-                    mapRunnerRegions.planningMode.click()
-                    delay((3000 * gameState.delayCoefficient).roundToLong())
-                }
-                // Dunno why but the delta varies a lot, compression artifacts maybe?
-                pmColor.isSimilar(Color(254, 195, 26), maxDelta = 6.0) -> {
-                    logger.info("In planning mode")
-                    break
-                }
+            if (region.pickColor(125, 890).isSimilar(Color.WHITE)) {
+                logger.info("Entering planning mode")
+                mapRunnerRegions.planningMode.click()
+                delay((3000 * gameState.delayCoefficient).roundToLong())
+            } else {
+                logger.info("In planning mode")
+                break
             }
             delay(500)
         }
