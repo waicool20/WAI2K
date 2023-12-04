@@ -21,6 +21,8 @@ package com.waicool20.wai2k.script.modules
 
 import com.waicool20.cvauto.core.template.FT
 import com.waicool20.cvauto.core.template.FileTemplate
+import com.waicool20.cvauto.core.util.countColor
+import com.waicool20.cvauto.core.util.pipeline
 import com.waicool20.wai2k.config.Wai2kProfile.CombatReport
 import com.waicool20.wai2k.events.CombatReportWriteEvent
 import com.waicool20.wai2k.events.EventBus
@@ -32,6 +34,7 @@ import com.waicool20.wai2k.util.formatted
 import com.waicool20.wai2k.util.loggerFor
 import com.waicool20.wai2k.util.readText
 import kotlinx.coroutines.delay
+import java.awt.Color
 import java.time.Instant
 
 @Suppress("unused")
@@ -68,7 +71,19 @@ class CombatReportModule(navigator: Navigator) : ScriptModule(navigator) {
         delay(1000)
         // Click work button
         region.subRegion(1389, 567, 277, 86).click()
-        delay(500)
+        delay(800)
+
+        val expCapture = region.subRegion(1346, 542, 116, 45)
+            .capture().img.pipeline().threshold(0.2)
+            .toBufferedImage()
+        if (expCapture.countColor(Color.WHITE) > 10) {
+            logger.info("Not enough exp to write reports!")
+            region.subRegion(947, 699, 268, 102).click() // Cancel
+            delay(500)
+            region.subRegion(186, 107, 171, 94).click() // Back
+            delay(500)
+            return
+        }
         // Select type
         val reportRegion = when (profile.combatReport.type) {
             CombatReport.Type.NORMAL -> {
@@ -84,8 +99,7 @@ class CombatReportModule(navigator: Navigator) : ScriptModule(navigator) {
             else -> error("No such combat report type!")
         }
         delay(500)
-        val reportsText = ocr.readText(reportRegion)
-            .takeWhile { it.isDigit() || it != '/' }
+        val reportsText = ocr.readText(reportRegion).takeWhile { it.isDigit() || it != '/' }
         logger.info("Reports OCR: $reportsText")
         val reports = reportsText.toIntOrNull()?.coerceAtMost(80)
         if (reports == null) {
@@ -96,10 +110,7 @@ class CombatReportModule(navigator: Navigator) : ScriptModule(navigator) {
 
         EventBus.publish(
             CombatReportWriteEvent(
-                profile.combatReport.type,
-                reports ?: 0,
-                sessionId,
-                elapsedTime
+                profile.combatReport.type, reports ?: 0, sessionId, elapsedTime
             )
         )
 
@@ -116,8 +127,7 @@ class CombatReportModule(navigator: Navigator) : ScriptModule(navigator) {
     }
 
     private fun hasSufficientBatteries(): Boolean {
-        val battsText = ocr.digitsOnly()
-            .readText(region.subRegion(1648, 36, 83, 45), invert = true)
+        val battsText = ocr.digitsOnly().readText(region.subRegion(1648, 36, 83, 45), invert = true)
         logger.info("Battery OCR: $battsText")
         val batts = battsText.toIntOrNull() ?: run {
             logger.warn("Could not read battery count, assuming not enough batteries")

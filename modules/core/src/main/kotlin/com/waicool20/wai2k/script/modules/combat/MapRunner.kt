@@ -36,10 +36,10 @@ import com.waicool20.wai2k.game.location.LocationId
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.ScriptTimeOutException
 import com.waicool20.wai2k.util.*
-import com.waicool20.waicoolutils.mapAsync
 import kotlinx.coroutines.*
 import org.reflections.Reflections
 import java.awt.Color
+import java.awt.image.BufferedImage
 import java.lang.reflect.Modifier
 import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
@@ -222,60 +222,45 @@ abstract class MapRunner(
                 val screenshot = region.capture().img
                 val formatter = DecimalFormat("##.#")
 
-                fun hasMember(mIndex: Int): Boolean {
-                    return screenshot.getRGB(266 + mIndex * 272, 765) == Color.WHITE.rgb
-                }
-
                 val members = if (this@MapRunner is CorpseDragging) {
                     logger.info("Corpse dragging map, only member ${profile.combat.draggerSlot} will be scanned")
                     listOf(profile.combat.draggerSlot - 1)
                 } else {
                     (0..4).toList()
-                }.filter { hasMember(it) }
+                }.filter { hasMember(screenshot, it) }
 
                 // MICA why are your things 1 pixel off :(
                 val xOffsets = arrayOf(253, 525, 798, 1071, 1344)
                 val wOffsets = arrayOf(217, 218, 218, 218, 217)
-                val ammoNeedsSupply = async {
-                    members.mapAsync { m ->
-                        val image = screenshot.getSubimage(
-                            xOffsets[m], 820, wOffsets[m], 1
-                        ).pipeline().threshold().toBufferedImage()
-                        val ammoCount = image.countColor(Color.WHITE) / image.width.toDouble()
-                        if (ammoCount < ammoResupplyThreshold) needsResupply += node
-                        m to ammoCount
-                    }.toMap()
+                val ammoNeedsSupply = members.associateWith { m ->
+                    val image = screenshot.getSubimage(
+                        xOffsets[m], 820, wOffsets[m], 1
+                    ).pipeline().threshold().toBufferedImage()
+                    val ammoCount = image.countColor(Color.WHITE) / image.width.toDouble()
+                    if (ammoCount < ammoResupplyThreshold) needsResupply += node
+                    ammoCount
                 }
-                val rationNeedsSupply = async {
-                    members.mapAsync { m ->
-                        val image = screenshot.getSubimage(
-                            xOffsets[m], 860, wOffsets[m], 1
-                        ).pipeline().threshold().toBufferedImage()
-                        val rationCount = image.countColor(Color.WHITE) / image.width.toDouble()
-                        if (rationCount < rationsResupplyThreshold) needsResupply += node
-                        m to rationCount
-                    }.toMap()
+                val rationNeedsSupply = members.associateWith { m ->
+                    val image = screenshot.getSubimage(
+                        xOffsets[m], 860, wOffsets[m], 1
+                    ).pipeline().threshold().toBufferedImage()
+                    val rationCount = image.countColor(Color.WHITE) / image.width.toDouble()
+                    if (rationCount < rationsResupplyThreshold) needsResupply += node
+                    rationCount
                 }
 
-                val hpMap = async {
-                    members.mapAsync { m ->
-                        // Don't need to check health if corpse dragging map because it's already checked
-                        // when going to formation
-                        if (this@MapRunner is CorpseDragging) {
-                            return@mapAsync m to -1.0
-                        }
-                        val image = screenshot.getSubimage(
-                            xOffsets[m], 778, wOffsets[m], 1
-                        ).pipeline().threshold().toBufferedImage()
-                        m to image.countColor(Color.WHITE) / image.width.toDouble() * 100
-                    }.toMap()
+                val hpMap = members.associateWith { m ->
+                    val image = screenshot.getSubimage(
+                        xOffsets[m], 778, wOffsets[m], 1
+                    ).pipeline().threshold().toBufferedImage()
+                    image.countColor(Color.WHITE) / image.width.toDouble() * 100
                 }
 
                 logger.info("----- Members -----")
                 members.forEach { m ->
-                    val ammo = formatter.format(ammoNeedsSupply.await()[m]!! * 100)
-                    val rations = formatter.format(rationNeedsSupply.await()[m]!! * 100)
-                    val hp = hpMap.await()[m]?.takeIf { it in 0.0..100.0 }
+                    val ammo = formatter.format(ammoNeedsSupply[m]!! * 100)
+                    val rations = formatter.format(rationNeedsSupply[m]!! * 100)
+                    val hp = hpMap[m]?.takeIf { it in 0.0..100.0 }
                         ?.let { formatter.format(it) } ?: "N/A"
                     logger.info("Member ${m + 1} | HP: $hp%\t\t| Ammo: $ammo%\t\t| Rations: $rations%")
                 }
@@ -283,7 +268,7 @@ abstract class MapRunner(
 
                 if (this@MapRunner !is CorpseDragging) {
                     members.forEach { m ->
-                        if (hpMap.await()[m]!! in 0.0..profile.combat.repairThreshold.toDouble()) {
+                        if (hpMap[m]!! in 0.0..profile.combat.repairThreshold.toDouble()) {
                             logger.info("Repairing member ${m + 1}")
                             region.subRegion(239 + m * 272, 228, 246, 323).click()
                             region.subRegion(1441, 772, 250, 96)
@@ -302,7 +287,7 @@ abstract class MapRunner(
                 }
 
                 mapRunnerRegions.deploy.click()
-                delay(1000)
+                delay(2000)
             }
             needsResupply.forEach { logger.info("Echelon at $it needs resupply!") }
             delay(200)
@@ -708,6 +693,10 @@ abstract class MapRunner(
         if (node.type == MapNode.Type.HeavyHeliport && gameState.requiresMapInit) {
             mapRunnerRegions.chooseEchelon.click(); delay(2000)
         }
+        logger.info("Waiting for echelons to show up")
+        while (coroutineContext.isActive) {
+            if (hasMember(region.capture().img, 0)) break;
+        }
     }
 
     private suspend fun endTurn() {
@@ -778,5 +767,9 @@ abstract class MapRunner(
             logger.info("Selecting node ${nodes[i]}")
             nodes[i].findRegion().click()
         }
+    }
+
+    private fun hasMember(screenshot: BufferedImage, mIndex: Int): Boolean {
+        return Color(screenshot.getRGB(266 + mIndex * 272, 765)).isSimilar(Color.WHITE)
     }
 }

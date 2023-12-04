@@ -26,15 +26,12 @@ import com.waicool20.cvauto.core.template.ImageTemplate
 import com.waicool20.cvauto.core.util.countColor
 import com.waicool20.cvauto.core.util.isSimilar
 import com.waicool20.cvauto.core.util.pipeline
-import com.waicool20.wai2k.events.EventBus
-import com.waicool20.wai2k.events.RepairEvent
 import com.waicool20.wai2k.game.CombatMap
 import com.waicool20.wai2k.game.TDoll
 import com.waicool20.wai2k.game.location.GameLocation
 import com.waicool20.wai2k.game.location.LocationId
 import com.waicool20.wai2k.script.*
 import com.waicool20.wai2k.script.modules.ScriptModule
-import com.waicool20.wai2k.util.digitsOnly
 import com.waicool20.wai2k.util.disableDictionaries
 import com.waicool20.wai2k.util.loggerFor
 import com.waicool20.wai2k.util.readText
@@ -42,7 +39,6 @@ import kotlinx.coroutines.*
 import java.awt.Color
 import java.awt.image.BufferedImage
 import java.text.DecimalFormat
-import kotlin.coroutines.coroutineContext
 import kotlin.reflect.full.primaryConstructor
 
 @Suppress("unused")
@@ -66,10 +62,6 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
         if (gameState.dollOverflow) return
         // Return if the equip limit is already reached
         if (gameState.equipOverflow) return
-        // Return if echelon 1 has repairs
-        if (gameState.echelons[0].hasRepairs()) return
-        // Also Return if its a corpse dragging map and echelon 2 has repairs
-        if (mapRunner is CorpseDragging && gameState.echelons[1].hasRepairs()) return
         if (map is CombatMap.StoryMap) {
             runCombatCycle()
         } else {
@@ -92,7 +84,6 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
                 return
             }
         }
-        checkRepairs()
         // Cancel further execution if any of the dolls needed to repair but were not able to
         wasCancelled = gameState.echelons.any { it.needsRepairs() }
         if (wasCancelled) return
@@ -124,7 +115,6 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
                 return
             }
         }
-        checkRepairs()
         // Cancel further execution if any of the dolls needed to repair but were not able to
         wasCancelled = gameState.echelons.any { it.needsRepairs() }
         if (wasCancelled) return
@@ -331,37 +321,6 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
                     "Needs repairs: ${member.needsRepair}" +
                     if (i == profile.combat.draggerSlot - 1) " | Dragger" else ""
             )
-        }
-    }
-
-    private suspend fun checkRepairs() {
-        logger.info("Checking for repairs")
-        if (gameState.echelons.any { it.needsRepairs() }) {
-            logger.info("Repairs required")
-
-            if (profile.combat.repairThreshold !in 1..100) {
-                scriptRunner.stop("Repairs needed, but repairs are disabled")
-            }
-
-            navigator.navigateTo(LocationId.REPAIR)
-
-            logger.info("Using one-click repair")
-            // one-click repair
-            region.subRegion(1660, 965, 358, 98).click()
-            region.waitHas(FileTemplate("ok.png"), 2000)
-            while (coroutineContext.isActive) {
-                val repairs = ocr.digitsOnly()
-                    .readText(region.subRegion(1472, 689, 68, 42), invert = true)
-                    .toIntOrNull() ?: continue
-                EventBus.publish(RepairEvent(repairs, profile.combat.map, sessionId, elapsedTime))
-
-                logger.info("Repairing $repairs dolls")
-                break
-            }
-            // Click ok
-            region.subRegion(1441, 772, 250, 96).click()
-            gameState.echelons.flatMap { it.members }.forEach { it.needsRepair = false }
-            return
         }
     }
 
