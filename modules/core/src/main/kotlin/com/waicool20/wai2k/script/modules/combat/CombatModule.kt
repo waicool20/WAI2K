@@ -174,7 +174,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
             val startTime = System.currentTimeMillis()
             logger.info("Switching doll $slot of echelon 1")
             // Dragger region ( excludes stuff below name/type )
-            region.subRegion(242 + (slot - 1) * 273, 206, 237, 544).click(); yield()
+            region.subRegion(237 + (slot - 1) * 273, 206, 247, 544).click(); yield()
             region.waitHas(FileTemplate("doll-list/lock.png"), 5000)
 
             applyFilters(tdoll, false)
