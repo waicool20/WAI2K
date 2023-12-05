@@ -383,7 +383,7 @@ class Navigator(
                 logger.info("Detected daily login/event screen, dismissing...")
                 login.click()
             }
-            region.subRegion(900, 720, 350, 185)
+            region.subRegion(780, 720, 350, 185)
                 .findBest(FT("close.png"))?.region?.click()
             if (locations.getValue(LocationId.HOME).isInRegion(region)) {
                 logger.info("Logged in, waiting for 10s to see if anything happens")

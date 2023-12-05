@@ -21,8 +21,6 @@ package com.waicool20.wai2k.script.modules
 
 import com.waicool20.cvauto.core.template.FT
 import com.waicool20.cvauto.core.template.FileTemplate
-import com.waicool20.cvauto.core.util.countColor
-import com.waicool20.cvauto.core.util.pipeline
 import com.waicool20.wai2k.config.Wai2kProfile.CombatReport
 import com.waicool20.wai2k.events.CombatReportWriteEvent
 import com.waicool20.wai2k.events.EventBus
@@ -34,7 +32,6 @@ import com.waicool20.wai2k.util.formatted
 import com.waicool20.wai2k.util.loggerFor
 import com.waicool20.wai2k.util.readText
 import kotlinx.coroutines.delay
-import java.awt.Color
 import java.time.Instant
 
 @Suppress("unused")
@@ -73,10 +70,8 @@ class CombatReportModule(navigator: Navigator) : ScriptModule(navigator) {
         region.subRegion(1389, 567, 277, 86).click()
         delay(800)
 
-        val expCapture = region.subRegion(1346, 542, 116, 45)
-            .capture().img.pipeline().threshold(0.2)
-            .toBufferedImage()
-        if (expCapture.countColor(Color.WHITE) > 10) {
+
+        if (!hasSufficientExp()) {
             logger.info("Not enough exp to write reports!")
             region.subRegion(947, 699, 268, 102).click() // Cancel
             delay(500)
@@ -134,6 +129,16 @@ class CombatReportModule(navigator: Navigator) : ScriptModule(navigator) {
             return false
         }
         return batts >= 240
+    }
+
+    private fun hasSufficientExp(): Boolean {
+        val expText = ocr.digitsOnly().readText(region.subRegion(1345, 542, 162, 45))
+        logger.info("Exp OCR: $expText")
+        val exp = expText.toIntOrNull() ?: run {
+            logger.warn("Could not read exp count, assuming not enough exp")
+            return false
+        }
+        return exp > 3000
     }
 
     private fun scheduleNextCheck() {
