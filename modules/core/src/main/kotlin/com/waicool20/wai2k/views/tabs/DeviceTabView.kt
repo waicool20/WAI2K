@@ -125,7 +125,7 @@ class DeviceTabView : CoroutineScopeView(), Binder {
         )
         displayLabel.textProperty().bind(
             itemProp.stringBinding {
-                it?.properties?.run { "${displayWidth}x$displayHeight" } ?: ""
+                it?.let { "${it.displays.first().width}x${it.displays.first().height}" } ?: ""
             }
         )
         itemProp.addListener("AndroidDeviceSelection", ::setNewDevice)

@@ -180,7 +180,7 @@ class ScriptRunner(
             device
         }
 
-        if (device.properties.displayWidth != 1920 || device.properties.displayHeight != 1080) {
+        if (device.displays.first().width != 1920 || device.displays.first().height != 1080) {
             stop("Resolution mismatch! Set the device resolution to 1920x1080")
         }
 

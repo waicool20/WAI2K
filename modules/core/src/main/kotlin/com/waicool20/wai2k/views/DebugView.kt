@@ -274,8 +274,8 @@ class DebugView : CoroutineScopeView() {
         lastJob?.cancel()
         lastJob = launch(Dispatchers.IO) {
             withContext(Dispatchers.JavaFx) {
-                val maxWidth = device.properties.displayWidth
-                val maxHeight = device.properties.displayHeight
+                val maxWidth = device.displays.first().width
+                val maxHeight = device.displays.first().height
                 xSpinner.valueFactory = IntegerSpinnerValueFactory(0, maxWidth, 0)
                 ySpinner.valueFactory = IntegerSpinnerValueFactory(0, maxHeight, 0)
                 wSpinner.valueFactory = IntegerSpinnerValueFactory(0, maxWidth, maxWidth)

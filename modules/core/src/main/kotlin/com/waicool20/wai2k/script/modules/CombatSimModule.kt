@@ -339,7 +339,6 @@ class CombatSimModule(navigator: Navigator) : ScriptModule(navigator) {
                     logger.info("Done one cycle, remaining: $t")
                 } else {
                     region.subRegion(788, 695, 250, 96).click() // Cancel
-                    break
                 }
             }
         }
