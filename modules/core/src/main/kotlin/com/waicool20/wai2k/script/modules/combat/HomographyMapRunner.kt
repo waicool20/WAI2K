@@ -288,7 +288,7 @@ abstract class HomographyMapRunner(scriptComponent: ScriptComponent) : MapRunner
                 }
                 from.swipeTo(to)
                 mapH = null
-                delay(200)
+                delay(1000)
                 return findRegion()
             }
             return roi

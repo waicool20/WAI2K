@@ -68,7 +68,7 @@ class CombatReportModule(navigator: Navigator) : ScriptModule(navigator) {
         delay(1000)
         // Click work button
         region.subRegion(1389, 567, 277, 86).click()
-        delay(800)
+        delay(2000)
 
 
         if (!hasSufficientExp()) {

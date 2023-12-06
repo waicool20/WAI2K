@@ -260,15 +260,9 @@ class DeviceTabView : CoroutineScopeView(), Binder {
     private fun createNewRenderJob(device: AndroidDevice) {
         renderJob?.cancel()
         renderJob = launch(Dispatchers.IO + CoroutineName("Device Tab Render Job")) {
-            var lastCaptureTime = System.currentTimeMillis()
             while (isActive && owningTab?.isSelected == true) {
                 try {
-                    val image = device.displays.first().lastCapture.img.takeIf {
-                        System.currentTimeMillis() - lastCaptureTime < 3000
-                    } ?: run {
-                        lastCaptureTime = System.currentTimeMillis()
-                        device.displays.first().capture().img
-                    }
+                    val image = device.displays.first().capture().img
                     withContext(Dispatchers.Main) {
                         deviceView.image = SwingFXUtils.toFXImage(image, null)
                     }
@@ -277,6 +271,8 @@ class DeviceTabView : CoroutineScopeView(), Binder {
                     break
                 } catch (e: Exception) {
                     logger.warn("Failed to get frame for device $device", e)
+                } finally {
+                    delay(2000)
                 }
             }
         }

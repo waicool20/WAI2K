@@ -180,7 +180,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
             applyFilters(tdoll, false)
             var switchDoll = region.findBest(FileTemplate("doll-list/echelon2-captain.png"))?.region
 
-            val r1 = region.subRegion(1210, 1038, 500, 20)
+            val r1 = region.subRegion(910, 1038, 500, 20)
             val r2 = r1.copy(y = r1.y - 325)
             val checkRegion = region.subRegion(185, 360, 60, 60)
 
