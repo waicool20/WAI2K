@@ -391,7 +391,7 @@ abstract class MapRunner(
         // Wait for the G&K splash to appear within 10 seconds
         while (coroutineContext.isActive) {
             delay(500)
-            if (mapRunnerRegions.endBattle.has(FT("combat/battle/end.png", 0.8))) {
+            if (ocr.readText(mapRunnerRegions.endBattle, threshold = 0.73).contains("end", true)) {
                 logger.info("G&K splash screen appeared")
                 delay(2000)
                 break
