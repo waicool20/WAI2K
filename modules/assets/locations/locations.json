@@ -645,11 +645,17 @@
     "landmarks": [
       {
         "path": "locations/landmarks/campaign.png",
-        "x": 1540,
-        "y": 165,
+        "x": 607,
+        "y": 211,
         "width": 60,
-        "height": 60,
-        "threshold": 0.8
+        "height": 60
+      },
+      {
+        "path": "locations/landmarks/campaign0.png",
+        "x": 607,
+        "y": 211,
+        "width": 60,
+        "height": 60
       }
     ],
     "links": [
