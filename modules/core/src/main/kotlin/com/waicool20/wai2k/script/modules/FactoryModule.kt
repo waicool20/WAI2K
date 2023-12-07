@@ -20,7 +20,7 @@
 package com.waicool20.wai2k.script.modules
 
 import com.waicool20.cvauto.core.input.ITouchInterface
-import com.waicool20.cvauto.core.template.FileTemplate
+import com.waicool20.cvauto.core.template.FT
 import com.waicool20.cvauto.core.template.ImageTemplate
 import com.waicool20.cvauto.core.util.ColorSpaceUtils
 import com.waicool20.wai2k.events.DollDisassemblyEvent
@@ -89,9 +89,11 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
         }
 
         while (coroutineContext.isActive) {
-            val selectCharacterButton = region.subRegion(351, 206, 246, 605)
             // Click select character
-            selectCharacterButton.click(); delay(1000)
+            region.subRegion(351, 206, 246, 605).clickWhile(period = 1000) {
+                region.doesntHave(FT("factory/doll-icon.png"))
+            }
+            delay(1000)
 
             updateCount()
 
@@ -100,7 +102,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
             while (coroutineContext.isActive) {
                 val doll = // Map lock region to doll region
                     // Prioritize higher level dolls
-                    region.findBest(FileTemplate("doll-list/lock.png"), 20)
+                    region.findBest(FT("doll-list/lock.png"), 20)
                         .map { it.region }
                         .also { logger.info("Found ${it.size} dolls on screen") }
                         // Only select dolls that are available by checking the brightness of their lock
@@ -115,7 +117,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
                         .map { region.subRegion(it.x - 7, it.y, 244, it.height) }
                         .minByOrNull { it.y * 10 + it.x }
                 if (doll == null) {
-                    if (region.findBest(FileTemplate("doll-list/logistics.png"), 20).size >= 12) {
+                    if (region.findBest(FT("doll-list/logistics.png"), 20).size >= 12) {
                         logger.info("All dolls are unavailable, checking down the list")
 
                         // Check if we actually scrolled down by comparing this subregion
@@ -152,7 +154,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
             // Click "Select t-doll" button
             logger.info("Selecting T-dolls that will be used for enhancement")
             region.subRegion(678, 212, 1217, 555)
-                .waitHas(FileTemplate("factory/enhance-select-tdoll.png"), 5000)?.click()
+                .waitHas(FT("factory/enhance-select-tdoll.png"), 5000)?.click()
             delay(200)
 
             // Click smart select button
@@ -162,7 +164,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
 
             // Confirm doll selection
             val okButton = region.subRegion(1642, 885, 268, 177)
-                .findBest(FileTemplate("factory/ok.png"))?.region
+                .findBest(FT("factory/ok.png"))?.region
             if (okButton == null) {
                 // Click cancel if no t dolls could be used for enhancement
                 region.subRegion(0, 0, 205, 144).click()
@@ -181,13 +183,13 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
 
             // Click confirm if not enough T-dolls, got to get rid of the trash anyways :D
             region.subRegion(973, 668, 290, 150)
-                .findBest(FileTemplate("ok.png"))?.region?.let {
+                .findBest(FT("ok.png"))?.region?.let {
                     logger.info("Not enough T-dolls for enhancement, but enhancing anyways")
                     it.click()
                 }
 
             region.subRegion(678, 212, 1217, 555)
-                .waitHas(FileTemplate("factory/enhance-select-tdoll.png"), 3000)
+                .waitHas(FT("factory/enhance-select-tdoll.png"), 3000)
             delay(1000)
         }
 
@@ -218,7 +220,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
 
         logger.info("Disassembling 2 star T-dolls")
 
-        val sTemp = FileTemplate("factory/disassemble-select-tdoll.png", 0.95)
+        val sTemp = FT("factory/disassemble-select-tdoll.png", 0.95)
 
         while (coroutineContext.isActive) {
             logger.info("Start T-doll selection")
@@ -239,7 +241,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
 
             // Confirm doll selection
             val okButton = region.subRegion(1644, 880, 268, 177)
-                .findBest(FileTemplate("factory/ok.png"))?.region
+                .findBest(FT("factory/ok.png"))?.region
             if (okButton == null) {
                 logger.info("No more 2 star T-dolls to disassemble!")
                 break
@@ -261,14 +263,14 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
         delay(750)
 
         while (coroutineContext.isActive) {
-            val dolls = region.findBest(FileTemplate("doll-list/3star.png"), 12)
+            val dolls = region.findBest(FT("doll-list/3star.png"), 12)
                 .map { it.region }
                 .also { logger.info("Found ${it.size} that can be disassembled") }
                 .map { region.subRegion(it.x - 102, it.y, 136, 427) }
                 .toMutableList()
             yield()
             if (profile.factory.disassembly.disassemble4Star) {
-                dolls += region.findBest(FileTemplate("doll-list/4star.png"), 12)
+                dolls += region.findBest(FT("doll-list/4star.png"), 12)
                     .map { it.region }
                     .also { logger.info("Found ${it.size} 4*s that can be disassembled") }
                     .map { region.subRegion(it.x - 106, it.y - 3, 247, 436) }
@@ -287,12 +289,12 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
             logger.info("Confirm doll selections")
             // Click ok
             region.subRegion(1644, 880, 268, 177)
-                .waitHas(FileTemplate("factory/ok.png"), 1500)?.click()
+                .waitHas(FT("factory/ok.png"), 1500)?.click()
             logger.info("Disassembling selected T-dolls")
             disassembleButton.click(); delay(1000)
             // Click confirm
             region.subRegion(1000, 865, 324, 161)
-                .findBest(FileTemplate("ok.png"))?.region?.click(); delay(200)
+                .findBest(FT("ok.png"))?.region?.click(); delay(200)
             // Update stats
             EventBus.publish(DollDisassemblyEvent(dolls.size, sessionId, elapsedTime))
             // Can break if disassembled count is less than 12
@@ -337,7 +339,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
         logger.info("Disassembling 2 star equipment")
         logger.info("Start equipment selection")
 
-        val sTemp = FileTemplate("factory/disassemble-select-equip.png", 0.95)
+        val sTemp = FT("factory/disassemble-select-equip.png", 0.95)
 
         disassemblyWindow.waitHas(sTemp, 10000)?.click(); delay(750)
 
@@ -355,7 +357,7 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
 
         // Confirm doll selection
         val okButton = region.subRegion(1644, 880, 268, 177)
-            .findBest(FileTemplate("factory/ok-equip.png"))?.region
+            .findBest(FT("factory/ok-equip.png"))?.region
         logger.info("Confirm equipment selections")
         // Click ok
         okButton?.click()
@@ -389,14 +391,14 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
         updateCount()
 
         while (coroutineContext.isActive) {
-            val equips = region.findBest(FileTemplate("factory/equip-3star.png"), 12)
+            val equips = region.findBest(FT("factory/equip-3star.png"), 12)
                 .map { it.region }
                 .also { logger.info("Found ${it.size} 3*s that can be disassembled") }
                 .map { region.subRegion(it.x - 106, it.y - 3, 247, 436) }
                 .toMutableList()
             yield()
             if (profile.factory.equipDisassembly.disassemble4Star) {
-                equips += region.findBest(FileTemplate("factory/equip-4star.png"), 12)
+                equips += region.findBest(FT("factory/equip-4star.png"), 12)
                     .map { it.region }
                     .also { logger.info("Found ${it.size} 4*s that can be disassembled") }
                     .map { region.subRegion(it.x - 106, it.y - 3, 247, 436) }
@@ -414,16 +416,16 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
             logger.info("Confirm equipment selections")
             // Click ok
             region.subRegion(1644, 880, 268, 177)
-                .findBest(FileTemplate("factory/ok-equip.png"))?.region?.click(); delay(500)
+                .findBest(FT("factory/ok-equip.png"))?.region?.click(); delay(500)
             logger.info("Disassembling selected equipment")
             disassembleButton.click(); delay(1000)
             // Click confirm
             region.subRegion(993, 865, 324, 161)
-                .waitHas(FileTemplate("ok.png"), 1500)?.click()
+                .waitHas(FT("ok.png"), 1500)?.click()
             if (profile.factory.equipDisassembly.disassemble4Star) {
                 // If there's both 3star and 4star in the same scrap pool, game will prompt twice
                 region.subRegion(993, 865, 324, 161)
-                    .waitHas(FileTemplate("ok.png"), 1500)?.click()
+                    .waitHas(FT("ok.png"), 1500)?.click()
             }
             // Update stats
             EventBus.publish(EquipDisassemblyEvent(equips.size, sessionId, elapsedTime))
@@ -458,7 +460,8 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
         val countRegion = region.subRegion(1657, type.yCount, 240, 60)
         var ocrResult: String
         while (coroutineContext.isActive) {
-            ocrResult = ocr.readText(countRegion.copy(y = type.yLabel), threshold = 0.72, invert = true)
+            ocrResult =
+                ocr.readText(countRegion.copy(y = type.yLabel), threshold = 0.72, invert = true)
             if (ocrResult.contains(type.keyword, true)) break else yield()
         }
         ocrResult = ocr.useCharFilter("0123456789/")
