@@ -259,12 +259,9 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
 
         // Temporary convenience class for storing doll regions
         class DollRegions(nameImage: BufferedImage, hpImage: BufferedImage) {
-            val tdollOcr = run {
-                val txt = ocr.disableDictionaries()
+            val tdollOcr = ocr.disableDictionaries()
                     .readText(nameImage, threshold = 0.72, invert = true, scale = 0.8)
-                val tdoll = TDoll.lookup(config, txt)
-                txt to tdoll
-            }
+            val tdoll = TDoll.lookup(config, tdollOcr)
             val percent = run {
                 val image = hpImage.pipeline().threshold().toBufferedImage()
                 image.countColor(Color.WHITE) / image.width.toDouble() * 100
@@ -287,22 +284,20 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
             val formatter = DecimalFormat("##.#")
             gameState.echelons[echelon - 1].members.forEachIndexed { j, member ->
                 val dMember = members.getOrNull(j)
-                member.name = dMember?.tdollOcr?.second?.name ?: "Unknown"
+                member.name = dMember?.tdoll?.name ?: "Unknown"
                 member.needsRepair = (dMember?.percent ?: 100.0) < profile.combat.repairThreshold
                 val sPercent = dMember?.percent?.let { formatter.format(it) } ?: "N/A"
-                logger.info("[Repair OCR] Name: ${dMember?.tdollOcr?.first} | HP (%): $sPercent")
+                logger.info("[Repair OCR] Name: ${dMember?.tdollOcr} | HP (%): $sPercent")
             }
 
             // Checking if the ocr results were gibberish
-            // Skip check if game state hasnt been initialized yet
-            val dragger = members.getOrNull(profile.combat.draggerSlot - 1)?.tdollOcr?.second?.name
+            val dragger = members.getOrNull(profile.combat.draggerSlot - 1)?.tdoll?.name
             if (dragger == null || profile.combat.draggers.none { it.id.contains(dragger) }) {
                 logger.info("Update repair status ocr failed after $i attempts, retries remaining: ${retries - i}")
                 if (i == retries) {
                     logger.warn("Could not update repair status after $retries attempts")
                     logger.warn("Check if you set the right T doll as dragger and slot positions")
-                    if (scriptStats.sortiesDone > 1 && members.map { it.tdollOcr.second?.name }
-                            .all { it == null }) {
+                    if (scriptStats.sortiesDone > 1 && members.all { it.tdoll == null }) {
                         wasCancelled = true
                         throw RepairUpdateException()
                     }
@@ -414,7 +409,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
         val r = region.subRegion(1472, 871, 436, 205)
         // Wait for start operation button to appear first before handing off control to
         // map specific files
-        if (r.waitHas(FT("combat/battle/start.png", 0.9), 30000) == null) {
+        if (r.waitHas(FT("combat/battle/start.png", 0.85), 30000) == null) {
             throw ScriptException("Failed to enter normal battle, start operation button didn't appear after 30s")
         }
 
