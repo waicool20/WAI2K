@@ -45,6 +45,12 @@ class Map8_1N(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptComp
                 )
                 delay(500)
             }
+            val r1 = region.subRegion(292, 266, 126, 137)
+            val r2 = r1.copy().apply { translate(400, 200) }
+            repeat(2) {
+                r1.swipeTo(r2)
+            }
+            r2.swipeTo(r1)
             gameState.requiresMapInit = false
         }
         delay((500 * gameState.delayCoefficient).roundToLong())
