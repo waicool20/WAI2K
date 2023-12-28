@@ -804,8 +804,8 @@
     "landmarks": [
       {
         "path": "locations/landmarks/event.png",
-        "x": 1855,
-        "y": 223,
+        "x": 100,
+        "y": 930,
         "width": 60,
         "height": 60
       }
@@ -816,10 +816,10 @@
         "assets": [
           {
             "asset": {
-              "x": 120,
-              "y": 0,
-              "width": 138,
-              "height": 145
+              "x": 25,
+              "y": 30,
+              "width": 125,
+              "height": 125
             }
           }
         ]
