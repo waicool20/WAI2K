@@ -119,7 +119,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
         wasCancelled = gameState.echelons.any { it.needsRepairs() }
         if (wasCancelled) return
 
-        val r = region.subRegion(1712, 882, 448, 198)
+        val r = region.subRegion(1472, 882, 448, 198)
 
         val loc = when (map) {
             is CombatMap.EventMap -> LocationId.EVENT
