@@ -19,11 +19,7 @@
 
 package com.waicool20.wai2k.script.modules.combat.maps
 
-import com.waicool20.cvauto.android.AndroidDevice
-import com.waicool20.cvauto.android.AndroidDisplay
 import com.waicool20.cvauto.android.AndroidRegion
-import com.waicool20.cvauto.core.Region
-import com.waicool20.cvauto.core.template.FT
 import com.waicool20.cvauto.core.template.FileTemplate
 import com.waicool20.cvauto.core.util.isSimilar
 import com.waicool20.wai2k.script.ScriptComponent
@@ -31,8 +27,6 @@ import com.waicool20.wai2k.util.loggerFor
 import com.waicool20.wai2k.util.readText
 import kotlinx.coroutines.delay
 import java.awt.Color
-import kotlin.math.absoluteValue
-import kotlin.math.log
 
 
 object SSUtils {
@@ -40,10 +34,6 @@ object SSUtils {
 
     enum class Difficulty {
         NORMAL, HARD, Nightmare
-    }
-
-    enum class Diamond {
-        LEFT, RIGHT
     }
 
     suspend fun setDifficulty(sc: ScriptComponent, difficulty: Difficulty) {
@@ -67,7 +57,7 @@ object SSUtils {
         logger.info("Current difficulty: $current")
         if (current != difficulty) {
             logger.info("Changing to $difficulty")
-            val clicks = (difficulty.ordinal - current.ordinal).absoluteValue
+            val clicks = (difficulty.ordinal - current.ordinal + 3) % 3
             repeat(clicks) {
                 difficultyRegion.click()
                 delay(500)
@@ -87,29 +77,36 @@ object SSUtils {
         val r1 = sc.region.subRegion(1850, 975, 50, 50)
         val r2 = r1.copy(y = r1.y - 700)
         logger.info("Pan down x5")
-        repeat(5) {
-            r1.swipeTo(r2)
+        repeat(6) {
+            r1.swipeTo(r2, 300)
+            delay(300)
         }
         logger.info("Pan up x1")
-        r2.swipeTo(r1)
+        r2.swipeTo(r2.copy(y = r2.y + 400))
         delay(50)
         r2.click() // Click to stop inertia
     }
 
-    suspend fun findMapDiamond(sc: ScriptComponent, diamond: Diamond): AndroidRegion {
-        val pins = sc.region.findBest(FileTemplate(
-            "combat/maps/slow-shock-diamond.png"), 2)
-        if (pins.size != 2){
-            logger.info("Fuck") // TODO: maybe fix
-        }
-        pins.sortedBy { it.region.x }
-        return if (diamond == Diamond.LEFT){
-            pins[0].region
-        } else {
-            pins[1].region
-        }
-    }
+    fun findMapDiamond(sc: ScriptComponent): AndroidRegion? {
 
+        val targetDiamond = sc::class.java.simpleName
+            .replace("EventSS_", "").take(1).toInt()
+
+        val pin = if (targetDiamond == 1) {
+            sc.region.subRegion(0, 0, 960, 1080).findBest(
+                FileTemplate(
+                    "combat/slow-shock-diamond.png"
+                )
+            )?.region
+        } else {
+            sc.region.subRegion(960, 0, 960, 1080).findBest(
+                FileTemplate(
+                    "combat/slow-shock-diamond.png"
+                )
+            )?.region
+        }
+        return pin
+    }
 
 }
 

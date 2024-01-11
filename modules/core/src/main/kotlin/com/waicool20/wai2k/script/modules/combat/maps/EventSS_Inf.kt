@@ -20,7 +20,6 @@
 
 package com.waicool20.wai2k.script.modules.combat.maps
 
-import com.waicool20.cvauto.core.AnyRegion
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.modules.combat.EventMapRunner
 import com.waicool20.wai2k.script.modules.combat.HomographyMapRunner
@@ -30,45 +29,44 @@ import kotlinx.coroutines.yield
 import kotlin.math.roundToLong
 import kotlin.random.Random
 
-sealed class EventSS_1_Inf(scriptComponent: ScriptComponent) : EventFP_Inf(scriptComponent) {
-    val enemies: Int = 5
+sealed class EventSS_1_Inf(scriptComponent: ScriptComponent) : EventSS_Inf(scriptComponent) {
+    override val enemies: Int = 5
 }
 
-sealed class EventSS_2_Inf(scriptComponent: ScriptComponent) : EventFP_Inf(scriptComponent) {
-    val enemies: Int = 4
+sealed class EventSS_2_Inf(scriptComponent: ScriptComponent) : EventSS_Inf(scriptComponent) {
+    override val enemies: Int = 4
 }
 
-class EventSS_1_Inf_CMR30(scriptComponent: ScriptComponent) : EventFP_1_Inf(scriptComponent)
-class EventSS_1_Inf_SAIGA308(scriptComponent: ScriptComponent) : EventFP_1_Inf(scriptComponent)
-class EventSS_1_Inf_P290(scriptComponent: ScriptComponent) : EventFP_1_Inf(scriptComponent)
+class EventSS_1_Inf_CMR30(scriptComponent: ScriptComponent) : EventSS_1_Inf(scriptComponent)
+class EventSS_1_Inf_SAIGA308(scriptComponent: ScriptComponent) : EventSS_1_Inf(scriptComponent)
+class EventSS_1_Inf_P290(scriptComponent: ScriptComponent) : EventSS_1_Inf(scriptComponent)
 
-class EventSS_2_Inf_QBZ191(scriptComponent: ScriptComponent) : EventFP_2_Inf(scriptComponent)
-class EventSS_2_Inf_M327(scriptComponent: ScriptComponent) : EventFP_2_Inf(scriptComponent)
-class EventSS_2_Inf_240L(scriptComponent: ScriptComponent) : EventFP_2_Inf(scriptComponent)
+class EventSS_2_Inf_QBZ191(scriptComponent: ScriptComponent) : EventSS_2_Inf(scriptComponent)
+class EventSS_2_Inf_M327(scriptComponent: ScriptComponent) : EventSS_2_Inf(scriptComponent)
+class EventSS_2_Inf_240L(scriptComponent: ScriptComponent) : EventSS_2_Inf(scriptComponent)
 
 sealed class EventSS_Inf(scriptComponent: ScriptComponent) :
     HomographyMapRunner(scriptComponent),
     EventMapRunner {
     private val logger = loggerFor<EventSS_Inf>()
 
-    abstract var mapEntryRegion: AnyRegion
     abstract val enemies: Int
     override suspend fun enterMap() {
 
-        if (gameState.requiresMapInit){
-            SSUtils.setDifficulty(this, SSUtils.Difficulty.NORMAL)
+        if (gameState.requiresMapInit) {
             SSUtils.navToAreaWithMaps(this)
+            SSUtils.setDifficulty(this, SSUtils.Difficulty.NORMAL)
         }
-        mapEntryRegion = SSUtils.findMapDiamond(this, SSUtils.Diamond.LEFT)
+        val mapEntryRegion = SSUtils.findMapDiamond(this)
         // Click map entry
         logger.info("Click map pin")
-        mapEntryRegion.click()
+        mapEntryRegion?.click()
 
         delay(500)
 
         // Confirm start
         logger.info("Confirm start")
-        region.subRegion(1832, 590, 232, 112).click()
+        region.subRegion(1375, 472, 228, 106).click()
     }
 
     override suspend fun begin() {
@@ -92,6 +90,11 @@ sealed class EventSS_Inf(scriptComponent: ScriptComponent) :
         enterPlanningMode()
 
         selectNodes(1)
+        try {
+            selectNodes(2)
+        } catch (e: Exception) {
+            logger.info("No 2nd node")
+        }
 
         logger.info("Executing plan")
         mapRunnerRegions.executePlan.click()
