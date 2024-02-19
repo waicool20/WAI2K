@@ -84,9 +84,6 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
                 return
             }
         }
-        // Cancel further execution if any of the dolls needed to repair but were not able to
-        wasCancelled = gameState.echelons.any { it.needsRepairs() }
-        if (wasCancelled) return
 
         navigator.navigateTo(LocationId.COMBAT)
         val map = map as CombatMap.StoryMap
@@ -226,10 +223,6 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
         }
 
         updateEchelonRepairStatus(1)
-
-        val echelon1Members = gameState.echelons[0].members.map { it.name }
-        wasCancelled =
-            profile.combat.draggers.none { TDoll.lookup(config, it.id)?.name in echelon1Members }
 
         // Sometimes update echelon repair status reads the old dolls name because old doll is still
         // on screen briefly after the switch
