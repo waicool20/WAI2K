@@ -41,7 +41,8 @@
   {
     "name": "Makarov",
     "stars": 3,
-    "type": "HG"
+    "type": "HG",
+    "moddable": true
   },
   {
     "name": "P38",
@@ -51,7 +52,8 @@
   {
     "name": "PPK",
     "stars": 2,
-    "type": "HG"
+    "type": "HG",
+    "moddable": true
   },
   {
     "name": "P08",
@@ -67,7 +69,8 @@
   {
     "name": "Type92",
     "stars": 3,
-    "type": "HG"
+    "type": "HG",
+    "moddable": true
   },
   {
     "name": "Astra",
@@ -107,7 +110,8 @@
   {
     "name": "PPSh-41",
     "stars": 2,
-    "type": "SMG"
+    "type": "SMG",
+    "moddable": true
   },
   {
     "name": "PPS-43",
@@ -229,7 +233,8 @@
   {
     "name": "Kar98k",
     "stars": 5,
-    "type": "RF"
+    "type": "RF",
+    "moddable": true
   },
   {
     "name": "G43",
@@ -244,12 +249,14 @@
   {
     "name": "Type56R",
     "stars": 3,
-    "type": "RF"
+    "type": "RF",
+    "moddable": true
   },
   {
     "name": "Lee Enfield",
     "stars": 5,
-    "type": "RF"
+    "type": "RF",
+    "moddable": true
   },
   {
     "name": "FF FN49",
@@ -339,7 +346,8 @@
   {
     "name": "Type56-1",
     "stars": 4,
-    "type": "AR"
+    "type": "AR",
+    "moddable": true
   },
   {
     "name": "L85A1",
@@ -401,7 +409,8 @@
   {
     "name": "M1919A4",
     "stars": 3,
-    "type": "MG"
+    "type": "MG",
+    "moddable": true
   },
   {
     "name": "LWMMG",
@@ -437,7 +446,8 @@
   {
     "name": "MG3",
     "stars": 4,
-    "type": "MG"
+    "type": "MG",
+    "moddable": true
   },
   {
     "name": "Bren",
@@ -525,7 +535,8 @@
   {
     "name": "Gr G36C",
     "stars": 5,
-    "type": "SMG"
+    "type": "SMG",
+    "moddable": true
   },
   {
     "name": "OTs-12",
@@ -575,12 +586,14 @@
   {
     "name": "Welrod MkII",
     "stars": 5,
-    "type": "HG"
+    "type": "HG",
+    "moddable": true
   },
   {
     "name": "Suomi",
     "stars": 5,
-    "type": "SMG"
+    "type": "SMG",
+    "moddable": true
   },
   {
     "name": "Z-62",
@@ -632,7 +645,8 @@
   {
     "name": "Gr MG4",
     "stars": 5,
-    "type": "MG"
+    "type": "MG",
+    "moddable": true
   },
   {
     "name": "NZ75",
@@ -806,7 +820,8 @@
   {
     "name": "RMB-93",
     "stars": 3,
-    "type": "SG"
+    "type": "SG",
+    "moddable": true
   },
   {
     "name": "Saiga-12",
@@ -867,7 +882,8 @@
   {
     "name": "Ribeyrolles",
     "stars": 4,
-    "type": "AR"
+    "type": "AR",
+    "moddable": true
   },
   {
     "name": "Am RFB",
@@ -902,7 +918,8 @@
   {
     "name": "F1",
     "stars": 3,
-    "type": "SMG"
+    "type": "SMG",
+    "moddable": true
   },
   {
     "name": "Gd DSR-50",
@@ -1010,19 +1027,22 @@
     "type": "RF"
   },
   {
-    "name": "Type 80",
+    "name": "Type80",
     "stars": 4,
-    "type": "MG"
+    "type": "MG",
+    "moddable": true
   },
   {
     "name": "XM3",
     "stars": 4,
-    "type": "RF"
+    "type": "RF",
+    "moddable": true
   },
   {
     "name": "Gepard M1",
     "stars": 3,
-    "type": "RF"
+    "type": "RF",
+    "moddable": true
   },
   {
     "name": "Thunder",
@@ -1042,7 +1062,8 @@
   {
     "name": "AN-94",
     "stars": 5,
-    "type": "AR"
+    "type": "AR",
+    "moddable": true
   },
   {
     "name": "AK-12",
@@ -1077,7 +1098,8 @@
   {
     "name": "K5",
     "stars": 4,
-    "type": "HG"
+    "type": "HG",
+    "moddable": true
   },
   {
     "name": "C-MS",
@@ -1097,7 +1119,8 @@
   {
     "name": "XM8",
     "stars": 4,
-    "type": "AR"
+    "type": "AR",
+    "moddable": true
   },
   {
     "name": "SM-1",
@@ -1112,8 +1135,8 @@
   {
     "name": "MP-443",
     "stars": 3,
-    "moddable": true,
-    "type": "HG"
+    "type": "HG",
+    "moddable": true
   },
   {
     "name": "GSh-18",
@@ -1149,7 +1172,8 @@
   {
     "name": "100 Shiki",
     "stars": 5,
-    "type": "SMG"
+    "type": "SMG",
+    "moddable": true
   },
   {
     "name": "M870",
@@ -1159,7 +1183,8 @@
   {
     "name": "OBR",
     "stars": 3,
-    "type": "RF"
+    "type": "RF",
+    "moddable": true
   },
   {
     "name": "M82A1",
@@ -1410,7 +1435,8 @@
   {
     "name": "DP-12",
     "stars": 5,
-    "type": "SG"
+    "type": "SG",
+    "moddable": true
   },
   {
     "name": "Liberator",
@@ -1460,7 +1486,8 @@
   {
     "name": "AK-15",
     "stars": 5,
-    "type": "AR"
+    "type": "AR",
+    "moddable": true
   },
   {
     "name": "Webley",
@@ -1648,6 +1675,31 @@
     "type": "AR"
   },
   {
+    "name": "Kolibri",
+    "stars": 5,
+    "type": "HG"
+  },
+  {
+    "name": "Derriner",
+    "stars": 4,
+    "type": "HG"
+  },
+  {
+    "name": "VP1915",
+    "stars": 5,
+    "type": "SMG"
+  },
+  {
+    "name": "Model 99",
+    "stars": 5,
+    "type": "RF"
+  },
+  {
+    "name": "Fedorov Avtomat",
+    "stars": 4,
+    "type": "AR"
+  },
+  {
     "name": "PPD-40",
     "stars": 4,
     "type": "SMG"
@@ -1673,6 +1725,51 @@
     "type": "AR"
   },
   {
+    "name": "SP9",
+    "stars": 5,
+    "type": "SMG"
+  },
+  {
+    "name": "KH2002",
+    "stars": 5,
+    "type": "AR"
+  },
+  {
+    "name": "APC556",
+    "stars": 4,
+    "type": "AR"
+  },
+  {
+    "name": "FARA 83",
+    "stars": 4,
+    "type": "AR"
+  },
+  {
+    "name": "MG338",
+    "stars": 5,
+    "type": "MG"
+  },
+  {
+    "name": "CZ100",
+    "stars": 4,
+    "type": "HG"
+  },
+  {
+    "name": "SR2",
+    "stars": 5,
+    "type": "SMG"
+  },
+  {
+    "name": "HS. 50",
+    "stars": 5,
+    "type": "RF"
+  },
+  {
+    "name": "AK74M",
+    "stars": 4,
+    "type": "AR"
+  },
+  {
     "name": "FO-12",
     "stars": 5,
     "type": "SG"
@@ -1690,6 +1787,176 @@
   {
     "name": "MAG-7",
     "stars": 4,
+    "type": "SG"
+  },
+  {
+    "name": "ZiP .22",
+    "stars": 4,
+    "type": "HG"
+  },
+  {
+    "name": "Vigneron M2",
+    "stars": 4,
+    "type": "SMG"
+  },
+  {
+    "name": "A-545",
+    "stars": 5,
+    "type": "AR"
+  },
+  {
+    "name": "Rhino",
+    "stars": 5,
+    "type": "HG"
+  },
+  {
+    "name": "PPQ",
+    "stars": 4,
+    "type": "HG"
+  },
+  {
+    "name": "Sterling",
+    "stars": 5,
+    "type": "SMG"
+  },
+  {
+    "name": "TFQ",
+    "stars": 4,
+    "type": "RF"
+  },
+  {
+    "name": "QBZ-191",
+    "stars": 5,
+    "type": "AR"
+  },
+  {
+    "name": "LS26",
+    "stars": 4,
+    "type": "MG"
+  },
+  {
+    "name": "MPL",
+    "stars": 4,
+    "type": "SMG"
+  },
+  {
+    "name": "MPK",
+    "stars": 4,
+    "type": "SMG"
+  },
+  {
+    "name": "SCR",
+    "stars": 5,
+    "type": "AR"
+  },
+  {
+    "name": "SPAS-15",
+    "stars": 5,
+    "type": "SG"
+  },
+  {
+    "name": "MK3A1",
+    "stars": 5,
+    "type": "SG"
+  },
+  {
+    "name": "UTS-15",
+    "stars": 4,
+    "type": "SG"
+  },
+  {
+    "name": "M327",
+    "stars": 5,
+    "type": "HG"
+  },
+  {
+    "name": "P290",
+    "stars": 4,
+    "type": "HG"
+  },
+  {
+    "name": "Saiga 308",
+    "stars": 4,
+    "type": "RF"
+  },
+  {
+    "name": "AR-18",
+    "stars": 5,
+    "type": "AR"
+  },
+  {
+    "name": "CMR-30",
+    "stars": 4,
+    "type": "AR"
+  },
+  {
+    "name": "M240L",
+    "stars": 5,
+    "type": "MG"
+  },
+  {
+    "name": "Colt Walker",
+    "stars": 5,
+    "type": "HG"
+  },
+  {
+    "name": "Erma",
+    "stars": 5,
+    "type": "SMG"
+  },
+  {
+    "name": "SCAR-H",
+    "stars": 5,
+    "type": "RF"
+  },
+  {
+    "name": "SCAR-L",
+    "stars": 5,
+    "type": "AR"
+  },
+  {
+    "name": "P10C",
+    "stars": 4,
+    "type": "HG"
+  },
+  {
+    "name": "APC9K",
+    "stars": 4,
+    "type": "SMG"
+  },
+  {
+    "name": "M110",
+    "stars": 5,
+    "type": "RF"
+  },
+  {
+    "name": "MSBS",
+    "stars": 4,
+    "type": "AR"
+  },
+  {
+    "name": "VP9",
+    "stars": 4,
+    "type": "HG"
+  },
+  {
+    "name": "Jatimatic",
+    "stars": 5,
+    "type": "SMG"
+  },
+  {
+    "name": "VRB",
+    "stars": 5,
+    "type": "AR"
+  },
+  {
+    "name": "LAMG",
+    "stars": 5,
+    "type": "MG"
+  },
+  {
+    "name": "TPS",
+    "stars": 5,
     "type": "SG"
   },
   {
@@ -1799,6 +2066,41 @@
   },
   {
     "name": "Minos",
+    "stars": 1,
+    "type": "SG"
+  },
+  {
+    "name": "Tae Yamada",
+    "stars": 1,
+    "type": "HG"
+  },
+  {
+    "name": "Lily Hoshikawa",
+    "stars": 1,
+    "type": "SMG"
+  },
+  {
+    "name": "Sakura Minamoto",
+    "stars": 1,
+    "type": "RF"
+  },
+  {
+    "name": "Ai Mizuno",
+    "stars": 1,
+    "type": "AR"
+  },
+  {
+    "name": "Junko Konno",
+    "stars": 1,
+    "type": "AR"
+  },
+  {
+    "name": "Yugiri",
+    "stars": 1,
+    "type": "MG"
+  },
+  {
+    "name": "Saki Nikaido",
     "stars": 1,
     "type": "SG"
   }
