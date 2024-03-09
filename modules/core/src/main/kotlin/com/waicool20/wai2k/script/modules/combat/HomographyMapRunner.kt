@@ -46,7 +46,6 @@ import org.opencv.core.Core
 import org.opencv.core.Mat
 import org.opencv.core.MatOfPoint2f
 import org.opencv.core.Point
-import tornadofx.*
 import java.awt.Rectangle
 import kotlin.io.path.exists
 import kotlin.io.path.notExists
@@ -201,7 +200,7 @@ abstract class HomographyMapRunner(scriptComponent: ScriptComponent) : MapRunner
             val h = mapH ?: try {
                 logger.info("Finding map transformation")
                 val prediction = predictor.predict(
-                    fullMap to ImageFactory.getInstance().fromImage(window.capture())
+                    fullMap to ImageFactory.getInstance().fromImage(window.capture().img)
                 )
                 logger.debug("Homography prediction metrics:")
                 logger.debug("Preprocess: ${metrics.latestMetric("Preprocess").value.toLong() / 1000} ms")
@@ -289,7 +288,7 @@ abstract class HomographyMapRunner(scriptComponent: ScriptComponent) : MapRunner
                 }
                 from.swipeTo(to)
                 mapH = null
-                delay(200)
+                delay(1000)
                 return findRegion()
             }
             return roi

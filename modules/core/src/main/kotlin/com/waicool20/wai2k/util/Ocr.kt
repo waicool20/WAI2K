@@ -81,7 +81,7 @@ fun ITesseract.readText(
     invert: Boolean = false,
     pad: Int = 20,
     trim: Boolean = true
-): String = readText(region.capture(), scale, threshold, invert, pad, trim)
+): String = readText(region.capture().img, scale, threshold, invert, pad, trim)
 
 fun ITesseract.readText(
     image: BufferedImage,

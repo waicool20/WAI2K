@@ -27,11 +27,14 @@ class ProcessManager(val device: AndroidDevice) {
      * Gets the name of the currently active activity
      */
     val currentActivity
-        get() = device.executeShell(
-            "dumpsys", "activity", "activities",
-            "|", "grep", "-E", "'mResumedActivity'",
-            "|", "cut", "-d", "' '", "-f", "8"
-        ).inputStream.bufferedReader().readText()
+        get(): String {
+            val regex = Regex("ActivityRecord\\{.+ .+ (.*) .+}")
+            val text = device.executeShell(
+                "dumpsys", "activity", "activities",
+                "|", "grep", "-E", "'ResumedActivity'"
+            ).inputStream.bufferedReader().readText()
+            return regex.find(text)?.groupValues?.get(1) ?: ""
+        }
 
     /**
      * Starts an app
@@ -41,9 +44,15 @@ class ProcessManager(val device: AndroidDevice) {
      * @return true if started successfully
      */
     fun start(pkg: String): Boolean {
-        return !device.execute("monkey", "-p", pkg, "1")
-            .inputStream.bufferedReader().readText()
-            .contains("Error")
+        val monkey = device.execute("monkey", "-p", pkg, "1", "&&", "echo", "ok")
+        if (monkey.inputStream.bufferedReader().readText().contains("ok")) return true
+        val regex = Regex(".+ ($pkg/.*?) .* .*")
+        val activityName = device.execute("pm dump $pkg | grep -A1 'action.MAIN'")
+            .inputStream.bufferedReader().readLines()
+            .firstNotNullOfOrNull { regex.matchEntire(it) }
+            ?.groupValues?.get(1) ?: return false
+        return device.execute("am", "start", "-n", activityName).inputStream.bufferedReader()
+            .readText().contains("Starting")
     }
 
     /**

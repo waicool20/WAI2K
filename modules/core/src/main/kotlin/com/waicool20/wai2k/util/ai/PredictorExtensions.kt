@@ -30,5 +30,5 @@ fun <T> Predictor<Image, T>.predict(image: BufferedImage): T {
 }
 
 fun <T> Predictor<Image, T>.predict(region: AnyRegion): T {
-    return predict(ImageFactory.getInstance().fromImage(region.capture()))
+    return predict(ImageFactory.getInstance().fromImage(region.capture().img))
 }

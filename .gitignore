@@ -170,3 +170,4 @@ modules/core/src/main/resources/version.txt
 **/bin/
 
 standalone/
+node_modules

@@ -125,7 +125,7 @@ class DeviceTabView : CoroutineScopeView(), Binder {
         )
         displayLabel.textProperty().bind(
             itemProp.stringBinding {
-                it?.properties?.run { "${displayWidth}x$displayHeight" } ?: ""
+                it?.let { "${it.displays.first().width}x${it.displays.first().height}" } ?: ""
             }
         )
         itemProp.addListener("AndroidDeviceSelection", ::setNewDevice)
@@ -149,7 +149,7 @@ class DeviceTabView : CoroutineScopeView(), Binder {
                 extensionFilters.add(FileChooser.ExtensionFilter("PNG files (*.png)", "*.png"))
                 showSaveDialog(null)?.let { file ->
                     launch(Dispatchers.IO) {
-                        ImageIO.write(device.screens[0].capture(), "PNG", file)
+                        ImageIO.write(device.displays.first().capture().img, "PNG", file)
                     }
                 }
             }
@@ -166,7 +166,7 @@ class DeviceTabView : CoroutineScopeView(), Binder {
                 capturingJob = launch(Dispatchers.IO) {
                     while (isActive) {
                         val out = dir.resolve("${System.currentTimeMillis()}.png")
-                        ImageIO.write(device.screens[0].capture(), "PNG", out)
+                        ImageIO.write(device.displays.first().capture().img, "PNG", out)
                         logger.info("Saved $out")
                     }
                 }
@@ -187,7 +187,7 @@ class DeviceTabView : CoroutineScopeView(), Binder {
                 val times = 10
                 var total = 0L
                 repeat(times) {
-                    val time = measureTimeMillis { device.screens[0].capture() }
+                    val time = measureTimeMillis { device.displays.first().capture() }
                     delay(100)
                     logger.info("Capture $it: $time ms")
                     total += time
@@ -260,15 +260,9 @@ class DeviceTabView : CoroutineScopeView(), Binder {
     private fun createNewRenderJob(device: AndroidDevice) {
         renderJob?.cancel()
         renderJob = launch(Dispatchers.IO + CoroutineName("Device Tab Render Job")) {
-            var lastCaptureTime = System.currentTimeMillis()
             while (isActive && owningTab?.isSelected == true) {
                 try {
-                    val image = device.screens[0].getLastScreenCapture()?.takeIf {
-                        System.currentTimeMillis() - lastCaptureTime < 3000
-                    } ?: run {
-                        lastCaptureTime = System.currentTimeMillis()
-                        device.screens[0].capture()
-                    }
+                    val image = device.displays.first().capture().img
                     withContext(Dispatchers.Main) {
                         deviceView.image = SwingFXUtils.toFXImage(image, null)
                     }
@@ -277,6 +271,8 @@ class DeviceTabView : CoroutineScopeView(), Binder {
                     break
                 } catch (e: Exception) {
                     logger.warn("Failed to get frame for device $device", e)
+                } finally {
+                    delay(2000)
                 }
             }
         }

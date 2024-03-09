@@ -74,7 +74,7 @@ class Navigator(
         repeat(retries) { i ->
             checkLogistics(true)
             checkAutoBattle()
-            val r = region.asCachedRegion()
+            val r = region.freeze()
             val l = locations.firstAsync { it.isInRegion(r) }
             if (l == null) {
                 logger.warn("Could not find location after ${i + 1} attempts, retries remaining: ${retries - i - 1}")
@@ -245,11 +245,10 @@ class Navigator(
         while (coroutineContext.isActive) {
             var atRepeat = false
             when {
-                region.subRegion(1657, 945, 355, 128)
-                    .has(FT("navigator/logistics_repeat_all.png")) -> {
+                region.has(FT("navigator/logistics_repeat_all.png")) -> {
                     logger.info("An echelon has arrived from logistics")
                 }
-                ocr.readText(region.subRegion(575, 410, 1000, 130))
+                ocr.readText(region.subRegion(500, 410, 1000, 130))
                     .contains("Repeat", ignoreCase = true) -> {
                     // Even if the logistics arrived didn't show up, it's possible
                     // that it was clicked through by some other function
@@ -289,7 +288,7 @@ class Navigator(
             if (cont) {
                 if (!atRepeat) {
                     // Send all button
-                    region.subRegion(1725, 984, 226, 58).click()
+                    region.subRegion(1610, 984, 226, 58).click()
                     delay(500)
                 }
                 region.waitHas(FT("ok.png"), 10000)?.click()
@@ -297,7 +296,7 @@ class Navigator(
                 delay(2000)
                 EventBus.publish(LogisticsSupportSentEvent(sessionId, elapsedTime))
             } else {
-                region.subRegion(130, 10, 95, 80).click() // Top left back arrow
+                region.subRegion(15, 10, 95, 80).click() // Top left back arrow
             }
 
             // Mark game state dirty, needs updating
@@ -317,8 +316,7 @@ class Navigator(
     suspend fun checkAutoBattle() {
         if (!profile.autoBattle.enabled) return
         while (true) {
-            if (region.subRegion(138, 740, 110, 100)
-                    .has(FT("navigator/autobattle_arrived.png"))
+            if (region.has(FT("navigator/autobattle_arrived.png"))
             ) {
                 logger.info("An echelon has arrived from auto battle")
                 // Dismiss mission accomplished and rewards
@@ -385,7 +383,7 @@ class Navigator(
                 logger.info("Detected daily login/event screen, dismissing...")
                 login.click()
             }
-            region.subRegion(900, 720, 350, 185)
+            region.subRegion(780, 720, 350, 185)
                 .findBest(FT("close.png"))?.region?.click()
             if (locations.getValue(LocationId.HOME).isInRegion(region)) {
                 logger.info("Logged in, waiting for 10s to see if anything happens")

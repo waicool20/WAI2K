@@ -95,7 +95,7 @@ object StandaloneScriptRunner {
         val evaluationConfiguration =
             createJvmEvaluationConfigurationFromTemplate<StandaloneScript> {
                 providedProperties(
-                    "region" to device.screens[0],
+                    "region" to device.displays[0].region,
                     "logger" to scriptLogger,
                     "scope" to scope,
                     "ocr" to ocr

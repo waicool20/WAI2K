@@ -171,31 +171,35 @@ class ScriptRunner(
             _profile = profile
             reloadModules = true
         }
-        if (_device == null || _device?.serial != _config.lastDeviceSerial) {
+        val device = _device?.takeIf { it.serial == _config.lastDeviceSerial } ?: run {
             val device =
                 ADB.getDevice(_config.lastDeviceSerial) ?: throw InvalidDeviceException(null)
             _device = device
             logcatListener?.stop()
             logcatListener = GFL.LogcatListener(this, device)
+            device
         }
+
+        if (device.displays.first().width != 1920 || device.displays.first().height != 1080) {
+            stop("Resolution mismatch! Set the device resolution to 1920x1080")
+        }
+
         logcatListener?.start()
+
         _config.scriptConfig.apply {
             Region.DEFAULT_MATCHER.settings.defaultThreshold = defaultSimilarityThreshold
-            _device?.input?.touchInterface?.settings?.postTapDelay =
-                (mouseDelay * 1000).roundToLong()
+            device.input.touchInterface.settings.postTapDelay = (mouseDelay * 1000).roundToLong()
         }
         FileTemplate.checkPaths.clear()
         FileTemplate.checkPaths.add(_config.assetsDirectory)
 
-        val region = _device?.screens?.firstOrNull() ?: throw InvalidDeviceException(_device)
         if (reloadModules) {
             logger.info("Reloading modules")
             modules.clear()
             GameLocation.mappings(_config, refresh = true)
-            navigator = Navigator(this, region, _config, _profile, persist)
+            navigator = Navigator(this, device.displays.first().region, _config, _profile, persist)
             modules.add(InitModule(navigator))
-            Reflections("com.waicool20.wai2k.script.modules")
-                .getSubTypesOf(ScriptModule::class.java)
+            Reflections("com.waicool20.wai2k.script.modules").getSubTypesOf(ScriptModule::class.java)
                 .map { it.kotlin }
                 .filterNot { it.isAbstract || it == InitModule::class || it == StopModule::class }
                 .filterNot {
@@ -203,9 +207,7 @@ class ScriptRunner(
                         it.findAnnotation<ScriptModule.DisableModule>() ?: return@filterNot false
                     logger.info("${it.simpleName} is disabled, reason: ${a.reason}")
                     true
-                }
-                .mapNotNull { it.primaryConstructor?.call(navigator) }
-                .let { modules.addAll(it) }
+                }.mapNotNull { it.primaryConstructor?.call(navigator) }.let { modules.addAll(it) }
             modules.add(StopModule(navigator))
             modules.map { it::class.simpleName }
                 .forEach { logger.info("Loaded new instance of $it") }
@@ -248,7 +250,7 @@ class ScriptRunner(
     private fun saveDebugImage() {
         val now = LocalDateTime.now()
         val device = requireNotNull(_device)
-        val screenshot = device.screens.first().capture()
+        val screenshot = device.displays.first().capture().img
         val output = Wai2k.CONFIG_DIR.resolve("debug")
             .resolve("${DateTimeFormatter.ofPattern("yyyy-MM-dd HH-mm-ss").format(now)}.png")
         sessionScope.launch(Dispatchers.IO) {
@@ -300,17 +302,14 @@ class ScriptRunner(
     }
 
     fun listenEvents() {
-        EventBus.subscribe<ScriptStatsUpdateEvent>()
-            .onEach { statsChanged = true }
+        EventBus.subscribe<ScriptStatsUpdateEvent>().onEach { statsChanged = true }
             .launchIn(sessionScope + CoroutineName("ScriptStatsUpdateListener"))
-        EventBus.subscribe<ScriptEvent>()
-            .onEach { yuubot.postEvent(it) }
+        EventBus.subscribe<ScriptEvent>().onEach { yuubot.postEvent(it) }
             .launchIn(sessionScope + CoroutineName("ScriptEventListener"))
-        EventBus.subscribe<GameRestartEvent>()
-            .onEach {
-                if (config.notificationsConfig.onRestart) {
-                    yuubot.postMessage("Game Restarted", "Reason: ${it.reason}")
-                }
-            }.launchIn(sessionScope + CoroutineName("GameRestartListener"))
+        EventBus.subscribe<GameRestartEvent>().onEach {
+            if (config.notificationsConfig.onRestart) {
+                yuubot.postMessage("Game Restarted", "Reason: ${it.reason}")
+            }
+        }.launchIn(sessionScope + CoroutineName("GameRestartListener"))
     }
 }

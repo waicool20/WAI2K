@@ -86,7 +86,7 @@ class LogisticsSupportModule(navigator: Navigator) : ScriptModule(navigator) {
         logger.info("Checking dispatched count")
         while (coroutineContext.isActive) {
             val n = ocr.useCharFilter("0123456789/")
-                .readText(region.subRegion(1860, 150, 85, 55), threshold = 0.5, invert = true)
+                .readText(region.subRegion(1737, 150, 85, 55), threshold = 0.5, invert = true)
                 .also { logger.debug("Dispatch count ocr: $it") }
                 .take(1)
                 .toIntOrNull() ?: continue
@@ -142,7 +142,7 @@ class LogisticsSupportModule(navigator: Navigator) : ScriptModule(navigator) {
 
         // Click the ok button of the popup if any of the resources broke the hard cap
         // Use subregion, so it doesn't click dispatch ok instead
-        region.subRegion(500, 90, 1155, 815).findBest(FT("ok.png"))
+        region.subRegion(223, 191, 1372, 716).findBest(FT("ok.png"))
             ?.also { logger.info("One of the resources reached its limit!") }
             ?.region?.click()
 
@@ -157,8 +157,7 @@ class LogisticsSupportModule(navigator: Navigator) : ScriptModule(navigator) {
         region.clickTemplateWhile(FT("ok.png")) { has(it) }
 
         // Wait for logistics mission icon to appear again
-        region.subRegion(131, 306, 257, 118)
-            .waitHas(FT("logistics/logistics.png"), 7000)
+        region.waitHas(FT("logistics/logistics.png"), 7000)
 
         // Check if mission is running
         if (missionRunning(missionIndex)) {
@@ -196,7 +195,7 @@ class LogisticsSupportModule(navigator: Navigator) : ScriptModule(navigator) {
      * @param mission Index of mission from left to right 0-3
      */
     private fun missionRunning(mission: Int): Boolean {
-        val missionRegion = region.subRegion(704 + (333 * mission), 219, 306, 856)
+        val missionRegion = region.subRegion(585 + (333 * mission), 788, 305, 280)
         return missionRegion.has(FT("logistics/retreat.png"))
     }
 
@@ -208,9 +207,9 @@ class LogisticsSupportModule(navigator: Navigator) : ScriptModule(navigator) {
     private suspend fun clickMissionStart(mission: Int) {
         logger.debug("Opening up the logistic support menu")
         // Left most mission button x: 704 y: 219 w: 306 h: 856
-        val missionRegion = region.subRegion(704 + (333 * mission), 219, 306, 856)
+        val missionRegion = region.subRegion(585 + (333 * mission), 214, 305, 855)
         // Need a separate check region because the ammo icon might not be covered by the resource limit popup
-        val checkRegion = region.subRegion(704 + (333 * 1), 219, 306, 856)
+        val checkRegion = region.subRegion(630, 418, 85, 120)
         missionRegion.clickWhile { checkRegion.has(FT("logistics/ammo.png")) }
     }
 

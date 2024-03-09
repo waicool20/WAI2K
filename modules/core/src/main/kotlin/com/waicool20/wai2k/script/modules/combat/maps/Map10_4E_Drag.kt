@@ -112,7 +112,7 @@ class Map10_4E_Drag(scriptComponent: ScriptComponent) : AbsoluteMapRunner(script
 
         // Checks if the other doll has less than 5 links from possible grenade chip damage
         // Taken from MapRunner deployEchelons
-        val hpImage = region.subRegion(373, 778, 217, 1).capture()
+        val hpImage = region.subRegion(373, 778, 217, 1).capture().img
             .pipeline().threshold().toBufferedImage()
         val hp = hpImage.countColor(Color.WHITE) / hpImage.width.toDouble() * 100
         if (hp <= 80) {

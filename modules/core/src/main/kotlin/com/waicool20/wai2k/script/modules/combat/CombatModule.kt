@@ -26,15 +26,12 @@ import com.waicool20.cvauto.core.template.ImageTemplate
 import com.waicool20.cvauto.core.util.countColor
 import com.waicool20.cvauto.core.util.isSimilar
 import com.waicool20.cvauto.core.util.pipeline
-import com.waicool20.wai2k.events.EventBus
-import com.waicool20.wai2k.events.RepairEvent
 import com.waicool20.wai2k.game.CombatMap
 import com.waicool20.wai2k.game.TDoll
 import com.waicool20.wai2k.game.location.GameLocation
 import com.waicool20.wai2k.game.location.LocationId
 import com.waicool20.wai2k.script.*
 import com.waicool20.wai2k.script.modules.ScriptModule
-import com.waicool20.wai2k.util.digitsOnly
 import com.waicool20.wai2k.util.disableDictionaries
 import com.waicool20.wai2k.util.loggerFor
 import com.waicool20.wai2k.util.readText
@@ -42,7 +39,6 @@ import kotlinx.coroutines.*
 import java.awt.Color
 import java.awt.image.BufferedImage
 import java.text.DecimalFormat
-import kotlin.coroutines.coroutineContext
 import kotlin.reflect.full.primaryConstructor
 
 @Suppress("unused")
@@ -66,10 +62,6 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
         if (gameState.dollOverflow) return
         // Return if the equip limit is already reached
         if (gameState.equipOverflow) return
-        // Return if echelon 1 has repairs
-        if (gameState.echelons[0].hasRepairs()) return
-        // Also Return if its a corpse dragging map and echelon 2 has repairs
-        if (mapRunner is CorpseDragging && gameState.echelons[1].hasRepairs()) return
         if (map is CombatMap.StoryMap) {
             runCombatCycle()
         } else {
@@ -92,10 +84,6 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
                 return
             }
         }
-        checkRepairs()
-        // Cancel further execution if any of the dolls needed to repair but were not able to
-        wasCancelled = gameState.echelons.any { it.needsRepairs() }
-        if (wasCancelled) return
 
         navigator.navigateTo(LocationId.COMBAT)
         val map = map as CombatMap.StoryMap
@@ -124,7 +112,6 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
                 return
             }
         }
-        checkRepairs()
         // Cancel further execution if any of the dolls needed to repair but were not able to
         wasCancelled = gameState.echelons.any { it.needsRepairs() }
         if (wasCancelled) return
@@ -184,13 +171,13 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
             val startTime = System.currentTimeMillis()
             logger.info("Switching doll $slot of echelon 1")
             // Dragger region ( excludes stuff below name/type )
-            region.subRegion(362 + (slot - 1) * 273, 206, 237, 544).click(); yield()
+            region.subRegion(237 + (slot - 1) * 273, 206, 247, 544).click(); yield()
             region.waitHas(FileTemplate("doll-list/lock.png"), 5000)
 
             applyFilters(tdoll, false)
             var switchDoll = region.findBest(FileTemplate("doll-list/echelon2-captain.png"))?.region
 
-            val r1 = region.subRegion(1210, 1038, 500, 20)
+            val r1 = region.subRegion(910, 1038, 500, 20)
             val r2 = r1.copy(y = r1.y - 325)
             val checkRegion = region.subRegion(185, 360, 60, 60)
 
@@ -199,9 +186,9 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
 
             try {
                 withTimeout(90_000) {
-                    val r = region.subRegion(167, 146, 1542, 934)
+                    val r = region.subRegion(46, 146, 1542, 934)
                     while (coroutineContext.isActive) {
-                        if (Color(region.capture().getRGB(0, 300)).isSimilar(Color(21, 21, 21))) {
+                        if (region.pickColor(0, 300).isSimilar(Color(21, 21, 21))) {
                             // Exit doll profile screen if entered accidentally when emu lags while swiping
                             region.subRegion(120, 597, 132, 88).click()
                             delay(500)
@@ -212,7 +199,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
                             r.findBest(FileTemplate("doll-list/echelon2-captain.png", 0.85), 5)
                                 .maxByOrNull { it.score }?.region
                         if (switchDoll == null) {
-                            checkImg = checkRegion.capture()
+                            checkImg = checkRegion.capture().img
                             if (scrollDown) {
                                 r1.swipeTo(r2, 500)
                             } else {
@@ -237,10 +224,6 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
 
         updateEchelonRepairStatus(1)
 
-        val echelon1Members = gameState.echelons[0].members.map { it.name }
-        wasCancelled =
-            profile.combat.draggers.none { TDoll.lookup(config, it.id)?.name in echelon1Members }
-
         // Sometimes update echelon repair status reads the old dolls name because old doll is still
         // on screen briefly after the switch
         if (scriptStats.sortiesDone >= 1 && gameState.echelons[0].members[slot - 1].name != tdoll.name) {
@@ -256,7 +239,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
         logger.info("Applying doll filters for dragging doll ${tdoll.name}")
         tdoll.apply { applyDollFilters(stars, type, reset) }
         delay(500)
-        region.subRegion(1188, 214, 258, 252)
+        region.subRegion(1260, 180, 371, 317)
             .waitDoesntHave(FileTemplate("doll-list/filtermenu.png"), 5000)
     }
 
@@ -269,12 +252,9 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
 
         // Temporary convenience class for storing doll regions
         class DollRegions(nameImage: BufferedImage, hpImage: BufferedImage) {
-            val tdollOcr = run {
-                val txt = ocr.disableDictionaries()
+            val tdollOcr = ocr.disableDictionaries()
                     .readText(nameImage, threshold = 0.72, invert = true, scale = 0.8)
-                val tdoll = TDoll.lookup(config, txt)
-                txt to tdoll
-            }
+            val tdoll = TDoll.lookup(config, tdollOcr)
             val percent = run {
                 val image = hpImage.pipeline().threshold().toBufferedImage()
                 image.countColor(Color.WHITE) / image.width.toDouble() * 100
@@ -282,37 +262,35 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
         }
 
         for (i in 1..retries) {
-            val cache = region.asCachedRegion()
+            val cache = region.freeze()
             val members = cache.findBest(FileTemplate("formation/stats.png"), 5)
                 .also { logger.info("Found ${it.size} dolls on screen") }
                 .map { it.region }
                 .sortedBy { it.x }
                 .map {
                     DollRegions(
-                        cache.capture().getSubimage(it.x - 153, it.y - 183, 247, 84),
-                        cache.capture().getSubimage(it.x - 133, it.y - 61, 209, 1)
+                        cache.capture().img.getSubimage(it.x - 153, it.y - 183, 247, 84),
+                        cache.capture().img.getSubimage(it.x - 133, it.y - 61, 209, 1)
                     )
                 }
 
             val formatter = DecimalFormat("##.#")
             gameState.echelons[echelon - 1].members.forEachIndexed { j, member ->
                 val dMember = members.getOrNull(j)
-                member.name = dMember?.tdollOcr?.second?.name ?: "Unknown"
+                member.name = dMember?.tdoll?.name ?: "Unknown"
                 member.needsRepair = (dMember?.percent ?: 100.0) < profile.combat.repairThreshold
                 val sPercent = dMember?.percent?.let { formatter.format(it) } ?: "N/A"
-                logger.info("[Repair OCR] Name: ${dMember?.tdollOcr?.first} | HP (%): $sPercent")
+                logger.info("[Repair OCR] Name: ${dMember?.tdollOcr} | HP (%): $sPercent")
             }
 
             // Checking if the ocr results were gibberish
-            // Skip check if game state hasnt been initialized yet
-            val dragger = members.getOrNull(profile.combat.draggerSlot - 1)?.tdollOcr?.second?.name
+            val dragger = members.getOrNull(profile.combat.draggerSlot - 1)?.tdoll?.name
             if (dragger == null || profile.combat.draggers.none { it.id.contains(dragger) }) {
                 logger.info("Update repair status ocr failed after $i attempts, retries remaining: ${retries - i}")
                 if (i == retries) {
                     logger.warn("Could not update repair status after $retries attempts")
                     logger.warn("Check if you set the right T doll as dragger and slot positions")
-                    if (scriptStats.sortiesDone > 1 && members.map { it.tdollOcr.second?.name }
-                            .all { it == null }) {
+                    if (scriptStats.sortiesDone > 1 && members.all { it.tdoll == null }) {
                         wasCancelled = true
                         throw RepairUpdateException()
                     }
@@ -334,37 +312,6 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
         }
     }
 
-    private suspend fun checkRepairs() {
-        logger.info("Checking for repairs")
-        if (gameState.echelons.any { it.needsRepairs() }) {
-            logger.info("Repairs required")
-
-            if (profile.combat.repairThreshold !in 1..100) {
-                scriptRunner.stop("Repairs needed, but repairs are disabled")
-            }
-
-            navigator.navigateTo(LocationId.REPAIR)
-
-            logger.info("Using one-click repair")
-            // one-click repair
-            region.subRegion(1660, 965, 358, 98).click()
-            region.waitHas(FileTemplate("ok.png"), 2000)
-            while (coroutineContext.isActive) {
-                val repairs = ocr.digitsOnly()
-                    .readText(region.subRegion(1472, 689, 68, 42), invert = true)
-                    .toIntOrNull() ?: continue
-                EventBus.publish(RepairEvent(repairs, profile.combat.map, sessionId, elapsedTime))
-
-                logger.info("Repairing $repairs dolls")
-                break
-            }
-            // Click ok
-            region.subRegion(1441, 772, 250, 96).click()
-            gameState.echelons.flatMap { it.members }.forEach { it.needsRepair = false }
-            return
-        }
-    }
-
     //</editor-fold>
 
     //<editor-fold desc="Map Selection and Combat">
@@ -378,7 +325,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
         if (region.doesntHave(FileTemplate("locations/landmarks/combat_menu.png"))) {
             logger.info("Chapter menu not on screen!")
             // Click back button in case one of the maps was opened accidentally
-            region.subRegion(383, 92, 169, 94).click()
+            region.subRegion(324, 92, 169, 94).click()
         }
         clickChapter(chapter)
         logger.info("At combat chapter $chapter")
@@ -396,15 +343,15 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
             when (map.type) {
                 CombatMap.Type.NORMAL -> {
                     // Normal map
-                    region.subRegion(1550, 260, 100, 60).click()
+                    region.subRegion(1428, 260, 100, 60).click()
                 }
                 CombatMap.Type.EMERGENCY -> {
                     logger.info("Selecting emergency map")
-                    region.subRegion(1720, 260, 100, 60).click()
+                    region.subRegion(1599, 260, 100, 60).click()
                 }
                 CombatMap.Type.NIGHT -> {
                     logger.info("Selecting night map")
-                    region.subRegion(1895, 260, 100, 60).click()
+                    region.subRegion(1765, 260, 100, 60).click()
                 }
             }
             // Wait for it to settle
@@ -417,7 +364,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
                 region.subRegion(925, 377 + 177 * (map.number - 1), 440, 130).click()
             }
             else -> {
-                val mapNameR = region.subRegion(1100, 350, 250, 680)
+                val mapNameR = region.subRegion(970, 350, 250, 680)
                 val mapName = "${map.chapter}-${map.number}" // map.name might have suffix
                 withTimeout(10000) {
                     while (coroutineContext.isActive) {
@@ -445,18 +392,17 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
         // button which will be slightly transparent
         logger.info("Entering normal battle at $map")
 
-        region.subRegion(1445, 830, 345, 135)
-            .waitHas(FT("combat/battle/normal.png", 0.85), 5000)?.click()
+        region.waitHas(FT("combat/battle/normal.png", 0.85), 5000)?.click()
             ?: throw ScriptException("Failed to enter normal battle, could not click normal battle button")
 
         delay(1000)
 
         if (checkNeedsEnhancement()) return
 
-        val r = region.subRegion(1712, 882, 448, 198)
+        val r = region.subRegion(1472, 871, 436, 205)
         // Wait for start operation button to appear first before handing off control to
         // map specific files
-        if (r.waitHas(FT("combat/battle/start.png", 0.9), 30000) == null) {
+        if (r.waitHas(FT("combat/battle/start.png", 0.85), 30000) == null) {
             throw ScriptException("Failed to enter normal battle, start operation button didn't appear after 30s")
         }
 
@@ -474,9 +420,9 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
             text.contains("retire", true) -> {
                 logger.info("T-doll limit reached, cancelling sortie")
                 if (profile.factory.enhancement.enabled) {
-                    region.subRegion(1327, 463, 276, 350).click()
+                    region.subRegion(1206, 463, 276, 350).click()
                 } else {
-                    region.subRegion(942, 463, 276, 350).click()
+                    region.subRegion(822, 463, 276, 350).click()
                 }
                 delay(5000)
                 gameState.dollOverflow = true
@@ -485,7 +431,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
             }
             text.contains("dismantle", true) -> {
                 logger.info("Equipment limit reached, cancelling sortie")
-                region.subRegion(942, 463, 276, 350).click()
+                region.subRegion(822, 463, 276, 350).click()
                 delay(5000)
                 gameState.equipOverflow = true
                 gameState.currentGameLocation = GameLocation.find(config, LocationId.FACTORY_MENU)

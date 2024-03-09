@@ -23,9 +23,9 @@ import com.waicool20.cvauto.android.AndroidRegion
 
 class MapRunnerRegions(region: AndroidRegion) {
     /**
-     * 'End Round' button on the bottom right corner
+     * 'End Round' button in the bottom right corner
      */
-    val endBattle = region.subRegion(1884, 929, 242, 123)
+    val endBattle = region.subRegion(1646, 931, 242, 123)
 
     /**
      * Button that toggles planning mode
@@ -35,37 +35,37 @@ class MapRunnerRegions(region: AndroidRegion) {
     /**
      * Button that executes planned path
      */
-    val executePlan = region.subRegion(1894, 921, 250, 131)
+    val executePlan = region.subRegion(1648, 931, 249, 131)
 
     /**
      * Resupply button when deploying echelons
      */
-    val resupply = region.subRegion(1742, 793, 297, 96)
+    val resupply = region.subRegion(1622, 793, 297, 96)
 
     /**
      * OK button that deploys the echelon
      */
-    val deploy = region.subRegion(1772, 929, 224, 83)
+    val deploy = region.subRegion(1624, 910, 248, 94)
 
     /**
      * Start operation button that starts the battle in the beginning
      */
-    val startOperation = region.subRegion(1737, 905, 407, 158)
+    val startOperation = region.subRegion(1525, 910, 183, 158)
 
     /**
      * Pause button that appears at the top of the screen when engaging enemies
      */
-    val pauseButton = region.subRegion(1020, 0, 115, 50)
+    val pauseButton = region.subRegion(902, 0, 115, 50)
 
     /**
      * Region to click when battle ends
      */
-    val battleEndClick = region.subRegion(992, 20, 1100, 75)
+    val battleEndClick = region.subRegion(992, 20, 928, 75)
 
     /**
      * Match window
      */
-    val window = region.subRegion(348, 151, 1281, 929)
+    val window = region.subRegion(255, 151, 1234, 929)
 
     /**
      * Button to open terminate mission menu
@@ -75,22 +75,22 @@ class MapRunnerRegions(region: AndroidRegion) {
     /**
      * Terminate mission button
      */
-    val terminate = region.subRegion(1189, 694, 237, 88)
+    val terminate = region.subRegion(1069, 694, 237, 88)
 
     /**
      * Restart mission button
      */
-    val restart = region.subRegion(737, 694, 237, 88)
+    val restart = region.subRegion(618, 694, 237, 88)
 
     /**
      * Retreat button
      */
-    val retreat = region.subRegion(1471, 908, 250, 96)
+    val retreat = region.subRegion(1352, 908, 250, 96)
 
     /**
      * Choose echelon button on heavy heliport
      */
-    val chooseEchelon = region.subRegion(835, 86, 372, 101)
+    val chooseEchelon = region.subRegion(246, 86, 372, 101)
 
     /**
      * Select Operation button to return to combat menu
@@ -100,5 +100,10 @@ class MapRunnerRegions(region: AndroidRegion) {
     /**
      * Retreat from Combat
      */
-    val retreatCombat = region.subRegion(620, 20, 190, 60)
+    val retreatCombat = region.subRegion(523, 20, 190, 60)
+
+    /**
+     * Post combat, repeat battle button
+     */
+    val repeatCombat = region.subRegion(486, 908, 228, 55)
 }

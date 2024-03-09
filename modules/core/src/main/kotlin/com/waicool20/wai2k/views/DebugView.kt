@@ -193,9 +193,9 @@ class DebugView : CoroutineScopeView() {
                 }
         }
         windowBoundsButton.setOnAction {
-            xSpinner.valueFactory.value = 348
+            xSpinner.valueFactory.value = 255
             ySpinner.valueFactory.value = 151
-            wSpinner.valueFactory.value = 1281
+            wSpinner.valueFactory.value = 1234
             hSpinner.valueFactory.value = 929
         }
         saveButton.setOnAction {
@@ -255,8 +255,8 @@ class DebugView : CoroutineScopeView() {
 
     private fun grabScreenshot(): BufferedImage? {
         return try {
-            val img = lastAndroidDevice?.screens?.firstOrNull()
-                ?.capture()
+            val img = lastAndroidDevice?.displays?.firstOrNull()?.region
+                ?.capture()?.img
                 ?.getSubimage(xSpinner.value, ySpinner.value, wSpinner.value, hSpinner.value)
                 ?: return null
             val imgp = img.pipeline()
@@ -274,8 +274,8 @@ class DebugView : CoroutineScopeView() {
         lastJob?.cancel()
         lastJob = launch(Dispatchers.IO) {
             withContext(Dispatchers.JavaFx) {
-                val maxWidth = device.properties.displayWidth
-                val maxHeight = device.properties.displayHeight
+                val maxWidth = device.displays.first().width
+                val maxHeight = device.displays.first().height
                 xSpinner.valueFactory = IntegerSpinnerValueFactory(0, maxWidth, 0)
                 ySpinner.valueFactory = IntegerSpinnerValueFactory(0, maxHeight, 0)
                 wSpinner.valueFactory = IntegerSpinnerValueFactory(0, maxWidth, maxWidth)
@@ -351,7 +351,7 @@ class DebugView : CoroutineScopeView() {
                     return@launch
                 }
                 val image = grabScreenshot() ?: return@launch
-                val matcher = device.screens[0].matcher
+                val matcher = device.displays.first().region.matcher
                 // Set similarity to 0.6f to make cvauto report the similarity value down to 0.6
                 val (results, duration) = measureTimedValue {
                     try {

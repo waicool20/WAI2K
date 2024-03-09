@@ -21,7 +21,7 @@ tasks {
     withType<AbstractArchiveTask>().configureEach {
         isPreserveFileTimestamps = false
         isReproducibleFileOrder = true
-        destinationDirectory.set(file("$buildDir/artifacts/"))
+        destinationDirectory.set(file("${layout.buildDirectory.asFile.get()}/artifacts/"))
         from(projectDir)
         into("assets")
 
