@@ -83,17 +83,10 @@
     "landmarks": [
       {
         "path": "locations/landmarks/home_status.png",
-        "x": 45,
-        "y": 735,
-        "width": 40,
-        "height": 40
-      },
-      {
-        "path": "locations/landmarks/home_status.png",
-        "x": 45,
-        "y": 904,
-        "width": 40,
-        "height": 40
+        "x": 1121,
+        "y": 510,
+        "width": 45,
+        "height": 45
       }
     ],
     "links": [
@@ -239,10 +232,10 @@
     "landmarks": [
       {
         "path": "locations/landmarks/formation.png",
-        "x": 1670,
-        "y": 880,
-        "width": 60,
-        "height": 60
+        "x": 1222,
+        "y": 52,
+        "width": 55,
+        "height": 55
       }
     ],
     "links": [

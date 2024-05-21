@@ -70,7 +70,7 @@ dependencies {
     implementation("org.controlsfx:controlsfx:11.2.0")
     implementation("org.reflections:reflections:0.10.2")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
-    implementation("ai.djl.pytorch:pytorch-engine:0.21.0")
+    implementation("ai.djl.pytorch:pytorch-engine:0.28.0")
     implementation("com.github.ajalt.clikt:clikt-jvm:4.2.1")
 
     implementation("net.sourceforge.tess4j", "tess4j", "5.8.0") {

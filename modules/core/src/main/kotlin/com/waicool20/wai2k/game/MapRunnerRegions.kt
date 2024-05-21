@@ -30,7 +30,7 @@ class MapRunnerRegions(region: AndroidRegion) {
     /**
      * Button that toggles planning mode
      */
-    val planningMode = region.subRegion(0, 857, 214, 60)
+    val planningMode = region.subRegion(0, 916, 214, 60)
 
     /**
      * Button that executes planned path

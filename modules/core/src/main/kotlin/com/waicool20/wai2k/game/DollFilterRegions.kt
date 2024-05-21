@@ -32,24 +32,24 @@ class DollFilterRegions(region: AndroidRegion) {
      * Map of 1-5 star rating and their regions
      */
     val starRegions = mapOf(
-        6 to region.subRegion(797, 215, 256, 117),
-        5 to region.subRegion(1068, 215, 256, 117),
-        4 to region.subRegion(1339, 215, 256, 117),
-        3 to region.subRegion(797, 349, 256, 117),
-        2 to region.subRegion(1068, 349, 256, 117),
-        1 to region.subRegion(1339, 349, 256, 117)
+        6 to region.subRegion(797, 243, 256, 117),
+        5 to region.subRegion(1068, 243, 256, 117),
+        4 to region.subRegion(1339, 243, 256, 117),
+        3 to region.subRegion(797, 378, 256, 117),
+        2 to region.subRegion(1068, 378, 256, 117),
+        1 to region.subRegion(1339, 378, 256, 117)
     )
 
     /**
      * Map of individual gun types and their regions
      */
     val typeRegions = mapOf(
-        Type.HG to region.subRegion(797, 537, 256, 117),
-        Type.SMG to region.subRegion(1068, 537, 256, 117),
-        Type.RF to region.subRegion(1339, 537, 256, 117),
-        Type.AR to region.subRegion(797, 672, 256, 117),
-        Type.MG to region.subRegion(1068, 672, 256, 117),
-        Type.SG to region.subRegion(1339, 672, 256, 117)
+        Type.HG to region.subRegion(797, 565, 256, 117),
+        Type.SMG to region.subRegion(1068, 565, 256, 117),
+        Type.RF to region.subRegion(1339, 565, 256, 117),
+        Type.AR to region.subRegion(797, 700, 256, 117),
+        Type.MG to region.subRegion(1068, 700, 256, 117),
+        Type.SG to region.subRegion(1339, 700, 256, 117)
     )
 
     /**

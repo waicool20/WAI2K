@@ -646,14 +646,14 @@ abstract class MapRunner(
         val now = System.currentTimeMillis()
         loop@ while (true) {
             val cache = region.freeze()
-            val sample = cache.pickColor(50, 1050)
-            if (sample.isSimilar(Color(16, 16, 16)) &&
-                cache.pickColor(680, 580).isSimilar(Color(222, 223, 74))
+            val sample = cache.pickColor(30, 1037)
+            if (sample.isSimilar(Color(18, 18, 15)) &&
+                cache.pickColor(680, 480).isSimilar(Color(221, 220, 72))
             ) {
                 logger.info("Clicked until transition ($counter times)")
                 break@loop
             }
-            if (sample.isSimilar(Color(247, 0, 74))) {
+            if (sample.isSimilar(Color(195, 44, 88))) {
                 logger.info("Clicked until map ($counter times)")
                 break@loop
             }
@@ -747,7 +747,7 @@ abstract class MapRunner(
      */
     protected suspend fun enterPlanningMode() {
         while (coroutineContext.isActive) {
-            if (region.pickColor(125, 890).isSimilar(Color.WHITE)) {
+            if (region.pickColor(125, mapRunnerRegions.planningMode.y).isSimilar(Color.WHITE)) {
                 logger.info("Entering planning mode")
                 mapRunnerRegions.planningMode.click()
                 delay((3000 * gameState.delayCoefficient).roundToLong())
@@ -766,6 +766,7 @@ abstract class MapRunner(
         for (i in indices) {
             logger.info("Selecting node ${nodes[i]}")
             nodes[i].findRegion().click()
+            delay(200)
         }
     }
 

@@ -449,8 +449,8 @@ class FactoryModule(navigator: Navigator) : ScriptModule(navigator) {
     }
 
     private enum class Count(val keyword: String, val yLabel: Int, val yCount: Int) {
-        DOLL("capa", 790, 840),
-        DOLL_D("capa", 763, 815),
+        DOLL("capa", 840, 787),
+        DOLL_D("capa", 818, 763),
         EQUIP("equip", 763, 815)
     }
 

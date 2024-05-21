@@ -22,9 +22,7 @@ package com.waicool20.wai2k.script.modules.combat
 import com.waicool20.cvauto.core.input.ITouchInterface
 import com.waicool20.cvauto.core.template.FT
 import com.waicool20.cvauto.core.template.FileTemplate
-import com.waicool20.cvauto.core.template.ImageTemplate
 import com.waicool20.cvauto.core.util.countColor
-import com.waicool20.cvauto.core.util.isSimilar
 import com.waicool20.cvauto.core.util.pipeline
 import com.waicool20.wai2k.game.CombatMap
 import com.waicool20.wai2k.game.TDoll
@@ -35,7 +33,10 @@ import com.waicool20.wai2k.script.modules.ScriptModule
 import com.waicool20.wai2k.util.disableDictionaries
 import com.waicool20.wai2k.util.loggerFor
 import com.waicool20.wai2k.util.readText
-import kotlinx.coroutines.*
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.yield
 import java.awt.Color
 import java.awt.image.BufferedImage
 import java.text.DecimalFormat
@@ -171,54 +172,34 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
             val startTime = System.currentTimeMillis()
             logger.info("Switching doll $slot of echelon 1")
             // Dragger region ( excludes stuff below name/type )
-            region.subRegion(237 + (slot - 1) * 273, 206, 247, 544).click(); yield()
-            region.waitHas(FileTemplate("doll-list/lock.png"), 5000)
+            region.subRegion(237, 206, 247, 544).click(); yield()
+            region.waitHas(FT("doll-list/lock.png"), 5000)
 
-            applyFilters(tdoll, false)
-            var switchDoll = region.findBest(FileTemplate("doll-list/echelon2-captain.png"))?.region
+            // Click doll
+            region.subRegion(64 + (slot - 1) * 297, 917, 133, 131).click()
+            // Click search
+            region.subRegion(1648, 820, 262, 46).click()
+            region.waitHas(FT("formation/clear.png"))
+            // Type in text box
+            region.subRegion(562, 507, 723, 73).type(tdoll.name)
 
-            val r1 = region.subRegion(910, 1038, 500, 20)
-            val r2 = r1.copy(y = r1.y - 325)
-            val checkRegion = region.subRegion(185, 360, 60, 60)
-
-            var scrollDown = true
-            var checkImg: BufferedImage
-
-            try {
-                withTimeout(90_000) {
-                    val r = region.subRegion(46, 146, 1542, 934)
-                    while (coroutineContext.isActive) {
-                        if (region.pickColor(0, 300).isSimilar(Color(21, 21, 21))) {
-                            // Exit doll profile screen if entered accidentally when emu lags while swiping
-                            region.subRegion(120, 597, 132, 88).click()
-                            delay(500)
-                            continue
-                        }
-                        // Trying this to improve search reliability, maybe put this upstream in cvauto
-                        switchDoll =
-                            r.findBest(FileTemplate("doll-list/echelon2-captain.png", 0.85), 5)
-                                .maxByOrNull { it.score }?.region
-                        if (switchDoll == null) {
-                            checkImg = checkRegion.capture().img
-                            if (scrollDown) {
-                                r1.swipeTo(r2, 500)
-                            } else {
-                                r2.swipeTo(r1, 500)
-                            }
-                            delay(2000)
-                            if (checkRegion.has(ImageTemplate(checkImg))) {
-                                logger.info("Reached ${if (scrollDown) "bottom" else "top"} of the list")
-                                scrollDown = !scrollDown
-                            }
-                        } else break
-                    }
-                }
-            } catch (e: TimeoutCancellationException) {
-                throw ReplacementDollNotFoundException()
+            region.subRegion(964, 709, 454, 85).clickWhile(period = 1000) {
+                region.doesntHave(FT("doll-list/lock.png"))
             }
+            delay(3000)
 
-            switchDoll?.copy(width = 142)?.click()
-            logger.info("Switching dolls took ${System.currentTimeMillis() - startTime} ms")
+            val switchDoll = region.findBest(FT("doll-list/echelon2-captain.png"))
+                ?.region?.copy(width = 142)
+
+            if (switchDoll == null) {
+                logger.warn("Couldn't find doll to switch!")
+            } else {
+                switchDoll.click()
+                delay(200)
+                // Click OK
+                region.subRegion(1649, 929, 245, 112).click()
+                logger.info("Switching dolls took ${System.currentTimeMillis() - startTime} ms")
+            }
             delay(1250)
         }
 
@@ -253,7 +234,7 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
         // Temporary convenience class for storing doll regions
         class DollRegions(nameImage: BufferedImage, hpImage: BufferedImage) {
             val tdollOcr = ocr.disableDictionaries()
-                    .readText(nameImage, threshold = 0.72, invert = true, scale = 0.8)
+                .readText(nameImage, threshold = 0.72, invert = true, scale = 0.8)
             val tdoll = TDoll.lookup(config, tdollOcr)
             val percent = run {
                 val image = hpImage.pipeline().threshold().toBufferedImage()
