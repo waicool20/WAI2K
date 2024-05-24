@@ -181,7 +181,10 @@ class CombatModule(navigator: Navigator) : ScriptModule(navigator) {
             region.subRegion(1648, 820, 262, 46).click()
             region.waitHas(FT("formation/clear.png"))
             // Type in text box
-            region.subRegion(562, 507, 723, 73).type(tdoll.name)
+            region.subRegion(562, 507, 723, 73).click()
+            delay(750)
+            region.type(tdoll.name)
+            delay(500)
 
             region.subRegion(964, 709, 454, 85).clickWhile(period = 1000) {
                 region.doesntHave(FT("doll-list/lock.png"))
