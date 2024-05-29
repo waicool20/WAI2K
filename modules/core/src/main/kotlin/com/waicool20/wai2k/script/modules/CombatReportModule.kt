@@ -32,6 +32,7 @@ import com.waicool20.wai2k.util.formatted
 import com.waicool20.wai2k.util.loggerFor
 import com.waicool20.wai2k.util.readText
 import kotlinx.coroutines.delay
+import java.time.Duration
 import java.time.Instant
 
 @Suppress("unused")
@@ -84,19 +85,19 @@ class CombatReportModule(navigator: Navigator) : ScriptModule(navigator) {
             CombatReport.Type.NORMAL -> {
                 logger.info("Selecting normal combat reports")
                 region.subRegion(456, 331, 155, 148).click()
-                region.subRegion(717, 406, 115, 48)
+                region.subRegion(708, 406, 135, 48)
             }
             CombatReport.Type.SPECIAL -> {
                 logger.info("Selecting special combat reports")
                 region.subRegion(1034, 331, 155, 148).click()
-                region.subRegion(1295, 406, 115, 48)
+                region.subRegion(1285, 406, 135, 48)
             }
             else -> error("No such combat report type!")
         }
         delay(500)
         val reportsText = ocr.readText(reportRegion).takeWhile { it.isDigit() || it != '/' }
         logger.info("Reports OCR: $reportsText")
-        val reports = reportsText.toIntOrNull()?.coerceAtMost(80)
+        val reports = reportsText.toIntOrNull()?.coerceAtMost(640)
         if (reports == null) {
             logger.warn("Could not determine amount of reports to write")
         } else {
@@ -142,7 +143,7 @@ class CombatReportModule(navigator: Navigator) : ScriptModule(navigator) {
     }
 
     private fun scheduleNextCheck() {
-        gameState.reportsNextCheck = Instant.now().plusSeconds(3600)
+        gameState.reportsNextCheck = Instant.now().plusSeconds(Duration.ofHours(4).seconds)
         logger.info("Next combat report check is in one hour (${gameState.reportsNextCheck.formatted()})")
     }
 }
