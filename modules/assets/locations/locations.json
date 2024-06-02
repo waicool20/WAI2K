@@ -232,10 +232,10 @@
     "landmarks": [
       {
         "path": "locations/landmarks/formation.png",
-        "x": 1222,
-        "y": 52,
-        "width": 55,
-        "height": 55
+        "x": 407,
+        "y": 62,
+        "width": 60,
+        "height": 60
       }
     ],
     "links": [
