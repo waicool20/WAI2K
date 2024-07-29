@@ -45,10 +45,10 @@ class Map0_2(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptCompo
             delay((900 * gameState.delayCoefficient).roundToLong()) //Wait to settle
             gameState.requiresMapInit = false
         }
-        val rEchelons = deployEchelons(nodes[14], nodes[13])
+        val rEchelons = deployEchelons(nodes[0], nodes[1])
         mapRunnerRegions.startOperation.click(); yield()
         waitForGNKSplash()
-        resupplyEchelons(rEchelons + nodes[13])
+        resupplyEchelons(rEchelons + nodes[1])
         planPath()
         waitForTurnEnd(5)
         handleBattleResults()
@@ -56,15 +56,15 @@ class Map0_2(scriptComponent: ScriptComponent) : HomographyMapRunner(scriptCompo
 
     private suspend fun planPath() {
         logger.info("Selecting echelon at command post")
-        nodes[14].findRegion().click()
+        nodes[0].findRegion().click()
 
         enterPlanningMode()
 
-        logger.info("Selecting ${nodes[0]}")
-        nodes[0].findRegion().click()
-
         logger.info("Selecting ${nodes[2]}")
-        nodes[2].findRegion().click(); yield()
+        nodes[2].findRegion().click()
+
+        logger.info("Selecting ${nodes[3]}")
+        nodes[3].findRegion().click(); yield()
 
         logger.info("Executing plan")
         mapRunnerRegions.executePlan.click()

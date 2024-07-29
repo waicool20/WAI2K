@@ -25,6 +25,8 @@ import com.waicool20.wai2k.config.Wai2kPersist
 import com.waicool20.wai2k.config.Wai2kProfile
 import com.waicool20.wai2k.game.location.GameLocation
 import com.waicool20.wai2k.util.Ocr
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.first
 
 interface ScriptComponent {
     val scriptRunner: ScriptRunner
@@ -38,4 +40,55 @@ interface ScriptComponent {
     val scope get() = scriptRunner.sessionScope
     val sessionId get() = scriptRunner.sessionId
     val elapsedTime get() = scriptRunner.elapsedTime
+
+
+    /**
+     * Searches the ADB logs for a certain string, returns false if the op times out or
+     * does not find the regex in the logs
+     */
+    suspend fun waitForLog(
+        str: String,
+        timeout: Long = Long.MAX_VALUE,
+        fn: suspend () -> Unit = {}
+    ): Boolean {
+        val job = scriptRunner.sessionScope.launch {
+            delay(250)
+            while (coroutineContext.isActive) fn()
+        }
+        try {
+            withTimeout(timeout) {
+                scriptRunner.logcatListener!!.lines.first { it.contains(str) }
+            }
+            return true
+        } catch (e: TimeoutCancellationException) {
+            return false
+        } finally {
+            job.cancel()
+        }
+    }
+
+    /**
+     * Searches the ADB logs for a certain regex string, returns false if the op times out or
+     * does not find the regex in the logs
+     */
+    suspend fun waitForLog(
+        regex: Regex,
+        timeout: Long = Long.MAX_VALUE,
+        fn: suspend () -> Unit = {}
+    ): Boolean {
+        val job = scriptRunner.sessionScope.launch {
+            delay(250)
+            while (coroutineContext.isActive) fn()
+        }
+        try {
+            withTimeout(timeout) {
+                scriptRunner.logcatListener!!.lines.first { regex.matchEntire(it) != null }
+            }
+            return true
+        } catch (e: TimeoutCancellationException) {
+            return false
+        } finally {
+            job.cancel()
+        }
+    }
 }

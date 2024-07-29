@@ -68,7 +68,8 @@ class ScriptRunner(
 
     private val logger = loggerFor<ScriptRunner>()
     private var _device: AndroidDevice? = null
-    private var logcatListener: GFL.LogcatListener? = null
+    var logcatListener: GFL.LogcatListener? = null
+        private set
     private var _config = config
     private var _profile = profile
 

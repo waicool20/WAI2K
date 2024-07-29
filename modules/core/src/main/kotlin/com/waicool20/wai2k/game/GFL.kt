@@ -25,8 +25,12 @@ import com.waicool20.wai2k.events.DollDropEvent
 import com.waicool20.wai2k.events.EventBus
 import com.waicool20.wai2k.script.ScriptRunner
 import com.waicool20.wai2k.util.loggerFor
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.concurrent.thread
 
 object GFL {
@@ -36,38 +40,42 @@ object GFL {
 
     class LogcatListener(val scriptRunner: ScriptRunner, val device: AndroidDevice) {
         private val logger = loggerFor<LogcatListener>()
-        private val isRunning = AtomicBoolean(false)
-        private var process: Process? = null
+        private val currentThread = AtomicReference<Thread?>(null)
+        private var currentProcess: Process? = null
+        private val r =
+            Regex("(\\d\\d-\\d\\d) (\\d\\d:\\d\\d:\\d\\d.\\d{3})\\s+(\\d+)\\s+(\\d+)\\s+([VDIWEFS])\\s+(\\w+)\\s+: (.*)\$")
+
         fun start() {
-            if (!isRunning.compareAndSet(false, true)) return
             thread(isDaemon = true, name = "Logcat Listener [${device.serial}]") {
-                while (isRunning.get()) {
-                    if (process == null || process?.isAlive == false) {
-                        if (device.isConnected()) {
-                            ADB.execute("-s", device.serial, "logcat", "-c") // Clear logs
-                            process = ADB.execute("-s", device.serial, "logcat", "Unity:V", "*:S")
-                        } else {
-                            TimeUnit.SECONDS.sleep(5)
-                        }
+                while (!Thread.interrupted()) {
+                    if (!device.isConnected()) {
+                        TimeUnit.SECONDS.sleep(5)
+                        continue
                     }
+                    ADB.execute("-s", device.serial, "logcat", "-c") // Clear logs
+                    val process = ADB.execute("-s", device.serial, "logcat", "Unity:V", "*:S")
                     try {
-                        process?.inputStream?.bufferedReader()?.use { reader ->
-                            reader.forEachLine {
-                                if (!isRunning.get()) process?.destroy()
-                                onNewLine(it)
-                            }
-                        }
+                        process.inputStream.bufferedReader().forEachLine(::onNewLine)
                     } catch (e: Exception) {
                         // Ignore
                     }
                 }
-                isRunning.set(false)
-            }
+                currentProcess?.destroyForcibly()
+                currentThread.set(null)
+            }.also { currentThread.set(it) }
         }
 
         fun stop() {
-            isRunning.compareAndSet(true, false)
+            currentThread.get()?.interrupt()
+            currentProcess?.destroyForcibly()
         }
+
+        private val _lines = MutableSharedFlow<String>(
+            replay = 1,
+            extraBufferCapacity = 2048,
+            onBufferOverflow = BufferOverflow.DROP_OLDEST
+        )
+        val lines = _lines.asSharedFlow()
 
         private val gunCheckRegex = Regex(".*加载热更资源包名.+character(.+)\\.ab.*")
         private var gotGun = false
@@ -76,6 +84,12 @@ object GFL {
             when {
                 !gotGun && l.contains("预制物GetNewGun") -> gotGun = true
                 gotGun -> checkForGun(l)
+            }
+            scriptRunner.sessionScope.launch {
+                val match = r.matchEntire(l) ?: return@launch
+                // date, time, pid, tid, level, tag, msg
+                val (_, _, _, _, _, _, msg) = match.destructured
+                _lines.emit(msg)
             }
         }
 

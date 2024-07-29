@@ -32,11 +32,13 @@ import com.waicool20.wai2k.game.CombatMap
 import com.waicool20.wai2k.game.Echelon
 import com.waicool20.wai2k.game.GFL
 import com.waicool20.wai2k.game.MapRunnerRegions
-import com.waicool20.wai2k.game.location.LocationId
 import com.waicool20.wai2k.script.ScriptComponent
 import com.waicool20.wai2k.script.ScriptTimeOutException
 import com.waicool20.wai2k.util.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import org.reflections.Reflections
 import java.awt.Color
 import java.awt.image.BufferedImage
@@ -539,36 +541,28 @@ abstract class MapRunner(
      */
     protected suspend fun handleBattleResults() {
         logger.info("Battle ended, clicking through battle results")
-        val location = if (this@MapRunner is EventMapRunner) {
+        if (this@MapRunner is EventMapRunner) {
             logger.info("Waiting for event menu")
-            locations.getValue(LocationId.EVENT)
         } else {
             logger.info("Waiting for combat menu")
-            locations.getValue(LocationId.COMBAT_MENU)
         }
 
-        try {
-            withTimeout(60000) {
-                while (!location.isInRegion(region)) {
-                    repeat(Random.nextInt(2, 4)) {
-                        mapRunnerRegions.battleEndClick.click()
-                        delay(50)
-                    }
-                    endTurn()
-                }
+        waitForLog("MissionSelectionController:Start()") {
+            repeat(Random.nextInt(2, 4)) {
+                mapRunnerRegions.battleEndClick.click()
+                delay(50)
             }
-        } catch (e: TimeoutCancellationException) {
-            throw ScriptTimeOutException("Waiting to exit battle", e)
-        } finally {
-            EventBus.publish(
-                SortieDoneEvent(
-                    profile.combat.map,
-                    if (this is CorpseDragging) profile.combat.draggers else emptyList(),
-                    sessionId,
-                    elapsedTime
-                )
-            )
+            delay(500)
         }
+        delay(5000)
+        EventBus.publish(
+            SortieDoneEvent(
+                profile.combat.map,
+                if (this is CorpseDragging) profile.combat.draggers else emptyList(),
+                sessionId,
+                elapsedTime
+            )
+        )
     }
 
     protected suspend fun terminateMission(incrementSorties: Boolean = true) {
@@ -700,10 +694,10 @@ abstract class MapRunner(
     }
 
     private suspend fun endTurn() {
-        mapRunnerRegions.endBattle.clickWhile {
-            ocr.readText(this, threshold = 0.73).contains("end", true)
+        waitForLog("Dequeue:Mission/endTurn") {
+            mapRunnerRegions.endBattle.click()
+            delay(200)
         }
-        region.waitHas(FT("ok.png"), 1000)?.click()
     }
 
     /**
