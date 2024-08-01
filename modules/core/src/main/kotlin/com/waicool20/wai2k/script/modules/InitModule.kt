@@ -21,7 +21,6 @@ package com.waicool20.wai2k.script.modules
 
 import com.waicool20.cvauto.core.AnyRegion
 import com.waicool20.cvauto.core.template.FT
-import com.waicool20.cvauto.core.util.isSimilar
 import com.waicool20.wai2k.game.LogisticsSupport
 import com.waicool20.wai2k.game.LogisticsSupport.Assignment
 import com.waicool20.wai2k.game.location.LocationId
@@ -34,7 +33,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import java.awt.Color
 import java.awt.image.BufferedImage
 import java.awt.image.RasterFormatException
 import java.time.Duration
@@ -207,13 +205,7 @@ class InitModule(navigator: Navigator) : ScriptModule(navigator) {
 
     private suspend fun terminateExistingBattle() {
         logger.info("Detected ongoing battle, terminating it first")
-        while (coroutineContext.isActive) {
-            val capture = region.freeze()
-            // Check if in transition to map
-            if (capture.pickColor(50, 1050).isSimilar(Color(16, 16, 16)) &&
-                capture.pickColor(680, 580).isSimilar(Color(222, 223, 74))
-            ) break
-            // Region that contains the word `RESUME` if there's an ongoing battle
+        waitForLog("地图位置初始化", fnMaxIter = 3) {
             region.subRegion(1700, 780, 170, 75).click()
             navigator.checkLogistics()
         }

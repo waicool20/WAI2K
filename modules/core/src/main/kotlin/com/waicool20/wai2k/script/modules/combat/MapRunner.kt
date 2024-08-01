@@ -546,7 +546,7 @@ abstract class MapRunner(
         } else {
             logger.info("Waiting for combat menu")
         }
-        waitForLog("UICombatSettlement(Clone)")
+        waitForLog("UICombatSettlement")
         waitForLog("MissionSelectionController:Start()") {
             repeat(Random.nextInt(2, 4)) {
                 mapRunnerRegions.battleEndClick.click()

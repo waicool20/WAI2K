@@ -48,23 +48,12 @@ interface ScriptComponent {
      */
     suspend fun waitForLog(
         str: String,
+        period: Long = -1,
         timeout: Long = Long.MAX_VALUE,
-        fn: suspend () -> Unit = {}
+        fnMaxIter: Int = Int.MAX_VALUE,
+        fn: (suspend () -> Unit)? = null
     ): Boolean {
-        val job = scriptRunner.sessionScope.launch {
-            delay(250)
-            while (coroutineContext.isActive) fn()
-        }
-        try {
-            withTimeout(timeout) {
-                scriptRunner.logcatListener!!.lines.first { it.contains(str) }
-            }
-            return true
-        } catch (e: TimeoutCancellationException) {
-            return false
-        } finally {
-            job.cancel()
-        }
+        return waitForLog(Regex(".*$str.*"), period, timeout, fnMaxIter, fn)
     }
 
     /**
@@ -73,22 +62,31 @@ interface ScriptComponent {
      */
     suspend fun waitForLog(
         regex: Regex,
+        period: Long = -1,
         timeout: Long = Long.MAX_VALUE,
-        fn: suspend () -> Unit = {}
+        fnMaxIter: Int = Int.MAX_VALUE,
+        fn: (suspend () -> Unit)? = null
     ): Boolean {
-        val job = scriptRunner.sessionScope.launch {
-            delay(250)
-            while (coroutineContext.isActive) fn()
-        }
-        try {
-            withTimeout(timeout) {
-                scriptRunner.logcatListener!!.lines.first { regex.matchEntire(it) != null }
+        val log = scriptRunner.sessionScope.async {
+            try {
+                withTimeout(timeout) {
+                    scriptRunner.logcatListener!!.lines.first { regex.matchEntire(it) != null }
+                }
+                true
+            } catch (e: TimeoutCancellationException) {
+                false
             }
-            return true
-        } catch (e: TimeoutCancellationException) {
-            return false
-        } finally {
-            job.cancel()
         }
+        val job = scriptRunner.sessionScope.launch {
+            if (fn == null) return@launch
+            var i = 0
+            while (coroutineContext.isActive && i++ < fnMaxIter) {
+                fn()
+                if (period > 0) delay(period)
+            }
+        }
+        val b = log.await()
+        job.cancel()
+        return b
     }
 }
